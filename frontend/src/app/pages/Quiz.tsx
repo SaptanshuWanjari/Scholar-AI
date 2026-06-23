@@ -12,6 +12,7 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
+import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { Page } from "../components/Page";
@@ -257,6 +258,11 @@ function Builder({
             )}
           </Button>
         </div>
+        <GenerationSteps
+          steps={["Searching your library", "Selecting relevant sources", "Writing questions", "Validating answers"]}
+          loading={loading}
+          className="mt-4"
+        />
         {error && <p className="mt-3 text-sm text-danger">{error}</p>}
       </div>
 

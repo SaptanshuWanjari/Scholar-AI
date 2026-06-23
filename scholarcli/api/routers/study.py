@@ -6,12 +6,15 @@ structured shapes the frontend expects.
 
 from __future__ import annotations
 
+import json
+
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import StreamingResponse
 
 from scholarcli.api import parsers
 from scholarcli.api.activity_service import record_activity
-from scholarcli.api.rag_service import run_ask
+from scholarcli.api.rag_service import run_ask, stream_ask
 from scholarcli.api.schemas import (
     DiagramOut,
     FlashcardOut,
@@ -79,12 +82,31 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
     query = f"Generate a {kind} diagram about: {topic}"
     result = await run_in_threadpool(run_ask, query, req.course, "mermaid")
     mermaid = parsers.strip_mermaid_fences(result["content"])
+    course_name = req.course or "All courses"
+    kind_label = kind.title()
+    diagram_id = _stable_id("dg", topic, kind)
+
+    # Persist grounded diagrams so the library survives reloads.
+    if result["grounded"] and mermaid.strip():
+        from scholarcli.storage import get_session
+        from scholarcli.storage.models import Diagram
+
+        session = get_session()
+        try:
+            row = Diagram(title=topic, course=course_name, kind=kind_label, mermaid=mermaid)
+            session.add(row)
+            session.commit()
+            session.refresh(row)
+            diagram_id = str(row.id)
+        finally:
+            session.close()
+
     record_activity("diagram", f"Generated diagram: {topic}", req.course or "")
     return DiagramOut(
-        id=_stable_id("dg", topic, kind),
+        id=diagram_id,
         title=topic,
-        course=req.course or "All courses",
-        kind=kind.title(),
+        course=course_name,
+        kind=kind_label,
         mermaid=mermaid,
         grounded=result["grounded"],
     )
@@ -123,4 +145,35 @@ async def generate_revision(req: GenerateRevisionRequest) -> RevisionOut:
         title=subject,
         markdown=result["content"],
         grounded=result["grounded"],
+    )
+
+
+@router.post("/revision/generate/stream")
+async def generate_revision_stream(req: GenerateRevisionRequest) -> StreamingResponse:
+    subject = (req.topic or req.course or "").strip()
+    if not subject:
+        raise HTTPException(status_code=400, detail="topic or course is required")
+    format_hint = {
+        "notes": "concise revision notes",
+        "concepts": "a list of key concepts with short explanations",
+        "formulas": "a formula sheet with each formula explained",
+        "summary": "a high-level summary",
+    }[req.format]
+    query = f"Create {format_hint} for: {subject}"
+    record_activity("revision", f"Generated revision: {subject}", req.course or "")
+
+    def event_stream():
+        try:
+            for event in stream_ask(query, req.course, "study_notes"):
+                # Attach title on the done event so the frontend can label the result
+                if event.get("type") == "done":
+                    event["title"] = subject
+                yield f"data: {json.dumps(event)}\n\n"
+        except Exception as exc:  # noqa: BLE001
+            yield f"data: {json.dumps({'type': 'error', 'value': str(exc)})}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )

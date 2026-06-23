@@ -13,6 +13,7 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
+import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { Page, SectionTitle } from "../components/Page";
@@ -231,6 +232,11 @@ export function Flashcards() {
             )}
           </Button>
         </div>
+        <GenerationSteps
+          steps={["Searching your library", "Extracting key concepts", "Writing cards", "Formatting deck"]}
+          loading={generating}
+          className="mt-3"
+        />
       </div>
 
       {/* Decks */}

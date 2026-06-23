@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Network, Sparkles, Loader2 } from "lucide-react";
+import { GenerationSteps } from "../components/GenerationSteps";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
@@ -216,6 +217,16 @@ export function MindMaps() {
           </Button>
         </div>
       </div>
+
+      {loading && (
+        <div className="border-b border-border px-6 py-3">
+          <GenerationSteps
+            steps={["Searching your library", "Mapping concepts", "Building hierarchy", "Assembling tree"]}
+            loading={loading}
+            interval={2000}
+          />
+        </div>
+      )}
 
       <div className="relative min-h-0 flex-1">
         {loading ? (

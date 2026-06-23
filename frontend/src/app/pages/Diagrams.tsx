@@ -1,5 +1,6 @@
 import { Component, useEffect, useState, type ReactNode } from "react";
-import { Workflow, Copy, Check, Download, FileImage, Code2, Sparkles, Loader2, AlertCircle } from "lucide-react";
+import { Workflow, Copy, Check, Download, FileImage, Code2, Sparkles, Loader2, AlertCircle, Trash2 } from "lucide-react";
+import { GenerationSteps } from "../components/GenerationSteps";
 import { toast } from "sonner";
 import { DiagramViewer } from "../components/DiagramViewer";
 import { Button } from "../components/ui/button";
@@ -13,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { diagrams as mockDiagrams } from "../lib/mock-data";
 import { api } from "../lib/api";
 import type { Course, DiagramItem } from "../lib/types";
 import { cn } from "../components/ui/utils";
@@ -25,8 +25,8 @@ const DIAGRAM_TYPES = [
 ] as const;
 
 export function Diagrams() {
-  const [items, setItems] = useState<DiagramItem[]>(mockDiagrams);
-  const [active, setActive] = useState<DiagramItem>(mockDiagrams[0]);
+  const [items, setItems] = useState<DiagramItem[]>([]);
+  const [active, setActive] = useState<DiagramItem | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCode, setShowCode] = useState(false);
 
@@ -47,10 +47,34 @@ export function Diagrams() {
       .catch(() => {
         /* leave course selector with just "No course" */
       });
+    api
+      .listDiagrams()
+      .then((ds) => {
+        if (cancelled) return;
+        setItems(ds);
+        setActive((cur) => cur ?? ds[0] ?? null);
+      })
+      .catch(() => {
+        /* empty library */
+      });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  const remove = async (id: string) => {
+    try {
+      await api.deleteDiagram(id);
+      setItems((prev) => {
+        const next = prev.filter((d) => d.id !== id);
+        setActive((cur) => (cur?.id === id ? next[0] ?? null : cur));
+        return next;
+      });
+      toast.success("Diagram deleted");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete diagram");
+    }
+  };
 
   const generate = async () => {
     const t = topic.trim();
@@ -88,6 +112,7 @@ export function Diagrams() {
   };
 
   const copy = () => {
+    if (!active) return;
     navigator.clipboard.writeText(active.mermaid);
     setCopied(true);
     toast.success("Mermaid copied to clipboard");
@@ -103,19 +128,24 @@ export function Diagrams() {
         </div>
         <ScrollArea className="flex-1">
           <div className="space-y-1 p-2">
+            {items.length === 0 && (
+              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+                No diagrams yet. Generate one to get started.
+              </div>
+            )}
             {items.map((d) => (
-              <button
+              <div
                 key={d.id}
                 onClick={() => setActive(d)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors",
-                  active.id === d.id ? "bg-violet-soft" : "hover:bg-accent/40",
+                  "group flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-left transition-colors",
+                  active?.id === d.id ? "bg-violet-soft" : "hover:bg-accent/40",
                 )}
               >
                 <div
                   className={cn(
                     "flex size-9 shrink-0 items-center justify-center rounded-lg",
-                    active.id === d.id ? "bg-primary text-white" : "bg-muted text-muted-foreground",
+                    active?.id === d.id ? "bg-primary text-white" : "bg-muted text-muted-foreground",
                   )}
                 >
                   <Workflow className="size-4" />
@@ -124,7 +154,18 @@ export function Diagrams() {
                   <div className="truncate text-sm font-medium">{d.title}</div>
                   <div className="truncate text-xs text-muted-foreground">{d.kind}</div>
                 </div>
-              </button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void remove(d.id);
+                  }}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </div>
             ))}
           </div>
         </ScrollArea>
@@ -177,41 +218,58 @@ export function Diagrams() {
             {generating ? "Generating..." : "Generate diagram"}
           </Button>
         </div>
+        <GenerationSteps
+          steps={["Searching your library", "Analyzing relationships", "Building diagram structure", "Rendering Mermaid"]}
+          loading={generating}
+          className="border-b border-border px-6 py-3"
+          interval={2200}
+        />
 
-        <div className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{active.title}</span>
-            <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
-              {active.kind}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setShowCode((s) => !s)}>
-              <Code2 className="size-3.5" /> {showCode ? "Hide" : "Show"} code
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={copy}>
-              {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
-              Copy Mermaid
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.success("Exported as SVG")}>
-              <Download className="size-3.5" /> SVG
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.success("Exported as PNG")}>
-              <FileImage className="size-3.5" /> PNG
-            </Button>
-          </div>
-        </div>
+        {active ? (
+          <>
+            <div className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{active.title}</span>
+                <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
+                  {active.kind}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setShowCode((s) => !s)}>
+                  <Code2 className="size-3.5" /> {showCode ? "Hide" : "Show"} code
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={copy}>
+                  {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
+                  Copy Mermaid
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.success("Exported as SVG")}>
+                  <Download className="size-3.5" /> SVG
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.success("Exported as PNG")}>
+                  <FileImage className="size-3.5" /> PNG
+                </Button>
+              </div>
+            </div>
 
-        <div className="space-y-4 p-6">
-          <DiagramErrorBoundary key={active.id} code={active.mermaid}>
-            <DiagramViewer code={active.mermaid} />
-          </DiagramErrorBoundary>
-          {showCode && (
-            <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-4 font-mono text-[13px] text-foreground/80">
-              {active.mermaid}
-            </pre>
-          )}
-        </div>
+            <div className="space-y-4 p-6">
+              <DiagramErrorBoundary key={active.id} code={active.mermaid}>
+                <DiagramViewer code={active.mermaid} />
+              </DiagramErrorBoundary>
+              {showCode && (
+                <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-4 font-mono text-[13px] text-foreground/80">
+                  {active.mermaid}
+                </pre>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="flex h-[60vh] flex-col items-center justify-center gap-3 text-center text-muted-foreground">
+            <div className="flex size-12 items-center justify-center rounded-xl bg-violet-soft text-primary">
+              <Workflow className="size-6" />
+            </div>
+            <div className="text-sm">No diagram selected — generate one above.</div>
+          </div>
+        )}
       </div>
     </div>
   );

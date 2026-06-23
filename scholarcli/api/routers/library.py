@@ -8,6 +8,7 @@ from scholarcli.api.activity_service import record_activity
 from scholarcli.api.schemas import (
     CardReview,
     DeckOut,
+    DiagramOut,
     FlashcardOut,
     QuizOut,
     QuizQuestionOut,
@@ -15,7 +16,7 @@ from scholarcli.api.schemas import (
     SaveQuizRequest,
 )
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Card, Deck, SavedQuiz
+from scholarcli.storage.models import Card, Deck, Diagram, SavedQuiz
 
 router = APIRouter(prefix="/api", tags=["library"])
 
@@ -199,6 +200,42 @@ def delete_quiz(quiz_id: int) -> None:
         if not quiz:
             raise HTTPException(status_code=404, detail="Quiz not found")
         session.delete(quiz)
+        session.commit()
+    finally:
+        session.close()
+
+
+# ---------------------------------------------------------------------------
+# Saved diagrams
+# ---------------------------------------------------------------------------
+
+@router.get("/diagrams", response_model=list[DiagramOut])
+def list_diagrams() -> list[DiagramOut]:
+    session = get_session()
+    try:
+        return [
+            DiagramOut(
+                id=str(d.id),
+                title=d.title,
+                course=d.course,
+                kind=d.kind,
+                mermaid=d.mermaid,
+                grounded=True,
+            )
+            for d in session.query(Diagram).order_by(Diagram.created_at.desc()).all()
+        ]
+    finally:
+        session.close()
+
+
+@router.delete("/diagrams/{diagram_id}", status_code=204)
+def delete_diagram(diagram_id: int) -> None:
+    session = get_session()
+    try:
+        d = session.get(Diagram, diagram_id)
+        if not d:
+            raise HTTPException(status_code=404, detail="Diagram not found")
+        session.delete(d)
         session.commit()
     finally:
         session.close()

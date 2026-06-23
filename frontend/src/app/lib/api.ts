@@ -346,6 +346,12 @@ export const api = {
   generateDiagram(topic: string, course?: string | null, type?: string): Promise<GeneratedDiagram> {
     return request<GeneratedDiagram>("/api/diagrams/generate", json({ topic, course: course ?? null, type }));
   },
+  listDiagrams(): Promise<DiagramItem[]> {
+    return request<DiagramItem[]>("/api/diagrams");
+  },
+  deleteDiagram(id: string): Promise<void> {
+    return request<void>(`/api/diagrams/${id}`, { method: "DELETE" });
+  },
   generateMindmap(topic: string, course?: string | null): Promise<GeneratedMindmap> {
     return request<GeneratedMindmap>("/api/mindmaps/generate", json({ topic, course: course ?? null }));
   },
@@ -353,6 +359,44 @@ export const api = {
     opts: { topic?: string; course?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
   ): Promise<GeneratedRevision> {
     return request<GeneratedRevision>("/api/revision/generate", json(opts));
+  },
+  async revisionStream(
+    opts: { topic?: string; course?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
+    handlers: {
+      onToken: (chunk: string) => void;
+      onDone?: (meta: { grounded: boolean; title: string }) => void;
+      onError?: (message: string) => void;
+      signal?: AbortSignal;
+    },
+  ): Promise<void> {
+    const res = await fetch(`${BASE}/api/revision/generate/stream`, {
+      ...json(opts),
+      signal: handlers.signal,
+    });
+    if (!res.ok || !res.body) {
+      handlers.onError?.(`Request failed (${res.status})`);
+      return;
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let idx: number;
+      while ((idx = buffer.indexOf("\n\n")) >= 0) {
+        const raw = buffer.slice(0, idx);
+        buffer = buffer.slice(idx + 2);
+        const line = raw.split("\n").find((l) => l.startsWith("data:"));
+        if (!line) continue;
+        let evt: any;
+        try { evt = JSON.parse(line.slice(5).trim()); } catch { continue; }
+        if (evt.type === "token") handlers.onToken(evt.value);
+        else if (evt.type === "done") handlers.onDone?.({ grounded: evt.grounded, title: evt.title ?? "" });
+        else if (evt.type === "error") handlers.onError?.(evt.value);
+      }
+    }
   },
   search(q: string, filter = "all"): Promise<SearchResult[]> {
     const p = new URLSearchParams({ q, filter });

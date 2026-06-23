@@ -126,6 +126,19 @@ class Notebook(Base):
     )
 
 
+class Diagram(Base):
+    __tablename__ = "diagrams"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    kind: Mapped[str] = mapped_column(String(64), nullable=False, default="Flowchart")
+    mermaid: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class Concept(Base):
     __tablename__ = "concepts"
 

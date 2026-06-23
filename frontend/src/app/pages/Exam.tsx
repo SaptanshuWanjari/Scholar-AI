@@ -23,6 +23,7 @@ import {
   CircleDot,
   Loader2,
 } from "lucide-react";
+import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
@@ -251,6 +252,11 @@ function Builder({
             )}
           </Button>
         </div>
+        <GenerationSteps
+          steps={["Searching your library", "Drafting questions", "Calibrating difficulty", "Formatting exam"]}
+          loading={generating}
+          interval={2500}
+        />
       </div>
     </Page>
   );

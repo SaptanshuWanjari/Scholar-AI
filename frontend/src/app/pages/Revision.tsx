@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Sparkles,
   NotebookPen,
@@ -61,6 +61,7 @@ export function Revision() {
   const [output, setOutput] = useState<string | null>(null);
   const [title, setTitle] = useState<string | null>(null);
   const [ungrounded, setUngrounded] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,12 +70,8 @@ export function Revision() {
       .then((cs) => {
         if (!cancelled) setCourses(cs);
       })
-      .catch(() => {
-        /* leave course selector with just "No course" */
-      });
-    return () => {
-      cancelled = true;
-    };
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, []);
 
   const generate = async () => {
@@ -84,27 +81,45 @@ export function Revision() {
       toast.error("Enter a topic or pick a course to generate a study sheet");
       return;
     }
+
+    abortRef.current?.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
     setLoading(true);
     setOutput(null);
     setTitle(null);
     setUngrounded(false);
+
+    let streamed = "";
     try {
-      const result = await api.generateRevision({
-        topic: t || undefined,
-        course: selectedCourse,
-        format,
-      });
-      const notCovered = !result.grounded || looksNotCovered(result.markdown);
-      setOutput(result.markdown);
-      setTitle(result.title);
-      setUngrounded(notCovered);
-      if (notCovered) {
-        toast.warning("This topic may not be covered by your uploaded documents");
-      } else {
-        toast.success("Study sheet generated");
-      }
+      await api.revisionStream(
+        { topic: t || undefined, course: selectedCourse, format },
+        {
+          signal: ctrl.signal,
+          onToken: (chunk) => {
+            streamed += chunk;
+            setOutput(streamed);
+          },
+          onDone: ({ grounded, title: t }) => {
+            const notCovered = !grounded || looksNotCovered(streamed);
+            setTitle(t || null);
+            setUngrounded(notCovered);
+            if (notCovered) {
+              toast.warning("This topic may not be covered by your uploaded documents");
+            } else {
+              toast.success("Study sheet generated");
+            }
+          },
+          onError: (msg) => {
+            toast.error(msg || "Failed to generate study sheet");
+          },
+        },
+      );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate study sheet");
+      if ((err as any)?.name !== "AbortError") {
+        toast.error(err instanceof Error ? err.message : "Failed to generate study sheet");
+      }
     } finally {
       setLoading(false);
     }
@@ -183,12 +198,11 @@ export function Revision() {
           </div>
 
           <Button
-            onClick={generate}
-            disabled={loading}
+            onClick={loading ? () => { abortRef.current?.abort(); setLoading(false); } : generate}
             className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {loading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-            {loading ? "Generating…" : "Generate"}
+            {loading ? "Stop" : "Generate"}
           </Button>
         </div>
 
@@ -251,14 +265,9 @@ export function Revision() {
           )}
         </div>
         <div className="mx-auto max-w-3xl px-8 py-8">
-          {loading ? (
-            <div className="flex flex-col items-center pt-24 text-muted-foreground">
-              <Loader2 className="size-6 animate-spin text-primary" />
-              <p className="mt-3 text-sm">Synthesizing your study sheet…</p>
-            </div>
-          ) : output ? (
+          {output ? (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              {ungrounded && (
+              {!loading && ungrounded && (
                 <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
                   <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                   <span>
@@ -268,7 +277,15 @@ export function Revision() {
                 </div>
               )}
               <MarkdownRenderer content={output} />
+              {loading && (
+                <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-primary" />
+              )}
             </motion.div>
+          ) : loading ? (
+            <div className="flex flex-col items-center pt-24 text-muted-foreground">
+              <Loader2 className="size-6 animate-spin text-primary" />
+              <p className="mt-3 text-sm">Retrieving sources…</p>
+            </div>
           ) : (
             <div className="flex flex-col items-center pt-24 text-center text-muted-foreground">
               <Sparkles className="size-6 text-primary/60" />
