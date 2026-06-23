@@ -43,7 +43,7 @@ interface RevisionState {
   setField: <K extends keyof RevisionState>(key: K, value: RevisionState[K]) => void;
   generate: () => Promise<void>;
   stop: () => void;
-  saveRevision: () => void;
+  saveRevision: (auto?: boolean) => void;
   loadRevision: (id: string) => void;
 }
 
@@ -65,9 +65,15 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
     controller = null;
     set({ loading: false });
   },
-  saveRevision: () => {
+  saveRevision: (auto = false) => {
     const { output, title, topic, course, format, savedRevisions } = get();
     if (!output) return;
+    
+    // Prevent duplicate saves if we just auto-saved this output
+    if (auto && savedRevisions.length > 0 && savedRevisions[0].content === output) {
+      return;
+    }
+
     const newRev: SavedRevision = {
       id: Date.now().toString(),
       title: title || "Untitled Revision",
@@ -78,7 +84,9 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       timestamp: Date.now(),
     };
     set({ savedRevisions: [newRev, ...savedRevisions] });
-    toast.success("Revision saved");
+    if (!auto) {
+      toast.success("Revision saved");
+    }
   },
   loadRevision: (id: string) => {
     const { savedRevisions } = get();
@@ -127,8 +135,9 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
             if (notCovered) {
               toast.warning("This topic may not be covered by your uploaded documents");
             } else {
-              toast.success("Study sheet generated");
+              toast.success("Study sheet generated and auto-saved");
             }
+            get().saveRevision(true);
           },
           onError: (msg) => {
             toast.error(msg || "Failed to generate study sheet");

@@ -16,6 +16,6 @@ def retrieve(state: GraphState) -> GraphState:
 
     # embed_query returns list[float].
     query_vector: list[float] = emb.embed_query(query)
-    results = search(query_vector, top_k=s.retrieval.top_k, course=course)
+    results = search(query_vector, top_k=s.retrieval.top_k, course=course, document=state.get("document"))
     state["retrieved"] = results
     return state

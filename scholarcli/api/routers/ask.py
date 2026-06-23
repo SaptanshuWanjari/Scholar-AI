@@ -21,7 +21,7 @@ async def ask(payload: AskRequest) -> AskResponse:
     if not question:
         raise HTTPException(status_code=400, detail="question is required")
     result = await run_in_threadpool(
-        rag_service.run_ask, question, payload.course, payload.route
+        rag_service.run_ask, question, payload.course, payload.document, payload.route
     )
     record_activity("ask", f"Asked: {question}", payload.course or "")
     return AskResponse(
@@ -44,7 +44,7 @@ async def ask_stream(payload: AskRequest) -> StreamingResponse:
     def event_stream():
         try:
             for event in rag_service.stream_ask(
-                question, payload.course, payload.route
+                question, payload.course, payload.document, payload.route
             ):
                 yield f"data: {json.dumps(event)}\n\n"
         except Exception as exc:  # noqa: BLE001 — report errors over the stream

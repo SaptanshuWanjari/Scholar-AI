@@ -311,6 +311,12 @@ export const api = {
   createCourse(name: string): Promise<Course> {
     return request<Course>("/api/courses", json({ name }));
   },
+  updateCourse(id: string, name: string): Promise<Course> {
+    return request<Course>(`/api/courses/${id}`, json({ name }), { method: "PUT" });
+  },
+  deleteCourse(id: string): Promise<void> {
+    return request<void>(`/api/courses/${id}`, undefined, { method: "DELETE" });
+  },
 
   // ---- Documents ----
   listDocuments(course?: string, search?: string): Promise<DocumentItem[]> {

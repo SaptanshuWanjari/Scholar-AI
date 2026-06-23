@@ -63,7 +63,7 @@ def add_chunks(rows: list[dict]) -> None:
         db.create_table(TABLE_NAME, data=rows)
 
 
-def search(query_vector: list[float], top_k: int = 5, course: str | None = None) -> list[dict]:
+def search(query_vector: list[float], top_k: int = 5, course: str | None = None, document: str | None = None) -> list[dict]:
     """Return nearest chunks as dicts, closest first.
 
     Result includes ``_distance`` key (LanceDB cosine; lower = closer).
@@ -73,8 +73,16 @@ def search(query_vector: list[float], top_k: int = 5, course: str | None = None)
         return []
     tbl = _open_table()
     q = tbl.search(query_vector).metric("cosine").limit(top_k)
+    
+    filters = []
     if course:
-        q = q.where(f"course = '{course}'", prefilter=True)
+        filters.append(f"course = '{course}'")
+    if document:
+        filters.append(f"document_id = {document}")
+        
+    if filters:
+        q = q.where(" AND ".join(filters), prefilter=True)
+        
     return q.to_list()
 
 

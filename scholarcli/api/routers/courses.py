@@ -51,3 +51,35 @@ def create_course(payload: CourseCreate) -> CourseOut:
         return _serialize(course)
     finally:
         session.close()
+
+@router.put("/{course_id}", response_model=CourseOut)
+def update_course(course_id: int, payload: CourseCreate) -> CourseOut:
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Course name is required")
+    session = get_session()
+    try:
+        course = session.query(Course).get(course_id)
+        if not course:
+            raise HTTPException(status_code=404, detail="Course not found")
+        existing = session.query(Course).filter(Course.name == name).first()
+        if existing and existing.id != course_id:
+            raise HTTPException(status_code=400, detail="Course with this name already exists")
+        course.name = name
+        session.commit()
+        session.refresh(course)
+        return _serialize(course)
+    finally:
+        session.close()
+
+@router.delete("/{course_id}", status_code=204)
+def delete_course(course_id: int) -> None:
+    session = get_session()
+    try:
+        course = session.query(Course).get(course_id)
+        if not course:
+            raise HTTPException(status_code=404, detail="Course not found")
+        session.delete(course)
+        session.commit()
+    finally:
+        session.close()

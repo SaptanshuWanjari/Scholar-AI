@@ -12,6 +12,7 @@ import {
   Workflow,
   Network,
   Search,
+  FolderOpen,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -28,6 +29,7 @@ export const navItems: NavItem[] = [
   { label: "Dashboard", to: "/", icon: LayoutDashboard, shortcut: "D", group: "main" },
   { label: "Knowledge", to: "/knowledge", icon: Library, shortcut: "K", group: "main" },
   { label: "Documents", to: "/documents", icon: FileText, shortcut: "O", group: "main" },
+  { label: "Courses", to: "/courses", icon: FolderOpen, shortcut: "C", group: "workspace" },
   { label: "Ask AI", to: "/ask", icon: Sparkles, shortcut: "A", group: "main" },
   { label: "Notebooks", to: "/notebooks", icon: Notebook, shortcut: "N", group: "workspace" },
   { label: "Reading", to: "/reading", icon: BookOpen, shortcut: "E", group: "workspace" },

@@ -27,6 +27,7 @@ class SourceOut(BaseModel):
 class AskRequest(BaseModel):
     question: str
     course: str | None = None
+    document: str | None = None
     route: str | None = None  # force a study mode; None = let the router decide
 
 
@@ -152,6 +153,7 @@ class ModelsList(BaseModel):
 class GenerateFlashcardsRequest(BaseModel):
     topic: str
     course: str | None = None
+    document: str | None = None
     count: int = 8
 
 
@@ -175,6 +177,7 @@ class FlashcardSet(BaseModel):
 class GenerateQuizRequest(BaseModel):
     topic: str
     course: str | None = None
+    document: str | None = None
     difficulty: Literal["Easy", "Medium", "Hard"] = "Medium"
 
 
@@ -199,6 +202,7 @@ class QuizOut(BaseModel):
 class GenerateDiagramRequest(BaseModel):
     topic: str
     course: str | None = None
+    document: str | None = None
     type: str | None = None  # flowchart | decision_tree | concept_map
 
 
@@ -214,6 +218,7 @@ class DiagramOut(BaseModel):
 class GenerateMindmapRequest(BaseModel):
     topic: str
     course: str | None = None
+    document: str | None = None
 
 
 class MindmapOut(BaseModel):
@@ -227,6 +232,7 @@ class MindmapOut(BaseModel):
 class GenerateRevisionRequest(BaseModel):
     topic: str | None = None
     course: str | None = None
+    document: str | None = None
     format: Literal["notes", "concepts", "formulas", "summary"] = "notes"
 
 
@@ -377,6 +383,7 @@ class LensResponse(BaseModel):
 class ExamGenerateRequest(BaseModel):
     topic: str | None = None
     course: str | None = None
+    document: str | None = None
     difficulty: Literal["Easy", "Medium", "Hard"] = "Medium"
     count: int = 8
 

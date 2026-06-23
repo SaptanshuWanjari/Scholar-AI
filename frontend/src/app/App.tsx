@@ -17,6 +17,7 @@ import { MindMaps } from "./pages/MindMaps";
 import { SearchPage } from "./pages/Search";
 import { SettingsPage } from "./pages/Settings";
 import { Trace } from "./pages/Trace";
+import { Courses } from "./pages/Courses";
 import { OnboardingHero } from "./pages/onboarding/OnboardingHero";
 import { OnboardingImport } from "./pages/onboarding/OnboardingImport";
 import { OnboardingAnalyzing } from "./pages/onboarding/OnboardingAnalyzing";
@@ -65,6 +66,7 @@ export default function App() {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/trace" element={<Trace />} />
+            <Route path="/courses" element={<Courses />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

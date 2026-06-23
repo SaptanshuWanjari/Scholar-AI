@@ -8,7 +8,6 @@ import {
   Download,
   Loader2,
   AlertTriangle,
-  TrendingDown,
   Clock,
   Bookmark,
 } from "lucide-react";
@@ -26,20 +25,25 @@ import {
 import { Label } from "../components/ui/label";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { api } from "../lib/api";
-import { useRevisionStore, type RevisionFormat } from "../stores/useRevisionStore";
+import {
+  useRevisionStore,
+  type RevisionFormat,
+} from "../stores/useRevisionStore";
 import type { Course, DocumentItem } from "../lib/types";
 import { cn } from "../components/ui/utils";
 
-const formats: { id: RevisionFormat; label: string; icon: typeof NotebookPen }[] = [
-  { id: "notes", label: "Exam Notes", icon: NotebookPen },
-  { id: "concepts", label: "Key Concepts", icon: ListTree },
-  { id: "formulas", label: "Formula Sheet", icon: Sigma },
-  { id: "summary", label: "Summary Sheet", icon: FileText },
-];
+const formats: {
+  id: RevisionFormat;
+  label: string;
+  icon: typeof NotebookPen;
+}[] = [
+    { id: "notes", label: "Exam Notes", icon: NotebookPen },
+    { id: "concepts", label: "Key Concepts", icon: ListTree },
+    { id: "formulas", label: "Formula Sheet", icon: Sigma },
+    { id: "summary", label: "Summary Sheet", icon: FileText },
+  ];
 
 export function Revision() {
-  // Generation state lives in a global store so an in-flight generation keeps
-  // running and its result is preserved when navigating away and back.
   const {
     format,
     topic,
@@ -52,7 +56,6 @@ export function Revision() {
     setField,
     generate,
     stop,
-    saveRevision,
     loadRevision,
   } = useRevisionStore();
   const setFormat = (f: RevisionFormat) => setField("format", f);
@@ -69,19 +72,21 @@ export function Revision() {
       .then((cs) => {
         if (!cancelled) setCourses(cs);
       })
-      .catch(() => {});
+      .catch(() => { });
     api
       .listDocuments()
       .then((docs) => {
         if (!cancelled) setDocuments(docs);
       })
-      .catch(() => {});
-    return () => { cancelled = true; };
+      .catch(() => { });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const suggestedRevision = useMemo(() => {
     if (!documents.length) return [];
-    
+
     return documents.slice(0, 3).map((doc, i) => ({
       id: `sr-d${i}`,
       topic: doc.title.replace(/\.[^/.]+$/, ""),
@@ -122,7 +127,14 @@ export function Revision() {
                       : "border-border bg-card hover:border-ring/40",
                   )}
                 >
-                  <f.icon className={cn("size-4", format === f.id ? "text-primary" : "text-muted-foreground")} />
+                  <f.icon
+                    className={cn(
+                      "size-4",
+                      format === f.id
+                        ? "text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  />
                   <span className="text-sm">{f.label}</span>
                 </button>
               ))}
@@ -166,7 +178,11 @@ export function Revision() {
             onClick={loading ? stop : generate}
             className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {loading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+            {loading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Sparkles className="size-4" />
+            )}
             {loading ? "Stop" : "Generate"}
           </Button>
         </div>
@@ -187,8 +203,12 @@ export function Revision() {
                     className="flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
                   >
                     <span className="text-sm font-medium">{r.topic}</span>
-                    <span className="text-xs text-muted-foreground">{r.reason}</span>
-                    <span className="text-xs text-muted-foreground/70">{r.course}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {r.reason}
+                    </span>
+                    <span className="text-xs text-muted-foreground/70">
+                      {r.course}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -211,8 +231,15 @@ export function Revision() {
                     onClick={() => loadRevision(r.id)}
                     className="flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
                   >
-                    <span className="text-sm font-medium truncate w-full">{r.title}</span>
-                    <span className="text-xs text-muted-foreground">{new Date(r.timestamp).toLocaleDateString()}</span>
+                    <span className="text-sm font-medium truncate w-full">
+                      {r.title}
+                    </span>
+                    <span className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                      {r.content.replace(/[#*]/g, "").trim()}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground/60 mt-1">
+                      {new Date(r.timestamp).toLocaleDateString()}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -227,22 +254,27 @@ export function Revision() {
           <span className="text-sm font-medium">{title ?? "Preview"}</span>
           {output && (
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="gap-1.5" onClick={saveRevision}>
-                <Bookmark className="size-3.5" /> Save
-              </Button>
-              <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
-                if (!output) return;
-                const blob = new Blob([output], { type: "text/markdown" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `${(title || "revision").replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                toast.success("Exported as markdown");
-              }}>
+              {/* <Button variant="outline" size="sm" className="gap-1.5" onClick={saveRevision}> */}
+              {/*   <Bookmark className="size-3.5" /> Save */}
+              {/* </Button> */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => {
+                  if (!output) return;
+                  const blob = new Blob([output], { type: "text/markdown" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `${(title || "revision").replace(/[^a-z0-9]/gi, "_").toLowerCase()}.md`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                  toast.success("Exported as markdown");
+                }}
+              >
                 <Download className="size-3.5" /> Export
               </Button>
             </div>
@@ -250,13 +282,17 @@ export function Revision() {
         </div>
         <div className="mx-auto max-w-3xl px-8 py-8">
           {output ? (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
               {!loading && ungrounded && (
                 <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
                   <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                   <span>
-                    This topic may not be covered by your uploaded documents — the result below
-                    may be incomplete or based on general knowledge.
+                    This topic may not be covered by your uploaded documents —
+                    the result below may be incomplete or based on general
+                    knowledge.
                   </span>
                 </div>
               )}
@@ -274,7 +310,8 @@ export function Revision() {
             <div className="flex flex-col items-center pt-24 text-center text-muted-foreground">
               <Sparkles className="size-6 text-primary/60" />
               <p className="mt-3 text-sm">
-                Choose a format, enter a topic or course, then generate a study sheet.
+                Choose a format, enter a topic or course, then generate a study
+                sheet.
               </p>
             </div>
           )}

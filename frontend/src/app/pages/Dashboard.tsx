@@ -65,7 +65,7 @@ export function Dashboard() {
           <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
             <Flame className="size-3.5 text-warning" /> 7-day study streak
           </div>
-          <h1 className="mt-3 text-[2.5rem] leading-none">Good evening, Alex.</h1>
+            <h1 className="mt-3 text-[2.5rem] leading-none">Good evening, Student.</h1>
           <p className="mt-3 max-w-xl leading-relaxed text-muted-foreground">
             You have <span className="text-foreground">12 cards due</span> and{" "}
             <span className="text-foreground">2 weak topics</span> to revisit today.
