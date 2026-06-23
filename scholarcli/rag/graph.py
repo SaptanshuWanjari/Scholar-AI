@@ -1,0 +1,60 @@
+"""LangGraph wiring — assembles the router → retrieve → verify → generate pipeline
+with conditional edges so future study modes slot in cleanly.
+"""
+
+from __future__ import annotations
+
+from langgraph.graph import END, StateGraph
+
+from scholarcli.rag.nodes.generator import generate
+from scholarcli.rag.nodes.retriever import retrieve
+from scholarcli.rag.nodes.router import route_query
+from scholarcli.rag.nodes.verifier import verify
+from scholarcli.rag.state import GraphState
+
+
+def _should_retrieve(state: GraphState) -> str:
+    """After routing: only proceed to retrieval if the route is wired."""
+    # The router already sets grounded=False and a stub answer for
+    # unwired routes. If answer is already set, short-circuit to generate.
+    if state.get("answer") is not None:
+        return "generate"
+    return "retrieve"
+
+
+def _ground_check(state: GraphState) -> str:
+    """After verification: generate answer or skip."""
+    return "generate"
+
+
+def build_graph() -> StateGraph:
+    """Build and return (not compile) the LangGraph state graph.
+
+    The caller compiles it to get a runnable.
+    """
+    builder = StateGraph(GraphState)
+
+    builder.add_node("router", route_query)
+    builder.add_node("retrieve", retrieve)
+    builder.add_node("verify", verify)
+    builder.add_node("generate", generate)
+
+    builder.set_entry_point("router")
+
+    # Router → retrieve (if wired) or generate (stub answer).
+    builder.add_conditional_edges(
+        "router",
+        _should_retrieve,
+        {"retrieve": "retrieve", "generate": "generate"},
+    )
+
+    builder.add_edge("retrieve", "verify")
+    builder.add_edge("verify", "generate")
+    builder.add_edge("generate", END)
+
+    return builder
+
+
+def get_rag_app():
+    """Return a compiled LangGraph runnable (cached per process)."""
+    return build_graph().compile()

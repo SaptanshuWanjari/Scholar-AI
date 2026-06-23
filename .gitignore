@@ -1,0 +1,13 @@
+# data + runtime
+data/
+*.db
+*.sqlite3
+
+# python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/

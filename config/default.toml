@@ -1,0 +1,34 @@
+# ScholarCLI default configuration.
+# Override by copying to config/local.toml (loaded last if present).
+
+[ollama]
+base_url = "http://localhost:11434"
+
+[models]
+embedding = "qwen3-embedding:0.6b"
+
+# Per-task generation model routing. The router picks a task label; the LLM
+# factory maps the label -> model tag here. Add a row to wire a new study mode.
+# NOTE: confirm exact tags against `ollama list` and edit if they differ.
+[models.routing]
+quick_qa      = "qwen3:8b"
+flashcards    = "gemma4:12b"
+quiz          = "gemma4:12b"
+mermaid       = "gemma4:12b"
+mindmap       = "gemma4:12b"
+study_notes   = "gemma4:12b"
+deep_analysis = "gemma4:12b"
+
+[chunking]
+# token-ish budget (approx 4 chars/token); structural boundaries preferred
+chunk_size = 800
+chunk_overlap = 120
+
+[retrieval]
+top_k = 5
+# cosine distance from LanceDB; below this the chunk counts as relevant.
+# LanceDB returns _distance (lower = closer). Gate keeps best <= max_distance.
+max_distance = 0.55
+
+[paths]
+data_dir = "data"
