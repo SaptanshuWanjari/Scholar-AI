@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   GraduationCap,
   FileStack,
@@ -39,7 +39,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Page } from "../components/Page";
-import { api } from "../lib/api";
+import { api, type ExamResult } from "../lib/api";
 import type { Course } from "../lib/types";
 import { formulaSheet, type ExamQuestion } from "../lib/exam-data";
 import { useExamStore } from "../stores/useExamStore";
@@ -197,81 +197,63 @@ function Builder() {
 
 /* ---------------- Session ---------------- */
 
-function Session({
-  minutes,
-  questions,
-  difficultyLabel,
-  sessionId,
-  answers,
-  setAnswers,
-  onSubmitted,
-}: {
-  minutes: number;
-  questions: GeneratedQuestion[];
-  difficultyLabel: string;
-  sessionId: string;
-  answers: Record<string, string>;
-  setAnswers: (a: Record<string, string>) => void;
-  onSubmitted: (result: ExamResult) => void;
-}) {
-  const [idx, setIdx] = useState(0);
-  const [flagged, setFlagged] = useState<Set<string>>(new Set());
-  const [visited, setVisited] = useState<Set<string>>(new Set([questions[0].id]));
-  const [secsLeft, setSecsLeft] = useState(minutes * 60);
+function Session() {
+  // Session state lives in the store so it survives navigation away and back.
+  const questions = useExamStore((s) => s.questions);
+  const difficultyLabel = useExamStore((s) => s.difficultyLabel);
+  const answers = useExamStore((s) => s.answers);
+  const idx = useExamStore((s) => s.idx);
+  const flagged = useExamStore((s) => s.flagged);
+  const visited = useExamStore((s) => s.visited);
+  const deadline = useExamStore((s) => s.deadline);
+  const submitting = useExamStore((s) => s.submitting);
+  const answer = useExamStore((s) => s.answer);
+  const toggleFlagStore = useExamStore((s) => s.toggleFlag);
+  const gotoStore = useExamStore((s) => s.goto);
+  const submitStore = useExamStore((s) => s.submit);
+
   const [panelOpen, setPanelOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+
+  // Derive seconds-left from the absolute store `deadline` so the countdown
+  // always reflects real elapsed time, even after leaving and returning to /exam.
+  const secsFromDeadline = () =>
+    deadline ? Math.max(0, Math.ceil((deadline - Date.now()) / 1000)) : 0;
+  const [secsLeft, setSecsLeft] = useState(secsFromDeadline);
   const submittedRef = useRef(false);
-  const totalSecs = minutes * 60;
 
   const q = questions[idx];
 
   const submit = async () => {
-    if (submittedRef.current) return;
+    if (submittedRef.current || useExamStore.getState().submitting) return;
     submittedRef.current = true;
-    setSubmitting(true);
-    const timeSpent = totalSecs - secsLeft;
-    try {
-      const result = await api.submitExam(sessionId, answers, timeSpent);
-      onSubmitted(result);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to submit exam");
-      submittedRef.current = false;
-      setSubmitting(false);
-    }
+    await submitStore();
+    // submitStore clears `submitting` (and stays on this stage) on failure; allow retry.
+    if (useExamStore.getState().stage !== "results") submittedRef.current = false;
   };
 
+  // Local interval reads the store `deadline` each tick; the store remains the
+  // source of truth, so the timer resumes correctly after navigation.
   useEffect(() => {
-    const t = setInterval(() => {
-      setSecsLeft((s) => {
-        if (s <= 1) {
-          clearInterval(t);
-          if (!submittedRef.current) {
-            toast.warning("Time's up — submitting exam");
-            void submit();
-          }
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
+    const tick = () => {
+      const left = secsFromDeadline();
+      setSecsLeft(left);
+      if (left <= 0 && !submittedRef.current) {
+        toast.warning("Time's up — submitting exam");
+        void submit();
+      }
+    };
+    tick();
+    const t = setInterval(tick, 1000);
     return () => clearInterval(t);
-    // submit reads latest answers/secsLeft via refs/state at call time; we only want one timer.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [deadline]);
 
-  const goto = (i: number) => {
-    setIdx(i);
-    setVisited((v) => new Set(v).add(questions[i].id));
-  };
+  const goto = (i: number) => gotoStore(i);
+  const setAnswer = (val: string) => answer(q.id, val);
+  const toggleFlag = () => toggleFlagStore(q.id);
 
-  const setAnswer = (val: string) => setAnswers({ ...answers, [q.id]: val });
-  const toggleFlag = () => {
-    setFlagged((f) => {
-      const n = new Set(f);
-      n.has(q.id) ? n.delete(q.id) : n.add(q.id);
-      return n;
-    });
-  };
+  const isFlagged = (id: string) => flagged.includes(id);
+  const isVisited = (id: string) => visited.includes(id);
 
   const answeredCount = Object.values(answers).filter(Boolean).length;
   const mm = String(Math.floor(secsLeft / 60)).padStart(2, "0");
@@ -317,8 +299,8 @@ function Session({
             {questions.map((eq, i) => {
               const isCurrent = i === idx;
               const isAnswered = !!answers[eq.id];
-              const isFlagged = flagged.has(eq.id);
-              const isSkipped = visited.has(eq.id) && !isAnswered && !isCurrent;
+              const flaggedHere = isFlagged(eq.id);
+              const isSkipped = isVisited(eq.id) && !isAnswered && !isCurrent;
               return (
                 <button
                   key={eq.id}
@@ -332,7 +314,7 @@ function Session({
                   )}
                 >
                   {i + 1}
-                  {isFlagged && <Flag className="absolute -right-1 -top-1 size-3 fill-danger text-danger" />}
+                  {flaggedHere && <Flag className="absolute -right-1 -top-1 size-3 fill-danger text-danger" />}
                 </button>
               );
             })}
@@ -359,11 +341,11 @@ function Session({
               <Button
                 variant="ghost"
                 size="sm"
-                className={cn("gap-1.5 text-xs", flagged.has(q.id) && "text-danger")}
+                className={cn("gap-1.5 text-xs", isFlagged(q.id) && "text-danger")}
                 onClick={toggleFlag}
               >
-                <Flag className={cn("size-3.5", flagged.has(q.id) && "fill-danger")} />
-                {flagged.has(q.id) ? "Flagged" : "Flag"}
+                <Flag className={cn("size-3.5", isFlagged(q.id) && "fill-danger")} />
+                {isFlagged(q.id) ? "Flagged" : "Flag"}
               </Button>
             </div>
 
@@ -584,15 +566,11 @@ function MiniCalculator() {
 
 /* ---------------- Results ---------------- */
 
-function Results({
-  result,
-  difficultyLabel,
-  onRestart,
-}: {
-  result: ExamResult;
-  difficultyLabel: string;
-  onRestart: () => void;
-}) {
+function Results() {
+  const result = useExamStore((s) => s.result) as ExamResult;
+  const difficultyLabel = useExamStore((s) => s.difficultyLabel);
+  const onRestart = useExamStore((s) => s.reset);
+
   const { score, correct, total, topicPerformance, difficultyAnalysis } = result;
   const pct = Math.round(score);
 
