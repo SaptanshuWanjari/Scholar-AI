@@ -74,6 +74,10 @@ class DocumentOut(BaseModel):
     status: str  # indexed | processing | failed
 
 
+class DocumentPatch(BaseModel):
+    course: str | None = None
+
+
 # ---------------------------------------------------------------------------
 # Trace
 # ---------------------------------------------------------------------------

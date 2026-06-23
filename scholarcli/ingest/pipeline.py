@@ -64,7 +64,7 @@ def ingest_file(
         # Vector store data was lost (e.g. lancedb directory deleted).
         # Fall through to re-embed, reusing the existing document record.
 
-    pages, file_type = load_document(path)
+    pages, file_type = load_document(path, content_hash)
     if not pages:
         return "no-content"
 

@@ -10,7 +10,7 @@ from fastapi.concurrency import run_in_threadpool
 import scholarcli.llm
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import serialize_chunks
-from scholarcli.api.schemas import DocumentOut, SourceOut
+from scholarcli.api.schemas import DocumentOut, DocumentPatch, SourceOut
 from scholarcli.config import get_settings
 from scholarcli.ingest.pipeline import ingest_file
 from scholarcli.storage import get_session
@@ -112,6 +112,33 @@ def delete_document_endpoint(document_id: int) -> None:
         session.close()
 
 
+@router.patch("/documents/{document_id}", response_model=DocumentOut)
+def update_document_endpoint(document_id: int, patch: DocumentPatch) -> DocumentOut:
+    session = get_session()
+    try:
+        doc = session.get(Document, document_id)
+        if not doc:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        if patch.course is not None:
+            course_name = patch.course.strip()
+            if course_name and course_name != doc.course.name:
+                course = session.query(Course).filter(Course.name == course_name).first()
+                if not course:
+                    course = Course(name=course_name)
+                    session.add(course)
+                    session.flush()
+                
+                doc.course_id = course.id
+                from scholarcli.storage.vectors import update_document_course
+                update_document_course(doc.id, course.name)
+                
+        session.commit()
+        return _serialize(doc, doc.course.name)
+    finally:
+        session.close()
+
+
 @router.get("/sources/search", response_model=list[SourceOut])
 def search_sources(q: str, course: str | None = None, limit: int = 5) -> list[SourceOut]:
     query = q.strip()
@@ -121,3 +148,15 @@ def search_sources(q: str, course: str | None = None, limit: int = 5) -> list[So
     vector = emb.embed_query(query)
     results = search(vector, top_k=max(1, min(limit, 20)), course=course)
     return [SourceOut(**s) for s in serialize_chunks(results)]
+
+
+from fastapi.responses import FileResponse
+
+@router.get("/documents/images/{content_hash}/{filename}")
+def get_document_image(content_hash: str, filename: str) -> FileResponse:
+    images_dir = get_settings().paths.resolved_data_dir() / "images" / content_hash
+    image_path = images_dir / filename
+    if not image_path.exists():
+        raise HTTPException(status_code=404, detail="Image not found")
+    return FileResponse(image_path)
+

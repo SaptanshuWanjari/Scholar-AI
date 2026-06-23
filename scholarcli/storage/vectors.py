@@ -117,3 +117,10 @@ def delete_document(document_id: int) -> None:
     if not _has_table():
         return
     _open_table().delete(f"document_id = {document_id}")
+
+
+def update_document_course(document_id: int, course: str) -> None:
+    """Update the course associated with all chunks for a document."""
+    if not _has_table():
+        return
+    _open_table().update(where=f"document_id = {document_id}", values={"course": course})

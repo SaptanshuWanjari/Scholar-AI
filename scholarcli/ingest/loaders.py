@@ -24,15 +24,15 @@ class Page(NamedTuple):
 # public entry point
 # ---------------------------------------------------------------------------
 
-def load_document(path: Path) -> tuple[list[Page], str]:
+def load_document(path: Path, content_hash: str) -> tuple[list[Page], str]:
     """Load a PDF or Markdown file. Returns (pages, file_type)."""
     suffix = path.suffix.lower()
     if suffix == ".pdf":
-        return load_pdf(path), "pdf"
+        return load_pdf(path, content_hash), "pdf"
     if suffix in (".md", ".markdown"):
-        return load_markdown(path), "md"
+        return load_markdown(path, content_hash), "md"
     if suffix in (".txt", ".text"):
-        return load_markdown(path), "txt"
+        return load_markdown(path, content_hash), "txt"
     raise ValueError(f"Unsupported file type: {suffix}")
 
 
@@ -40,12 +40,44 @@ def load_document(path: Path) -> tuple[list[Page], str]:
 # PDF
 # ---------------------------------------------------------------------------
 
-def load_pdf(path: Path) -> list[Page]:
+def load_pdf(path: Path, content_hash: str) -> list[Page]:
+    from scholarcli.config import get_settings
+    images_dir = get_settings().paths.resolved_data_dir() / "images" / content_hash
+
     doc = fitz.open(path)
     title = _pdf_title(doc, path)
     pages: list[Page] = []
     for i, page in enumerate(doc):
-        text = page.get_text(sort=True).strip()
+        page_area = page.rect.width * page.rect.height
+        blocks = page.get_text("dict", sort=True).get("blocks", [])
+        text_parts = []
+        for b_idx, b in enumerate(blocks):
+            if b.get("type") == 0:
+                lines = []
+                for line in b.get("lines", []):
+                    spans = [span.get("text", "") for span in line.get("spans", [])]
+                    lines.append("".join(spans))
+                block_text = "\n".join(lines).strip()
+                if block_text:
+                    text_parts.append(block_text)
+            elif b.get("type") == 1:
+                bbox = b.get("bbox")
+                if bbox:
+                    w = bbox[2] - bbox[0]
+                    h = bbox[3] - bbox[1]
+                    if w * h > 0.8 * page_area:
+                        continue  # Skip background images
+
+                image_bytes = b.get("image")
+                ext = b.get("ext", "png")
+                if image_bytes:
+                    images_dir.mkdir(parents=True, exist_ok=True)
+                    filename = f"{i + 1}_{b_idx}.{ext}"
+                    dest = images_dir / filename
+                    dest.write_bytes(image_bytes)
+                    text_parts.append(f"![Image](/api/documents/images/{content_hash}/{filename})")
+        
+        text = "\n\n".join(text_parts).strip()
         if not text:
             continue
         heading = _pdf_page_heading(page)
@@ -87,7 +119,7 @@ def _pdf_page_heading(page) -> str:
 # Markdown
 # ---------------------------------------------------------------------------
 
-def load_markdown(path: Path) -> list[Page]:
+def load_markdown(path: Path, content_hash: str) -> list[Page]:
     text = path.read_text(encoding="utf-8")
     title = path.stem
     pages: list[Page] = []

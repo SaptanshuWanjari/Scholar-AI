@@ -335,6 +335,9 @@ export const api = {
     fd.append("course", course);
     return request<DocumentItem>("/api/documents/upload", { method: "POST", body: fd });
   },
+  updateDocument(id: string, course: string): Promise<DocumentItem> {
+    return request<DocumentItem>(`/api/documents/${id}`, { ...json({ course }), method: "PATCH" });
+  },
   deleteDocument(id: string): Promise<void> {
     return request<void>(`/api/documents/${id}`, { method: "DELETE" });
   },

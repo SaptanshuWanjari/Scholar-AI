@@ -32,6 +32,7 @@ import {
 import { SelectionToolbar, type SelectionAction } from "../components/SelectionToolbar";
 import { api, type ReadingDoc } from "../lib/api";
 import type { DocumentItem } from "../lib/types";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
 
 type Lens = "Beginner" | "Intermediate" | "Expert";
 
@@ -345,12 +346,9 @@ export function Reading() {
                     <h2 className="text-[1.75rem]">{s.title}</h2>
                   </div>
                   {s.paragraphs.map((p, i) => (
-                    <p
-                      key={i}
-                      className="mb-6 font-book text-[18px] leading-[1.85] text-foreground/85 selection:bg-primary selection:text-primary-foreground"
-                    >
-                      {p}
-                    </p>
+                    <div key={i} className="mb-6 font-book text-[18px] leading-[1.85] text-foreground/85 selection:bg-primary selection:text-primary-foreground">
+                      <MarkdownRenderer content={p} />
+                    </div>
                   ))}
                 </section>
               ))}

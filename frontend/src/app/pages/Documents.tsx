@@ -95,6 +95,17 @@ export function Documents() {
     }
   };
 
+  const onUpdateCourse = async (id: string, newCourse: string) => {
+    try {
+      const updated = await api.updateDocument(id, newCourse);
+      setDocuments((docs) => docs.map((d) => (d.id === id ? updated : d)));
+      toast.success("Document moved", { description: `Moved to ${newCourse}` });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Move failed";
+      toast.error("Move failed", { description: msg });
+    }
+  };
+
   return (
     <Page className="space-y-5">
       <input
@@ -201,7 +212,25 @@ export function Documents() {
                   <div className="text-xs uppercase text-muted-foreground">{d.type}</div>
                 </div>
               </div>
-              <span className="truncate text-sm text-muted-foreground">{d.course}</span>
+              <div className="flex min-w-0 items-center pr-2">
+                <Select
+                  value={d.course}
+                  onValueChange={(val) => {
+                    if (val !== d.course) void onUpdateCourse(d.id, val);
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-full border-transparent bg-transparent px-2 text-sm text-muted-foreground hover:bg-muted focus:ring-0">
+                    <div className="truncate text-left">{d.course}</div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {courses.map((c) => (
+                      <SelectItem key={c.id} value={c.name}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <span className="text-sm text-muted-foreground">
                 {d.sizeKb > 1024 ? `${(d.sizeKb / 1024).toFixed(1)} MB` : `${d.sizeKb} KB`}
               </span>
