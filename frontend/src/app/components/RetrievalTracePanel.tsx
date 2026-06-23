@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -27,6 +27,7 @@ import {
   Hash
 } from 'lucide-react';
 import { toast } from "sonner";
+import { api, type TraceData } from "../lib/api";
 
 interface MetricProps {
   label: string;
@@ -56,15 +57,24 @@ const FlowStep = ({ title, icon: Icon, isLast = false }: { title: string, icon: 
   </div>
 );
 
-const MOCK_CHUNKS = [
-  { id: 'chk_18a9f', source: 'Attention_Is_All.pdf', similarity: 0.92, tokens: 256, page: 4 },
-  { id: 'chk_9b2e1', source: 'Attention_Is_All.pdf', similarity: 0.89, tokens: 128, page: 5 },
-  { id: 'chk_4f7c2', source: 'Transformer_Architecture.pdf', similarity: 0.85, tokens: 312, page: 12 },
-  { id: 'chk_7d3a8', source: 'Neural_Machine_Translation.pdf', similarity: 0.81, tokens: 184, page: 2 },
-];
-
 export const RetrievalTracePanel = () => {
-  const [selectedChunk, setSelectedChunk] = useState(MOCK_CHUNKS[0].id);
+  const [trace, setTrace] = useState<TraceData | null>(null);
+  const [selectedChunk, setSelectedChunk] = useState<string | null>(null);
+
+  const load = () => {
+    api
+      .getTrace()
+      .then((t) => {
+        setTrace(t);
+        setSelectedChunk(t.chunks[0]?.id ?? null);
+      })
+      .catch(() => toast.error("Could not load trace"));
+  };
+
+  useEffect(load, []);
+
+  const chunks = trace?.chunks ?? [];
+  const selected = chunks.find((c) => c.id === selectedChunk) ?? null;
 
   return (
     <Card className="w-full h-full flex flex-col rounded-none border-0 shadow-none bg-background">
@@ -79,9 +89,9 @@ export const RetrievalTracePanel = () => {
               Internal RAG execution metrics and flow
             </CardDescription>
           </div>
-          <Button variant="outline" size="sm" className="h-8" onClick={() => toast.success("Re-running trace")}>
+          <Button variant="outline" size="sm" className="h-8" onClick={load}>
             <RefreshCw className="h-4 w-4 mr-2" />
-            Re-run
+            Refresh
           </Button>
         </div>
       </CardHeader>
@@ -96,12 +106,12 @@ export const RetrievalTracePanel = () => {
               System Metrics
             </h3>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-              <MetricItem label="Retrieved Chunks" value="23" icon={Box} />
-              <MetricItem label="Documents" value="4" icon={FileText} />
-              <MetricItem label="Avg Similarity" value="0.87" icon={Hash} />
-              <MetricItem label="Embedding Model" value="nomic-embed-text" icon={BrainCircuit} />
-              <MetricItem label="Vector Store" value="Qdrant" icon={Database} />
-              <MetricItem label="Last Indexed" value="2 hours ago" icon={RefreshCw} />
+              <MetricItem label="Retrieved Chunks" value={trace?.retrievedChunks ?? 0} icon={Box} />
+              <MetricItem label="Documents" value={trace?.documents ?? 0} icon={FileText} />
+              <MetricItem label="Avg Similarity" value={(trace?.avgSimilarity ?? 0).toFixed(2)} icon={Hash} />
+              <MetricItem label="Embedding Model" value={trace?.embeddingModel || "—"} icon={BrainCircuit} />
+              <MetricItem label="Vector Store" value={trace?.vectorStore || "LanceDB"} icon={Database} />
+              <MetricItem label="Top K" value={trace?.topK ?? 0} icon={Layers} />
             </div>
           </div>
 
@@ -139,8 +149,15 @@ export const RetrievalTracePanel = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {MOCK_CHUNKS.map((chunk) => (
-                    <TableRow 
+                  {chunks.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                        No retrieval yet — ask a question to populate the trace.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {chunks.map((chunk) => (
+                    <TableRow
                       key={chunk.id}
                       className={`cursor-pointer transition-colors ${selectedChunk === chunk.id ? 'bg-muted/50' : ''}`}
                       onClick={() => setSelectedChunk(chunk.id)}
@@ -169,16 +186,15 @@ export const RetrievalTracePanel = () => {
               <div className="flex items-center">
                 <Eye className="h-4 w-4 mr-2 text-muted-foreground" />
                 Chunk Preview
-                <Badge variant="outline" className="ml-2 font-mono text-xs bg-muted/50">
-                  {selectedChunk}
-                </Badge>
+                {selected && (
+                  <Badge variant="outline" className="ml-2 font-mono text-xs bg-muted/50">
+                    {selected.id}
+                  </Badge>
+                )}
               </div>
             </h3>
-            <div className="bg-muted/30 border rounded-lg p-4 font-mono text-sm leading-relaxed overflow-x-auto">
-              <p>
-                The <span className="bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 px-1 rounded">attention mechanism</span> allows the model to jointly attend to information from different representation subspaces at different positions. With a single attention head, averaging inhibits this.
-                Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions.
-              </p>
+            <div className="bg-muted/30 border rounded-lg p-4 font-mono text-sm leading-relaxed overflow-x-auto whitespace-pre-wrap">
+              <p>{selected?.text ?? "Select a chunk to preview its retrieved text."}</p>
             </div>
             
             <div className="flex flex-wrap items-center gap-2 pt-2">

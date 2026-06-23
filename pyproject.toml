@@ -20,6 +20,9 @@ dependencies = [
     "textual-image>=0.3.0",
     "Pillow>=10.0.0",
     "pydantic>=2.7",
+    "fastapi>=0.138.0",
+    "uvicorn[standard]>=0.49.0",
+    "python-multipart>=0.0.32",
 ]
 
 [project.scripts]

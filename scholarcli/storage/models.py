@@ -34,9 +34,15 @@ class Document(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     path: Mapped[str] = mapped_column(Text, nullable=False)
     title: Mapped[str] = mapped_column(String(512), nullable=False)
-    file_type: Mapped[str] = mapped_column(String(16), nullable=False)  # pdf, md
+    file_type: Mapped[str] = mapped_column(String(16), nullable=False)  # pdf, md, txt
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    # Display metadata surfaced by the HTTP API / frontend.
+    size_kb: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    pages: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    status: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="indexed"
+    )  # indexed, processing, failed
     indexed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   FileText,
@@ -22,15 +23,9 @@ import { Page, SectionTitle } from "../components/Page";
 import { MetricCard } from "../components/MetricCard";
 import { Button } from "../components/ui/button";
 import { Progress } from "../components/ui/progress";
-import {
-  activity,
-  courses,
-  documents,
-  recentSessions,
-  studyActivityData,
-  suggestedRevision,
-  weakTopics,
-} from "../lib/mock-data";
+import { recentSessions } from "../lib/mock-data";
+import { api } from "../lib/api";
+import type { Course, DocumentItem } from "../lib/types";
 
 const activityIcon: Record<string, typeof FileText> = {
   ask: Sparkles,
@@ -42,6 +37,15 @@ const activityIcon: Record<string, typeof FileText> = {
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+
+  useEffect(() => {
+    api.listCourses().then(setCourses).catch(() => {});
+    api.listDocuments().then(setDocuments).catch(() => {});
+  }, []);
+
+  const totalCards = courses.reduce((sum, c) => sum + c.flashcards, 0);
 
   return (
     <Page className="space-y-6">
@@ -77,8 +81,8 @@ export function Dashboard() {
 
       {/* Metrics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Documents" value={41} icon={FileText} accent="#8b5cf6" delta={12} hint="8 indexed this week" />
-        <MetricCard label="Flashcards" value={616} icon={Layers} accent="#06b6d4" delta={8} hint="124 mastered" />
+        <MetricCard label="Documents" value={documents.length} icon={FileText} accent="#8b5cf6" hint={`${courses.length} courses`} />
+        <MetricCard label="Flashcards" value={totalCards} icon={Layers} accent="#06b6d4" hint="across all decks" />
         <MetricCard label="Quizzes taken" value={37} icon={ListChecks} accent="#22c55e" delta={5} hint="Avg score 82%" />
         <MetricCard label="Study sessions" value={92} icon={Clock} accent="#f59e0b" delta={-3} hint="18h this week" />
       </div>

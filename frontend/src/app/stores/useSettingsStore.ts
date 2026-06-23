@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { api, type BackendSettings } from "../lib/api";
 
 interface SettingsState {
   fastModel: string;
@@ -11,19 +12,49 @@ interface SettingsState {
   citationsInline: boolean;
   accent: "violet" | "cyan" | "green";
   density: "comfortable" | "compact";
+  hydrated: boolean;
   set: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void;
+  hydrate: () => Promise<void>;
 }
 
+const PERSISTED: (keyof BackendSettings)[] = [
+  "fastModel",
+  "reasoningModel",
+  "embeddingModel",
+  "temperature",
+  "topK",
+  "similarityThreshold",
+  "streaming",
+  "citationsInline",
+  "accent",
+  "density",
+];
+
 export const useSettingsStore = create<SettingsState>((set) => ({
-  fastModel: "llama3.1:8b",
-  reasoningModel: "llama3.1:70b",
-  embeddingModel: "nomic-embed-text",
+  fastModel: "qwen3:8b",
+  reasoningModel: "gemma4:12b",
+  embeddingModel: "qwen3-embedding:0.6b",
   temperature: 0.4,
-  topK: 4,
-  similarityThreshold: 0.72,
+  topK: 5,
+  similarityThreshold: 0.45,
   streaming: true,
   citationsInline: true,
   accent: "violet",
   density: "comfortable",
-  set: (key, value) => set({ [key]: value } as Partial<SettingsState>),
+  hydrated: false,
+  set: (key, value) => {
+    set({ [key]: value } as Partial<SettingsState>);
+    // Persist the single changed field to the backend (fire-and-forget).
+    if (PERSISTED.includes(key as keyof BackendSettings)) {
+      api.updateSettings({ [key]: value } as Partial<BackendSettings>).catch(() => {});
+    }
+  },
+  hydrate: async () => {
+    try {
+      const remote = await api.getSettings();
+      set({ ...remote, accent: remote.accent as SettingsState["accent"], density: remote.density as SettingsState["density"], hydrated: true });
+    } catch {
+      set({ hydrated: true });
+    }
+  },
 }));

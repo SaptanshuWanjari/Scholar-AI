@@ -31,6 +31,18 @@ export default defineConfig({
     },
   },
 
+  // Proxy API calls to the FastAPI backend during development so the frontend
+  // can call `/api/*` same-origin (no CORS juggling). Override the target with
+  // the VITE_PROXY_TARGET env var if the backend runs elsewhere.
+  server: {
+    proxy: {
+      '/api': {
+        target: process.env.VITE_PROXY_TARGET || 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
+  },
+
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
 })

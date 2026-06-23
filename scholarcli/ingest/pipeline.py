@@ -70,12 +70,19 @@ def ingest_file(
 
     title = pages[0].title
     chunks = chunk_pages(pages)
+    size_kb = max(1, round(path.stat().st_size / 1024))
+    page_count = max((p.page_number for p in pages), default=0)
 
     # If the file was previously indexed with different content, clear old.
     if existing:
         delete_document(existing.id)
         existing.version += 1
         existing.content_hash = content_hash
+        existing.title = title
+        existing.file_type = file_type
+        existing.size_kb = size_kb
+        existing.pages = page_count
+        existing.status = "indexed"
         session.commit()
         doc_id = existing.id
     else:
@@ -84,6 +91,9 @@ def ingest_file(
             title=title,
             file_type=file_type,
             content_hash=content_hash,
+            size_kb=size_kb,
+            pages=page_count,
+            status="indexed",
             course_id=course.id,
         )
         session.add(doc)

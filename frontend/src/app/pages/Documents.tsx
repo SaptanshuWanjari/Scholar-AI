@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Upload,
   FileText,
@@ -9,7 +9,7 @@ import {
   Loader2,
   XCircle,
   Search,
-  MoreVertical,
+  Trash2,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -24,8 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { documents, courses } from "../lib/mock-data";
-import type { DocStatus, DocType } from "../lib/types";
+import { api } from "../lib/api";
+import type { Course, DocStatus, DocType, DocumentItem } from "../lib/types";
 
 const typeIcon: Record<DocType, typeof FileText> = {
   pdf: FileText,
@@ -43,6 +43,17 @@ const statusMeta: Record<DocStatus, { label: string; icon: typeof CheckCircle2; 
 export function Documents() {
   const [query, setQuery] = useState("");
   const [course, setCourse] = useState("all");
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  const refresh = () => {
+    api.listDocuments().then(setDocuments).catch(() => {});
+    api.listCourses().then(setCourses).catch(() => {});
+  };
+
+  useEffect(refresh, []);
 
   const filtered = documents.filter(
     (d) =>
@@ -50,24 +61,80 @@ export function Documents() {
       (course === "all" || d.course === course),
   );
 
+  const onUpload = async (file: File) => {
+    const target = course !== "all" ? course : courses[0]?.name;
+    if (!target) {
+      toast.error("Create a course first", {
+        description: "Select a course from the filter, then upload.",
+      });
+      return;
+    }
+    setUploading(true);
+    const t = toast.loading(`Indexing ${file.name}…`);
+    try {
+      const doc = await api.uploadDocument(file, target);
+      toast.success("Document indexed", { id: t, description: doc.title });
+      refresh();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      toast.error("Upload failed", { id: t, description: msg });
+    } finally {
+      setUploading(false);
+      if (fileInput.current) fileInput.current.value = "";
+    }
+  };
+
+  const onDelete = async (id: string, title: string) => {
+    try {
+      await api.deleteDocument(id);
+      setDocuments((docs) => docs.filter((d) => d.id !== id));
+      toast.success("Deleted", { description: title });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Delete failed";
+      toast.error("Delete failed", { description: msg });
+    }
+  };
+
   return (
     <Page className="space-y-5">
+      <input
+        ref={fileInput}
+        type="file"
+        accept=".pdf,.md,.markdown,.txt"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void onUpload(f);
+        }}
+      />
+
       {/* Upload zone */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl border border-dashed border-border bg-card p-8 text-center transition-colors hover:border-primary/50"
-        onClick={() => toast.success("Upload started", { description: "Your file is being indexed." })}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault();
+          const f = e.dataTransfer.files?.[0];
+          if (f) void onUpload(f);
+        }}
       >
         <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-violet-soft text-primary">
           <Upload className="size-6" />
         </div>
         <h3 className="mt-4">Drop files to upload</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          PDF, DOCX, Markdown or plain text · up to 50 MB
+          PDF, Markdown or plain text
+          {course !== "all" ? ` · into ${course}` : " · into first course"}
         </p>
-        <Button className="mt-4 gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-          <Upload className="size-4" /> Browse files
+        <Button
+          className="mt-4 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          disabled={uploading}
+          onClick={() => fileInput.current?.click()}
+        >
+          {uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+          {uploading ? "Indexing…" : "Browse files"}
         </Button>
       </motion.div>
 
@@ -108,9 +175,14 @@ export function Documents() {
           <span>Status</span>
           <span />
         </div>
+        {filtered.length === 0 && (
+          <div className="px-5 py-10 text-center text-sm text-muted-foreground">
+            No documents yet. Upload a PDF, Markdown or text file to get started.
+          </div>
+        )}
         {filtered.map((d, i) => {
-          const Icon = typeIcon[d.type];
-          const status = statusMeta[d.status];
+          const Icon = typeIcon[d.type] ?? File;
+          const status = statusMeta[d.status] ?? statusMeta.indexed;
           const StatusIcon = status.icon;
           return (
             <motion.div
@@ -138,8 +210,16 @@ export function Documents() {
                 <StatusIcon className={`size-3 ${d.status === "processing" ? "animate-spin" : ""}`} />
                 {status.label}
               </Badge>
-              <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toast.success("Options opened"); }} className="size-8 text-muted-foreground">
-                <MoreVertical className="size-4" />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void onDelete(d.id, d.title);
+                }}
+                className="size-8 text-muted-foreground hover:text-danger"
+              >
+                <Trash2 className="size-4" />
               </Button>
             </motion.div>
           );

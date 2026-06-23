@@ -107,6 +107,29 @@ def courses() -> None:
 
 
 # ---------------------------------------------------------------------------
+# serve
+# ---------------------------------------------------------------------------
+
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1", "--host", help="Bind address"),
+    port: int = typer.Option(8000, "--port", "-p", help="Port to listen on"),
+    reload: bool = typer.Option(False, "--reload", help="Auto-reload on code changes"),
+) -> None:
+    """Run the HTTP API server for the web frontend."""
+    import uvicorn
+
+    init_db()
+    console.print(
+        f"[bold green]ScholarCLI API[/bold green] → http://{host}:{port}  "
+        f"(docs at /docs)"
+    )
+    uvicorn.run(
+        "scholarcli.api.app:app", host=host, port=port, reload=reload, factory=False
+    )
+
+
+# ---------------------------------------------------------------------------
 # tui
 # ---------------------------------------------------------------------------
 

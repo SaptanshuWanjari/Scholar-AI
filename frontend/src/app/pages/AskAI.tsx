@@ -7,7 +7,15 @@ import { SourcePanel } from "../components/SourcePanel";
 import { AnswerViewer } from "../components/AnswerViewer";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { courses } from "../lib/mock-data";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { api } from "../lib/api";
+import type { Course } from "../lib/types";
 
 const suggestions = [
   "Explain backpropagation using my lecture notes",
@@ -17,11 +25,16 @@ const suggestions = [
 ];
 
 export function AskAI() {
-  const { messages, isStreaming, ask, reset } = useChatStore();
+  const { messages, isStreaming, ask, reset, course, setCourse } = useChatStore();
   const streaming = useSettingsStore((s) => s.streaming);
   const [input, setInput] = useState("");
   const [activeSource, setActiveSource] = useState<string | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    api.listCourses().then(setCourses).catch(() => setCourses([]));
+  }, []);
 
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
   const sources = lastAssistant?.sources ?? [];
@@ -35,7 +48,7 @@ export function AskAI() {
   const submit = (q?: string) => {
     const value = (q ?? input).trim();
     if (!value || isStreaming) return;
-    ask(value);
+    void ask(value, { stream: streaming });
     setInput("");
   };
 
@@ -65,6 +78,22 @@ export function AskAI() {
             Answer
           </div>
           <div className="flex items-center gap-2">
+            <Select
+              value={course ?? "all"}
+              onValueChange={(v) => setCourse(v === "all" ? null : v)}
+            >
+              <SelectTrigger className="h-8 w-44 bg-input-background text-xs">
+                <SelectValue placeholder="All courses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All courses</SelectItem>
+                {courses.map((c) => (
+                  <SelectItem key={c.id} value={c.name}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {confidence !== undefined && !isStreaming && (
               <Badge
                 variant="outline"

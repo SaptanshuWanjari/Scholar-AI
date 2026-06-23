@@ -31,6 +31,8 @@ def load_document(path: Path) -> tuple[list[Page], str]:
         return load_pdf(path), "pdf"
     if suffix in (".md", ".markdown"):
         return load_markdown(path), "md"
+    if suffix in (".txt", ".text"):
+        return load_markdown(path), "txt"
     raise ValueError(f"Unsupported file type: {suffix}")
 
 

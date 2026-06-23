@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Cpu, Boxes, Filter, Palette, Keyboard } from "lucide-react";
 import { Page } from "../components/Page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
@@ -14,6 +15,22 @@ import {
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { navItems } from "../lib/nav";
 import { cn } from "../components/ui/utils";
+import { api, type ModelsList } from "../lib/api";
+
+/** Render select options from the live model list, always including the
+ * currently-selected value even if Ollama doesn't report it. */
+function ModelOptions({ models, current }: { models: string[]; current: string }) {
+  const list = models.includes(current) ? models : [current, ...models];
+  return (
+    <>
+      {list.filter(Boolean).map((m) => (
+        <SelectItem key={m} value={m}>
+          {m}
+        </SelectItem>
+      ))}
+    </>
+  );
+}
 
 function Row({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
@@ -29,6 +46,17 @@ function Row({ title, desc, children }: { title: string; desc?: string; children
 
 export function SettingsPage() {
   const s = useSettingsStore();
+  const [models, setModels] = useState<ModelsList>({
+    fastModels: [],
+    reasoningModels: [],
+    embeddingModels: [],
+  });
+
+  useEffect(() => {
+    s.hydrate();
+    api.listModels().then(setModels).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Page className="max-w-4xl">
@@ -47,10 +75,7 @@ export function SettingsPage() {
               <Select value={s.fastModel} onValueChange={(v) => s.set("fastModel", v)}>
                 <SelectTrigger className="w-56 bg-input-background"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="llama3.1:8b">Llama 3.1 8B</SelectItem>
-                  <SelectItem value="gpt-4o-mini">GPT-4o Mini</SelectItem>
-                  <SelectItem value="claude-3-haiku">Claude 3 Haiku</SelectItem>
-                  <SelectItem value="mistral:7b">Mistral 7B</SelectItem>
+                  <ModelOptions models={models.fastModels} current={s.fastModel} />
                 </SelectContent>
               </Select>
             </Row>
@@ -58,10 +83,7 @@ export function SettingsPage() {
               <Select value={s.reasoningModel} onValueChange={(v) => s.set("reasoningModel", v)}>
                 <SelectTrigger className="w-56 bg-input-background"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="llama3.1:70b">Llama 3.1 70B</SelectItem>
-                  <SelectItem value="o1-preview">OpenAI o1-preview</SelectItem>
-                  <SelectItem value="claude-3-5-sonnet">Claude 3.5 Sonnet</SelectItem>
-                  <SelectItem value="qwen2.5:72b">Qwen 2.5 72B</SelectItem>
+                  <ModelOptions models={models.reasoningModels} current={s.reasoningModel} />
                 </SelectContent>
               </Select>
             </Row>
@@ -87,9 +109,7 @@ export function SettingsPage() {
               <Select value={s.embeddingModel} onValueChange={(v) => s.set("embeddingModel", v)}>
                 <SelectTrigger className="w-56 bg-input-background"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="nomic-embed-text">nomic-embed-text</SelectItem>
-                  <SelectItem value="mxbai-embed-large">mxbai-embed-large</SelectItem>
-                  <SelectItem value="all-minilm">all-MiniLM-L6-v2</SelectItem>
+                  <ModelOptions models={models.embeddingModels} current={s.embeddingModel} />
                 </SelectContent>
               </Select>
             </Row>

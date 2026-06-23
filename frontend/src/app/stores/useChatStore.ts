@@ -1,25 +1,34 @@
 import { create } from "zustand";
+import { toast } from "sonner";
 import type { ChatMessage } from "../lib/types";
-import { sampleAnswer, sources } from "../lib/mock-data";
+import { api } from "../lib/api";
 
 interface ChatState {
   messages: ChatMessage[];
   isStreaming: boolean;
-  ask: (question: string) => void;
+  course: string | null;
+  setCourse: (course: string | null) => void;
+  ask: (question: string, opts?: { stream?: boolean }) => Promise<void>;
   reset: () => void;
 }
 
-let timer: ReturnType<typeof setInterval> | null = null;
+let controller: AbortController | null = null;
 
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isStreaming: false,
+  course: null,
+  setCourse: (course) => set({ course }),
   reset: () => {
-    if (timer) clearInterval(timer);
+    controller?.abort();
+    controller = null;
     set({ messages: [], isStreaming: false });
   },
-  ask: (question: string) => {
+  ask: async (question: string, opts?: { stream?: boolean }) => {
     if (get().isStreaming) return;
+    const stream = opts?.stream ?? true;
+    const course = get().course;
+
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       role: "user",
@@ -30,8 +39,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       id: assistantId,
       role: "assistant",
       content: "",
-      sources,
-      confidence: 0.91,
+      sources: [],
       streaming: true,
     };
     set((s) => ({
@@ -39,27 +47,50 @@ export const useChatStore = create<ChatState>((set, get) => ({
       isStreaming: true,
     }));
 
-    // Simulate token streaming
-    const full = sampleAnswer;
-    const tokens = full.split(/(\s+)/);
-    let i = 0;
-    if (timer) clearInterval(timer);
-    timer = setInterval(() => {
-      i += 3;
-      const partial = tokens.slice(0, i).join("");
-      const done = i >= tokens.length;
+    const patch = (fields: Partial<ChatMessage>) =>
       set((s) => ({
-        messages: s.messages.map((m) =>
-          m.id === assistantId
-            ? { ...m, content: done ? full : partial, streaming: !done }
-            : m,
-        ),
-        isStreaming: !done,
+        messages: s.messages.map((m) => (m.id === assistantId ? { ...m, ...fields } : m)),
       }));
-      if (done && timer) {
-        clearInterval(timer);
-        timer = null;
+
+    try {
+      if (stream) {
+        controller = new AbortController();
+        let acc = "";
+        await api.askStream(question, course, {
+          signal: controller.signal,
+          onToken: (chunk) => {
+            acc += chunk;
+            patch({ content: acc, streaming: true });
+          },
+          onDone: (meta) => {
+            patch({
+              content: acc,
+              streaming: false,
+              sources: meta.sources,
+              confidence: meta.confidence ?? undefined,
+            });
+          },
+          onError: (msg) => {
+            patch({ content: acc || `⚠️ ${msg}`, streaming: false });
+            toast.error("Answer failed", { description: msg });
+          },
+        });
+      } else {
+        const res = await api.ask(question, course);
+        patch({
+          content: res.content,
+          streaming: false,
+          sources: res.sources,
+          confidence: res.confidence ?? undefined,
+        });
       }
-    }, 28);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Request failed";
+      patch({ content: `⚠️ ${msg}`, streaming: false });
+      toast.error("Answer failed", { description: msg });
+    } finally {
+      controller = null;
+      set({ isStreaming: false });
+    }
   },
 }));
