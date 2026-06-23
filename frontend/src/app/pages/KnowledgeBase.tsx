@@ -1087,19 +1087,25 @@ function ConceptDrawerContent({ conceptId, onClose }: { conceptId: string; onClo
           <DrawerBlock title="Generated Assets">
             <div className="space-y-1">
               {[
-                { label: "Open Flashcard Deck", icon: Layers },
-                { label: "Open Quiz", icon: ListChecks },
-                { label: "Open Diagram", icon: Workflow },
-                { label: "Open Mind Map", icon: Network },
-                { label: "Add To Notebook", icon: Notebook },
-                { label: "View in Reading Mode", icon: BookOpen },
+                { label: "Open Flashcard Deck", icon: Layers, onClick: () => navigate("/flashcards") },
+                { label: "Open Quiz", icon: ListChecks, onClick: () => navigate("/quiz") },
+                { label: "Open Diagram", icon: Workflow, onClick: () => navigate("/diagrams") },
+                { label: "Open Mind Map", icon: Network, onClick: () => navigate("/mindmaps") },
+                { label: "Add To Notebook", icon: Notebook, onClick: addToNotebook },
+                { label: "View in Reading Mode", icon: BookOpen, onClick: () => navigate("/reading") },
               ].map((a) => (
                 <button
                   key={a.label}
-                  onClick={() => toast.success(`Opening ${a.label}…`)}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
+                  onClick={a.onClick}
+                  disabled={a.label === "Add To Notebook" && adding}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground/80 transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
                 >
-                  <a.icon className="size-4 text-violet" /> {a.label}
+                  {a.label === "Add To Notebook" && adding ? (
+                    <Loader2 className="size-4 animate-spin text-violet" />
+                  ) : (
+                    <a.icon className="size-4 text-violet" />
+                  )}
+                  {a.label}
                   <ExternalLink className="ml-auto size-3.5 text-muted-foreground" />
                 </button>
               ))}

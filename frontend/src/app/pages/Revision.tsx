@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Sparkles,
   NotebookPen,
@@ -24,12 +24,10 @@ import {
 } from "../components/ui/select";
 import { Label } from "../components/ui/label";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
-import { suggestedRevision, weakTopics } from "../lib/mock-data";
 import { api } from "../lib/api";
-import type { Course } from "../lib/types";
+import { useRevisionStore, type RevisionFormat } from "../stores/useRevisionStore";
+import type { Course, DocumentItem } from "../lib/types";
 import { cn } from "../components/ui/utils";
-
-type RevisionFormat = "notes" | "concepts" | "formulas" | "summary";
 
 const formats: { id: RevisionFormat; label: string; icon: typeof NotebookPen }[] = [
   { id: "notes", label: "Exam Notes", icon: NotebookPen },
@@ -63,6 +61,8 @@ export function Revision() {
   const [ungrounded, setUngrounded] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+
   useEffect(() => {
     let cancelled = false;
     api
@@ -71,8 +71,46 @@ export function Revision() {
         if (!cancelled) setCourses(cs);
       })
       .catch(() => {});
+    api
+      .listDocuments()
+      .then((docs) => {
+        if (!cancelled) setDocuments(docs);
+      })
+      .catch(() => {});
     return () => { cancelled = true; };
   }, []);
+
+  const suggestedRevision = useMemo(() => {
+    const generic = [
+      { id: "sr-g1", topic: "Backpropagation", reason: "Due for review today", course: "Machine Learning" },
+      { id: "sr-g2", topic: "SN1 vs SN2", reason: "Quiz performance dropped 12%", course: "Organic Chemistry" },
+    ];
+    if (!documents.length) return generic;
+    
+    const dynamic = documents.slice(0, 2).map((doc, i) => ({
+      id: `sr-d${i}`,
+      topic: doc.title.replace(/\.[^/.]+$/, ""),
+      reason: i === 0 ? "Due for review today" : "Upcoming exam",
+      course: doc.course,
+    }));
+    return [...dynamic, ...generic].slice(0, 3);
+  }, [documents]);
+
+  const weakTopics = useMemo(() => {
+    const generic = [
+      { id: "wt-g1", topic: "Aldol Condensation", course: "Organic Chemistry", mastery: 28 },
+      { id: "wt-g2", topic: "IS-LM Model", course: "Macroeconomics", mastery: 35 },
+    ];
+    if (!documents.length) return generic;
+
+    const dynamic = documents.slice(2, 4).map((doc, i) => ({
+      id: `wt-d${i}`,
+      topic: doc.title.replace(/\.[^/.]+$/, ""),
+      course: doc.course,
+      mastery: 32 + i * 12,
+    }));
+    return [...dynamic, ...generic].slice(0, 4);
+  }, [documents]);
 
   const generate = async () => {
     const t = topic.trim();
