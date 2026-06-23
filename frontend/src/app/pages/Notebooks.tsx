@@ -25,6 +25,7 @@ import {
   Check,
   BookOpen,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -86,6 +87,11 @@ export function Notebooks() {
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Block editing / drag-reorder state.
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
 
   // Dynamic sidebar sections (collections + tags).
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -166,6 +172,31 @@ export function Notebooks() {
     } finally {
       setSaving(false);
     }
+  }
+
+  // Append a fresh block of the given type and jump straight into editing it.
+  function addBlock(block: NotebookBlock) {
+    const next = [...blocks, block];
+    persistBlocks(next);
+    setEditingIndex(next.length - 1);
+  }
+
+  function updateBlock(index: number, patch: Partial<NotebookBlock>) {
+    persistBlocks(blocks.map((b, i) => (i === index ? ({ ...b, ...patch } as NotebookBlock) : b)));
+  }
+
+  function deleteBlock(index: number) {
+    if (editingIndex === index) setEditingIndex(null);
+    persistBlocks(blocks.filter((_, i) => i !== index));
+  }
+
+  // Reorder via drag handle: pull `from` out, splice it back at `to`.
+  function moveBlock(from: number, to: number) {
+    if (from === to) return;
+    const next = [...blocks];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    persistBlocks(next);
   }
 
   async function handleCreate() {
@@ -427,58 +458,62 @@ export function Notebooks() {
                 )}
 
                 {blocks.map((block, i) => (
-                  <BlockView key={i} block={block} />
+                  <BlockView
+                    key={i}
+                    block={block}
+                    index={i}
+                    editing={editingIndex === i}
+                    dragging={dragIndex === i}
+                    dropTarget={overIndex === i && dragIndex !== null && dragIndex !== i}
+                    onEdit={() => setEditingIndex(i)}
+                    onSave={(patch) => {
+                      updateBlock(i, patch);
+                      setEditingIndex(null);
+                    }}
+                    onCancel={() => setEditingIndex(null)}
+                    onDelete={() => deleteBlock(i)}
+                    onDragStart={() => setDragIndex(i)}
+                    onDragEnter={() => dragIndex !== null && setOverIndex(i)}
+                    onDragEnd={() => {
+                      if (dragIndex !== null && overIndex !== null) moveBlock(dragIndex, overIndex);
+                      setDragIndex(null);
+                      setOverIndex(null);
+                    }}
+                  />
                 ))}
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        e.currentTarget.classList.add("border-violet", "bg-violet-soft/50", "text-violet");
-                      }}
-                      onDragLeave={(e) => {
-                        e.currentTarget.classList.remove("border-violet", "bg-violet-soft/50", "text-violet");
-                      }}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        e.currentTarget.classList.remove("border-violet", "bg-violet-soft/50", "text-violet");
-                        try {
-                          const data = e.dataTransfer.getData("application/json");
-                          if (data) {
-                            persistBlocks([...blocks, JSON.parse(data) as NotebookBlock]);
-                          }
-                        } catch (err) {
-                          /* ignore malformed drop payloads */
-                        }
-                      }}
-                      className="group flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet"
-                    >
-                      <Plus className="size-4" /> Add block — or drag in an AI answer, diagram or deck
+                    <button className="group flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet">
+                      <Plus className="size-4" /> Add block
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-[300px]">
-                    <DropdownMenuItem
-                      onClick={() => persistBlocks([...blocks, { type: "text", text: "New text block. Edit me!" }])}
-                    >
+                    <DropdownMenuItem onClick={() => addBlock({ type: "text", text: "New text block. Edit me!" })}>
                       <FileText className="mr-2 size-4 text-muted-foreground" /> Text
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => persistBlocks([...blocks, { type: "heading", level: 2, text: "New Heading" }])}
-                    >
+                    <DropdownMenuItem onClick={() => addBlock({ type: "heading", level: 2, text: "New Heading" })}>
                       <Hash className="mr-2 size-4 text-muted-foreground" /> Heading
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => persistBlocks([...blocks, { type: "callout", tone: "note", text: "New note callout." }])}
-                    >
+                    <DropdownMenuItem onClick={() => addBlock({ type: "callout", tone: "note", text: "New note callout." })}>
                       <Info className="mr-2 size-4 text-muted-foreground" /> Callout
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() =>
-                        persistBlocks([...blocks, { type: "code", lang: "python", code: "print('Hello world')" }])
-                      }
+                      onClick={() => addBlock({ type: "code", lang: "python", code: "print('Hello world')" })}
                     >
                       <Workflow className="mr-2 size-4 text-muted-foreground" /> Code
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => addBlock({ type: "mermaid", code: "graph TD\n  A[Start] --> B[End]" })}
+                    >
+                      <Workflow className="mr-2 size-4 text-muted-foreground" /> Diagram
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        addBlock({ type: "table", headers: ["Column A", "Column B"], rows: [["", ""]] })
+                      }
+                    >
+                      <Layers className="mr-2 size-4 text-muted-foreground" /> Table
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -602,13 +637,224 @@ export function Notebooks() {
   );
 }
 
-function BlockView({ block }: { block: NotebookBlock }) {
+// A block in the document: hover reveals a drag handle (reorder), edit and
+// delete controls. Clicking edit swaps the rendered block for an inline editor.
+function BlockView({
+  block,
+  index,
+  editing,
+  dragging,
+  dropTarget,
+  onEdit,
+  onSave,
+  onCancel,
+  onDelete,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
+}: {
+  block: NotebookBlock;
+  index: number;
+  editing: boolean;
+  dragging: boolean;
+  dropTarget: boolean;
+  onEdit: () => void;
+  onSave: (patch: Partial<NotebookBlock>) => void;
+  onCancel: () => void;
+  onDelete: () => void;
+  onDragStart: () => void;
+  onDragEnter: () => void;
+  onDragEnd: () => void;
+}) {
+  const editable = EDITABLE_TYPES.has(block.type);
   return (
-    <div className="group/block relative -mx-3 rounded-lg px-3 py-1 transition-colors hover:bg-accent/20">
-      <span className="absolute -left-3 top-2.5 cursor-grab opacity-0 transition-opacity group-hover/block:opacity-100">
-        <GripVertical className="size-4 text-muted-foreground" />
-      </span>
-      <BlockInner block={block} />
+    <div
+      onDragOver={(e) => e.preventDefault()}
+      onDragEnter={onDragEnter}
+      className={cn(
+        "group/block relative -mx-3 rounded-lg px-3 py-1 transition-colors hover:bg-accent/20",
+        dragging && "opacity-40",
+        dropTarget && "before:absolute before:-top-1 before:left-3 before:right-3 before:h-0.5 before:rounded-full before:bg-violet",
+      )}
+    >
+      {!editing && (
+        <div className="absolute -left-3 top-2 flex items-center opacity-0 transition-opacity group-hover/block:opacity-100">
+          <span
+            draggable
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+            className="cursor-grab active:cursor-grabbing"
+            title="Drag to reorder"
+          >
+            <GripVertical className="size-4 text-muted-foreground" />
+          </span>
+        </div>
+      )}
+
+      {!editing && (
+        <div className="absolute -top-1 right-1 z-10 flex items-center gap-0.5 opacity-0 transition-opacity group-hover/block:opacity-100">
+          {editable && (
+            <Button variant="ghost" size="icon" className="size-6 bg-card/80 backdrop-blur" onClick={onEdit} title="Edit">
+              <Wand2 className="size-3.5 text-muted-foreground" />
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6 bg-card/80 backdrop-blur hover:text-destructive"
+            onClick={onDelete}
+            title="Delete"
+          >
+            <Trash2 className="size-3.5 text-muted-foreground hover:text-destructive" />
+          </Button>
+        </div>
+      )}
+
+      {editing ? (
+        <BlockEditor block={block} onSave={onSave} onCancel={onCancel} />
+      ) : (
+        <BlockInner block={block} />
+      )}
+    </div>
+  );
+}
+
+const EDITABLE_TYPES = new Set(["heading", "text", "callout", "code", "mermaid", "ai-answer"]);
+
+// Inline editor for the common authorable block types. Commits a typed patch
+// back to the parent on save.
+function BlockEditor({
+  block,
+  onSave,
+  onCancel,
+}: {
+  block: NotebookBlock;
+  onSave: (patch: Partial<NotebookBlock>) => void;
+  onCancel: () => void;
+}) {
+  const [draft, setDraft] = useState<NotebookBlock>(block);
+  const d = draft as any;
+
+  const field = (patch: Record<string, unknown>) => setDraft({ ...d, ...patch } as NotebookBlock);
+
+  return (
+    <div className="space-y-3 rounded-xl border border-violet/40 bg-card/60 p-4">
+      {draft.type === "heading" && (
+        <>
+          <div className="flex gap-1.5">
+            {[1, 2].map((lvl) => (
+              <button
+                key={lvl}
+                onClick={() => field({ level: lvl })}
+                className={cn(
+                  "rounded-md border px-2.5 py-1 text-xs",
+                  d.level === lvl ? "border-violet bg-violet-soft text-violet" : "border-border text-muted-foreground",
+                )}
+              >
+                H{lvl}
+              </button>
+            ))}
+          </div>
+          <Input value={d.text} onChange={(e) => field({ text: e.target.value })} placeholder="Heading text" autoFocus />
+        </>
+      )}
+
+      {draft.type === "text" && (
+        <textarea
+          value={d.text}
+          onChange={(e) => field({ text: e.target.value })}
+          placeholder="Write markdown…"
+          autoFocus
+          rows={5}
+          className="w-full resize-y rounded-lg border border-border bg-input-background p-3 font-reading text-sm leading-relaxed outline-none focus:border-violet"
+        />
+      )}
+
+      {draft.type === "callout" && (
+        <>
+          <div className="flex gap-1.5">
+            {(["note", "insight", "warning"] as const).map((tone) => (
+              <button
+                key={tone}
+                onClick={() => field({ tone })}
+                className={cn(
+                  "rounded-md border px-2.5 py-1 text-xs capitalize",
+                  d.tone === tone ? "border-violet bg-violet-soft text-violet" : "border-border text-muted-foreground",
+                )}
+              >
+                {tone}
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={d.text}
+            onChange={(e) => field({ text: e.target.value })}
+            placeholder="Callout text"
+            autoFocus
+            rows={3}
+            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 text-sm outline-none focus:border-violet"
+          />
+        </>
+      )}
+
+      {draft.type === "code" && (
+        <>
+          <Input
+            value={d.lang}
+            onChange={(e) => field({ lang: e.target.value })}
+            placeholder="Language (e.g. python)"
+            className="h-8 max-w-[200px] text-xs"
+          />
+          <textarea
+            value={d.code}
+            onChange={(e) => field({ code: e.target.value })}
+            placeholder="Code…"
+            autoFocus
+            rows={6}
+            spellCheck={false}
+            className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
+          />
+        </>
+      )}
+
+      {draft.type === "mermaid" && (
+        <textarea
+          value={d.code}
+          onChange={(e) => field({ code: e.target.value })}
+          placeholder="Mermaid graph definition…"
+          autoFocus
+          rows={6}
+          spellCheck={false}
+          className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
+        />
+      )}
+
+      {draft.type === "ai-answer" && (
+        <>
+          <Input
+            value={d.question}
+            onChange={(e) => field({ question: e.target.value })}
+            placeholder="Question / prompt"
+            autoFocus
+          />
+          <textarea
+            value={d.answer}
+            onChange={(e) => field({ answer: e.target.value })}
+            placeholder="Answer (markdown)"
+            rows={5}
+            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 text-sm leading-relaxed outline-none focus:border-violet"
+          />
+        </>
+      )}
+
+      <div className="flex justify-end gap-2">
+        <Button variant="ghost" size="sm" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button size="sm" onClick={() => onSave(draft)}>
+          <Check className="mr-1.5 size-3.5" /> Save
+        </Button>
+      </div>
     </div>
   );
 }

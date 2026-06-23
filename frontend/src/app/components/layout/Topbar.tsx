@@ -3,24 +3,44 @@ import { Bell, Command, Plus } from "lucide-react";
 import { navItems } from "../../lib/nav";
 import { useUIStore } from "../../stores/useUIStore";
 import { Button } from "../ui/button";
-import { Avatar, AvatarFallback } from "../ui/avatar";
 import { toast } from "sonner";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   "/": { title: "Dashboard", subtitle: "Your learning at a glance" },
-  "/knowledge": { title: "Knowledge Explorer", subtitle: "Navigate your personal knowledge graph" },
-  "/documents": { title: "Documents", subtitle: "Upload and manage source material" },
-  "/ask": { title: "Ask AI", subtitle: "Source-grounded answers from your materials" },
-  "/notebooks": { title: "Notebooks", subtitle: "Build your personal textbook" },
+  "/knowledge": {
+    title: "Knowledge Explorer",
+    subtitle: "Navigate your personal knowledge graph",
+  },
+  "/documents": {
+    title: "Documents",
+    subtitle: "Upload and manage source material",
+  },
+  "/ask": {
+    title: "Ask AI",
+    subtitle: "Source-grounded answers from your materials",
+  },
+  "/notebooks": {
+    title: "Notebooks",
+    subtitle: "Build your personal textbook",
+  },
   "/reading": { title: "Reading", subtitle: "Deep reading, enhanced with AI" },
-  "/exam": { title: "Exam", subtitle: "Simulate real exams from your materials" },
-  "/revision": { title: "Revision Mode", subtitle: "Generate exam-ready study sheets" },
+  "/exam": {
+    title: "Exam",
+    subtitle: "Simulate real exams from your materials",
+  },
+  "/revision": {
+    title: "Revision Mode",
+    subtitle: "Generate exam-ready study sheets",
+  },
   "/flashcards": { title: "Flashcards", subtitle: "Spaced-repetition review" },
   "/quiz": { title: "Quizzes", subtitle: "Test your understanding" },
   "/diagrams": { title: "Diagrams", subtitle: "Generated visual explanations" },
   "/mindmaps": { title: "Mind Maps", subtitle: "Explore knowledge as a graph" },
   "/search": { title: "Search", subtitle: "Semantic search across everything" },
-  "/settings": { title: "Settings", subtitle: "Configure models and preferences" },
+  "/settings": {
+    title: "Settings",
+    subtitle: "Configure models and preferences",
+  },
 };
 
 export function Topbar() {
@@ -34,10 +54,14 @@ export function Topbar() {
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           {current && <current.icon className="size-4 text-muted-foreground" />}
-          <h2 className="truncate font-sans text-[15px] font-semibold tracking-tight">{meta.title}</h2>
+          <h2 className="truncate font-sans text-[15px] font-semibold tracking-tight">
+            {meta.title}
+          </h2>
         </div>
         {meta.subtitle && (
-          <p className="truncate text-xs text-muted-foreground">{meta.subtitle}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {meta.subtitle}
+          </p>
         )}
       </div>
 
@@ -57,15 +81,12 @@ export function Topbar() {
         <span className="absolute right-2 top-2 size-1.5 rounded-full bg-primary" />
       </Button>
 
-      <Button onClick={() => toast.success("New item created")} className="shrink-0 gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+      <Button
+        onClick={() => toast.success("New item created")}
+        className="shrink-0 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+      >
         <Plus className="size-4" /> New
       </Button>
-
-      <Avatar className="size-9 shrink-0 border border-border">
-        <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
-          AK
-        </AvatarFallback>
-      </Avatar>
     </header>
   );
 }

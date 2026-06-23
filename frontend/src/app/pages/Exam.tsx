@@ -45,7 +45,12 @@ import { formulaSheet, type ExamQuestion } from "../lib/exam-data";
 import { useExamStore } from "../stores/useExamStore";
 
 const DIFFICULTIES = ["Easy", "Medium", "Hard", "Adaptive"];
-const COVERAGE = ["Entire Course", "Selected Topics", "Weak Topics Only", "Recent Documents"];
+const COVERAGE = [
+  "Entire Course",
+  "Selected Topics",
+  "Weak Topics Only",
+  "Recent Documents",
+];
 
 export function Exam() {
   const stage = useExamStore((s) => s.stage);
@@ -85,7 +90,6 @@ function Builder() {
         if (active) setCourses(cs);
       })
       .catch(() => {
-        /* non-fatal: course selector simply stays empty */
       });
     return () => {
       active = false;
@@ -105,7 +109,11 @@ function Builder() {
       </div>
 
       <div className="space-y-5">
-        <Field icon={ListChecks} title="Topic" desc="What should the exam focus on?">
+        <Field
+          icon={ListChecks}
+          title="Topic"
+          desc="What should the exam focus on?"
+        >
           <Input
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
@@ -114,7 +122,11 @@ function Builder() {
           />
         </Field>
 
-        <Field icon={FileStack} title="Source Material" desc="Choose the course the exam draws from">
+        <Field
+          icon={FileStack}
+          title="Source Material"
+          desc="Choose the course the exam draws from"
+        >
           <Select value={course} onValueChange={setCourse}>
             <SelectTrigger className="w-full bg-input-background">
               <SelectValue placeholder="All courses" />
@@ -131,7 +143,11 @@ function Builder() {
         </Field>
 
         <Field icon={SlidersHorizontal} title="Difficulty">
-          <Segmented options={DIFFICULTIES} value={difficulty} onChange={setDifficulty} />
+          <Segmented
+            options={DIFFICULTIES}
+            value={difficulty}
+            onChange={setDifficulty}
+          />
         </Field>
 
         <div className="grid gap-5 sm:grid-cols-2">
@@ -166,8 +182,10 @@ function Builder() {
 
         <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
           <div className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{count} questions</span> ·{" "}
-            {difficulty} · {minutes} min · {coverage}
+            <span className="font-medium text-foreground">
+              {count} questions
+            </span>{" "}
+            · {difficulty} · {minutes} min · {coverage}
           </div>
           <Button
             onClick={generate}
@@ -186,7 +204,12 @@ function Builder() {
           </Button>
         </div>
         <GenerationSteps
-          steps={["Searching your library", "Drafting questions", "Calibrating difficulty", "Formatting exam"]}
+          steps={[
+            "Searching your library",
+            "Drafting questions",
+            "Calibrating difficulty",
+            "Formatting exam",
+          ]}
           loading={generating}
           interval={2500}
         />
@@ -228,7 +251,8 @@ function Session() {
     submittedRef.current = true;
     await submitStore();
     // submitStore clears `submitting` (and stays on this stage) on failure; allow retry.
-    if (useExamStore.getState().stage !== "results") submittedRef.current = false;
+    if (useExamStore.getState().stage !== "results")
+      submittedRef.current = false;
   };
 
   // Local interval reads the store `deadline` each tick; the store remains the
@@ -266,11 +290,16 @@ function Session() {
       <div className="flex h-14 shrink-0 items-center gap-4 border-b border-border px-6">
         <div className="flex items-center gap-2">
           <GraduationCap className="size-4 text-violet" />
-          <span className="text-sm font-medium">Mock Exam — {difficultyLabel}</span>
+          <span className="text-sm font-medium">
+            Mock Exam — {difficultyLabel}
+          </span>
         </div>
         <div className="ml-4 hidden items-center gap-2 sm:flex">
           <div className="h-1.5 w-40 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-violet" style={{ width: `${(answeredCount / questions.length) * 100}%` }} />
+            <div
+              className="h-full rounded-full bg-violet"
+              style={{ width: `${(answeredCount / questions.length) * 100}%` }}
+            />
           </div>
           <span className="text-xs text-muted-foreground">
             {answeredCount}/{questions.length} answered
@@ -279,13 +308,24 @@ function Session() {
         <div
           className={cn(
             "ml-auto flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-sm tabular-nums",
-            low ? "border-danger/40 bg-danger-soft text-danger" : "border-border bg-card",
+            low
+              ? "border-danger/40 bg-danger-soft text-danger"
+              : "border-border bg-card",
           )}
         >
           <Clock className="size-4" /> {mm}:{ss}
         </div>
-        <Button variant="outline" size="icon" className="size-9" onClick={() => setPanelOpen((o) => !o)}>
-          {panelOpen ? <PanelRightClose className="size-4" /> : <PanelRightOpen className="size-4" />}
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-9"
+          onClick={() => setPanelOpen((o) => !o)}
+        >
+          {panelOpen ? (
+            <PanelRightClose className="size-4" />
+          ) : (
+            <PanelRightOpen className="size-4" />
+          )}
         </Button>
       </div>
 
@@ -308,13 +348,22 @@ function Session() {
                   className={cn(
                     "relative flex aspect-square items-center justify-center rounded-md border text-xs font-medium transition-colors",
                     isCurrent && "border-violet bg-violet text-white",
-                    !isCurrent && isAnswered && "border-success/40 bg-success-soft text-success",
-                    !isCurrent && isSkipped && "border-warning/40 bg-warning-soft text-warning",
-                    !isCurrent && !isAnswered && !isSkipped && "border-border bg-card text-muted-foreground hover:border-ring/40",
+                    !isCurrent &&
+                    isAnswered &&
+                    "border-success/40 bg-success-soft text-success",
+                    !isCurrent &&
+                    isSkipped &&
+                    "border-warning/40 bg-warning-soft text-warning",
+                    !isCurrent &&
+                    !isAnswered &&
+                    !isSkipped &&
+                    "border-border bg-card text-muted-foreground hover:border-ring/40",
                   )}
                 >
                   {i + 1}
-                  {flaggedHere && <Flag className="absolute -right-1 -top-1 size-3 fill-danger text-danger" />}
+                  {flaggedHere && (
+                    <Flag className="absolute -right-1 -top-1 size-3 fill-danger text-danger" />
+                  )}
                 </button>
               );
             })}
@@ -332,19 +381,34 @@ function Session() {
           <div className="mx-auto max-w-2xl px-8 py-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Question {idx + 1}</span>
-                <Badge variant="outline" className="text-[10px] text-muted-foreground">{q.topic}</Badge>
-                <Badge variant="outline" className={cn("text-[10px]", diffCls(q.difficulty))}>
+                <span className="text-sm text-muted-foreground">
+                  Question {idx + 1}
+                </span>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] text-muted-foreground"
+                >
+                  {q.topic}
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className={cn("text-[10px]", diffCls(q.difficulty))}
+                >
                   {q.difficulty}
                 </Badge>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                className={cn("gap-1.5 text-xs", isFlagged(q.id) && "text-danger")}
+                className={cn(
+                  "gap-1.5 text-xs",
+                  isFlagged(q.id) && "text-danger",
+                )}
                 onClick={toggleFlag}
               >
-                <Flag className={cn("size-3.5", isFlagged(q.id) && "fill-danger")} />
+                <Flag
+                  className={cn("size-3.5", isFlagged(q.id) && "fill-danger")}
+                />
                 {isFlagged(q.id) ? "Flagged" : "Flag"}
               </Button>
             </div>
@@ -357,15 +421,26 @@ function Session() {
                 exit={{ opacity: 0, x: -16 }}
                 transition={{ duration: 0.18 }}
               >
-                <h2 className="mt-4 font-reading text-[1.6rem] leading-snug">{q.prompt}</h2>
+                <h2 className="mt-4 font-reading text-[1.6rem] leading-snug">
+                  {q.prompt}
+                </h2>
                 <div className="mt-6">
-                  <AnswerArea q={q} value={answers[q.id]} onChange={setAnswer} />
+                  <AnswerArea
+                    q={q}
+                    value={answers[q.id]}
+                    onChange={setAnswer}
+                  />
                 </div>
               </motion.div>
             </AnimatePresence>
 
             <div className="mt-8 flex items-center justify-between border-t border-border pt-5">
-              <Button variant="outline" className="gap-1.5" disabled={idx === 0} onClick={() => goto(idx - 1)}>
+              <Button
+                variant="outline"
+                className="gap-1.5"
+                disabled={idx === 0}
+                onClick={() => goto(idx - 1)}
+              >
                 <ChevronLeft className="size-4" /> Previous
               </Button>
               {idx === questions.length - 1 ? (
@@ -408,22 +483,32 @@ function Session() {
               <div className="w-[300px] space-y-5 overflow-y-auto p-4">
                 <PanelBlock title="Formula Sheet" icon={Sigma}>
                   {formulaSheet.map((f) => (
-                    <div key={f.name} className="rounded-lg border border-border bg-card px-3 py-2">
-                      <div className="text-[11px] text-muted-foreground">{f.name}</div>
-                      <div className="mt-0.5 font-mono text-sm">{f.formula}</div>
+                    <div
+                      key={f.name}
+                      className="rounded-lg border border-border bg-card px-3 py-2"
+                    >
+                      <div className="text-[11px] text-muted-foreground">
+                        {f.name}
+                      </div>
+                      <div className="mt-0.5 font-mono text-sm">
+                        {f.formula}
+                      </div>
                     </div>
                   ))}
                 </PanelBlock>
                 <PanelBlock title="Reference Notes" icon={NotebookPen}>
                   <p className="font-reading text-sm leading-relaxed text-foreground/80">
-                    Self-attention lets each token weigh all others; scaling by √dₖ stabilizes gradients.
+                    Self-attention lets each token weigh all others; scaling by
+                    √dₖ stabilizes gradients.
                   </p>
                 </PanelBlock>
                 <PanelBlock title="Calculator" icon={CalcIcon}>
                   <MiniCalculator />
                 </PanelBlock>
                 <PanelBlock title="Exam Settings" icon={Settings2}>
-                  <div className="text-sm text-muted-foreground">Font size, high contrast and timer visibility.</div>
+                  <div className="text-sm text-muted-foreground">
+                    Font size, high contrast and timer visibility.
+                  </div>
                 </PanelBlock>
               </div>
             </motion.aside>
@@ -470,13 +555,17 @@ function AnswerArea({
           onClick={() => onChange(opt)}
           className={cn(
             "flex w-full items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition-colors",
-            value === opt ? "border-violet bg-violet-soft" : "border-border bg-card hover:border-ring/40",
+            value === opt
+              ? "border-violet bg-violet-soft"
+              : "border-border bg-card hover:border-ring/40",
           )}
         >
           <span
             className={cn(
               "flex size-5 items-center justify-center rounded-full border",
-              value === opt ? "border-violet bg-violet text-white" : "border-border",
+              value === opt
+                ? "border-violet bg-violet text-white"
+                : "border-border",
             )}
           >
             {value === opt && <Check className="size-3" />}
@@ -503,7 +592,15 @@ function MiniCalculator() {
     setFresh(false);
   };
   const compute = (a: number, b: number, o: string) =>
-    o === "+" ? a + b : o === "−" ? a - b : o === "×" ? a * b : b === 0 ? NaN : a / b;
+    o === "+"
+      ? a + b
+      : o === "−"
+        ? a - b
+        : o === "×"
+          ? a * b
+          : b === 0
+            ? NaN
+            : a / b;
   const chooseOp = (o: string) => {
     const cur = parseFloat(display);
     if (acc !== null && op && !fresh) {
@@ -532,14 +629,34 @@ function MiniCalculator() {
     setFresh(true);
   };
 
-  const keys = ["7", "8", "9", "÷", "4", "5", "6", "×", "1", "2", "3", "−", "0", ".", "=", "+"];
+  const keys = [
+    "7",
+    "8",
+    "9",
+    "÷",
+    "4",
+    "5",
+    "6",
+    "×",
+    "1",
+    "2",
+    "3",
+    "−",
+    "0",
+    ".",
+    "=",
+    "+",
+  ];
   return (
     <div className="rounded-lg border border-border bg-card p-2">
       <div className="mb-2 rounded-md bg-secondary px-3 py-2 text-right font-mono text-lg tabular-nums">
         {display}
       </div>
       <div className="grid grid-cols-4 gap-1">
-        <button onClick={clear} className="col-span-4 rounded-md border border-border py-1.5 text-xs text-muted-foreground hover:bg-accent">
+        <button
+          onClick={clear}
+          className="col-span-4 rounded-md border border-border py-1.5 text-xs text-muted-foreground hover:bg-accent"
+        >
           Clear
         </button>
         {keys.map((k) => {
@@ -548,11 +665,19 @@ function MiniCalculator() {
             <button
               key={k}
               onClick={() =>
-                k === "=" ? equals() : isOp ? chooseOp(k) : k === "." ? dot() : inputDigit(k)
+                k === "="
+                  ? equals()
+                  : isOp
+                    ? chooseOp(k)
+                    : k === "."
+                      ? dot()
+                      : inputDigit(k)
               }
               className={cn(
                 "rounded-md py-2 text-sm font-medium transition-colors",
-                isOp ? "bg-violet-soft text-violet hover:bg-violet hover:text-white" : "bg-secondary hover:bg-accent",
+                isOp
+                  ? "bg-violet-soft text-violet hover:bg-violet hover:text-white"
+                  : "bg-secondary hover:bg-accent",
               )}
             >
               {k}
@@ -571,7 +696,8 @@ function Results() {
   const difficultyLabel = useExamStore((s) => s.difficultyLabel);
   const onRestart = useExamStore((s) => s.reset);
 
-  const { score, correct, total, topicPerformance, difficultyAnalysis } = result;
+  const { score, correct, total, topicPerformance, difficultyAnalysis } =
+    result;
   const pct = Math.round(score);
 
   const weak = topicPerformance.filter((t) => t.score < 70);
@@ -594,7 +720,9 @@ function Results() {
       >
         <div className="flex size-24 shrink-0 flex-col items-center justify-center rounded-2xl border border-border bg-background">
           <Trophy className="size-5 text-violet" />
-          <span className="mt-1 font-display text-3xl leading-none">{pct}%</span>
+          <span className="mt-1 font-display text-3xl leading-none">
+            {pct}%
+          </span>
         </div>
         <div className="min-w-0 flex-1">
           <h1>Exam Complete</h1>
@@ -631,7 +759,14 @@ function Results() {
                     animate={{ width: `${t.score}%` }}
                     transition={{ duration: 0.6 }}
                     className="h-full rounded-full"
-                    style={{ backgroundColor: t.score >= 70 ? "var(--success)" : t.score >= 50 ? "var(--warning)" : "var(--danger)" }}
+                    style={{
+                      backgroundColor:
+                        t.score >= 70
+                          ? "var(--success)"
+                          : t.score >= 50
+                            ? "var(--warning)"
+                            : "var(--danger)",
+                    }}
                   />
                 </div>
               </div>
@@ -643,12 +778,19 @@ function Results() {
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {difficultyAnalysis.map((d) => (
-              <div key={d.level} className="rounded-xl border border-border bg-background/40 p-3 text-center">
+              <div
+                key={d.level}
+                className="rounded-xl border border-border bg-background/40 p-3 text-center"
+              >
                 <div className="font-display text-2xl leading-none">
                   {d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0}%
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground">{d.level}</div>
-                <div className="text-[11px] text-muted-foreground">{d.correct}/{d.total} correct</div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  {d.level}
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {d.correct}/{d.total} correct
+                </div>
               </div>
             ))}
           </div>
@@ -662,7 +804,9 @@ function Results() {
             </h3>
             <div className="space-y-2">
               {strong.length === 0 && (
-                <div className="text-sm text-muted-foreground">No strong areas yet.</div>
+                <div className="text-sm text-muted-foreground">
+                  No strong areas yet.
+                </div>
               )}
               {strong.map((t) => (
                 <div key={t.topic} className="flex items-center gap-2 text-sm">
@@ -677,7 +821,9 @@ function Results() {
             </h3>
             <div className="space-y-2">
               {weak.length === 0 && (
-                <div className="text-sm text-muted-foreground">No weak areas — great work!</div>
+                <div className="text-sm text-muted-foreground">
+                  No weak areas — great work!
+                </div>
               )}
               {weak.map((t) => (
                 <div key={t.topic} className="flex items-center gap-2 text-sm">
@@ -693,7 +839,9 @@ function Results() {
       <div className="rounded-2xl border border-violet/25 bg-violet-soft/40 p-5">
         <div className="flex items-center gap-2">
           <Sparkles className="size-4 text-violet" />
-          <h3 className="text-sm font-semibold">Recommended Revision for weak topics</h3>
+          <h3 className="text-sm font-semibold">
+            Recommended Revision for weak topics
+          </h3>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
           {weak.length > 0
@@ -742,7 +890,9 @@ function Field({
       <div className="mb-3 flex items-center gap-2">
         <Icon className="size-4 text-muted-foreground" />
         <span className="text-sm font-medium">{title}</span>
-        {desc && <span className="text-xs text-muted-foreground">· {desc}</span>}
+        {desc && (
+          <span className="text-xs text-muted-foreground">· {desc}</span>
+        )}
       </div>
       {children}
     </div>
@@ -768,7 +918,9 @@ function Segmented({
           onClick={() => onChange(o)}
           className={cn(
             "flex-1 rounded-md py-1.5 text-sm font-medium transition-colors",
-            value === o ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+            value === o
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground",
           )}
         >
           {o}
@@ -787,7 +939,15 @@ function Legend({ cls, label }: { cls: string; label: string }) {
   );
 }
 
-function PanelBlock({ title, icon: Icon, children }: { title: string; icon: typeof Sigma; children: React.ReactNode }) {
+function PanelBlock({
+  title,
+  icon: Icon,
+  children,
+}: {
+  title: string;
+  icon: typeof Sigma;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -802,7 +962,9 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-border bg-background/50 px-3 py-1.5">
       <div className="text-sm font-semibold tabular-nums">{value}</div>
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
     </div>
   );
 }
