@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { api } from "../lib/api";
-import type { Quiz, QuizQuestion, Course } from "../lib/types";
+import type { Quiz, QuizQuestion, Course, DocumentItem } from "../lib/types";
 import { cn } from "../components/ui/utils";
 import { useQuizStore } from "../stores/useQuizStore";
 import type { Difficulty } from "../stores/useQuizStore";
@@ -143,6 +143,7 @@ function Builder({
   // selections survive navigation and a running generation keeps going.
   const topic = useQuizStore((s) => s.topic);
   const course = useQuizStore((s) => s.course);
+  const document = useQuizStore((s) => s.document);
   const difficulty = useQuizStore((s) => s.difficulty);
   const loading = useQuizStore((s) => s.generating);
   const setField = useQuizStore((s) => s.setField);
@@ -150,13 +151,16 @@ function Builder({
 
   const setTopic = (v: string) => setField("topic", v);
   const setCourse = (v: string) => setField("course", v);
+  const setDocument = (v: string | null) => setField("document", v);
   const setDifficulty = (v: Difficulty) => setField("difficulty", v);
 
   // Course list is cheap to refetch — keep it local.
   const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
   useEffect(() => {
     api.listCourses().then(setCourses).catch(() => setCourses([]));
+    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
   }, []);
 
   return (
@@ -193,6 +197,22 @@ function Builder({
                 {courses.map((c) => (
                   <SelectItem key={c.id} value={c.name}>
                     {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-muted-foreground">Document</label>
+            <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
+              <SelectTrigger className="w-44 bg-input-background">
+                <SelectValue placeholder="All documents" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All documents</SelectItem>
+                {documents.filter(d => course !== "all" ? d.course === course : true).map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.title}
                   </SelectItem>
                 ))}
               </SelectContent>

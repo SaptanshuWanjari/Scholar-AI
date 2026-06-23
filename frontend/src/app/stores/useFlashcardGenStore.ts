@@ -13,6 +13,7 @@ interface FlashcardGenState {
   view: View;
   topic: string;
   course: string | null; // null = all courses
+  document: string | null;
   // Generation state — lives in the store, NOT the component, so an in-flight
   // generation keeps running and its result is preserved across page changes.
   generating: boolean;
@@ -36,6 +37,7 @@ export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
   view: "grid",
   topic: "",
   course: null,
+  document: null,
   generating: false,
   cards: [],
   ungrounded: false,
@@ -46,12 +48,12 @@ export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
   clearGenerated: () =>
     set({ cards: [], ungrounded: false, generatedDeckName: null, activeDeck: null }),
   generate: async () => {
-    const { topic, course, generating } = get();
+    const { topic, course, document, generating } = get();
     const value = topic.trim();
     if (!value || generating) return;
     set({ generating: true, ungrounded: false });
     try {
-      const result = await api.generateFlashcards(value, course);
+      const result = await api.generateFlashcards(value, course, document);
       if (!result.grounded || result.cards.length === 0) {
         set({
           cards: [],

@@ -60,6 +60,30 @@ _Q_RE = re.compile(r"^Q\d*\s*[:\-\.]?\s*(.+)$", re.IGNORECASE)
 
 def parse_quiz(text: str) -> list[dict]:
     """Parse the ``Q1: ... A) ... Answer: B`` quiz layout into question dicts."""
+    import json
+    # Try finding the first [ and last ] to extract JSON array
+    start = text.find('[')
+    end = text.rfind(']')
+    if start != -1 and end != -1 and end > start:
+        json_str = text[start:end+1]
+        try:
+            parsed = json.loads(json_str)
+            if isinstance(parsed, list):
+                questions = []
+                for i, q in enumerate(parsed):
+                    questions.append({
+                        "id": _slug("qq", i + 1),
+                        "type": q.get("type", "mcq"),
+                        "prompt": q.get("prompt", ""),
+                        "options": q.get("options", []),
+                        "answer": q.get("answer", ""),
+                        "explanation": q.get("explanation", ""),
+                    })
+                if questions:
+                    return questions
+        except Exception:
+            pass
+
     questions: list[dict] = []
     prompt: str | None = None
     options: dict[str, str] = {}

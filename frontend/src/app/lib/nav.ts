@@ -14,6 +14,7 @@ import {
   Search,
   FolderOpen,
   Settings,
+  BookMarked,
   type LucideIcon,
 } from "lucide-react";
 
@@ -40,5 +41,6 @@ export const navItems: NavItem[] = [
   { label: "Diagrams", to: "/diagrams", icon: Workflow, shortcut: "G", group: "study" },
   { label: "Mind Maps", to: "/mindmaps", icon: Network, shortcut: "M", group: "study" },
   { label: "Search", to: "/search", icon: Search, shortcut: "S", group: "system" },
+  { label: "Prompts", to: "/prompts", icon: BookMarked, shortcut: "P", group: "system" },
   { label: "Settings", to: "/settings", icon: Settings, shortcut: ",", group: "system" },
 ];

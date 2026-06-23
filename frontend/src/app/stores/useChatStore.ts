@@ -7,7 +7,9 @@ interface ChatState {
   messages: ChatMessage[];
   isStreaming: boolean;
   course: string | null;
+  document: string | null;
   setCourse: (course: string | null) => void;
+  setDocument: (document: string | null) => void;
   ask: (question: string, opts?: { stream?: boolean }) => Promise<void>;
   reset: () => void;
 }
@@ -18,7 +20,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   isStreaming: false,
   course: null,
+  document: null,
   setCourse: (course) => set({ course }),
+  setDocument: (document) => set({ document }),
   reset: () => {
     controller?.abort();
     controller = null;
@@ -28,6 +32,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (get().isStreaming) return;
     const stream = opts?.stream ?? true;
     const course = get().course;
+    const document = get().document;
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
@@ -56,7 +61,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (stream) {
         controller = new AbortController();
         let acc = "";
-        await api.askStream(question, course, {
+        await api.askStream(question, course, document, {
           signal: controller.signal,
           onToken: (chunk) => {
             acc += chunk;
@@ -76,7 +81,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           },
         });
       } else {
-        const res = await api.ask(question, course);
+        const res = await api.ask(question, course, document);
         patch({
           content: res.content,
           streaming: false,

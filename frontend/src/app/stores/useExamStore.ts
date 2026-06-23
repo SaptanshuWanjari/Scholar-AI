@@ -32,10 +32,12 @@ interface ExamState {
   // ---- Builder inputs (kept here so selections survive navigation too) ----
   topic: string;
   course: string; // "all" or a course name
+  document: string | null;
   difficulty: string;
   count: number;
   minutes: number;
   coverage: string;
+  types: string[];
 
   setField: <K extends keyof ExamState>(key: K, value: ExamState[K]) => void;
   answer: (qid: string, value: string) => void;
@@ -64,10 +66,12 @@ export const useExamStore = create<ExamState>((set, get) => ({
 
   topic: "",
   course: "all",
+  document: null,
   difficulty: "Adaptive",
   count: 8,
   minutes: 20,
   coverage: "Entire Course",
+  types: ["mcq"],
 
   setField: (key, value) => set({ [key]: value } as Partial<ExamState>),
 
@@ -92,19 +96,21 @@ export const useExamStore = create<ExamState>((set, get) => ({
     }),
 
   generate: async () => {
-    const { generating, topic, course, difficulty, count, minutes } = get();
+    const { generating, topic, course, document, difficulty, count, minutes, types } = get();
     if (generating) return;
     set({ generating: true });
     try {
       const session = await api.generateExam({
         topic: topic.trim() || undefined,
         course: course === "all" ? null : course,
+        document,
         // "Adaptive" is a UI-only option; the backend expects a concrete level.
         difficulty:
           difficulty === "Easy" || difficulty === "Medium" || difficulty === "Hard"
             ? difficulty
             : undefined,
         count,
+        types,
       });
       if (!session.grounded || session.questions.length === 0) {
         toast.error(

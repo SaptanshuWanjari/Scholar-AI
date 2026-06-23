@@ -22,6 +22,7 @@ interface QuizState {
   // Builder inputs — persisted so the user returns to the same selections.
   topic: string;
   course: string; // "all" or a course name
+  document: string | null;
   difficulty: Difficulty;
 
   setField: <K extends keyof QuizState>(key: K, value: QuizState[K]) => void;
@@ -42,12 +43,13 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   generating: false,
   topic: "",
   course: "all",
+  document: null,
   difficulty: "Medium",
 
   setField: (key, value) => set({ [key]: value } as Partial<QuizState>),
 
   generate: async () => {
-    const { topic, course, difficulty, generating } = get();
+    const { topic, course, document, difficulty, generating } = get();
     if (generating) return;
     const value = topic.trim();
     if (!value) return;
@@ -57,6 +59,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       const quiz = await api.generateQuiz(
         value,
         course === "all" ? null : course,
+        document,
         difficulty,
       );
       if (!quiz.grounded || quiz.questions.length === 0) {

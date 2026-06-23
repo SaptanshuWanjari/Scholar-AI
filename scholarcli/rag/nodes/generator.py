@@ -8,6 +8,7 @@ from __future__ import annotations
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from scholarcli.llm import get_llm
+from scholarcli.api.prompt_service import active_body
 from scholarcli.rag.prompts import (
     FLASHCARDS_SYSTEM,
     GENERATOR_SYSTEM,
@@ -58,7 +59,8 @@ def generate(state: GraphState) -> GraphState:
     # Prepend citation list so the model knows what sources to reference.
     prompt = f"Available sources: {', '.join(citations)}\n\n{prompt}"
 
-    system_prompt = _ROUTE_PROMPTS.get(route, GENERATOR_SYSTEM)
+    # ponytail: user's active_body overrides hard-coded default
+    system_prompt = active_body(route) or _ROUTE_PROMPTS.get(route, GENERATOR_SYSTEM)
 
     response = llm.invoke(
         [SystemMessage(content=system_prompt), HumanMessage(content=prompt)]

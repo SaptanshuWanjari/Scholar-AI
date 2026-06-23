@@ -97,3 +97,13 @@ export interface ActivityItem {
   text: string;
   time: string;
 }
+
+export interface PromptItem {
+  id: number;
+  category: string;
+  name: string;
+  style: string;
+  body: string;
+  built_in: boolean;
+  active: boolean;
+}

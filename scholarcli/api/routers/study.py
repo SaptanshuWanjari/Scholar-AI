@@ -43,7 +43,7 @@ async def generate_flashcards(req: GenerateFlashcardsRequest) -> FlashcardSet:
     if not topic:
         raise HTTPException(status_code=400, detail="topic is required")
     query = f"Generate {req.count} flashcards covering: {topic}"
-    result = await run_in_threadpool(run_ask, query, req.course, "flashcards")
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "flashcards")
     cards = parsers.parse_flashcards(result["content"], deck=topic)
     record_activity("flashcard", f"Generated flashcards: {topic}", req.course or "")
     return FlashcardSet(
@@ -60,7 +60,7 @@ async def generate_quiz(req: GenerateQuizRequest) -> QuizOut:
     if not topic:
         raise HTTPException(status_code=400, detail="topic is required")
     query = f"Generate a {req.difficulty} difficulty quiz about: {topic}"
-    result = await run_in_threadpool(run_ask, query, req.course, "quiz")
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "quiz")
     questions = parsers.parse_quiz(result["content"])
     record_activity("quiz", f"Generated quiz: {topic}", req.course or "")
     return QuizOut(
@@ -80,7 +80,7 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
         raise HTTPException(status_code=400, detail="topic is required")
     kind = (req.type or "flowchart").replace("_", " ")
     query = f"Generate a {kind} diagram about: {topic}"
-    result = await run_in_threadpool(run_ask, query, req.course, "mermaid")
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "mermaid")
     mermaid = parsers.strip_mermaid_fences(result["content"])
     course_name = req.course or "All courses"
     kind_label = kind.title()
@@ -118,7 +118,7 @@ async def generate_mindmap(req: GenerateMindmapRequest) -> MindmapOut:
     if not topic:
         raise HTTPException(status_code=400, detail="topic is required")
     query = f"Generate a mind map about: {topic}"
-    result = await run_in_threadpool(run_ask, query, req.course, "mindmap")
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "mindmap")
     course_name = req.course or "All courses"
     mindmap_id = _stable_id("mm", topic)
 
@@ -157,7 +157,7 @@ async def generate_revision(req: GenerateRevisionRequest) -> RevisionOut:
         "summary": "a high-level summary",
     }[req.format]
     query = f"Create {format_hint} for: {subject}"
-    result = await run_in_threadpool(run_ask, query, req.course, "study_notes")
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "study_notes")
     return RevisionOut(
         title=subject,
         markdown=result["content"],
@@ -181,7 +181,7 @@ async def generate_revision_stream(req: GenerateRevisionRequest) -> StreamingRes
 
     def event_stream():
         try:
-            for event in stream_ask(query, req.course, "study_notes"):
+            for event in stream_ask(query, req.course, req.document, "study_notes"):
                 # Attach title on the done event so the frontend can label the result
                 if event.get("type") == "done":
                     event["title"] = subject

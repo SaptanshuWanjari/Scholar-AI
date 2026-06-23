@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { api } from "../lib/api";
-import type { Course, DiagramItem } from "../lib/types";
+import type { Course, DiagramItem, DocumentItem } from "../lib/types";
 import { useDiagramGenStore } from "../stores/useDiagramGenStore";
 import { cn } from "../components/ui/utils";
 
@@ -31,12 +31,14 @@ export function Diagrams() {
   const [copied, setCopied] = useState(false);
   const [showCode, setShowCode] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
   // Generation state lives in a global store so an in-flight generation keeps
   // running (and shows a pending item) when navigating away and back.
-  const { topic, course, type, generating, generated, setField, generate } = useDiagramGenStore();
+  const { topic, course, document, type, generating, generated, setField, generate } = useDiagramGenStore();
   const setTopic = (v: string) => setField("topic", v);
   const setCourse = (v: string) => setField("course", v);
+  const setDocument = (v: string | null) => setField("document", v);
   const setType = (v: string) => setField("type", v);
 
   // Selecting a diagram also records its id in the store, so the viewer
@@ -65,6 +67,7 @@ export function Diagrams() {
       .catch(() => {
         /* leave course selector with just "No course" */
       });
+    api.listDocuments().then((ds) => { if (!cancelled) setDocuments(ds); }).catch(() => {});
     api
       .listDiagrams()
       .then((ds) => {
@@ -238,6 +241,19 @@ export function Diagrams() {
               {courses.map((c) => (
                 <SelectItem key={c.id} value={c.name}>
                   {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
+            <SelectTrigger className="h-9 w-44 bg-input-background">
+              <SelectValue placeholder="All documents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All documents</SelectItem>
+              {documents.filter(d => course !== "none" ? d.course === course : true).map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.title}
                 </SelectItem>
               ))}
             </SelectContent>

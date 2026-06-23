@@ -16,6 +16,7 @@ from scholarcli.config import get_settings
 from scholarcli.llm import get_llm
 from scholarcli.rag.graph import get_rag_app
 from scholarcli.rag.nodes.generator import _ROUTE_PROMPTS
+from scholarcli.api.prompt_service import active_body
 from scholarcli.rag.nodes.retriever import retrieve
 from scholarcli.rag.nodes.router import route_query
 from scholarcli.rag.nodes.verifier import verify
@@ -151,7 +152,7 @@ def _build_generation_prompt(state: GraphState) -> tuple[str, str]:
     context = "\n\n---\n\n".join(context_parts)
     user = QA_PROMPT_TEMPLATE.format(context=context, query=state["query"])
     user = f"Available sources: {', '.join(citations)}\n\n{user}"
-    system = _ROUTE_PROMPTS.get(route, GENERATOR_SYSTEM)
+    system = active_body(route) or _ROUTE_PROMPTS.get(route, GENERATOR_SYSTEM)
     return system, user
 
 

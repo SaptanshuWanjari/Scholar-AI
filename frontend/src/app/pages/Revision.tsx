@@ -61,6 +61,8 @@ export function Revision() {
   const setFormat = (f: RevisionFormat) => setField("format", f);
   const setTopic = (v: string) => setField("topic", v);
   const setCourse = (v: string) => setField("course", v);
+  const document = useRevisionStore((s) => s.document);
+  const setDocument = (v: string | null) => setField("document", v);
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -165,6 +167,19 @@ export function Revision() {
                 {courses.map((c) => (
                   <SelectItem key={c.id} value={c.name}>
                     {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
+              <SelectTrigger className="mt-2 bg-input-background">
+                <SelectValue placeholder="All documents" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All documents</SelectItem>
+                {documents.filter(d => course !== "none" ? d.course === course : true).map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.title}
                   </SelectItem>
                 ))}
               </SelectContent>

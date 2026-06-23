@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { api, type GeneratedMindmap } from "../lib/api";
-import type { Course } from "../lib/types";
+import type { Course, DocumentItem } from "../lib/types";
 import { useMindmapStore, ALL_COURSES } from "../stores/useMindmapStore";
 import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
@@ -93,9 +93,11 @@ export function MindMaps() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [items, setItems] = useState<GeneratedMindmap[]>([]);
   const [active, setActive] = useState<GeneratedMindmap | null>(null);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
-  const { topic, course, loading, mindmap, setField, generate } = useMindmapStore();
+  const { topic, course, document, loading, mindmap, setField, generate } = useMindmapStore();
   const setCourse = (v: string) => setField("course", v);
+  const setDocument = (v: string | null) => setField("document", v);
   const setTopic = (v: string) => setField("topic", v);
 
   // Absorb a newly generated mindmap into the sidebar list and select it.
@@ -111,6 +113,7 @@ export function MindMaps() {
       .listCourses()
       .then((cs) => { if (!cancelled) setCourses(cs); })
       .catch(() => {});
+    api.listDocuments().then((ds) => { if (!cancelled) setDocuments(ds); }).catch(() => {});
     api
       .listMindmaps()
       .then((ms) => {
@@ -223,6 +226,19 @@ export function MindMaps() {
               <SelectItem value={ALL_COURSES}>All courses</SelectItem>
               {courses.map((c) => (
                 <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)} disabled={loading}>
+            <SelectTrigger className="h-9 w-48 bg-input-background">
+              <SelectValue placeholder="All documents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All documents</SelectItem>
+              {documents.filter(d => course !== ALL_COURSES ? d.course === course : true).map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.title}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

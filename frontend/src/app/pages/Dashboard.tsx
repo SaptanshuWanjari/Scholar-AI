@@ -9,7 +9,6 @@ import {
   Sparkles,
   ArrowRight,
   Flame,
-  AlertTriangle,
 } from "lucide-react";
 import { motion } from "motion/react";
 import {
@@ -22,7 +21,6 @@ import {
 import { Page, SectionTitle } from "../components/Page";
 import { MetricCard } from "../components/MetricCard";
 import { Button } from "../components/ui/button";
-import { Progress } from "../components/ui/progress";
 import { api } from "../lib/api";
 import type { DashboardData } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
@@ -42,16 +40,24 @@ export function Dashboard() {
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
 
   useEffect(() => {
-    api.listCourses().then(setCourses).catch(() => {});
-    api.listDocuments().then(setDocuments).catch(() => {});
-    api.getDashboard().then(setDashboard).catch(() => {});
+    api
+      .listCourses()
+      .then(setCourses)
+      .catch(() => { });
+    api
+      .listDocuments()
+      .then(setDocuments)
+      .catch(() => { });
+    api
+      .getDashboard()
+      .then(setDashboard)
+      .catch(() => { });
   }, []);
 
   const metrics = dashboard?.metrics;
   const studyActivity = dashboard?.studyActivity ?? [];
   const recentSessions = dashboard?.recentSessions ?? [];
   const activity = dashboard?.activity ?? [];
-  const weakTopics = dashboard?.weakTopics ?? [];
 
   return (
     <Page className="space-y-6">
@@ -65,11 +71,13 @@ export function Dashboard() {
           <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
             <Flame className="size-3.5 text-warning" /> 7-day study streak
           </div>
-            <h1 className="mt-3 text-[2.5rem] leading-none">Good evening, Student.</h1>
+          <h1 className="mt-3 text-[2.5rem] leading-none">
+            Good evening, Student.
+          </h1>
           <p className="mt-3 max-w-xl leading-relaxed text-muted-foreground">
             You have <span className="text-foreground">12 cards due</span> and{" "}
-            <span className="text-foreground">2 weak topics</span> to revisit today.
-            Pick up where you left off.
+            <span className="text-foreground">2 weak topics</span> to revisit
+            today. Pick up where you left off.
           </p>
         </div>
         <div className="flex gap-2">
@@ -79,7 +87,11 @@ export function Dashboard() {
           >
             <Sparkles className="size-4" /> Ask AI
           </Button>
-          <Button variant="outline" onClick={() => navigate("/flashcards")} className="gap-2">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/flashcards")}
+            className="gap-2"
+          >
             <Layers className="size-4" /> Review cards
           </Button>
         </div>
@@ -87,10 +99,32 @@ export function Dashboard() {
 
       {/* Metrics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Documents" value={metrics?.documents ?? documents.length} icon={FileText} accent="#8b5cf6" hint={`${courses.length} courses`} />
-        <MetricCard label="Flashcards" value={metrics?.flashcards ?? 0} icon={Layers} accent="#06b6d4" hint="across all decks" />
-        <MetricCard label="Quizzes taken" value={metrics?.quizzesTaken ?? 0} icon={ListChecks} accent="#22c55e" />
-        <MetricCard label="Study sessions" value={metrics?.studySessions ?? 0} icon={Clock} accent="#f59e0b" />
+        <MetricCard
+          label="Documents"
+          value={metrics?.documents ?? documents.length}
+          icon={FileText}
+          accent="#8b5cf6"
+          hint={`${courses.length} courses`}
+        />
+        <MetricCard
+          label="Flashcards"
+          value={metrics?.flashcards ?? 0}
+          icon={Layers}
+          accent="#06b6d4"
+          hint="across all decks"
+        />
+        <MetricCard
+          label="Quizzes taken"
+          value={metrics?.quizzesTaken ?? 0}
+          icon={ListChecks}
+          accent="#22c55e"
+        />
+        <MetricCard
+          label="Study sessions"
+          value={metrics?.studySessions ?? 0}
+          icon={Clock}
+          accent="#f59e0b"
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -106,15 +140,46 @@ export function Dashboard() {
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height={208}>
-                  <AreaChart data={studyActivity} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                  <AreaChart
+                    data={studyActivity}
+                    margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+                  >
                     <defs>
-                      <linearGradient id="grad-minutes" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.35} />
-                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                      <linearGradient
+                        id="grad-minutes"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#8b5cf6"
+                          stopOpacity={0.35}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#8b5cf6"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
-                      <linearGradient id="grad-cards" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.3} />
-                        <stop offset="100%" stopColor="#06b6d4" stopOpacity={0} />
+                      <linearGradient
+                        id="grad-cards"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#06b6d4"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#06b6d4"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                     </defs>
                     <XAxis
@@ -161,7 +226,12 @@ export function Dashboard() {
             <SectionTitle
               title="Recent documents"
               action={
-                <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs" onClick={() => navigate("/documents")}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 gap-1 text-xs"
+                  onClick={() => navigate("/documents")}
+                >
                   View all <ArrowRight className="size-3" />
                 </Button>
               }
@@ -170,18 +240,21 @@ export function Dashboard() {
               {documents.slice(0, 4).map((d, i) => (
                 <div
                   key={d.id}
-                  className={`flex items-center gap-3 px-4 py-3 hover:bg-accent/40 ${
-                    i !== 0 ? "border-t border-border" : ""
-                  }`}
+                  className={`flex items-center gap-3 px-4 py-3 hover:bg-accent/40 ${i !== 0 ? "border-t border-border" : ""
+                    }`}
                 >
                   <div className="flex size-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                     <FileText className="size-4" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm">{d.title}</div>
-                    <div className="text-xs text-muted-foreground">{d.course} · {d.pages} pages</div>
+                    <div className="text-xs text-muted-foreground">
+                      {d.course} · {d.pages} pages
+                    </div>
                   </div>
-                  <span className="text-xs text-muted-foreground">{d.addedAt}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {d.addedAt}
+                  </span>
                 </div>
               ))}
             </div>
@@ -195,7 +268,12 @@ export function Dashboard() {
             <SectionTitle
               title="Courses"
               action={
-                <Button variant="ghost" size="sm" className="h-7 px-0 text-xs hover:bg-transparent" onClick={() => navigate("/knowledge")}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-0 text-xs hover:bg-transparent"
+                  onClick={() => navigate("/knowledge")}
+                >
                   <ArrowRight className="size-4" />
                 </Button>
               }
@@ -208,11 +286,16 @@ export function Dashboard() {
                   className="group flex cursor-pointer items-center gap-3"
                   onClick={() => navigate("/knowledge")}
                 >
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg font-semibold text-xs transition-colors group-hover:bg-opacity-30" style={{ backgroundColor: `${c.color}15`, color: c.color }}>
+                  <div
+                    className="flex size-10 shrink-0 items-center justify-center rounded-lg font-semibold text-xs transition-colors group-hover:bg-opacity-30"
+                    style={{ backgroundColor: `${c.color}15`, color: c.color }}
+                  >
                     {c.code.split(" ")[0].slice(0, 2)}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium leading-none">{c.name}</div>
+                    <div className="truncate text-sm font-medium leading-none">
+                      {c.name}
+                    </div>
                     <div className="mt-1 flex gap-2 text-[11px] text-muted-foreground">
                       <span>{c.documents} docs</span>
                       <span className="opacity-40">•</span>
@@ -229,16 +312,23 @@ export function Dashboard() {
             <SectionTitle title="Recent sessions" />
             <div className="space-y-2">
               {recentSessions.length === 0 ? (
-                <p className="py-4 text-center text-xs text-muted-foreground">No sessions yet</p>
+                <p className="py-4 text-center text-xs text-muted-foreground">
+                  No sessions yet
+                </p>
               ) : (
                 recentSessions.map((s) => (
-                  <div key={s.id} className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40">
+                  <div
+                    key={s.id}
+                    className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40"
+                  >
                     <div className="flex size-8 items-center justify-center rounded-lg bg-cyan-soft text-cyan">
                       <Clock className="size-4" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm">{s.title}</div>
-                      <div className="text-xs text-muted-foreground">{s.course}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {s.course}
+                      </div>
                     </div>
                     <div className="text-right text-xs text-muted-foreground">
                       <div>{s.duration}</div>
@@ -255,48 +345,29 @@ export function Dashboard() {
             <SectionTitle title="Activity" />
             <div className="space-y-1">
               {activity.length === 0 ? (
-                <p className="py-4 text-center text-xs text-muted-foreground">No activity yet</p>
+                <p className="py-4 text-center text-xs text-muted-foreground">
+                  No activity yet
+                </p>
               ) : (
                 activity.map((a) => {
                   const Icon = activityIcon[a.kind] ?? Sparkles;
                   return (
-                    <div key={a.id} className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent/40">
+                    <div
+                      key={a.id}
+                      className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent/40"
+                    >
                       <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                         <Icon className="size-3.5" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="text-sm leading-snug">{a.text}</div>
-                        <div className="text-xs text-muted-foreground">{a.time}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {a.time}
+                        </div>
                       </div>
                     </div>
                   );
                 })
-              )}
-            </div>
-          </div>
-
-          {/* Weak topics */}
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <SectionTitle title="Weak topics" />
-            <div className="space-y-4">
-              {weakTopics.length === 0 ? (
-                <p className="py-4 text-center text-xs text-muted-foreground">No weak topics yet</p>
-              ) : (
-                weakTopics.map((w) => (
-                  <div key={w.id} className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 truncate text-sm">
-                          <AlertTriangle className="size-3.5 shrink-0 text-warning" />
-                          {w.topic}
-                        </div>
-                        <div className="text-xs text-muted-foreground">{w.course}</div>
-                      </div>
-                      <span className="text-xs font-medium text-muted-foreground">{w.mastery}%</span>
-                    </div>
-                    <Progress value={w.mastery} />
-                  </div>
-                ))
               )}
             </div>
           </div>

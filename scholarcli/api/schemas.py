@@ -386,6 +386,7 @@ class ExamGenerateRequest(BaseModel):
     document: str | None = None
     difficulty: Literal["Easy", "Medium", "Hard"] = "Medium"
     count: int = 8
+    types: list[Literal["mcq", "truefalse", "short", "long"]] = ["mcq"]
 
 
 class ExamQuestionOut(BaseModel):
@@ -415,6 +416,8 @@ class ExamResultOut(BaseModel):
     total: int
     topicPerformance: list[dict] = []
     difficultyAnalysis: list[dict] = []
+    review: list[dict] = []
+    recommendedRevisions: list[str] = []
 
 
 # ---------------------------------------------------------------------------

@@ -11,6 +11,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     JSON,
+    Boolean,
     DateTime,
     Float,
     ForeignKey,
@@ -148,6 +149,29 @@ class Mindmap(Base):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class Prompt(Base):
+    """A user-customizable system prompt for a generation category.
+
+    Built-in prompts (``built_in=True``) are seeded from the RAG defaults and
+    cannot be edited or deleted; users clone or author their own variants.
+    Exactly one prompt per category is ``active`` and drives generation.
+    """
+
+    __tablename__ = "prompts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    # Maps to a RAG route: quick_qa|flashcards|quiz|mermaid|mindmap|study_notes
+    category: Mapped[str] = mapped_column(String(32), nullable=False)
+    name: Mapped[str] = mapped_column(String(128), nullable=False)
+    style: Mapped[str] = mapped_column(String(32), nullable=False, default="")
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    built_in: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
 

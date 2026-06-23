@@ -2,7 +2,7 @@
 // In dev, requests go to `/api/*` which Vite proxies to the backend
 // (see vite.config.ts). Override with VITE_API_BASE_URL for production.
 
-import type { Course, DiagramItem, DocumentItem, Flashcard, Quiz, Source } from "./types";
+import type { Course, DiagramItem, DocumentItem, Flashcard, Quiz, Source, PromptItem } from "./types";
 
 const BASE: string = (import.meta as any).env?.VITE_API_BASE_URL ?? "";
 
@@ -112,6 +112,8 @@ export interface ExamResult {
   total: number;
   topicPerformance: { topic: string; score: number }[];
   difficultyAnalysis: { level: string; correct: number; total: number }[];
+  review: { id: string; prompt: string; given: string; expected: string; correct: boolean; topic: string }[];
+  recommendedRevisions: string[];
 }
 
 export interface KGNode {
@@ -253,14 +255,15 @@ function json(body: unknown): RequestInit {
 
 export const api = {
   // ---- Ask / chat ----
-  ask(question: string, course?: string | null): Promise<AskResponse> {
-    return request<AskResponse>("/api/ask", json({ question, course: course ?? null }));
+  ask(question: string, course?: string | null, document?: string | null): Promise<AskResponse> {
+    return request<AskResponse>("/api/ask", json({ question, course: course ?? null, document: document ?? null }));
   },
 
   /** Stream an answer token-by-token over SSE. Returns the final metadata. */
   async askStream(
     question: string,
     course: string | null | undefined,
+    document: string | null | undefined,
     handlers: {
       onToken: (chunk: string) => void;
       onDone?: (meta: { sources: Source[]; confidence: number | null; grounded: boolean }) => void;
@@ -269,7 +272,7 @@ export const api = {
     },
   ): Promise<void> {
     const res = await fetch(`${BASE}/api/ask/stream`, {
-      ...json({ question, course: course ?? null }),
+      ...json({ question, course: course ?? null, document: document ?? null }),
       signal: handlers.signal,
     });
     if (!res.ok || !res.body) {
@@ -344,18 +347,19 @@ export const api = {
   },
 
   // ---- Generative study features ----
-  generateFlashcards(topic: string, course?: string | null, count = 8): Promise<FlashcardSet> {
-    return request<FlashcardSet>("/api/flashcards/generate", json({ topic, course: course ?? null, count }));
+  generateFlashcards(topic: string, course?: string | null, document?: string | null, count = 8): Promise<FlashcardSet> {
+    return request<FlashcardSet>("/api/flashcards/generate", json({ topic, course: course ?? null, document: document ?? null, count }));
   },
   generateQuiz(
     topic: string,
     course?: string | null,
+    document?: string | null,
     difficulty: "Easy" | "Medium" | "Hard" = "Medium",
   ): Promise<GeneratedQuiz> {
-    return request<GeneratedQuiz>("/api/quizzes/generate", json({ topic, course: course ?? null, difficulty }));
+    return request<GeneratedQuiz>("/api/quizzes/generate", json({ topic, course: course ?? null, document: document ?? null, difficulty }));
   },
-  generateDiagram(topic: string, course?: string | null, type?: string): Promise<GeneratedDiagram> {
-    return request<GeneratedDiagram>("/api/diagrams/generate", json({ topic, course: course ?? null, type }));
+  generateDiagram(topic: string, course?: string | null, document?: string | null, type?: string): Promise<GeneratedDiagram> {
+    return request<GeneratedDiagram>("/api/diagrams/generate", json({ topic, course: course ?? null, document: document ?? null, type }));
   },
   listDiagrams(): Promise<DiagramItem[]> {
     return request<DiagramItem[]>("/api/diagrams");
@@ -363,8 +367,8 @@ export const api = {
   deleteDiagram(id: string): Promise<void> {
     return request<void>(`/api/diagrams/${id}`, { method: "DELETE" });
   },
-  generateMindmap(topic: string, course?: string | null): Promise<GeneratedMindmap> {
-    return request<GeneratedMindmap>("/api/mindmaps/generate", json({ topic, course: course ?? null }));
+  generateMindmap(topic: string, course?: string | null, document?: string | null): Promise<GeneratedMindmap> {
+    return request<GeneratedMindmap>("/api/mindmaps/generate", json({ topic, course: course ?? null, document: document ?? null }));
   },
   listMindmaps(): Promise<GeneratedMindmap[]> {
     return request<GeneratedMindmap[]>("/api/mindmaps");
@@ -373,12 +377,12 @@ export const api = {
     return request<void>(`/api/mindmaps/${id}`, { method: "DELETE" });
   },
   generateRevision(
-    opts: { topic?: string; course?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
+    opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
   ): Promise<GeneratedRevision> {
     return request<GeneratedRevision>("/api/revision/generate", json(opts));
   },
   async revisionStream(
-    opts: { topic?: string; course?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
+    opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
     handlers: {
       onToken: (chunk: string) => void;
       onDone?: (meta: { grounded: boolean; title: string }) => void;
@@ -491,7 +495,7 @@ export const api = {
   },
 
   // ---- Exam ----
-  generateExam(opts: { topic?: string; course?: string | null; difficulty?: "Easy" | "Medium" | "Hard"; count?: number }): Promise<ExamSession> {
+  generateExam(opts: { topic?: string; course?: string | null; document?: string | null; difficulty?: "Easy" | "Medium" | "Hard"; count?: number; types?: string[] }): Promise<ExamSession> {
     return request<ExamSession>("/api/exams/generate", json(opts));
   },
   submitExam(sessionId: string, answers: Record<string, string>, timeSpent?: number): Promise<ExamResult> {
@@ -555,5 +559,21 @@ export const api = {
   },
   listModels(): Promise<ModelsList> {
     return request<ModelsList>("/api/models/list");
+  },
+  listPromptCategories(): Promise<Array<{ key: string; label: string; description: string }>> {
+    return request("/api/prompts/categories");
+  },
+  listPrompts(category?: string): Promise<PromptItem[]> {
+    const q = category ? `?category=${category}` : "";
+    return request<PromptItem[]>(`/api/prompts/${q}`);
+  },
+  createPrompt(body: { category: string; name: string; style: string; body: string }): Promise<PromptItem> {
+    return request<PromptItem>("/api/prompts/", json(body));
+  },
+  activatePrompt(id: number): Promise<PromptItem> {
+    return request<PromptItem>(`/api/prompts/${id}/activate`, { method: "PUT" });
+  },
+  deletePrompt(id: number): Promise<void> {
+    return request<void>(`/api/prompts/${id}`, { method: "DELETE" });
   },
 };

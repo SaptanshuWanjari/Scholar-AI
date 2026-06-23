@@ -33,6 +33,7 @@ interface RevisionState {
   format: RevisionFormat;
   topic: string;
   course: string; // "none" or a course name
+  document: string | null;
   // Generation state — lives in the store, NOT the component, so an in-flight
   // generation keeps running and its result is preserved across page changes.
   loading: boolean;
@@ -54,6 +55,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
   format: "notes",
   topic: "",
   course: "none",
+  document: null,
   loading: false,
   output: null,
   title: null,
@@ -104,7 +106,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
     }
   },
   generate: async () => {
-    const { topic, course, format, loading } = get();
+    const { topic, course, document, format, loading } = get();
     if (loading) return;
     const t = topic.trim();
     const selectedCourse = course === "none" ? null : course;
@@ -122,7 +124,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
     let streamed = "";
     try {
       await api.revisionStream(
-        { topic: t || undefined, course: selectedCourse, format },
+        { topic: t || undefined, course: selectedCourse, document, format },
         {
           signal: ctrl.signal,
           onToken: (chunk) => {

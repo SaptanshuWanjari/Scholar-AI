@@ -31,7 +31,7 @@ import {
 } from "../components/ui/select";
 import { api } from "../lib/api";
 import type { DeckOut } from "../lib/api";
-import type { Course, Flashcard } from "../lib/types";
+import type { Course, DocumentItem, Flashcard } from "../lib/types";
 import { useFlashcardGenStore } from "../stores/useFlashcardGenStore";
 import { cn } from "../components/ui/utils";
 
@@ -45,6 +45,7 @@ export function Flashcards() {
   // in-flight generations survive navigation.
   const topic = useFlashcardGenStore((s) => s.topic);
   const course = useFlashcardGenStore((s) => s.course);
+  const document = useFlashcardGenStore((s) => s.document);
   const generating = useFlashcardGenStore((s) => s.generating);
   const genCards = useFlashcardGenStore((s) => s.cards);
   const genUngrounded = useFlashcardGenStore((s) => s.ungrounded);
@@ -58,6 +59,7 @@ export function Flashcards() {
   const view = useFlashcardGenStore((s) => s.view);
   const setView = (v: View) => setField("view", v);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
   // Cards loaded from a saved deck (view-only / reviewable) — cheap to refetch,
   // so they stay page-local. The store holds the generated unsaved set instead.
   const [savedCards, setSavedCards] = useState<Flashcard[]>([]);
@@ -90,6 +92,7 @@ export function Flashcards() {
 
   useEffect(() => {
     api.listCourses().then(setCourses).catch(() => setCourses([]));
+    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
     void loadDecks();
     // If a saved deck was open before navigating away, re-fetch its cards on
     // remount (savedCards is local state and would otherwise be empty).
@@ -222,6 +225,22 @@ export function Flashcards() {
               {courses.map((c) => (
                 <SelectItem key={c.id} value={c.name}>
                   {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={document ?? "all"}
+            onValueChange={(v) => setField("document", v === "all" ? null : v)}
+          >
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="All documents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All documents</SelectItem>
+              {documents.filter(d => course ? d.course === course : true).map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.title}
                 </SelectItem>
               ))}
             </SelectContent>

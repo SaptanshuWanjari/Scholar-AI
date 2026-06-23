@@ -18,7 +18,7 @@ import { api } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 
 export function AskAI() {
-  const { messages, isStreaming, ask, reset, course, setCourse } = useChatStore();
+  const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument } = useChatStore();
   const streaming = useSettingsStore((s) => s.streaming);
   const [input, setInput] = useState("");
   const [activeSource, setActiveSource] = useState<string | null>(null);
@@ -99,6 +99,22 @@ export function AskAI() {
                 {courses.map((c) => (
                   <SelectItem key={c.id} value={c.name}>
                     {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={document ?? "all"}
+              onValueChange={(v) => setDocument(v === "all" ? null : v)}
+            >
+              <SelectTrigger className="h-8 w-44 bg-input-background text-xs">
+                <SelectValue placeholder="All documents" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All documents</SelectItem>
+                {documents.filter(d => course ? d.course === course : true).map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.title}
                   </SelectItem>
                 ))}
               </SelectContent>

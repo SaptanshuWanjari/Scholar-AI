@@ -347,7 +347,7 @@ export function Reading() {
                   {s.paragraphs.map((p, i) => (
                     <p
                       key={i}
-                      className="mb-6 font-book text-[18px] leading-[1.85] text-foreground/85 selection:bg-warning/25"
+                      className="mb-6 font-book text-[18px] leading-[1.85] text-foreground/85 selection:bg-primary selection:text-primary-foreground"
                     >
                       {p}
                     </p>

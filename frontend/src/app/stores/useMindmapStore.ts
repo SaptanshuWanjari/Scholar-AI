@@ -9,6 +9,7 @@ interface MindmapState {
   // keeps running and its result is preserved across page navigation.
   topic: string;
   course: string; // ALL_COURSES or a course name
+  document: string | null;
   loading: boolean;
   mindmap: GeneratedMindmap | null;
   setField: <K extends keyof MindmapState>(key: K, value: MindmapState[K]) => void;
@@ -18,11 +19,12 @@ interface MindmapState {
 export const useMindmapStore = create<MindmapState>((set, get) => ({
   topic: "",
   course: ALL_COURSES,
+  document: null,
   loading: false,
   mindmap: null,
   setField: (key, value) => set({ [key]: value } as Partial<MindmapState>),
   generate: async () => {
-    const { topic, course, loading } = get();
+    const { topic, course, document, loading } = get();
     if (loading) return;
     const trimmed = topic.trim();
     if (!trimmed) {
@@ -31,7 +33,7 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
     }
     set({ loading: true });
     try {
-      const result = await api.generateMindmap(trimmed, course === ALL_COURSES ? null : course);
+      const result = await api.generateMindmap(trimmed, course === ALL_COURSES ? null : course, document);
       if (!result.grounded || !result.text?.trim()) {
         toast.error("No grounded mind map could be generated for this topic");
         set({ mindmap: null });

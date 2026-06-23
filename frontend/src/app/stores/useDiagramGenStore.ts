@@ -9,6 +9,7 @@ interface DiagramGenState {
   // preserved when navigating away from the page and back.
   topic: string;
   course: string; // "none" or a course name
+  document: string | null;
   type: string;
   generating: boolean;
   generated: DiagramItem | null; // most recent successful generation
@@ -20,13 +21,14 @@ interface DiagramGenState {
 export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
   topic: "",
   course: "none",
+  document: null,
   type: "flowchart",
   generating: false,
   generated: null,
   activeId: null,
   setField: (key, value) => set({ [key]: value } as Partial<DiagramGenState>),
   generate: async () => {
-    const { topic, course, type, generating } = get();
+    const { topic, course, document, type, generating } = get();
     if (generating) return null;
     const t = topic.trim();
     if (!t) {
@@ -35,7 +37,7 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
     }
     set({ generating: true });
     try {
-      const result = await api.generateDiagram(t, course === "none" ? null : course, type);
+      const result = await api.generateDiagram(t, course === "none" ? null : course, document, type);
       if (!result.grounded || !result.mermaid?.trim()) {
         toast.error(
           !result.grounded ? "Couldn't ground a diagram for that topic" : "The generated diagram was empty",

@@ -40,7 +40,7 @@ import {
 } from "../components/ui/select";
 import { Page } from "../components/Page";
 import { api, type ExamResult } from "../lib/api";
-import type { Course } from "../lib/types";
+import type { Course, DocumentItem } from "../lib/types";
 import { formulaSheet, type ExamQuestion } from "../lib/exam-data";
 import { useExamStore } from "../stores/useExamStore";
 
@@ -69,18 +69,30 @@ function Builder() {
   const count = useExamStore((s) => s.count);
   const minutes = useExamStore((s) => s.minutes);
   const coverage = useExamStore((s) => s.coverage);
+  const types = useExamStore((s) => s.types);
   const generating = useExamStore((s) => s.generating);
   const setField = useExamStore((s) => s.setField);
   const generate = useExamStore((s) => s.generate);
 
   const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
   const setTopic = (v: string) => setField("topic", v);
   const setCourse = (v: string) => setField("course", v);
+  const document = useExamStore((s) => s.document);
+  const setDocument = (v: string | null) => setField("document", v);
   const setDifficulty = (v: string) => setField("difficulty", v);
   const setCount = (v: number) => setField("count", v);
   const setMinutes = (v: number) => setField("minutes", v);
   const setCoverage = (v: string) => setField("coverage", v);
+  const setTypes = (v: string[]) => setField("types", v);
+
+  const TYPE_OPTIONS = [
+    { label: "MCQ", value: "mcq" },
+    { label: "True/False", value: "truefalse" },
+    { label: "Short Answer", value: "short" },
+    { label: "Long Answer", value: "long" },
+  ];
 
   useEffect(() => {
     let active = true;
@@ -91,6 +103,7 @@ function Builder() {
       })
       .catch(() => {
       });
+    api.listDocuments().then((ds) => { if (active) setDocuments(ds); }).catch(() => {});
     return () => {
       active = false;
     };
@@ -140,6 +153,19 @@ function Builder() {
               ))}
             </SelectContent>
           </Select>
+          <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
+            <SelectTrigger className="w-full bg-input-background mt-2">
+              <SelectValue placeholder="All documents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All documents</SelectItem>
+              {documents.filter(d => course !== "all" ? d.course === course : true).map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
 
         <Field icon={SlidersHorizontal} title="Difficulty">
@@ -147,6 +173,16 @@ function Builder() {
             options={DIFFICULTIES}
             value={difficulty}
             onChange={setDifficulty}
+          />
+        </Field>
+
+        <Field icon={ListChecks} title="Question Types" desc="Select formats to include">
+          <MultiSegmented
+            options={TYPE_OPTIONS}
+            values={types}
+            onChange={(v) => {
+               if (v.length > 0) setTypes(v);
+            }}
           />
         </Field>
 
@@ -696,7 +732,7 @@ function Results() {
   const difficultyLabel = useExamStore((s) => s.difficultyLabel);
   const onRestart = useExamStore((s) => s.reset);
 
-  const { score, correct, total, topicPerformance, difficultyAnalysis } =
+  const { score, correct, total, topicPerformance, difficultyAnalysis, review = [], recommendedRevisions = [] } =
     result;
   const pct = Math.round(score);
 
@@ -843,11 +879,21 @@ function Results() {
             Recommended Revision for weak topics
           </h3>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {weak.length > 0
-            ? `Generate targeted study material for ${weak.map((t) => t.topic).join(", ")}.`
-            : "Generate study material to keep your knowledge sharp."}
-        </p>
+        <div className="mt-3 space-y-2">
+          {recommendedRevisions.length > 0 ? (
+            <ul className="list-inside list-disc text-sm text-muted-foreground space-y-1">
+              {recommendedRevisions.map((rev, i) => (
+                <li key={i}>{rev}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {weak.length > 0
+                ? `Generate targeted study material for ${weak.map((t) => t.topic).join(", ")}.`
+                : "Generate study material to keep your knowledge sharp."}
+            </p>
+          )}
+        </div>
         <div className="mt-4 grid gap-2 sm:grid-cols-4">
           {revisionActions.map((a) => (
             <button
@@ -857,6 +903,41 @@ function Results() {
             >
               <a.icon className="size-4" /> {a.label}
             </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Questions Review */}
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Questions Review
+        </h3>
+        <div className="space-y-4">
+          {review.map((r, i) => (
+            <div key={r.id} className="rounded-xl border border-border bg-background/50 p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">Question {i + 1}</span>
+                <Badge
+                  variant="outline"
+                  className={cn("text-[10px]", r.correct ? "border-success/40 bg-success-soft text-success" : "border-danger/40 bg-danger-soft text-danger")}
+                >
+                  {r.correct ? "Correct" : "Incorrect"}
+                </Badge>
+              </div>
+              <p className="font-reading text-[1.1rem] leading-snug">{r.prompt}</p>
+              <div className="mt-3 space-y-2 text-sm">
+                <div className="flex gap-2">
+                  <span className="font-medium text-muted-foreground">Your Answer:</span>
+                  <span className={cn(r.correct ? "text-success" : "text-danger")}>{r.given || "—"}</span>
+                </div>
+                {!r.correct && (
+                  <div className="flex gap-2">
+                    <span className="font-medium text-muted-foreground">Correct Answer:</span>
+                    <span className="text-success">{r.expected}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -965,6 +1046,44 @@ function Stat({ label, value }: { label: string; value: string }) {
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
         {label}
       </div>
+    </div>
+  );
+}
+
+export function MultiSegmented({
+  options,
+  values,
+  onChange,
+}: {
+  options: { label: string; value: string }[];
+  values: string[];
+  onChange: (v: string[]) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2 rounded-lg border border-border bg-card p-0.5">
+      {options.map((o) => {
+        const active = values.includes(o.value);
+        return (
+          <button
+            key={o.value}
+            onClick={() =>
+              onChange(
+                active
+                  ? values.filter((v) => v !== o.value)
+                  : [...values, o.value],
+              )
+            }
+            className={cn(
+              "flex-1 rounded-md py-1.5 text-sm font-medium transition-colors",
+              active
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary",
+            )}
+          >
+            {o.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
