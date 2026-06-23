@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   TrendingDown,
   Clock,
+  Bookmark,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -47,9 +48,12 @@ export function Revision() {
     output,
     title,
     ungrounded,
+    savedRevisions,
     setField,
     generate,
     stop,
+    saveRevision,
+    loadRevision,
   } = useRevisionStore();
   const setFormat = (f: RevisionFormat) => setField("format", f);
   const setTopic = (v: string) => setField("topic", v);
@@ -191,6 +195,30 @@ export function Revision() {
             </div>
           </div>
         )}
+
+        {/* Saved revisions */}
+        {savedRevisions.length > 0 && (
+          <div className="mt-8 space-y-5">
+            <div>
+              <div className="mb-2 flex items-center gap-2">
+                <Bookmark className="size-3.5 text-muted-foreground" />
+                <Label>Saved revisions</Label>
+              </div>
+              <div className="space-y-2">
+                {savedRevisions.map((r) => (
+                  <button
+                    key={r.id}
+                    onClick={() => loadRevision(r.id)}
+                    className="flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
+                  >
+                    <span className="text-sm font-medium truncate w-full">{r.title}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(r.timestamp).toLocaleDateString()}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Preview */}
@@ -198,9 +226,26 @@ export function Revision() {
         <div className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
           <span className="text-sm font-medium">{title ?? "Preview"}</span>
           {output && (
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.success("Exported")}>
-              <Download className="size-3.5" /> Export
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={saveRevision}>
+                <Bookmark className="size-3.5" /> Save
+              </Button>
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
+                if (!output) return;
+                const blob = new Blob([output], { type: "text/markdown" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${(title || "revision").replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast.success("Exported as markdown");
+              }}>
+                <Download className="size-3.5" /> Export
+              </Button>
+            </div>
           )}
         </div>
         <div className="mx-auto max-w-3xl px-8 py-8">

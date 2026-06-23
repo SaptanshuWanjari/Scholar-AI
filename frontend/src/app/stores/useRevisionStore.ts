@@ -4,6 +4,16 @@ import { api } from "../lib/api";
 
 export type RevisionFormat = "notes" | "concepts" | "formulas" | "summary";
 
+export interface SavedRevision {
+  id: string;
+  title: string;
+  topic: string;
+  course: string;
+  format: RevisionFormat;
+  content: string;
+  timestamp: number;
+}
+
 /** Heuristic: detect a backend "this topic isn't in your documents" message. */
 function looksNotCovered(markdown: string): boolean {
   const text = markdown.trim().toLowerCase();
@@ -29,9 +39,12 @@ interface RevisionState {
   output: string | null;
   title: string | null;
   ungrounded: boolean;
+  savedRevisions: SavedRevision[];
   setField: <K extends keyof RevisionState>(key: K, value: RevisionState[K]) => void;
   generate: () => Promise<void>;
   stop: () => void;
+  saveRevision: () => void;
+  loadRevision: (id: string) => void;
 }
 
 // Module-scoped so the stream survives component unmount (page navigation).
@@ -45,11 +58,42 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
   output: null,
   title: null,
   ungrounded: false,
+  savedRevisions: [],
   setField: (key, value) => set({ [key]: value } as Partial<RevisionState>),
   stop: () => {
     controller?.abort();
     controller = null;
     set({ loading: false });
+  },
+  saveRevision: () => {
+    const { output, title, topic, course, format, savedRevisions } = get();
+    if (!output) return;
+    const newRev: SavedRevision = {
+      id: Date.now().toString(),
+      title: title || "Untitled Revision",
+      topic,
+      course,
+      format,
+      content: output,
+      timestamp: Date.now(),
+    };
+    set({ savedRevisions: [newRev, ...savedRevisions] });
+    toast.success("Revision saved");
+  },
+  loadRevision: (id: string) => {
+    const { savedRevisions } = get();
+    const rev = savedRevisions.find((r) => r.id === id);
+    if (rev) {
+      set({
+        output: rev.content,
+        title: rev.title,
+        topic: rev.topic,
+        course: rev.course,
+        format: rev.format,
+        ungrounded: false,
+      });
+      toast.success("Revision loaded");
+    }
   },
   generate: async () => {
     const { topic, course, format, loading } = get();
