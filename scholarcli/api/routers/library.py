@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
+from scholarcli.api.activity_service import record_activity
 from scholarcli.api.schemas import (
     CardReview,
     DeckOut,
@@ -118,6 +119,7 @@ def review_card(card_id: int, review: CardReview) -> FlashcardOut:
         session.commit()
         session.refresh(card)
         deck = session.get(Deck, card.deck_id)
+        record_activity("flashcard", f"Reviewed card in {deck.name if deck else 'deck'}", deck.course if deck else "", cards=1)
         return FlashcardOut(
             id=str(card.id),
             type=card.type,  # type: ignore[arg-type]

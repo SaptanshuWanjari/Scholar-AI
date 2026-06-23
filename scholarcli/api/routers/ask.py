@@ -9,6 +9,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 
 from scholarcli.api import rag_service
+from scholarcli.api.activity_service import record_activity
 from scholarcli.api.schemas import AskRequest, AskResponse, SourceOut
 
 router = APIRouter(prefix="/api", tags=["ask"])
@@ -22,6 +23,7 @@ async def ask(payload: AskRequest) -> AskResponse:
     result = await run_in_threadpool(
         rag_service.run_ask, question, payload.course, payload.route
     )
+    record_activity("ask", f"Asked: {question}", payload.course or "")
     return AskResponse(
         id=f"a-{abs(hash(question)) % 10_000_000}",
         content=result["content"],
@@ -37,6 +39,7 @@ async def ask_stream(payload: AskRequest) -> StreamingResponse:
     question = payload.question.strip()
     if not question:
         raise HTTPException(status_code=400, detail="question is required")
+    record_activity("ask", f"Asked: {question}", payload.course or "")
 
     def event_stream():
         try:

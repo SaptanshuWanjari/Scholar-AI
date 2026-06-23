@@ -12,6 +12,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
 
 from scholarcli.api import parsers
+from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import run_ask
 from scholarcli.api.schemas import (
     ExamGenerateRequest,
@@ -86,6 +87,7 @@ def submit_exam(session_id: str, payload: ExamSubmitRequest) -> ExamResultOut:
         by_diff[q["difficulty"]][1] += 1
 
     score = round(100 * correct / total) if total else 0
+    record_activity("exam", f"Exam: {session['topic']} — {score}%", "", minutes=payload.timeSpent // 60 if payload.timeSpent else None)
     topic_perf = [
         {"topic": t, "score": round(100 * c / n) if n else 0} for t, (c, n) in by_topic.items()
     ]

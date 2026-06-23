@@ -29,6 +29,11 @@ def get_graph(course: str | None = None) -> KGGraphOut:
     return KGGraphOut(**knowledge_service.graph(course))
 
 
+@router.get("/knowledge/sidebar")
+def kg_sidebar(course: str | None = None) -> dict:
+    return knowledge_service.sidebar(course)
+
+
 @router.get("/concepts/discover", response_model=list[str])
 def discover(conceptId: int) -> list[str]:
     return knowledge_service.discover(conceptId)

@@ -8,6 +8,7 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 
 import scholarcli.llm
+from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import serialize_chunks
 from scholarcli.api.schemas import DocumentOut, SourceOut
 from scholarcli.config import get_settings
@@ -91,6 +92,7 @@ async def upload_document(
         if not row:
             raise HTTPException(status_code=500, detail="Document not found after ingest")
         doc, c = row
+        record_activity("document", f"Indexed {doc.title}", c.name)
         return _serialize(doc, c.name)
     finally:
         session.close()

@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
 
+from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import run_ask
 from scholarcli.api.schemas import (
     CollectionOut,
@@ -79,6 +80,7 @@ def create_notebook(payload: NotebookCreate) -> NotebookOut:
         session.add(nb)
         session.commit()
         session.refresh(nb)
+        record_activity("note", f"Created notebook: {nb.title}", nb.course)
         return _full(nb)
     finally:
         session.close()
@@ -111,9 +113,43 @@ def update_notebook(notebook_id: int, patch: NotebookPatch) -> NotebookOut:
             nb.blocks = patch.blocks
         if patch.color is not None:
             nb.color = patch.color
+        if patch.tags is not None:
+            nb.tags = patch.tags
         session.commit()
         session.refresh(nb)
         return _full(nb)
+    finally:
+        session.close()
+
+
+@router.get("/collections", response_model=list[CollectionOut])
+def notebook_collections() -> list[CollectionOut]:
+    """Collections = notebooks grouped by course."""
+    session = get_session()
+    try:
+        counts: dict[str, int] = {}
+        for nb in session.query(Notebook).all():
+            key = nb.course or "Uncategorized"
+            counts[key] = counts.get(key, 0) + 1
+        return [
+            CollectionOut(id=f"col-{i}", name=name, count=n)
+            for i, (name, n) in enumerate(sorted(counts.items()))
+        ]
+    finally:
+        session.close()
+
+
+@router.get("/tags", response_model=list[str])
+def notebook_tags() -> list[str]:
+    """Distinct tags across all notebooks."""
+    session = get_session()
+    try:
+        seen: list[str] = []
+        for nb in session.query(Notebook).all():
+            for t in (nb.tags or []):
+                if t not in seen:
+                    seen.append(t)
+        return seen
     finally:
         session.close()
 

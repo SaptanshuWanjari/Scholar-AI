@@ -43,6 +43,7 @@ def create_app() -> FastAPI:
     from scholarcli.api.routers import (
         ask,
         courses,
+        dashboard,
         documents,
         exam,
         knowledge,
@@ -58,6 +59,7 @@ def create_app() -> FastAPI:
     for module in (
         ask,
         courses,
+        dashboard,
         documents,
         exam,
         knowledge,

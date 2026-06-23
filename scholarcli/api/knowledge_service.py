@@ -238,3 +238,33 @@ def inspector(concept_id: int) -> dict | None:
 def discover(concept_id: int) -> list[str]:
     data = inspector(concept_id)
     return data["relatedConcepts"] if data else []
+
+
+def sidebar(course: str | None = None) -> dict:
+    """Explorer side-panel data derived from the concept graph."""
+    session = get_session()
+    try:
+        cq = session.query(Concept)
+        if course:
+            cq = cq.filter(Concept.course == course)
+        concepts = cq.all()
+
+        # Collections = concepts grouped by cluster.
+        counts: dict[str, int] = {}
+        for c in concepts:
+            counts[c.cluster] = counts.get(c.cluster, 0) + 1
+        collections = [
+            {"id": f"col-{cl}", "label": cl.upper(), "count": n}
+            for cl, n in sorted(counts.items(), key=lambda kv: -kv[1])
+        ]
+
+        # Recent concepts = highest-id (most recently extracted) names.
+        recent = [c.name for c in sorted(concepts, key=lambda c: c.id, reverse=True)[:6]]
+
+        return {
+            "collections": collections,
+            "recentConcepts": recent,
+            "sourceFilters": ["Documents", "Notes", "Answers", "Flashcards", "Quizzes", "Diagrams"],
+        }
+    finally:
+        session.close()

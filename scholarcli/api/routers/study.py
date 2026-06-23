@@ -10,6 +10,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
 
 from scholarcli.api import parsers
+from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import run_ask
 from scholarcli.api.schemas import (
     DiagramOut,
@@ -41,6 +42,7 @@ async def generate_flashcards(req: GenerateFlashcardsRequest) -> FlashcardSet:
     query = f"Generate {req.count} flashcards covering: {topic}"
     result = await run_in_threadpool(run_ask, query, req.course, "flashcards")
     cards = parsers.parse_flashcards(result["content"], deck=topic)
+    record_activity("flashcard", f"Generated flashcards: {topic}", req.course or "")
     return FlashcardSet(
         deck=topic,
         course=req.course,
@@ -57,6 +59,7 @@ async def generate_quiz(req: GenerateQuizRequest) -> QuizOut:
     query = f"Generate a {req.difficulty} difficulty quiz about: {topic}"
     result = await run_in_threadpool(run_ask, query, req.course, "quiz")
     questions = parsers.parse_quiz(result["content"])
+    record_activity("quiz", f"Generated quiz: {topic}", req.course or "")
     return QuizOut(
         id=_stable_id("quiz", topic, req.difficulty),
         title=topic,
@@ -76,6 +79,7 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
     query = f"Generate a {kind} diagram about: {topic}"
     result = await run_in_threadpool(run_ask, query, req.course, "mermaid")
     mermaid = parsers.strip_mermaid_fences(result["content"])
+    record_activity("diagram", f"Generated diagram: {topic}", req.course or "")
     return DiagramOut(
         id=_stable_id("dg", topic, kind),
         title=topic,
