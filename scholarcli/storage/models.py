@@ -7,9 +7,18 @@ history is kept in-memory in the TUI until persistence is justified.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -51,3 +60,101 @@ class Document(Base):
         Integer, ForeignKey("courses.id"), nullable=False
     )
     course: Mapped["Course"] = relationship(back_populates="documents")
+
+
+# ---------------------------------------------------------------------------
+# Persistence for generated study artifacts (decks, quizzes, notebooks, KG).
+# Nested structures (quiz questions, notebook blocks) are stored as JSON to
+# avoid premature normalization.
+# ---------------------------------------------------------------------------
+
+class Deck(Base):
+    __tablename__ = "decks"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    color: Mapped[str] = mapped_column(String(16), nullable=False, default="#4f4d7a")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    cards: Mapped[list["Card"]] = relationship(
+        back_populates="deck", cascade="all, delete-orphan"
+    )
+
+
+class Card(Base):
+    __tablename__ = "cards"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    deck_id: Mapped[int] = mapped_column(Integer, ForeignKey("decks.id"), nullable=False)
+    type: Mapped[str] = mapped_column(String(16), nullable=False, default="basic")
+    front: Mapped[str] = mapped_column(Text, nullable=False)
+    back: Mapped[str] = mapped_column(Text, nullable=False)
+    due: Mapped[str] = mapped_column(String(32), nullable=False, default="Today")
+    ease: Mapped[str] = mapped_column(String(16), nullable=False, default="new")
+
+    deck: Mapped["Deck"] = relationship(back_populates="cards")
+
+
+class SavedQuiz(Base):
+    __tablename__ = "quizzes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    difficulty: Mapped[str] = mapped_column(String(16), nullable=False, default="Medium")
+    questions: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class Notebook(Base):
+    __tablename__ = "notebooks"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    subtitle: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    color: Mapped[str] = mapped_column(String(16), nullable=False, default="#4f4d7a")
+    blocks: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class Concept(Base):
+    __tablename__ = "concepts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(256), unique=True, nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    definition: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    cluster: Mapped[str] = mapped_column(String(16), nullable=False, default="rag")
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    ref_count: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    source_count: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+
+
+class ConceptEdge(Base):
+    __tablename__ = "concept_edges"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    source_id: Mapped[int] = mapped_column(Integer, ForeignKey("concepts.id"), nullable=False)
+    target_id: Mapped[int] = mapped_column(Integer, ForeignKey("concepts.id"), nullable=False)
+    relation: Mapped[str] = mapped_column(String(64), nullable=False, default="related")
+
+
+class ReadingState(Base):
+    __tablename__ = "reading_state"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    document_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("documents.id"), unique=True, nullable=False
+    )
+    highlights: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    bookmarks: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    progress: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)

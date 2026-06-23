@@ -43,6 +43,113 @@ export interface SearchResult {
   course: string;
 }
 
+export interface DeckOut {
+  id: string;
+  name: string;
+  course: string;
+  color: string;
+  cards: number;
+  mastered: number;
+}
+
+export interface NotebookMeta {
+  id: string;
+  name: string;
+  course: string;
+  color: string;
+  notes: number;
+  lastEdited: string;
+}
+
+export interface NotebookFull {
+  id: string;
+  title: string;
+  subtitle: string;
+  course: string;
+  color: string;
+  blocks: any[];
+  updated: string;
+}
+
+export interface ReadingSection {
+  id: string;
+  number: string;
+  title: string;
+  paragraphs: string[];
+}
+
+export interface ReadingDoc {
+  id: string;
+  title: string;
+  author: string;
+  kind: string;
+  pages: number;
+  sections: ReadingSection[];
+  highlights: { id: string; text: string; section: string }[];
+  bookmarks: { id: string; section: string; note: string }[];
+  progress: number;
+}
+
+export interface ExamQuestionOut {
+  id: string;
+  type: "mcq" | "truefalse" | "short" | "long";
+  topic: string;
+  difficulty: string;
+  prompt: string;
+  options?: string[];
+  answer?: string;
+}
+
+export interface ExamSession {
+  sessionId: string;
+  questions: ExamQuestionOut[];
+  grounded: boolean;
+}
+
+export interface ExamResult {
+  score: number;
+  correct: number;
+  total: number;
+  topicPerformance: { topic: string; score: number }[];
+  difficultyAnalysis: { level: string; correct: number; total: number }[];
+}
+
+export interface KGNode {
+  id: string;
+  label: string;
+  description: string;
+  size: "large" | "medium" | "small";
+  refCount: number;
+  sourceCount: number;
+  cluster: string;
+}
+
+export interface KGEdge {
+  id: string;
+  source: string;
+  target: string;
+  label: string;
+}
+
+export interface KGGraph {
+  nodes: KGNode[];
+  edges: KGEdge[];
+}
+
+export interface ConceptInspector {
+  id: string;
+  name: string;
+  confidence: number;
+  refCount: number;
+  sourceCount: number;
+  description: string;
+  definition: string;
+  aiSummary: string;
+  relatedConcepts: string[];
+  referencedIn: Record<string, number>;
+  citations: { source: string; detail: string }[];
+}
+
 export interface AskResponse {
   id: string;
   role: "assistant";
@@ -229,6 +336,101 @@ export const api = {
   search(q: string, filter = "all"): Promise<SearchResult[]> {
     const p = new URLSearchParams({ q, filter });
     return request<SearchResult[]>(`/api/search?${p.toString()}`);
+  },
+
+  // ---- Decks / flashcard persistence ----
+  listDecks(): Promise<DeckOut[]> {
+    return request<DeckOut[]>("/api/decks");
+  },
+  saveDeck(name: string, course: string | null, cards: Flashcard[], color?: string): Promise<DeckOut> {
+    return request<DeckOut>("/api/decks", json({ name, course, cards, color }));
+  },
+  deleteDeck(id: string): Promise<void> {
+    return request<void>(`/api/decks/${id}`, { method: "DELETE" });
+  },
+  listSavedFlashcards(deck?: string, course?: string): Promise<Flashcard[]> {
+    const p = new URLSearchParams();
+    if (deck) p.set("deck", deck);
+    if (course) p.set("course", course);
+    const qs = p.toString();
+    return request<Flashcard[]>(`/api/flashcards${qs ? `?${qs}` : ""}`);
+  },
+  reviewCard(id: string, ease: "new" | "learning" | "mastered", due?: string): Promise<Flashcard> {
+    return request<Flashcard>(`/api/flashcards/${id}`, { ...json({ ease, due }), method: "PUT" });
+  },
+  deleteCard(id: string): Promise<void> {
+    return request<void>(`/api/flashcards/${id}`, { method: "DELETE" });
+  },
+
+  // ---- Saved quizzes ----
+  listSavedQuizzes(): Promise<Quiz[]> {
+    return request<Quiz[]>("/api/quizzes");
+  },
+  saveQuiz(quiz: { title: string; course?: string | null; difficulty: string; questions: Quiz["questions"] }): Promise<Quiz> {
+    return request<Quiz>("/api/quizzes", json(quiz));
+  },
+  deleteQuiz(id: string): Promise<void> {
+    return request<void>(`/api/quizzes/${id}`, { method: "DELETE" });
+  },
+
+  // ---- Notebooks ----
+  listNotebooks(): Promise<NotebookMeta[]> {
+    return request<NotebookMeta[]>("/api/notebooks");
+  },
+  getNotebook(id: string): Promise<NotebookFull> {
+    return request<NotebookFull>(`/api/notebooks/${id}`);
+  },
+  createNotebook(title: string, course?: string | null): Promise<NotebookFull> {
+    return request<NotebookFull>("/api/notebooks", json({ title, course }));
+  },
+  updateNotebook(id: string, patch: { title?: string; subtitle?: string; blocks?: any[]; color?: string }): Promise<NotebookFull> {
+    return request<NotebookFull>(`/api/notebooks/${id}`, { ...json(patch), method: "PUT" });
+  },
+  deleteNotebook(id: string): Promise<void> {
+    return request<void>(`/api/notebooks/${id}`, { method: "DELETE" });
+  },
+  notebookAssist(action: "explain" | "summarize" | "improve", text: string, course?: string | null): Promise<{ text: string }> {
+    return request<{ text: string }>("/api/notebooks/assist", json({ action, text, course }));
+  },
+
+  // ---- Reading ----
+  getReading(documentId: string): Promise<ReadingDoc> {
+    return request<ReadingDoc>(`/api/reading/${documentId}`);
+  },
+  addHighlight(documentId: string, text: string, section: string): Promise<ReadingDoc> {
+    return request<ReadingDoc>(`/api/reading/${documentId}/highlights`, json({ text, section }));
+  },
+  addBookmark(documentId: string, section: string, note: string): Promise<ReadingDoc> {
+    return request<ReadingDoc>(`/api/reading/${documentId}/bookmarks`, json({ section, note }));
+  },
+  readingLens(documentId: string, text: string, level: string): Promise<{ level: string; text: string }> {
+    const p = new URLSearchParams({ text, level });
+    return request<{ level: string; text: string }>(`/api/reading/${documentId}/lens?${p.toString()}`);
+  },
+
+  // ---- Exam ----
+  generateExam(opts: { topic?: string; course?: string | null; difficulty?: "Easy" | "Medium" | "Hard"; count?: number }): Promise<ExamSession> {
+    return request<ExamSession>("/api/exams/generate", json(opts));
+  },
+  submitExam(sessionId: string, answers: Record<string, string>, timeSpent?: number): Promise<ExamResult> {
+    return request<ExamResult>(`/api/exams/${sessionId}/submit`, json({ answers, timeSpent }));
+  },
+
+  // ---- Knowledge graph ----
+  buildKnowledgeGraph(course?: string | null, maxDocuments = 8): Promise<{ concepts: number; edges: number }> {
+    return request<{ concepts: number; edges: number }>("/api/knowledge/build", json({ course, max_documents: maxDocuments }));
+  },
+  getKnowledgeGraph(course?: string | null): Promise<KGGraph> {
+    const p = new URLSearchParams();
+    if (course) p.set("course", course);
+    const qs = p.toString();
+    return request<KGGraph>(`/api/knowledge-graph${qs ? `?${qs}` : ""}`);
+  },
+  getConcept(id: string): Promise<ConceptInspector> {
+    return request<ConceptInspector>(`/api/concepts/${id}`);
+  },
+  discoverConcepts(conceptId: string): Promise<string[]> {
+    return request<string[]>(`/api/concepts/discover?conceptId=${conceptId}`);
   },
 
   // ---- Trace ----

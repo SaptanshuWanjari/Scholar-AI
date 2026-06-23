@@ -44,19 +44,32 @@ def create_app() -> FastAPI:
         ask,
         courses,
         documents,
+        exam,
+        knowledge,
+        library,
+        notebooks,
+        reading,
         search,
         settings,
         study,
         trace,
     )
 
-    app.include_router(ask.router)
-    app.include_router(courses.router)
-    app.include_router(documents.router)
-    app.include_router(search.router)
-    app.include_router(settings.router)
-    app.include_router(study.router)
-    app.include_router(trace.router)
+    for module in (
+        ask,
+        courses,
+        documents,
+        exam,
+        knowledge,
+        library,
+        notebooks,
+        reading,
+        search,
+        settings,
+        study,
+        trace,
+    ):
+        app.include_router(module.router)
 
     @app.get("/api/health", tags=["health"])
     def health() -> dict:

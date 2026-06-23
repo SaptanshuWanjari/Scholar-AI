@@ -78,6 +78,32 @@ def search(query_vector: list[float], top_k: int = 5, course: str | None = None)
     return q.to_list()
 
 
+def get_document_chunks(document_id: int) -> list[dict]:
+    """Return all chunks for a document, ordered by chunk_index. [] if absent."""
+    if not _has_table():
+        return []
+    tbl = _open_table()
+    try:
+        rows = tbl.search().where(f"document_id = {document_id}").limit(10_000).to_list()
+    except Exception:
+        return []
+    return sorted(rows, key=lambda r: r.get("chunk_index", 0))
+
+
+def all_chunks(course: str | None = None, limit: int = 5000) -> list[dict]:
+    """Return chunks across all documents (optionally filtered by course)."""
+    if not _has_table():
+        return []
+    tbl = _open_table()
+    try:
+        q = tbl.search().limit(limit)
+        if course:
+            q = q.where(f"course = '{course}'")
+        return q.to_list()
+    except Exception:
+        return []
+
+
 def delete_document(document_id: int) -> None:
     """Remove all chunks belonging to a document.  No-op if table absent."""
     if not _has_table():

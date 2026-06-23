@@ -232,3 +232,210 @@ class SearchResultOut(BaseModel):
     title: str
     snippet: str
     course: str
+
+
+# ---------------------------------------------------------------------------
+# Persistence: decks / cards / quizzes
+# ---------------------------------------------------------------------------
+
+class DeckOut(BaseModel):
+    id: str
+    name: str
+    course: str
+    color: str
+    cards: int
+    mastered: int
+
+
+class SaveDeckRequest(BaseModel):
+    name: str
+    course: str | None = None
+    color: str | None = None
+    cards: list[FlashcardOut] = []
+
+
+class CardReview(BaseModel):
+    ease: Literal["new", "learning", "mastered"]
+    due: str | None = None
+
+
+class SaveQuizRequest(BaseModel):
+    title: str
+    course: str | None = None
+    difficulty: str = "Medium"
+    questions: list[QuizQuestionOut] = []
+
+
+# ---------------------------------------------------------------------------
+# Notebooks
+# ---------------------------------------------------------------------------
+
+class NotebookMetaOut(BaseModel):
+    id: str
+    name: str
+    course: str
+    color: str
+    notes: int
+    lastEdited: str
+
+
+class NotebookOut(BaseModel):
+    id: str
+    title: str
+    subtitle: str
+    course: str
+    color: str
+    blocks: list = []
+    updated: str
+
+
+class NotebookCreate(BaseModel):
+    title: str
+    course: str | None = None
+    subtitle: str | None = None
+    color: str | None = None
+
+
+class NotebookPatch(BaseModel):
+    title: str | None = None
+    subtitle: str | None = None
+    blocks: list | None = None
+    color: str | None = None
+
+
+class NotebookAssistRequest(BaseModel):
+    action: Literal["explain", "summarize", "improve"] = "explain"
+    text: str
+    course: str | None = None
+
+
+class NotebookAssistResponse(BaseModel):
+    text: str
+
+
+# ---------------------------------------------------------------------------
+# Reading
+# ---------------------------------------------------------------------------
+
+class ReadingSectionOut(BaseModel):
+    id: str
+    number: str
+    title: str
+    paragraphs: list[str]
+
+
+class ReadingDocOut(BaseModel):
+    id: str
+    title: str
+    author: str = ""
+    kind: str = ""
+    pages: int = 0
+    sections: list[ReadingSectionOut] = []
+    highlights: list[dict] = []
+    bookmarks: list[dict] = []
+    progress: float = 0.0
+
+
+class HighlightCreate(BaseModel):
+    text: str
+    section: str = ""
+
+
+class BookmarkCreate(BaseModel):
+    section: str
+    note: str = ""
+
+
+class LensResponse(BaseModel):
+    level: str
+    text: str
+
+
+# ---------------------------------------------------------------------------
+# Exam
+# ---------------------------------------------------------------------------
+
+class ExamGenerateRequest(BaseModel):
+    topic: str | None = None
+    course: str | None = None
+    difficulty: Literal["Easy", "Medium", "Hard"] = "Medium"
+    count: int = 8
+
+
+class ExamQuestionOut(BaseModel):
+    id: str
+    type: Literal["mcq", "truefalse", "short", "long"] = "mcq"
+    topic: str
+    difficulty: str
+    prompt: str
+    options: list[str] | None = None
+    answer: str | None = None
+
+
+class ExamSessionOut(BaseModel):
+    sessionId: str
+    questions: list[ExamQuestionOut]
+    grounded: bool = True
+
+
+class ExamSubmitRequest(BaseModel):
+    answers: dict[str, str] = {}
+    timeSpent: int | None = None
+
+
+class ExamResultOut(BaseModel):
+    score: int
+    correct: int
+    total: int
+    topicPerformance: list[dict] = []
+    difficultyAnalysis: list[dict] = []
+
+
+# ---------------------------------------------------------------------------
+# Knowledge graph
+# ---------------------------------------------------------------------------
+
+class KGBuildRequest(BaseModel):
+    course: str | None = None
+    max_documents: int = 8
+
+
+class KGBuildResponse(BaseModel):
+    concepts: int
+    edges: int
+
+
+class KGNode(BaseModel):
+    id: str
+    label: str
+    description: str
+    size: Literal["large", "medium", "small"]
+    refCount: int
+    sourceCount: int
+    cluster: str
+
+
+class KGEdge(BaseModel):
+    id: str
+    source: str
+    target: str
+    label: str
+
+
+class KGGraphOut(BaseModel):
+    nodes: list[KGNode] = []
+    edges: list[KGEdge] = []
+
+
+class ConceptInspectorOut(BaseModel):
+    id: str
+    name: str
+    confidence: float
+    refCount: int
+    sourceCount: int
+    description: str
+    definition: str
+    aiSummary: str
+    relatedConcepts: list[str] = []
+    referencedIn: dict = {}
+    citations: list[dict] = []

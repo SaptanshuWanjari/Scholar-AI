@@ -1,0 +1,202 @@
+"""Persistence for generated study artifacts: decks, flashcards, quizzes."""
+
+from __future__ import annotations
+
+from fastapi import APIRouter, HTTPException
+
+from scholarcli.api.schemas import (
+    CardReview,
+    DeckOut,
+    FlashcardOut,
+    QuizOut,
+    QuizQuestionOut,
+    SaveDeckRequest,
+    SaveQuizRequest,
+)
+from scholarcli.storage import get_session
+from scholarcli.storage.models import Card, Deck, SavedQuiz
+
+router = APIRouter(prefix="/api", tags=["library"])
+
+_DECK_COLORS = ["#4f4d7a", "#3f6b6f", "#3f7a4e", "#a3771f", "#6b3f6f", "#9f3a36"]
+
+
+# ---------------------------------------------------------------------------
+# Decks + flashcards
+# ---------------------------------------------------------------------------
+
+def _deck_out(deck: Deck) -> DeckOut:
+    cards = deck.cards
+    return DeckOut(
+        id=str(deck.id),
+        name=deck.name,
+        course=deck.course,
+        color=deck.color,
+        cards=len(cards),
+        mastered=sum(1 for c in cards if c.ease == "mastered"),
+    )
+
+
+@router.get("/decks", response_model=list[DeckOut])
+def list_decks() -> list[DeckOut]:
+    session = get_session()
+    try:
+        return [_deck_out(d) for d in session.query(Deck).order_by(Deck.created_at.desc()).all()]
+    finally:
+        session.close()
+
+
+@router.post("/decks", response_model=DeckOut, status_code=201)
+def save_deck(payload: SaveDeckRequest) -> DeckOut:
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Deck name is required")
+    session = get_session()
+    try:
+        color = payload.color or _DECK_COLORS[hash(name) % len(_DECK_COLORS)]
+        deck = Deck(name=name, course=payload.course or "", color=color)
+        for c in payload.cards:
+            deck.cards.append(
+                Card(type=c.type, front=c.front, back=c.back, due=c.due, ease=c.ease)
+            )
+        session.add(deck)
+        session.commit()
+        session.refresh(deck)
+        return _deck_out(deck)
+    finally:
+        session.close()
+
+
+@router.delete("/decks/{deck_id}", status_code=204)
+def delete_deck(deck_id: int) -> None:
+    session = get_session()
+    try:
+        deck = session.get(Deck, deck_id)
+        if not deck:
+            raise HTTPException(status_code=404, detail="Deck not found")
+        session.delete(deck)
+        session.commit()
+    finally:
+        session.close()
+
+
+@router.get("/flashcards", response_model=list[FlashcardOut])
+def list_flashcards(deck: str | None = None, course: str | None = None) -> list[FlashcardOut]:
+    session = get_session()
+    try:
+        q = session.query(Card, Deck).join(Deck, Card.deck_id == Deck.id)
+        if deck:
+            q = q.filter(Deck.name == deck)
+        if course:
+            q = q.filter(Deck.course == course)
+        return [
+            FlashcardOut(
+                id=str(card.id),
+                type=card.type,  # type: ignore[arg-type]
+                front=card.front,
+                back=card.back,
+                deck=d.name,
+                due=card.due,
+                ease=card.ease,  # type: ignore[arg-type]
+            )
+            for card, d in q.all()
+        ]
+    finally:
+        session.close()
+
+
+@router.put("/flashcards/{card_id}", response_model=FlashcardOut)
+def review_card(card_id: int, review: CardReview) -> FlashcardOut:
+    session = get_session()
+    try:
+        card = session.get(Card, card_id)
+        if not card:
+            raise HTTPException(status_code=404, detail="Card not found")
+        card.ease = review.ease
+        if review.due:
+            card.due = review.due
+        session.commit()
+        session.refresh(card)
+        deck = session.get(Deck, card.deck_id)
+        return FlashcardOut(
+            id=str(card.id),
+            type=card.type,  # type: ignore[arg-type]
+            front=card.front,
+            back=card.back,
+            deck=deck.name if deck else "",
+            due=card.due,
+            ease=card.ease,  # type: ignore[arg-type]
+        )
+    finally:
+        session.close()
+
+
+@router.delete("/flashcards/{card_id}", status_code=204)
+def delete_card(card_id: int) -> None:
+    session = get_session()
+    try:
+        card = session.get(Card, card_id)
+        if not card:
+            raise HTTPException(status_code=404, detail="Card not found")
+        session.delete(card)
+        session.commit()
+    finally:
+        session.close()
+
+
+# ---------------------------------------------------------------------------
+# Saved quizzes
+# ---------------------------------------------------------------------------
+
+def _quiz_out(q: SavedQuiz) -> QuizOut:
+    return QuizOut(
+        id=str(q.id),
+        title=q.title,
+        course=q.course,
+        difficulty=q.difficulty,
+        grounded=True,
+        questions=[QuizQuestionOut(**qq) for qq in q.questions],
+    )
+
+
+@router.get("/quizzes", response_model=list[QuizOut])
+def list_quizzes() -> list[QuizOut]:
+    session = get_session()
+    try:
+        return [_quiz_out(q) for q in session.query(SavedQuiz).order_by(SavedQuiz.created_at.desc()).all()]
+    finally:
+        session.close()
+
+
+@router.post("/quizzes", response_model=QuizOut, status_code=201)
+def save_quiz(payload: SaveQuizRequest) -> QuizOut:
+    title = payload.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Quiz title is required")
+    session = get_session()
+    try:
+        quiz = SavedQuiz(
+            title=title,
+            course=payload.course or "",
+            difficulty=payload.difficulty,
+            questions=[qq.model_dump() for qq in payload.questions],
+        )
+        session.add(quiz)
+        session.commit()
+        session.refresh(quiz)
+        return _quiz_out(quiz)
+    finally:
+        session.close()
+
+
+@router.delete("/quizzes/{quiz_id}", status_code=204)
+def delete_quiz(quiz_id: int) -> None:
+    session = get_session()
+    try:
+        quiz = session.get(SavedQuiz, quiz_id)
+        if not quiz:
+            raise HTTPException(status_code=404, detail="Quiz not found")
+        session.delete(quiz)
+        session.commit()
+    finally:
+        session.close()
