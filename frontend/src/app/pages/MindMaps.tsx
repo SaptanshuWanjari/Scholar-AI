@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Network, Sparkles, Loader2 } from "lucide-react";
+import { Network, Sparkles, Loader2, Trash2 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -12,10 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { api } from "../lib/api";
+import { api, type GeneratedMindmap } from "../lib/api";
 import type { Course } from "../lib/types";
 import { useMindmapStore, ALL_COURSES } from "../stores/useMindmapStore";
 import { toast } from "sonner";
+import { cn } from "../components/ui/utils";
 
 interface TreeNode {
   id: string;
@@ -24,26 +25,8 @@ interface TreeNode {
   children: TreeNode[];
 }
 
-/**
- * Parse the backend's indented plain-text mind map into a tree.
- *
- * The backend returns a tree drawn with box characters (├──, └──, │) and/or
- * leading whitespace, e.g.
- *
- *   Neural Networks
- *   ├── Architecture
- *   │   ├── Layers
- *   │   └── Activations
- *   └── Training
- *       └── Backpropagation
- *
- * We compute depth from the leading indentation (counting the box-drawing
- * prefix), strip the connector glyphs, and nest by depth. This is tolerant of
- * pure-whitespace indentation as well.
- */
 function parseMindmapText(text: string): TreeNode[] {
   const roots: TreeNode[] = [];
-  // Stack of the last node seen at each depth so children attach to parents.
   const stack: TreeNode[] = [];
   let counter = 0;
 
@@ -51,23 +34,17 @@ function parseMindmapText(text: string): TreeNode[] {
   for (const raw of lines) {
     if (!raw.trim()) continue;
 
-    // Measure indentation: everything up to the first "content" character.
-    // Box-drawing prefixes look like "│   ├── " or "    └── " — each level is
-    // roughly 4 columns wide. Strip connectors to get the label.
     const match = raw.match(/^([\s│|]*)(?:[├└+`]?[-─]{2,}\s*)?(.*)$/u);
     const indentRaw = match ? match[1] : "";
     let label = (match ? match[2] : raw).trim();
-    // Defensive: strip any leftover leading connector glyphs.
     label = label.replace(/^[├└│|+`\-─\s]+/u, "").trim();
     if (!label) continue;
 
-    // Width of the indentation in "columns". Tabs count as 4.
     const indentWidth = indentRaw.replace(/\t/g, "    ").length;
     const depth = Math.floor(indentWidth / 4);
 
     const node: TreeNode = { id: `n${counter++}`, label, depth, children: [] };
 
-    // Pop the stack back to the parent depth.
     while (stack.length && stack[stack.length - 1].depth >= depth) {
       stack.pop();
     }
@@ -86,7 +63,7 @@ function countNodes(nodes: TreeNode[]): number {
   return nodes.reduce((acc, n) => acc + 1 + countNodes(n.children), 0);
 }
 
-function TreeBranch({ node, isLast }: { node: TreeNode; isLast: boolean }) {
+function TreeBranch({ node }: { node: TreeNode; isLast: boolean }) {
   const accent =
     node.depth === 0
       ? "border-foreground bg-foreground text-background font-semibold"
@@ -114,125 +91,186 @@ function TreeBranch({ node, isLast }: { node: TreeNode; isLast: boolean }) {
 
 export function MindMaps() {
   const [courses, setCourses] = useState<Course[]>([]);
-  // Generation inputs + result live in a global store so an in-flight
-  // generation survives navigating away from and back to this page.
+  const [items, setItems] = useState<GeneratedMindmap[]>([]);
+  const [active, setActive] = useState<GeneratedMindmap | null>(null);
+
   const { topic, course, loading, mindmap, setField, generate } = useMindmapStore();
   const setCourse = (v: string) => setField("course", v);
   const setTopic = (v: string) => setField("topic", v);
 
+  // Absorb a newly generated mindmap into the sidebar list and select it.
   useEffect(() => {
-    let active = true;
+    if (!mindmap) return;
+    setItems((prev) => (prev.some((m) => m.id === mindmap.id) ? prev : [mindmap, ...prev]));
+    setActive(mindmap);
+  }, [mindmap]);
+
+  useEffect(() => {
+    let cancelled = false;
     api
       .listCourses()
-      .then((cs) => {
-        if (active) setCourses(cs);
+      .then((cs) => { if (!cancelled) setCourses(cs); })
+      .catch(() => {});
+    api
+      .listMindmaps()
+      .then((ms) => {
+        if (cancelled) return;
+        setItems(ms);
+        setActive((cur) => cur ?? ms[0] ?? null);
       })
-      .catch(() => {
-        if (active) toast.error("Failed to load courses");
-      });
-    return () => {
-      active = false;
-    };
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, []);
 
+  const remove = async (id: string) => {
+    try {
+      await api.deleteMindmap(id);
+      const next = items.filter((m) => m.id !== id);
+      setItems(next);
+      if (active?.id === id) setActive(next[0] ?? null);
+      toast.success("Mind map deleted");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete mind map");
+    }
+  };
+
   const tree = useMemo(
-    () => (mindmap?.text ? parseMindmapText(mindmap.text) : []),
-    [mindmap],
+    () => (active?.text ? parseMindmapText(active.text) : []),
+    [active],
   );
   const nodeCount = useMemo(() => countNodes(tree), [tree]);
 
-  const handleGenerate = generate;
-
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex h-14 items-center justify-between border-b border-border px-6">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Network className="size-4 text-primary" />
-            <span className="text-sm font-medium">
-              {mindmap?.title ?? "Knowledge Tree"}
-            </span>
-          </div>
-          {mindmap && (
-            <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
-              {nodeCount} {nodeCount === 1 ? "node" : "nodes"}
-            </Badge>
-          )}
+    <div className="flex h-full">
+      {/* Sidebar */}
+      <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card/40">
+        <div className="border-b border-border px-4 py-3 text-sm font-medium">
+          Mind Maps
         </div>
-        <div className="flex items-center gap-2">
+        <ScrollArea className="flex-1">
+          <div className="space-y-1 p-2">
+            {loading && (
+              <div className="flex w-full items-center gap-3 rounded-lg border border-dashed border-violet/40 bg-violet-soft/40 p-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-violet">
+                  <Loader2 className="size-4 animate-spin" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{topic.trim() || "Generating…"}</div>
+                  <div className="truncate text-xs text-muted-foreground">Generating…</div>
+                </div>
+              </div>
+            )}
+            {items.length === 0 && !loading && (
+              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+                No mind maps yet. Generate one to get started.
+              </div>
+            )}
+            {items.map((m) => (
+              <div
+                key={m.id}
+                onClick={() => setActive(m)}
+                className={cn(
+                  "group flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-left transition-colors",
+                  active?.id === m.id ? "bg-violet-soft" : "hover:bg-accent/40",
+                )}
+              >
+                <div
+                  className={cn(
+                    "flex size-9 shrink-0 items-center justify-center rounded-lg",
+                    active?.id === m.id ? "bg-primary text-white" : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  <Network className="size-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{m.title}</div>
+                  <div className="truncate text-xs text-muted-foreground">{m.course}</div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void remove(m.id);
+                  }}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Main panel */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+        {/* Generate controls */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card/40 px-6 py-3">
           <Input
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !loading) handleGenerate();
-            }}
+            onKeyDown={(e) => { if (e.key === "Enter" && !loading) generate(); }}
             placeholder="Topic to map…"
-            className="w-56 bg-input-background"
+            className="h-9 max-w-xs flex-1 bg-input-background"
             disabled={loading}
           />
           <Select value={course} onValueChange={setCourse} disabled={loading}>
-            <SelectTrigger className="w-48 bg-input-background">
+            <SelectTrigger className="h-9 w-48 bg-input-background">
               <SelectValue placeholder="All courses" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL_COURSES}>All courses</SelectItem>
               {courses.map((c) => (
-                <SelectItem key={c.id} value={c.name}>
-                  {c.name}
-                </SelectItem>
+                <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button size="sm" onClick={handleGenerate} disabled={loading} className="gap-1.5">
-            {loading ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Sparkles className="size-3.5" />
-            )}
-            Generate
+          <Button size="sm" onClick={generate} disabled={loading} className="gap-1.5">
+            {loading ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
+            {loading ? "Generating..." : "Generate"}
           </Button>
         </div>
-      </div>
 
-      {loading && (
-        <div className="border-b border-border px-6 py-3">
-          <GenerationSteps
-            steps={["Searching your library", "Mapping concepts", "Building hierarchy", "Assembling tree"]}
-            loading={loading}
-            interval={2000}
-          />
-        </div>
-      )}
+        <GenerationSteps
+          steps={["Searching your library", "Mapping concepts", "Building hierarchy", "Assembling tree"]}
+          loading={loading}
+          className="border-b border-border px-6 py-3"
+          interval={2000}
+        />
 
-      <div className="relative min-h-0 flex-1">
-        {loading ? (
-          <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
-            <Loader2 className="size-6 animate-spin" />
-            <p className="text-sm">Generating mind map…</p>
-          </div>
-        ) : tree.length > 0 ? (
-          <ScrollArea className="h-full">
-            <div className="p-6">
-              {mindmap?.course && (
-                <p className="mb-4 text-xs uppercase tracking-wide text-muted-foreground">
-                  {mindmap.course}
-                </p>
-              )}
-              <ul className="flex flex-col gap-1.5">
-                {tree.map((root) => (
-                  <TreeBranch key={root.id} node={root} isLast />
-                ))}
-              </ul>
+        {/* Tree viewer */}
+        {active ? (
+          <>
+            <div className="sticky top-0 z-10 flex h-12 items-center gap-2 border-b border-border bg-background/80 px-6 backdrop-blur-xl">
+              <Network className="size-4 text-primary" />
+              <span className="text-sm font-medium">{active.title}</span>
+              <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
+                {nodeCount} {nodeCount === 1 ? "node" : "nodes"}
+              </Badge>
             </div>
-          </ScrollArea>
+            <ScrollArea className="flex-1">
+              <div className="p-6">
+                {active.course && (
+                  <p className="mb-4 text-xs uppercase tracking-wide text-muted-foreground">
+                    {active.course}
+                  </p>
+                )}
+                <ul className="flex flex-col gap-1.5">
+                  {tree.map((root) => (
+                    <TreeBranch key={root.id} node={root} isLast />
+                  ))}
+                </ul>
+              </div>
+            </ScrollArea>
+          </>
         ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center text-muted-foreground">
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-muted-foreground">
             <Network className="size-8 opacity-40" />
             <div>
-              <p className="text-sm font-medium text-foreground">No mind map yet</p>
+              <p className="text-sm font-medium text-foreground">No mind map selected</p>
               <p className="mt-1 text-sm">
-                Enter a topic and select a course, then press Generate to build a
-                knowledge tree.
+                Enter a topic and press Generate, or select one from the sidebar.
               </p>
             </div>
           </div>

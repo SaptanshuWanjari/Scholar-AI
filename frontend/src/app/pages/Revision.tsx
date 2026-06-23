@@ -76,35 +76,14 @@ export function Revision() {
   }, []);
 
   const suggestedRevision = useMemo(() => {
-    const generic = [
-      { id: "sr-g1", topic: "Backpropagation", reason: "Due for review today", course: "Machine Learning" },
-      { id: "sr-g2", topic: "SN1 vs SN2", reason: "Quiz performance dropped 12%", course: "Organic Chemistry" },
-    ];
-    if (!documents.length) return generic;
+    if (!documents.length) return [];
     
-    const dynamic = documents.slice(0, 2).map((doc, i) => ({
+    return documents.slice(0, 3).map((doc, i) => ({
       id: `sr-d${i}`,
       topic: doc.title.replace(/\.[^/.]+$/, ""),
       reason: i === 0 ? "Due for review today" : "Upcoming exam",
       course: doc.course,
     }));
-    return [...dynamic, ...generic].slice(0, 3);
-  }, [documents]);
-
-  const weakTopics = useMemo(() => {
-    const generic = [
-      { id: "wt-g1", topic: "Aldol Condensation", course: "Organic Chemistry", mastery: 28 },
-      { id: "wt-g2", topic: "IS-LM Model", course: "Macroeconomics", mastery: 35 },
-    ];
-    if (!documents.length) return generic;
-
-    const dynamic = documents.slice(2, 4).map((doc, i) => ({
-      id: `wt-d${i}`,
-      topic: doc.title.replace(/\.[^/.]+$/, ""),
-      course: doc.course,
-      mastery: 32 + i * 12,
-    }));
-    return [...dynamic, ...generic].slice(0, 4);
   }, [documents]);
 
   const pickTopic = (value: string) => {
@@ -188,52 +167,30 @@ export function Revision() {
           </Button>
         </div>
 
-        {/* Quick picks — mock data, prefill the topic input */}
-        <div className="mt-8 space-y-5">
-          <div>
-            <div className="mb-2 flex items-center gap-2">
-              <Clock className="size-3.5 text-muted-foreground" />
-              <Label>Suggested revision</Label>
-            </div>
-            <div className="space-y-2">
-              {suggestedRevision.map((r) => (
-                <button
-                  key={r.id}
-                  onClick={() => pickTopic(r.topic)}
-                  className="flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
-                >
-                  <span className="text-sm font-medium">{r.topic}</span>
-                  <span className="text-xs text-muted-foreground">{r.reason}</span>
-                  <span className="text-xs text-muted-foreground/70">{r.course}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="mb-2 flex items-center gap-2">
-              <TrendingDown className="size-3.5 text-muted-foreground" />
-              <Label>Weak topics</Label>
-            </div>
-            <div className="space-y-2">
-              {weakTopics.map((w) => (
-                <button
-                  key={w.id}
-                  onClick={() => pickTopic(w.topic)}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
-                >
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium">{w.topic}</div>
-                    <div className="truncate text-xs text-muted-foreground">{w.course}</div>
-                  </div>
-                  <span className="shrink-0 text-xs font-medium text-muted-foreground">
-                    {w.mastery}%
-                  </span>
-                </button>
-              ))}
+        {/* Quick picks */}
+        {suggestedRevision.length > 0 && (
+          <div className="mt-8 space-y-5">
+            <div>
+              <div className="mb-2 flex items-center gap-2">
+                <Clock className="size-3.5 text-muted-foreground" />
+                <Label>Suggested revision</Label>
+              </div>
+              <div className="space-y-2">
+                {suggestedRevision.map((r) => (
+                  <button
+                    key={r.id}
+                    onClick={() => pickTopic(r.topic)}
+                    className="flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
+                  >
+                    <span className="text-sm font-medium">{r.topic}</span>
+                    <span className="text-xs text-muted-foreground">{r.reason}</span>
+                    <span className="text-xs text-muted-foreground/70">{r.course}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Preview */}

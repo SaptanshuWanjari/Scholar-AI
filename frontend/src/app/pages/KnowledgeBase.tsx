@@ -65,6 +65,16 @@ import type { Course } from "../lib/types";
 // stable node type map — must be outside component
 const nodeTypes = { concept: ConceptNode };
 
+// Map each concept cluster (backend enum) to the sidebar source-type label it
+// most naturally represents. Clusters are hash-assigned so this is approximate,
+// but it gives the source-type checkboxes a real visual effect.
+const CLUSTER_SOURCE: Record<string, string> = {
+  rag: "Documents",
+  agent: "Answers",
+  infra: "Notes",
+  eval: "Quizzes",
+};
+
 // edge styling reused for every backend edge (mirrors the previous mock styling)
 const edgeBase = {
   type: "smoothstep" as const,
@@ -443,6 +453,8 @@ export function KnowledgeBase() {
             edges={graph!.edges}
             selectedId={selectedId}
             searchQuery={searchQuery}
+            activeFilters={activeFilters}
+            activeCollection={activeCollection}
             onNodeClick={(id) => setSelectedId(id === selectedId ? null : id)}
             onNodeDoubleClick={(id) => setDrawerConceptId(id)}
             onPaneClick={() => setSelectedId(null)}
@@ -575,6 +587,8 @@ function GraphCanvas({
   edges: sourceEdges,
   selectedId,
   searchQuery,
+  activeFilters,
+  activeCollection,
   onNodeClick,
   onNodeDoubleClick,
   onPaneClick,
@@ -583,6 +597,8 @@ function GraphCanvas({
   edges: Edge[];
   selectedId: string | null;
   searchQuery: string;
+  activeFilters: string[];
+  activeCollection: string | null;
   onNodeClick: (id: string) => void;
   onNodeDoubleClick: (id: string) => void;
   onPaneClick: () => void;
@@ -591,15 +607,28 @@ function GraphCanvas({
 
   const styledNodes = useMemo(
     () =>
-      sourceNodes.map((n) => ({
-        ...n,
-        selected: n.id === selectedId,
-        style:
-          q && !n.data.label.toLowerCase().includes(q)
-            ? { opacity: 0.25, transition: "opacity 0.2s" }
-            : { opacity: 1, transition: "opacity 0.2s" },
-      })),
-    [sourceNodes, selectedId, q],
+      sourceNodes.map((n) => {
+        const cluster = n.data.cluster as string;
+
+        // Search match: dim if query doesn't match label
+        const searchMatch = !q || n.data.label.toLowerCase().includes(q);
+
+        // Collection filter: dim if a specific collection is active and this node isn't in it
+        const collectionMatch = !activeCollection || `col-${cluster}` === activeCollection;
+
+        // Source type filter: dim if this node's mapped source type is unchecked
+        const nodeSourceType = CLUSTER_SOURCE[cluster];
+        const sourceMatch = !nodeSourceType || activeFilters.includes(nodeSourceType);
+
+        const visible = searchMatch && collectionMatch && sourceMatch;
+
+        return {
+          ...n,
+          selected: n.id === selectedId,
+          style: { opacity: visible ? 1 : 0.12, transition: "opacity 0.2s" },
+        };
+      }),
+    [sourceNodes, selectedId, q, activeFilters, activeCollection],
   );
 
   const [nodes, setNodes, onNodesChange] = useNodesState(styledNodes);

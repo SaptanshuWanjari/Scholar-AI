@@ -355,6 +355,12 @@ export const api = {
   generateMindmap(topic: string, course?: string | null): Promise<GeneratedMindmap> {
     return request<GeneratedMindmap>("/api/mindmaps/generate", json({ topic, course: course ?? null }));
   },
+  listMindmaps(): Promise<GeneratedMindmap[]> {
+    return request<GeneratedMindmap[]>("/api/mindmaps");
+  },
+  deleteMindmap(id: string): Promise<void> {
+    return request<void>(`/api/mindmaps/${id}`, { method: "DELETE" });
+  },
   generateRevision(
     opts: { topic?: string; course?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
   ): Promise<GeneratedRevision> {
