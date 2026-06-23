@@ -16,6 +16,7 @@ import {
 } from "../components/ui/select";
 import { api } from "../lib/api";
 import type { Course, DiagramItem } from "../lib/types";
+import { useDiagramGenStore } from "../stores/useDiagramGenStore";
 import { cn } from "../components/ui/utils";
 
 const DIAGRAM_TYPES = [
@@ -29,13 +30,23 @@ export function Diagrams() {
   const [active, setActive] = useState<DiagramItem | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCode, setShowCode] = useState(false);
-
-  // Generate controls
-  const [topic, setTopic] = useState("");
-  const [course, setCourse] = useState<string>("none");
-  const [type, setType] = useState<string>(DIAGRAM_TYPES[0].value);
   const [courses, setCourses] = useState<Course[]>([]);
-  const [generating, setGenerating] = useState(false);
+
+  // Generation state lives in a global store so an in-flight generation keeps
+  // running (and shows a pending item) when navigating away and back.
+  const { topic, course, type, generating, generated, setField, generate } = useDiagramGenStore();
+  const setTopic = (v: string) => setField("topic", v);
+  const setCourse = (v: string) => setField("course", v);
+  const setType = (v: string) => setField("type", v);
+
+  // Absorb the latest generated diagram into the list + select it. Runs on
+  // mount too, so a diagram generated while the page was unmounted shows up.
+  useEffect(() => {
+    if (!generated) return;
+    setItems((prev) => (prev.some((d) => d.id === generated.id) ? prev : [generated, ...prev]));
+    setActive(generated);
+    setShowCode(false);
+  }, [generated]);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,41 +87,6 @@ export function Diagrams() {
     }
   };
 
-  const generate = async () => {
-    const t = topic.trim();
-    if (!t) {
-      toast.error("Enter a topic to generate a diagram");
-      return;
-    }
-    setGenerating(true);
-    try {
-      const result = await api.generateDiagram(t, course === "none" ? null : course, type);
-      if (!result.grounded || !result.mermaid?.trim()) {
-        toast.error(
-          !result.grounded
-            ? "Couldn't ground a diagram for that topic"
-            : "The generated diagram was empty",
-        );
-        return;
-      }
-      const diagram: DiagramItem = {
-        id: result.id,
-        title: result.title,
-        course: result.course,
-        kind: result.kind,
-        mermaid: result.mermaid,
-      };
-      setItems((prev) => [diagram, ...prev]);
-      setActive(diagram);
-      setShowCode(false);
-      toast.success("Diagram generated");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate diagram");
-    } finally {
-      setGenerating(false);
-    }
-  };
-
   const copy = () => {
     if (!active) return;
     navigator.clipboard.writeText(active.mermaid);
@@ -128,7 +104,18 @@ export function Diagrams() {
         </div>
         <ScrollArea className="flex-1">
           <div className="space-y-1 p-2">
-            {items.length === 0 && (
+            {generating && (
+              <div className="flex w-full items-center gap-3 rounded-lg border border-dashed border-violet/40 bg-violet-soft/40 p-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-violet">
+                  <Loader2 className="size-4 animate-spin" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{topic.trim() || "Generating…"}</div>
+                  <div className="truncate text-xs text-muted-foreground">Generating…</div>
+                </div>
+              </div>
+            )}
+            {items.length === 0 && !generating && (
               <div className="px-3 py-8 text-center text-xs text-muted-foreground">
                 No diagrams yet. Generate one to get started.
               </div>

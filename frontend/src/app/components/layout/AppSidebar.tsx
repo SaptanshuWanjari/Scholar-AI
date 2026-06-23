@@ -1,10 +1,13 @@
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 import { GraduationCap, PanelLeftClose, PanelLeft, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 import { navItems } from "../../lib/nav";
-import { courses } from "../../lib/mock-data";
+// Removed mock courses import
 import { useUIStore } from "../../stores/useUIStore";
 import { cn } from "../ui/utils";
+import { api } from "../../lib/api";
+import type { Course } from "../../lib/types";
 import {
   Tooltip,
   TooltipContent,
@@ -21,6 +24,18 @@ const groupLabels: Record<string, string> = {
 export function AppSidebar() {
   const collapsed = useUIStore((s) => s.sidebarCollapsed);
   const toggle = useUIStore((s) => s.toggleSidebar);
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .listCourses()
+      .then((cs) => {
+        if (!cancelled) setCourses(cs);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const groups = ["main", "workspace", "study", "system"] as const;
 
