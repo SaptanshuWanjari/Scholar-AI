@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutGrid,
   List,
@@ -8,23 +8,127 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { toast } from "sonner";
 import { Page, SectionTitle } from "../components/Page";
 import { FlashcardCard } from "../components/FlashcardCard";
 import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import { Progress } from "../components/ui/progress";
-import { decks, flashcards } from "../lib/mock-data";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { api } from "../lib/api";
+import type { Course, Flashcard } from "../lib/types";
+import { decks } from "../lib/mock-data";
 import { cn } from "../components/ui/utils";
 
 type View = "grid" | "list" | "study";
 
+const NO_GROUNDED_MESSAGE =
+  "No grounded flashcards — try uploading documents or a different topic.";
+
 export function Flashcards() {
   const [view, setView] = useState<View>("grid");
+  const [cards, setCards] = useState<Flashcard[]>([]);
+  const [topic, setTopic] = useState("");
+  const [course, setCourse] = useState<string | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [generating, setGenerating] = useState(false);
+  const [ungrounded, setUngrounded] = useState(false);
+
+  useEffect(() => {
+    api.listCourses().then(setCourses).catch(() => setCourses([]));
+  }, []);
+
+  const generate = async () => {
+    const value = topic.trim();
+    if (!value || generating) return;
+    setGenerating(true);
+    setUngrounded(false);
+    try {
+      const set = await api.generateFlashcards(value, course);
+      if (!set.grounded || set.cards.length === 0) {
+        setCards([]);
+        setUngrounded(true);
+        toast.error(NO_GROUNDED_MESSAGE);
+        return;
+      }
+      setCards(set.cards);
+      setView("grid");
+      toast.success(`Generated ${set.cards.length} flashcards`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate flashcards");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const hasCards = cards.length > 0;
 
   return (
     <Page className="space-y-6">
+      {/* Generate flashcards */}
+      <div className="rounded-xl border border-border bg-card p-4">
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <Sparkles className="size-4 text-violet" /> Generate flashcards
+        </div>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Input
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                void generate();
+              }
+            }}
+            placeholder="Topic, e.g. eigenvalues, SN1 vs SN2…"
+            className="flex-1"
+            disabled={generating}
+          />
+          <Select
+            value={course ?? "all"}
+            onValueChange={(v) => setCourse(v === "all" ? null : v)}
+          >
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="All courses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All courses</SelectItem>
+              {courses.map((c) => (
+                <SelectItem key={c.id} value={c.name}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={() => void generate()}
+            disabled={!topic.trim() || generating}
+            className="gap-1.5"
+          >
+            {generating ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> Generating…
+              </>
+            ) : (
+              <>
+                <Sparkles className="size-4" /> Generate
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
       {/* Decks */}
       <div>
         <SectionTitle title="Decks" />
@@ -62,9 +166,11 @@ export function Flashcards() {
             <button
               key={v.id}
               onClick={() => setView(v.id)}
+              disabled={!hasCards}
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors",
                 view === v.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                !hasCards && "cursor-not-allowed opacity-50",
               )}
             >
               <v.icon className="size-4" /> {v.label}
@@ -73,51 +179,75 @@ export function Flashcards() {
         </div>
       </div>
 
-      {view === "grid" && (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {flashcards.map((c) => (
-            <FlashcardCard key={c.id} card={c} />
-          ))}
-        </div>
-      )}
-
-      {view === "list" && (
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
-          {flashcards.map((c, i) => (
-            <div
-              key={c.id}
-              className={cn("flex items-center gap-4 px-4 py-3 hover:bg-accent/30", i !== 0 && "border-t border-border")}
-            >
-              <Badge variant="outline" className="text-[10px] uppercase">{c.type}</Badge>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm">{c.front}</div>
-                <div className="truncate text-xs text-muted-foreground">{c.back}</div>
-              </div>
-              <span className="text-xs text-muted-foreground">{c.deck}</span>
-              <span className="text-xs text-muted-foreground">{c.due}</span>
+      {!hasCards ? (
+        <EmptyCards ungrounded={ungrounded} />
+      ) : (
+        <>
+          {view === "grid" && (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {cards.map((c) => (
+                <FlashcardCard key={c.id} card={c} />
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      {view === "study" && <StudyMode />}
+          {view === "list" && (
+            <div className="overflow-hidden rounded-xl border border-border bg-card">
+              {cards.map((c, i) => (
+                <div
+                  key={c.id}
+                  className={cn("flex items-center gap-4 px-4 py-3 hover:bg-accent/30", i !== 0 && "border-t border-border")}
+                >
+                  <Badge variant="outline" className="text-[10px] uppercase">{c.type}</Badge>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm">{c.front}</div>
+                    <div className="truncate text-xs text-muted-foreground">{c.back}</div>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{c.deck}</span>
+                  <span className="text-xs text-muted-foreground">{c.due}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {view === "study" && <StudyMode cards={cards} />}
+        </>
+      )}
     </Page>
   );
 }
 
-function StudyMode() {
+function EmptyCards({ ungrounded }: { ungrounded: boolean }) {
+  return (
+    <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card/40 px-6 py-14 text-center">
+      <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-violet">
+        <Sparkles className="size-6" />
+      </div>
+      <h3 className="mt-5 text-sm font-semibold">
+        {ungrounded ? "No grounded flashcards" : "No flashcards yet"}
+      </h3>
+      <p className="mt-2 max-w-md text-sm text-muted-foreground">
+        {ungrounded
+          ? NO_GROUNDED_MESSAGE
+          : "Enter a topic above and generate a set of source-grounded flashcards to start studying."}
+      </p>
+    </div>
+  );
+}
+
+function StudyMode({ cards }: { cards: Flashcard[] }) {
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const card = flashcards[idx];
-  const progress = ((idx + 1) / flashcards.length) * 100;
+  const card = cards[idx];
+  const progress = ((idx + 1) / cards.length) * 100;
 
   const next = () => {
     setFlipped(false);
-    setIdx((i) => (i + 1) % flashcards.length);
+    setIdx((i) => (i + 1) % cards.length);
   };
   const prev = () => {
     setFlipped(false);
-    setIdx((i) => (i - 1 + flashcards.length) % flashcards.length);
+    setIdx((i) => (i - 1 + cards.length) % cards.length);
   };
 
   return (
@@ -125,7 +255,7 @@ function StudyMode() {
       <div className="mb-6 flex items-center gap-4">
         <Progress value={progress} className="h-1.5 flex-1" />
         <span className="text-xs font-medium tabular-nums text-muted-foreground">
-          {idx + 1} of {flashcards.length}
+          {idx + 1} of {cards.length}
         </span>
       </div>
 
@@ -133,13 +263,13 @@ function StudyMode() {
         <div key={card.id} className="group relative h-80 w-full [perspective:1000px]">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
-            animate={{ 
-              opacity: 1, 
+            animate={{
+              opacity: 1,
               y: 0,
-              rotateY: flipped ? 180 : 0 
+              rotateY: flipped ? 180 : 0
             }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ 
+            transition={{
               rotateY: { duration: 0.6, type: "spring", stiffness: 260, damping: 20 },
               opacity: { duration: 0.3 },
               y: { duration: 0.3 }
@@ -148,7 +278,7 @@ function StudyMode() {
             onClick={() => setFlipped(!flipped)}
           >
             {/* Front */}
-            <div 
+            <div
               className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-10 text-center [backface-visibility:hidden] [transform:rotateY(0deg)] shadow-sm"
               style={{ zIndex: flipped ? 0 : 1 }}
             >
@@ -162,7 +292,7 @@ function StudyMode() {
             </div>
 
             {/* Back */}
-            <div 
+            <div
               className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-violet/30 bg-[#fdfcfa] p-10 text-center [backface-visibility:hidden] [transform:rotateY(180deg)] shadow-sm"
               style={{ zIndex: flipped ? 1 : 0 }}
             >

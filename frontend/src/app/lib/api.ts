@@ -2,9 +2,46 @@
 // In dev, requests go to `/api/*` which Vite proxies to the backend
 // (see vite.config.ts). Override with VITE_API_BASE_URL for production.
 
-import type { Course, DocumentItem, Source } from "./types";
+import type { Course, DiagramItem, DocumentItem, Flashcard, Quiz, Source } from "./types";
 
 const BASE: string = (import.meta as any).env?.VITE_API_BASE_URL ?? "";
+
+export interface FlashcardSet {
+  deck: string;
+  course: string | null;
+  grounded: boolean;
+  cards: Flashcard[];
+}
+
+export interface GeneratedQuiz extends Quiz {
+  grounded: boolean;
+}
+
+export interface GeneratedDiagram extends DiagramItem {
+  grounded: boolean;
+}
+
+export interface GeneratedMindmap {
+  id: string;
+  title: string;
+  course: string;
+  text: string;
+  grounded: boolean;
+}
+
+export interface GeneratedRevision {
+  title: string;
+  markdown: string;
+  grounded: boolean;
+}
+
+export interface SearchResult {
+  id: string;
+  group: string;
+  title: string;
+  snippet: string;
+  course: string;
+}
 
 export interface AskResponse {
   id: string;
@@ -165,6 +202,33 @@ export const api = {
     const p = new URLSearchParams({ q, limit: String(limit) });
     if (course && course !== "all") p.set("course", course);
     return request<Source[]>(`/api/sources/search?${p.toString()}`);
+  },
+
+  // ---- Generative study features ----
+  generateFlashcards(topic: string, course?: string | null, count = 8): Promise<FlashcardSet> {
+    return request<FlashcardSet>("/api/flashcards/generate", json({ topic, course: course ?? null, count }));
+  },
+  generateQuiz(
+    topic: string,
+    course?: string | null,
+    difficulty: "Easy" | "Medium" | "Hard" = "Medium",
+  ): Promise<GeneratedQuiz> {
+    return request<GeneratedQuiz>("/api/quizzes/generate", json({ topic, course: course ?? null, difficulty }));
+  },
+  generateDiagram(topic: string, course?: string | null, type?: string): Promise<GeneratedDiagram> {
+    return request<GeneratedDiagram>("/api/diagrams/generate", json({ topic, course: course ?? null, type }));
+  },
+  generateMindmap(topic: string, course?: string | null): Promise<GeneratedMindmap> {
+    return request<GeneratedMindmap>("/api/mindmaps/generate", json({ topic, course: course ?? null }));
+  },
+  generateRevision(
+    opts: { topic?: string; course?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
+  ): Promise<GeneratedRevision> {
+    return request<GeneratedRevision>("/api/revision/generate", json(opts));
+  },
+  search(q: string, filter = "all"): Promise<SearchResult[]> {
+    const p = new URLSearchParams({ q, filter });
+    return request<SearchResult[]>(`/api/search?${p.toString()}`);
   },
 
   // ---- Trace ----

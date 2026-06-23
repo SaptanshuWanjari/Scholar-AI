@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ListChecks,
   Play,
@@ -8,18 +8,31 @@ import {
   RotateCw,
   Trophy,
   Settings2,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { toast } from "sonner";
 import { Page } from "../components/Page";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Progress } from "../components/ui/progress";
 import { Input } from "../components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { quizzes } from "../lib/mock-data";
-import type { Quiz, QuizQuestion } from "../lib/types";
+import { api } from "../lib/api";
+import type { Quiz, QuizQuestion, Course } from "../lib/types";
 import { cn } from "../components/ui/utils";
 
 type Stage = "builder" | "player" | "results";
+type Difficulty = Quiz["difficulty"];
+
+const difficulties: Difficulty[] = ["Easy", "Medium", "Hard"];
 
 const diffColor: Record<Quiz["difficulty"], string> = {
   Easy: "border-success/40 bg-success-soft text-success",
@@ -58,6 +71,46 @@ export function QuizPage() {
 }
 
 function Builder({ onStart }: { onStart: (q: Quiz) => void }) {
+  const [topic, setTopic] = useState("");
+  const [course, setCourse] = useState<string>("all");
+  const [difficulty, setDifficulty] = useState<Difficulty>("Medium");
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.listCourses().then(setCourses).catch(() => setCourses([]));
+  }, []);
+
+  const groundedError =
+    "Couldn't generate a grounded quiz — try a different topic or upload documents";
+
+  const generate = async () => {
+    const value = topic.trim();
+    if (!value || loading) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const quiz = await api.generateQuiz(
+        value,
+        course === "all" ? null : course,
+        difficulty,
+      );
+      if (!quiz.grounded || quiz.questions.length === 0) {
+        setError(groundedError);
+        toast.error(groundedError);
+        return;
+      }
+      onStart(quiz);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Failed to generate quiz";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="rounded-2xl border border-border bg-card p-5">
@@ -71,19 +124,69 @@ function Builder({ onStart }: { onStart: (q: Quiz) => void }) {
         <div className="mt-4 flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-48">
             <label className="mb-1.5 block text-xs text-muted-foreground">Topic</label>
-            <Input placeholder="e.g. Neural networks" className="bg-input-background" />
+            <Input
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") generate();
+              }}
+              placeholder="e.g. Neural networks"
+              className="bg-input-background"
+            />
           </div>
-          <div className="flex gap-2">
-            {["MCQ", "True/False", "Short Answer"].map((t) => (
-              <Badge key={t} variant="outline" className="cursor-pointer border-primary/40 bg-violet-soft py-1.5 text-primary">
-                {t}
-              </Badge>
-            ))}
+          <div>
+            <label className="mb-1.5 block text-xs text-muted-foreground">Course</label>
+            <Select value={course} onValueChange={setCourse}>
+              <SelectTrigger className="w-44 bg-input-background">
+                <SelectValue placeholder="All courses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All courses</SelectItem>
+                {courses.map((c) => (
+                  <SelectItem key={c.id} value={c.name}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-            <ListChecks className="size-4" /> Generate
+          <div>
+            <label className="mb-1.5 block text-xs text-muted-foreground">Difficulty</label>
+            <div className="flex gap-2">
+              {difficulties.map((d) => (
+                <Badge
+                  key={d}
+                  variant="outline"
+                  onClick={() => setDifficulty(d)}
+                  className={cn(
+                    "cursor-pointer py-1.5",
+                    difficulty === d
+                      ? diffColor[d]
+                      : "border-border text-muted-foreground hover:border-ring/40",
+                  )}
+                >
+                  {d}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          <Button
+            onClick={generate}
+            disabled={loading || !topic.trim()}
+            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> Generating…
+              </>
+            ) : (
+              <>
+                <ListChecks className="size-4" /> Generate quiz
+              </>
+            )}
           </Button>
         </div>
+        {error && <p className="mt-3 text-sm text-danger">{error}</p>}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -269,7 +372,9 @@ function Results({
                     Your answer: <span className={isCorrect ? "text-success" : "text-danger"}>{userAns}</span>
                     {!isCorrect && <> · Correct: <span className="text-success">{q.answer}</span></>}
                   </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{q.explanation}</p>
+                  {q.explanation.trim() && (
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{q.explanation}</p>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,7 +1,20 @@
-import { useState } from "react";
-import { Sparkles, NotebookPen, FileText, Sigma, ListTree, Download, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Sparkles,
+  NotebookPen,
+  FileText,
+  Sigma,
+  ListTree,
+  Download,
+  Loader2,
+  AlertTriangle,
+  TrendingDown,
+  Clock,
+} from "lucide-react";
 import { motion } from "motion/react";
+import { toast } from "sonner";
 import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import {
   Select,
   SelectContent,
@@ -10,81 +23,96 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Label } from "../components/ui/label";
-import { Slider } from "../components/ui/slider";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
-import { courses } from "../lib/mock-data";
+import { suggestedRevision, weakTopics } from "../lib/mock-data";
+import { api } from "../lib/api";
+import type { Course } from "../lib/types";
 import { cn } from "../components/ui/utils";
 
-const formats = [
+type RevisionFormat = "notes" | "concepts" | "formulas" | "summary";
+
+const formats: { id: RevisionFormat; label: string; icon: typeof NotebookPen }[] = [
   { id: "notes", label: "Exam Notes", icon: NotebookPen },
   { id: "concepts", label: "Key Concepts", icon: ListTree },
   { id: "formulas", label: "Formula Sheet", icon: Sigma },
   { id: "summary", label: "Summary Sheet", icon: FileText },
 ];
 
-const generated: Record<string, string> = {
-  notes: `# Exam Notes — Neural Networks
-
-## 1. Backpropagation
-Backpropagation computes the **gradient of the loss** w.r.t. each weight via the chain rule, propagating errors backward through layers.
-
-- Forward pass → prediction & loss
-- Backward pass → local gradients
-- Update → \`w = w - η·∇L\`
-
-## 2. Optimization
-- **Batch GD**: stable but slow
-- **Mini-batch**: best balance (32–512)
-- **SGD**: noisy but fast
-
-> Watch the learning rate η — too high diverges, too low crawls.`,
-  concepts: `# Key Concepts
-
-- **Gradient** — direction of steepest ascent of the loss.
-- **Learning rate (η)** — step size of each weight update.
-- **Activation function** — introduces non-linearity (ReLU, sigmoid, tanh).
-- **Softmax** — converts logits into a probability distribution.
-- **Overfitting** — model memorizes training data; mitigated by regularization.`,
-  formulas: `# Formula Sheet
-
-**Weight update**
-\`\`\`
-w ← w - η · ∂L/∂w
-\`\`\`
-
-**Softmax**
-\`\`\`
-σ(z)_i = e^{z_i} / Σ_j e^{z_j}
-\`\`\`
-
-**Cross-entropy loss**
-\`\`\`
-L = -Σ_i y_i · log(ŷ_i)
-\`\`\`
-
-**Sigmoid**
-\`\`\`
-σ(x) = 1 / (1 + e^{-x})
-\`\`\``,
-  summary: `# Summary Sheet
-
-Neural networks learn by **iteratively minimizing a loss** using gradients computed through backpropagation. Training alternates forward and backward passes, nudging weights by the learning rate. Key levers are architecture depth, activation choice, batch size and η. Regularization keeps the model from overfitting so it generalizes to unseen exam-style questions.`,
-};
+/** Heuristic: detect a backend "this topic isn't in your documents" message. */
+function looksNotCovered(markdown: string): boolean {
+  const text = markdown.trim().toLowerCase();
+  if (!text) return true;
+  return (
+    text.includes("not covered") ||
+    text.includes("no relevant") ||
+    text.includes("couldn't find") ||
+    text.includes("could not find") ||
+    text.includes("no information") ||
+    text.includes("not found in")
+  );
+}
 
 export function Revision() {
-  const [format, setFormat] = useState("notes");
-  const [course, setCourse] = useState(courses[0].name);
-  const [depth, setDepth] = useState([3]);
+  const [format, setFormat] = useState<RevisionFormat>("notes");
+  const [topic, setTopic] = useState("");
+  const [course, setCourse] = useState<string>("none");
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
-  const [output, setOutput] = useState<string | null>(generated.notes);
+  const [output, setOutput] = useState<string | null>(null);
+  const [title, setTitle] = useState<string | null>(null);
+  const [ungrounded, setUngrounded] = useState(false);
 
-  const generate = () => {
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .listCourses()
+      .then((cs) => {
+        if (!cancelled) setCourses(cs);
+      })
+      .catch(() => {
+        /* leave course selector with just "No course" */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const generate = async () => {
+    const t = topic.trim();
+    const selectedCourse = course === "none" ? null : course;
+    if (!t && !selectedCourse) {
+      toast.error("Enter a topic or pick a course to generate a study sheet");
+      return;
+    }
     setLoading(true);
     setOutput(null);
-    setTimeout(() => {
-      setOutput(generated[format]);
+    setTitle(null);
+    setUngrounded(false);
+    try {
+      const result = await api.generateRevision({
+        topic: t || undefined,
+        course: selectedCourse,
+        format,
+      });
+      const notCovered = !result.grounded || looksNotCovered(result.markdown);
+      setOutput(result.markdown);
+      setTitle(result.title);
+      setUngrounded(notCovered);
+      if (notCovered) {
+        toast.warning("This topic may not be covered by your uploaded documents");
+      } else {
+        toast.success("Study sheet generated");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate study sheet");
+    } finally {
       setLoading(false);
-    }, 900);
+    }
+  };
+
+  const pickTopic = (value: string) => {
+    setTopic(value);
+    toast.success(`Topic set to "${value}"`);
   };
 
   return (
@@ -122,12 +150,26 @@ export function Revision() {
           </div>
 
           <div>
+            <Label className="mb-2 block">Topic</Label>
+            <Input
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !loading) generate();
+              }}
+              placeholder="e.g. Backpropagation (optional)"
+              className="bg-input-background"
+            />
+          </div>
+
+          <div>
             <Label className="mb-2 block">Course</Label>
             <Select value={course} onValueChange={setCourse}>
               <SelectTrigger className="bg-input-background">
-                <SelectValue />
+                <SelectValue placeholder="No course" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="none">No course</SelectItem>
                 {courses.map((c) => (
                   <SelectItem key={c.id} value={c.name}>
                     {c.name}
@@ -135,16 +177,9 @@ export function Revision() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <Label>Detail level</Label>
-              <span className="text-xs text-muted-foreground">
-                {["Minimal", "Concise", "Balanced", "Detailed", "Exhaustive"][depth[0] - 1]}
-              </span>
-            </div>
-            <Slider value={depth} onValueChange={setDepth} min={1} max={5} step={1} />
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              Provide at least a topic or a course.
+            </p>
           </div>
 
           <Button
@@ -156,14 +191,61 @@ export function Revision() {
             {loading ? "Generating…" : "Generate"}
           </Button>
         </div>
+
+        {/* Quick picks — mock data, prefill the topic input */}
+        <div className="mt-8 space-y-5">
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <Clock className="size-3.5 text-muted-foreground" />
+              <Label>Suggested revision</Label>
+            </div>
+            <div className="space-y-2">
+              {suggestedRevision.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => pickTopic(r.topic)}
+                  className="flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
+                >
+                  <span className="text-sm font-medium">{r.topic}</span>
+                  <span className="text-xs text-muted-foreground">{r.reason}</span>
+                  <span className="text-xs text-muted-foreground/70">{r.course}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <TrendingDown className="size-3.5 text-muted-foreground" />
+              <Label>Weak topics</Label>
+            </div>
+            <div className="space-y-2">
+              {weakTopics.map((w) => (
+                <button
+                  key={w.id}
+                  onClick={() => pickTopic(w.topic)}
+                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium">{w.topic}</div>
+                    <div className="truncate text-xs text-muted-foreground">{w.course}</div>
+                  </div>
+                  <span className="shrink-0 text-xs font-medium text-muted-foreground">
+                    {w.mastery}%
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Preview */}
       <div className="min-w-0 flex-1 overflow-y-auto">
         <div className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-          <span className="text-sm font-medium">Preview</span>
+          <span className="text-sm font-medium">{title ?? "Preview"}</span>
           {output && (
-            <Button variant="outline" size="sm" className="gap-1.5">
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.success("Exported")}>
               <Download className="size-3.5" /> Export
             </Button>
           )}
@@ -176,9 +258,25 @@ export function Revision() {
             </div>
           ) : output ? (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+              {ungrounded && (
+                <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                  <span>
+                    This topic may not be covered by your uploaded documents — the result below
+                    may be incomplete or based on general knowledge.
+                  </span>
+                </div>
+              )}
               <MarkdownRenderer content={output} />
             </motion.div>
-          ) : null}
+          ) : (
+            <div className="flex flex-col items-center pt-24 text-center text-muted-foreground">
+              <Sparkles className="size-6 text-primary/60" />
+              <p className="mt-3 text-sm">
+                Choose a format, enter a topic or course, then generate a study sheet.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
