@@ -21,6 +21,7 @@ import {
   Network,
   RotateCw,
   CircleDot,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
@@ -29,34 +30,46 @@ import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
-import { Page } from "../components/Page";
 import {
-  examQuestions,
-  topicPerformance,
-  difficultyAnalysis,
-  sourceMaterials,
-  formulaSheet,
-  type ExamQuestion,
-} from "../lib/exam-data";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { Page } from "../components/Page";
+import { api, type ExamResult, type ExamSession } from "../lib/api";
+import type { Course } from "../lib/types";
+import { formulaSheet, type ExamQuestion } from "../lib/exam-data";
 
 type Stage = "builder" | "session" | "results";
 
-const QUESTION_TYPES = ["MCQ", "True / False", "Short Answer", "Long Answer", "Diagram", "Mixed"];
 const DIFFICULTIES = ["Easy", "Medium", "Hard", "Adaptive"];
 const COVERAGE = ["Entire Course", "Selected Topics", "Weak Topics Only", "Recent Documents"];
+
+/** Generated questions arrive as the API `ExamQuestionOut` shape; it matches `ExamQuestion`. */
+type GeneratedQuestion = ExamSession["questions"][number];
 
 export function Exam() {
   const [stage, setStage] = useState<Stage>("builder");
   const [minutes, setMinutes] = useState(20);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [questions, setQuestions] = useState<GeneratedQuestion[]>([]);
+  const [difficultyLabel, setDifficultyLabel] = useState("Adaptive");
+  const [result, setResult] = useState<ExamResult | null>(null);
 
   if (stage === "builder")
     return (
       <Builder
         minutes={minutes}
         setMinutes={setMinutes}
-        onGenerate={() => {
+        onGenerated={(session, difficulty) => {
+          setSessionId(session.sessionId);
+          setQuestions(session.questions);
+          setDifficultyLabel(difficulty);
           setAnswers({});
+          setResult(null);
           setStage("session");
         }}
       />
@@ -65,12 +78,24 @@ export function Exam() {
     return (
       <Session
         minutes={minutes}
+        questions={questions}
+        difficultyLabel={difficultyLabel}
+        sessionId={sessionId!}
         answers={answers}
         setAnswers={setAnswers}
-        onSubmit={() => setStage("results")}
+        onSubmitted={(r) => {
+          setResult(r);
+          setStage("results");
+        }}
       />
     );
-  return <Results answers={answers} onRestart={() => setStage("builder")} />;
+  return (
+    <Results
+      result={result!}
+      difficultyLabel={difficultyLabel}
+      onRestart={() => setStage("builder")}
+    />
+  );
 }
 
 /* ---------------- Builder ---------------- */
@@ -78,19 +103,60 @@ export function Exam() {
 function Builder({
   minutes,
   setMinutes,
-  onGenerate,
+  onGenerated,
 }: {
   minutes: number;
   setMinutes: (n: number) => void;
-  onGenerate: () => void;
+  onGenerated: (session: ExamSession, difficulty: string) => void;
 }) {
-  const [sources, setSources] = useState<string[]>([sourceMaterials[0]]);
+  const [topic, setTopic] = useState("");
+  const [course, setCourse] = useState<string>("all");
+  const [courses, setCourses] = useState<Course[]>([]);
   const [difficulty, setDifficulty] = useState("Adaptive");
-  const [types, setTypes] = useState<string[]>(["MCQ", "True / False", "Short Answer"]);
+  const [count, setCount] = useState(8);
   const [coverage, setCoverage] = useState("Entire Course");
+  const [generating, setGenerating] = useState(false);
 
-  const toggle = (arr: string[], set: (v: string[]) => void, v: string) =>
-    set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+  useEffect(() => {
+    let active = true;
+    api
+      .listCourses()
+      .then((cs) => {
+        if (active) setCourses(cs);
+      })
+      .catch(() => {
+        /* non-fatal: course selector simply stays empty */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const generate = async () => {
+    setGenerating(true);
+    try {
+      const session = await api.generateExam({
+        topic: topic.trim() || undefined,
+        course: course === "all" ? null : course,
+        // "Adaptive" is a UI-only option; the backend expects a concrete level.
+        difficulty:
+          difficulty === "Easy" || difficulty === "Medium" || difficulty === "Hard"
+            ? difficulty
+            : undefined,
+        count,
+      });
+      if (!session.grounded || session.questions.length === 0) {
+        toast.error("Couldn't generate a grounded exam from your materials. Try another topic or course.");
+        return;
+      }
+      toast.success(`Generated ${session.questions.length} questions`);
+      onGenerated(session, difficulty);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate exam");
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   return (
     <Page className="max-w-3xl">
@@ -105,31 +171,43 @@ function Builder({
       </div>
 
       <div className="space-y-5">
-        <Field icon={FileStack} title="Source Material" desc="Choose what the exam draws from">
-          <div className="flex flex-wrap gap-2">
-            {sourceMaterials.map((s) => (
-              <Chip key={s} active={sources.includes(s)} onClick={() => toggle(sources, setSources, s)}>
-                {s}
-              </Chip>
-            ))}
-          </div>
+        <Field icon={ListChecks} title="Topic" desc="What should the exam focus on?">
+          <Input
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="e.g. Transformers, backpropagation…"
+            className="bg-input-background"
+          />
+        </Field>
+
+        <Field icon={FileStack} title="Source Material" desc="Choose the course the exam draws from">
+          <Select value={course} onValueChange={setCourse}>
+            <SelectTrigger className="w-full bg-input-background">
+              <SelectValue placeholder="All courses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All courses</SelectItem>
+              {courses.map((c) => (
+                <SelectItem key={c.id} value={c.name}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
 
         <Field icon={SlidersHorizontal} title="Difficulty">
           <Segmented options={DIFFICULTIES} value={difficulty} onChange={setDifficulty} />
         </Field>
 
-        <Field icon={ListChecks} title="Question Types">
-          <div className="flex flex-wrap gap-2">
-            {QUESTION_TYPES.map((t) => (
-              <Chip key={t} active={types.includes(t)} onClick={() => toggle(types, setTypes, t)}>
-                {t}
-              </Chip>
-            ))}
-          </div>
-        </Field>
-
         <div className="grid gap-5 sm:grid-cols-2">
+          <Field icon={ListChecks} title="Questions">
+            <Segmented
+              options={["5", "8", "10", "15"]}
+              value={String(count)}
+              onChange={(v) => setCount(Number(v))}
+            />
+          </Field>
           <Field icon={Clock} title="Time Limit">
             <Segmented
               options={["15", "20", "30", "60"]}
@@ -138,30 +216,39 @@ function Builder({
               suffix="min"
             />
           </Field>
-          <Field icon={Layers3} title="Coverage">
-            <select
-              value={coverage}
-              onChange={(e) => setCoverage(e.target.value)}
-              className="h-9 w-full rounded-md border border-border bg-input-background px-3 text-sm outline-none focus:border-ring"
-            >
-              {COVERAGE.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-          </Field>
         </div>
+
+        <Field icon={Layers3} title="Coverage">
+          <select
+            value={coverage}
+            onChange={(e) => setCoverage(e.target.value)}
+            className="h-9 w-full rounded-md border border-border bg-input-background px-3 text-sm outline-none focus:border-ring"
+          >
+            {COVERAGE.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
+        </Field>
 
         <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
           <div className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{examQuestions.length} questions</span> ·{" "}
+            <span className="font-medium text-foreground">{count} questions</span> ·{" "}
             {difficulty} · {minutes} min · {coverage}
           </div>
           <Button
-            onClick={onGenerate}
-            disabled={sources.length === 0 || types.length === 0}
+            onClick={generate}
+            disabled={generating}
             className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <Sparkles className="size-4" /> Generate Mock Exam
+            {generating ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> Generating…
+              </>
+            ) : (
+              <>
+                <Sparkles className="size-4" /> Generate Mock Exam
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -173,23 +260,46 @@ function Builder({
 
 function Session({
   minutes,
+  questions,
+  difficultyLabel,
+  sessionId,
   answers,
   setAnswers,
-  onSubmit,
+  onSubmitted,
 }: {
   minutes: number;
+  questions: GeneratedQuestion[];
+  difficultyLabel: string;
+  sessionId: string;
   answers: Record<string, string>;
   setAnswers: (a: Record<string, string>) => void;
-  onSubmit: () => void;
+  onSubmitted: (result: ExamResult) => void;
 }) {
   const [idx, setIdx] = useState(0);
   const [flagged, setFlagged] = useState<Set<string>>(new Set());
-  const [visited, setVisited] = useState<Set<string>>(new Set([examQuestions[0].id]));
+  const [visited, setVisited] = useState<Set<string>>(new Set([questions[0].id]));
   const [secsLeft, setSecsLeft] = useState(minutes * 60);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const submittedRef = useRef(false);
+  const totalSecs = minutes * 60;
 
-  const q = examQuestions[idx];
+  const q = questions[idx];
+
+  const submit = async () => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    setSubmitting(true);
+    const timeSpent = totalSecs - secsLeft;
+    try {
+      const result = await api.submitExam(sessionId, answers, timeSpent);
+      onSubmitted(result);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to submit exam");
+      submittedRef.current = false;
+      setSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -197,9 +307,8 @@ function Session({
         if (s <= 1) {
           clearInterval(t);
           if (!submittedRef.current) {
-            submittedRef.current = true;
             toast.warning("Time's up — submitting exam");
-            onSubmit();
+            void submit();
           }
           return 0;
         }
@@ -207,11 +316,13 @@ function Session({
       });
     }, 1000);
     return () => clearInterval(t);
-  }, [onSubmit]);
+    // submit reads latest answers/secsLeft via refs/state at call time; we only want one timer.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const goto = (i: number) => {
     setIdx(i);
-    setVisited((v) => new Set(v).add(examQuestions[i].id));
+    setVisited((v) => new Set(v).add(questions[i].id));
   };
 
   const setAnswer = (val: string) => setAnswers({ ...answers, [q.id]: val });
@@ -234,14 +345,14 @@ function Session({
       <div className="flex h-14 shrink-0 items-center gap-4 border-b border-border px-6">
         <div className="flex items-center gap-2">
           <GraduationCap className="size-4 text-violet" />
-          <span className="text-sm font-medium">ML Mock Exam — Adaptive</span>
+          <span className="text-sm font-medium">Mock Exam — {difficultyLabel}</span>
         </div>
         <div className="ml-4 hidden items-center gap-2 sm:flex">
           <div className="h-1.5 w-40 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-violet" style={{ width: `${(answeredCount / examQuestions.length) * 100}%` }} />
+            <div className="h-full rounded-full bg-violet" style={{ width: `${(answeredCount / questions.length) * 100}%` }} />
           </div>
           <span className="text-xs text-muted-foreground">
-            {answeredCount}/{examQuestions.length} answered
+            {answeredCount}/{questions.length} answered
           </span>
         </div>
         <div
@@ -264,7 +375,7 @@ function Session({
             Questions
           </div>
           <div className="grid grid-cols-4 gap-2">
-            {examQuestions.map((eq, i) => {
+            {questions.map((eq, i) => {
               const isCurrent = i === idx;
               const isAnswered = !!answers[eq.id];
               const isFlagged = flagged.has(eq.id);
@@ -336,15 +447,21 @@ function Session({
               <Button variant="outline" className="gap-1.5" disabled={idx === 0} onClick={() => goto(idx - 1)}>
                 <ChevronLeft className="size-4" /> Previous
               </Button>
-              {idx === examQuestions.length - 1 ? (
+              {idx === questions.length - 1 ? (
                 <Button
-                  onClick={() => {
-                    submittedRef.current = true;
-                    onSubmit();
-                  }}
+                  onClick={submit}
+                  disabled={submitting}
                   className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  <Check className="size-4" /> Submit Exam
+                  {submitting ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" /> Submitting…
+                    </>
+                  ) : (
+                    <>
+                      <Check className="size-4" /> Submit Exam
+                    </>
+                  )}
                 </Button>
               ) : (
                 <Button
@@ -528,23 +645,17 @@ function MiniCalculator() {
 
 /* ---------------- Results ---------------- */
 
-function Results({ answers, onRestart }: { answers: Record<string, string>; onRestart: () => void }) {
-  const navTo = useRef<HTMLDivElement>(null);
-  void navTo;
-  const { correct, total, pct } = useMemo(() => {
-    let c = 0;
-    examQuestions.forEach((q) => {
-      const a = answers[q.id]?.trim().toLowerCase();
-      if (!a) return;
-      if (q.answer) {
-        if (a === q.answer.toLowerCase()) c++;
-      } else {
-        c++; // open-ended: credit attempt for demo
-      }
-    });
-    const t = examQuestions.length;
-    return { correct: c, total: t, pct: Math.round((c / t) * 100) };
-  }, [answers]);
+function Results({
+  result,
+  difficultyLabel,
+  onRestart,
+}: {
+  result: ExamResult;
+  difficultyLabel: string;
+  onRestart: () => void;
+}) {
+  const { score, correct, total, topicPerformance, difficultyAnalysis } = result;
+  const pct = Math.round(score);
 
   const weak = topicPerformance.filter((t) => t.score < 70);
   const strong = topicPerformance.filter((t) => t.score >= 70);
@@ -576,8 +687,7 @@ function Results({ answers, onRestart }: { answers: Record<string, string>; onRe
           <div className="mt-3 flex flex-wrap gap-2">
             <Stat label="Score" value={`${correct}/${total}`} />
             <Stat label="Percentage" value={`${pct}%`} />
-            <Stat label="Time Taken" value="17:42" />
-            <Stat label="Difficulty" value="Adaptive" />
+            <Stat label="Difficulty" value={difficultyLabel} />
           </div>
         </div>
         <Button variant="outline" className="gap-2" onClick={onRestart}>
@@ -618,7 +728,7 @@ function Results({ answers, onRestart }: { answers: Record<string, string>; onRe
             {difficultyAnalysis.map((d) => (
               <div key={d.level} className="rounded-xl border border-border bg-background/40 p-3 text-center">
                 <div className="font-display text-2xl leading-none">
-                  {Math.round((d.correct / d.total) * 100)}%
+                  {d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0}%
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">{d.level}</div>
                 <div className="text-[11px] text-muted-foreground">{d.correct}/{d.total} correct</div>
@@ -634,6 +744,9 @@ function Results({ answers, onRestart }: { answers: Record<string, string>; onRe
               Strong Areas
             </h3>
             <div className="space-y-2">
+              {strong.length === 0 && (
+                <div className="text-sm text-muted-foreground">No strong areas yet.</div>
+              )}
               {strong.map((t) => (
                 <div key={t.topic} className="flex items-center gap-2 text-sm">
                   <Check className="size-4 text-success" /> {t.topic}
@@ -646,6 +759,9 @@ function Results({ answers, onRestart }: { answers: Record<string, string>; onRe
               Weak Areas
             </h3>
             <div className="space-y-2">
+              {weak.length === 0 && (
+                <div className="text-sm text-muted-foreground">No weak areas — great work!</div>
+              )}
               {weak.map((t) => (
                 <div key={t.topic} className="flex items-center gap-2 text-sm">
                   <CircleDot className="size-4 text-danger" /> {t.topic}
@@ -663,7 +779,9 @@ function Results({ answers, onRestart }: { answers: Record<string, string>; onRe
           <h3 className="text-sm font-semibold">Recommended Revision for weak topics</h3>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
-          Generate targeted study material for Optimization and Activation Functions.
+          {weak.length > 0
+            ? `Generate targeted study material for ${weak.map((t) => t.topic).join(", ")}.`
+            : "Generate study material to keep your knowledge sharp."}
         </p>
         <div className="mt-4 grid gap-2 sm:grid-cols-4">
           {revisionActions.map((a) => (
@@ -711,20 +829,6 @@ function Field({
       </div>
       {children}
     </div>
-  );
-}
-
-function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "rounded-full border px-3 py-1.5 text-sm transition-colors",
-        active ? "border-violet bg-violet-soft text-violet" : "border-border bg-card text-muted-foreground hover:text-foreground",
-      )}
-    >
-      {children}
-    </button>
   );
 }
 

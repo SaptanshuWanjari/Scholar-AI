@@ -9,6 +9,8 @@ import {
   Trophy,
   Settings2,
   Loader2,
+  Save,
+  Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
@@ -24,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { quizzes } from "../lib/mock-data";
 import { api } from "../lib/api";
 import type { Quiz, QuizQuestion, Course } from "../lib/types";
 import { cn } from "../components/ui/utils";
@@ -42,8 +43,23 @@ const diffColor: Record<Quiz["difficulty"], string> = {
 
 export function QuizPage() {
   const [stage, setStage] = useState<Stage>("builder");
-  const [active, setActive] = useState<Quiz>(quizzes[0]);
+  const [active, setActive] = useState<Quiz | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [saved, setSaved] = useState<Quiz[]>([]);
+  const [loadingSaved, setLoadingSaved] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const refreshSaved = () =>
+    api
+      .listSavedQuizzes()
+      .then(setSaved)
+      .catch(() => setSaved([]))
+      .finally(() => setLoadingSaved(false));
+
+  useEffect(() => {
+    refreshSaved();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const start = (q: Quiz) => {
     setActive(q);
@@ -51,26 +67,81 @@ export function QuizPage() {
     setStage("player");
   };
 
+  const saveQuiz = async (quiz: Quiz) => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await api.saveQuiz({
+        title: quiz.title,
+        course: quiz.course && quiz.course !== "all" ? quiz.course : null,
+        difficulty: quiz.difficulty,
+        questions: quiz.questions,
+      });
+      await refreshSaved();
+      toast.success("Quiz saved");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to save quiz");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteQuiz = async (id: string) => {
+    try {
+      await api.deleteQuiz(id);
+      setSaved((s) => s.filter((q) => q.id !== id));
+      toast.success("Quiz deleted");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete quiz");
+    }
+  };
+
   return (
     <Page className="space-y-6">
-      {stage === "builder" && <Builder onStart={start} />}
-      {stage === "player" && (
+      {stage === "builder" && (
+        <Builder
+          onStart={start}
+          saved={saved}
+          loadingSaved={loadingSaved}
+          onDelete={deleteQuiz}
+        />
+      )}
+      {stage === "player" && active && (
         <Player
           quiz={active}
           onFinish={(a) => {
             setAnswers(a);
             setStage("results");
           }}
+          onSave={() => saveQuiz(active)}
+          saving={saving}
         />
       )}
-      {stage === "results" && (
-        <Results quiz={active} answers={answers} onRetry={() => start(active)} onBack={() => setStage("builder")} />
+      {stage === "results" && active && (
+        <Results
+          quiz={active}
+          answers={answers}
+          onRetry={() => start(active)}
+          onBack={() => setStage("builder")}
+          onSave={() => saveQuiz(active)}
+          saving={saving}
+        />
       )}
     </Page>
   );
 }
 
-function Builder({ onStart }: { onStart: (q: Quiz) => void }) {
+function Builder({
+  onStart,
+  saved,
+  loadingSaved,
+  onDelete,
+}: {
+  onStart: (q: Quiz) => void;
+  saved: Quiz[];
+  loadingSaved: boolean;
+  onDelete: (id: string) => void;
+}) {
   const [topic, setTopic] = useState("");
   const [course, setCourse] = useState<string>("all");
   const [difficulty, setDifficulty] = useState<Difficulty>("Medium");
@@ -189,31 +260,68 @@ function Builder({ onStart }: { onStart: (q: Quiz) => void }) {
         {error && <p className="mt-3 text-sm text-danger">{error}</p>}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {quizzes.map((q) => (
-          <motion.div key={q.id} whileHover={{ y: -2 }} className="rounded-xl border border-border bg-card p-5">
-            <div className="flex items-start justify-between">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-violet-soft text-primary">
-                <ListChecks className="size-5" />
+      {loadingSaved ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card p-8 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" /> Loading saved quizzes…
+        </div>
+      ) : saved.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
+          <div className="mx-auto flex size-10 items-center justify-center rounded-lg bg-violet-soft text-primary">
+            <ListChecks className="size-5" />
+          </div>
+          <h4 className="mt-3">No saved quizzes yet</h4>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Generate a quiz above and save it to find it here later.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {saved.map((q) => (
+            <motion.div key={q.id} whileHover={{ y: -2 }} className="rounded-xl border border-border bg-card p-5">
+              <div className="flex items-start justify-between">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-violet-soft text-primary">
+                  <ListChecks className="size-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className={diffColor[q.difficulty]}>
+                    {q.difficulty}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(q.id)}
+                    aria-label="Delete quiz"
+                    className="size-8 text-muted-foreground hover:text-danger"
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
               </div>
-              <Badge variant="outline" className={diffColor[q.difficulty]}>
-                {q.difficulty}
-              </Badge>
-            </div>
-            <h4 className="mt-3">{q.title}</h4>
-            <div className="mt-1 text-sm text-muted-foreground">{q.course}</div>
-            <div className="mt-1 text-xs text-muted-foreground">{q.questions.length} questions</div>
-            <Button onClick={() => onStart(q)} className="mt-4 w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-              <Play className="size-4" /> Start quiz
-            </Button>
-          </motion.div>
-        ))}
-      </div>
+              <h4 className="mt-3">{q.title}</h4>
+              <div className="mt-1 text-sm text-muted-foreground">{q.course}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{q.questions.length} questions</div>
+              <Button onClick={() => onStart(q)} className="mt-4 w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+                <Play className="size-4" /> Start quiz
+              </Button>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </>
   );
 }
 
-function Player({ quiz, onFinish }: { quiz: Quiz; onFinish: (a: Record<string, string>) => void }) {
+function Player({
+  quiz,
+  onFinish,
+  onSave,
+  saving,
+}: {
+  quiz: Quiz;
+  onFinish: (a: Record<string, string>) => void;
+  onSave: () => void;
+  saving: boolean;
+}) {
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [shortInput, setShortInput] = useState("");
@@ -246,6 +354,16 @@ function Player({ quiz, onFinish }: { quiz: Quiz; onFinish: (a: Record<string, s
         <span className="text-xs text-muted-foreground">
           {idx + 1} / {quiz.questions.length}
         </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onSave}
+          disabled={saving}
+          className="gap-1.5"
+        >
+          {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+          Save quiz
+        </Button>
       </div>
 
       <AnimatePresence mode="wait">
@@ -315,11 +433,15 @@ function Results({
   answers,
   onRetry,
   onBack,
+  onSave,
+  saving,
 }: {
   quiz: Quiz;
   answers: Record<string, string>;
   onRetry: () => void;
   onBack: () => void;
+  onSave: () => void;
+  saving: boolean;
 }) {
   const correct = quiz.questions.filter(
     (q) => answers[q.id]?.trim().toLowerCase() === q.answer.toLowerCase(),
@@ -343,6 +465,9 @@ function Results({
         </p>
         <div className="mt-5 flex justify-center gap-2">
           <Button variant="outline" onClick={onBack}>Back to quizzes</Button>
+          <Button variant="outline" onClick={onSave} disabled={saving} className="gap-2">
+            {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Save quiz
+          </Button>
           <Button onClick={onRetry} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
             <RotateCw className="size-4" /> Retry
           </Button>

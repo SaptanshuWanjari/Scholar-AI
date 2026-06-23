@@ -120,6 +120,7 @@ class Notebook(Base):
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     color: Mapped[str] = mapped_column(String(16), nullable=False, default="#4f4d7a")
     blocks: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    tags: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
@@ -158,3 +159,19 @@ class ReadingState(Base):
     highlights: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     bookmarks: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     progress: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+
+
+class Activity(Base):
+    """Event log powering the dashboard (study stats, sessions, activity feed)."""
+
+    __tablename__ = "activities"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    kind: Mapped[str] = mapped_column(String(32), nullable=False)  # ask|flashcard|quiz|document|diagram|exam|note
+    text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    cards: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )

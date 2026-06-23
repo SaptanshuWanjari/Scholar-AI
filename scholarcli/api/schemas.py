@@ -286,7 +286,14 @@ class NotebookOut(BaseModel):
     course: str
     color: str
     blocks: list = []
+    tags: list[str] = []
     updated: str
+
+
+class CollectionOut(BaseModel):
+    id: str
+    name: str
+    count: int
 
 
 class NotebookCreate(BaseModel):
@@ -294,6 +301,7 @@ class NotebookCreate(BaseModel):
     course: str | None = None
     subtitle: str | None = None
     color: str | None = None
+    tags: list[str] | None = None
 
 
 class NotebookPatch(BaseModel):
@@ -301,6 +309,7 @@ class NotebookPatch(BaseModel):
     subtitle: str | None = None
     blocks: list | None = None
     color: str | None = None
+    tags: list[str] | None = None
 
 
 class NotebookAssistRequest(BaseModel):

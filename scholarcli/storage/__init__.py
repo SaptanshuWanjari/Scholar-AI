@@ -54,6 +54,9 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("pages", "INTEGER NOT NULL DEFAULT 0"),
         ("status", "VARCHAR(16) NOT NULL DEFAULT 'indexed'"),
     ],
+    "notebooks": [
+        ("tags", "JSON"),
+    ],
 }
 
 

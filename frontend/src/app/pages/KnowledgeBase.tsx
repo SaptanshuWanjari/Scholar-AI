@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -6,8 +6,9 @@ import {
   Controls,
   useNodesState,
   useEdgesState,
+  type Node,
+  type Edge,
   type NodeMouseHandler,
-  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import {
@@ -31,9 +32,10 @@ import {
   Quote,
   Gauge,
   Compass,
-  ChevronsLeft,
   X,
   ExternalLink,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
@@ -50,18 +52,105 @@ import {
 } from "../components/ui/sheet";
 import { ConceptNode } from "../components/ConceptNode";
 import {
-  conceptNodes,
-  conceptEdges,
   explorerCollections,
   recentConcepts,
   savedViews,
   sourceFilters,
-  relatedDiscoveries,
-  getInspector,
+  type ConceptData,
 } from "../lib/graph-data";
+import { api, type KGGraph, type ConceptInspector } from "../lib/api";
+import type { Course } from "../lib/types";
 
 // stable node type map — must be outside component
 const nodeTypes = { concept: ConceptNode };
+
+// edge styling reused for every backend edge (mirrors the previous mock styling)
+const edgeBase = {
+  type: "smoothstep" as const,
+  style: { stroke: "#c8c2b5", strokeWidth: 1.5 },
+  labelStyle: { fontSize: 9, fill: "#79736a", fontFamily: "Inter, sans-serif" },
+  labelBgStyle: { fill: "#f6f5f1", fillOpacity: 0.9 },
+  labelBgPadding: [3, 2] as [number, number],
+  labelBgBorderRadius: 3,
+};
+
+// ─── deterministic layout ─────────────────────────────────────────────────────
+// The backend provides no x/y. We sort nodes so larger/more-referenced concepts
+// sit toward the center, then place them on concentric rings: the single most
+// important node is the hub at the origin, the rest fan out on rings whose
+// capacity grows with radius. This is stable (no randomness) so the graph looks
+// the same on every load.
+
+const SIZE_WEIGHT: Record<ConceptData["size"], number> = {
+  large: 3,
+  medium: 2,
+  small: 1,
+};
+
+function layoutGraph(graph: KGGraph): {
+  nodes: Node<ConceptData>[];
+  edges: Edge[];
+} {
+  // Most "important" first (size, then refCount) so hubs end up central.
+  const ordered = [...graph.nodes].sort((a, b) => {
+    const w = SIZE_WEIGHT[b.size] - SIZE_WEIGHT[a.size];
+    if (w !== 0) return w;
+    return b.refCount - a.refCount;
+  });
+
+  const CENTER = { x: 560, y: 360 };
+  const RING_GAP = 230;
+
+  const nodes: Node<ConceptData>[] = ordered.map((n, i) => {
+    const data: ConceptData = {
+      label: n.label,
+      description: n.description,
+      size: n.size,
+      refCount: n.refCount,
+      sourceCount: n.sourceCount,
+      // ConceptData.cluster is a narrow union; the backend cluster is a free
+      // string, so coerce it (it is only used as a tag, not switched on here).
+      cluster: n.cluster as ConceptData["cluster"],
+    };
+
+    if (i === 0) {
+      return { id: n.id, type: "concept", position: { ...CENTER }, data };
+    }
+
+    // ring index grows as we run out of room on inner rings:
+    // ring r (1-based) holds up to 6*r slots.
+    let idx = i - 1;
+    let ring = 1;
+    while (idx >= 6 * ring) {
+      idx -= 6 * ring;
+      ring += 1;
+    }
+    const slots = 6 * ring;
+    // offset alternate rings so nodes don't line up radially
+    const angle = (idx / slots) * 2 * Math.PI + (ring % 2 ? 0 : Math.PI / slots);
+    const radius = ring * RING_GAP;
+
+    return {
+      id: n.id,
+      type: "concept",
+      position: {
+        x: CENTER.x + radius * Math.cos(angle),
+        y: CENTER.y + radius * Math.sin(angle),
+      },
+      data,
+    };
+  });
+
+  const edges: Edge[] = graph.edges.map((e) => ({
+    id: e.id,
+    source: e.source,
+    target: e.target,
+    label: e.label,
+    ...edgeBase,
+  }));
+
+  return { nodes, edges };
+}
 
 // ─── main page ───────────────────────────────────────────────────────────────
 
@@ -73,7 +162,51 @@ export function KnowledgeBase() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set(sourceFilters));
-  const [discoveries, setDiscoveries] = useState<string[] | null>(null);
+
+  // graph state loaded from the backend
+  const [graph, setGraph] = useState<{ nodes: Node<ConceptData>[]; edges: Edge[] } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [building, setBuilding] = useState(false);
+  const [course, setCourse] = useState<string | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  const loadGraph = useCallback(async (c: string | null) => {
+    setLoading(true);
+    try {
+      const g = await api.getKnowledgeGraph(c);
+      setGraph(layoutGraph(g));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to load knowledge graph");
+      setGraph({ nodes: [], edges: [] });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadGraph(course);
+  }, [course, loadGraph]);
+
+  // load courses once for the optional filter
+  useEffect(() => {
+    api.listCourses().then(setCourses).catch(() => {
+      /* filter is optional — ignore failures */
+    });
+  }, []);
+
+  const build = useCallback(async () => {
+    setBuilding(true);
+    toast.info("Building knowledge graph — this runs the LLM over your documents and may take a while…");
+    try {
+      const { concepts, edges } = await api.buildKnowledgeGraph(course);
+      toast.success(`Knowledge graph built — ${concepts} concepts, ${edges} relationships.`);
+      await loadGraph(course);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to build knowledge graph");
+    } finally {
+      setBuilding(false);
+    }
+  }, [course, loadGraph]);
 
   const toggleFilter = (f: string) => {
     setActiveFilters((prev) => {
@@ -83,11 +216,7 @@ export function KnowledgeBase() {
     });
   };
 
-  const discover = () => {
-    const key = selectedId ?? "rag";
-    const list = relatedDiscoveries[key] ?? relatedDiscoveries.rag;
-    setDiscoveries(list);
-  };
+  const isEmpty = !!graph && graph.nodes.length === 0;
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -122,7 +251,36 @@ export function KnowledgeBase() {
           </div>
 
           <ScrollArea className="min-h-0 flex-1">
-            {/* source filters */}
+            {/* course filter (real) */}
+            {courses.length > 0 && (
+              <SideSection label="Course" icon={Bookmark}>
+                <div className="space-y-0.5">
+                  <button
+                    onClick={() => setCourse(null)}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                      course === null ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
+                    )}
+                  >
+                    <span>All courses</span>
+                  </button>
+                  {courses.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setCourse(c.name === course ? null : c.name)}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                        course === c.name ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
+                      )}
+                    >
+                      <span>{c.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </SideSection>
+            )}
+
+            {/* source filters (mock-only, kept static) */}
             <SideSection label="Source Type" icon={SlidersHorizontal}>
               <div className="space-y-1">
                 {sourceFilters.map((f) => (
@@ -139,7 +297,7 @@ export function KnowledgeBase() {
               </div>
             </SideSection>
 
-            {/* collections */}
+            {/* collections (mock-only, kept static) */}
             <SideSection label="Collections" icon={Bookmark}>
               <div className="space-y-0.5">
                 {explorerCollections.map((c) => (
@@ -158,7 +316,7 @@ export function KnowledgeBase() {
               </div>
             </SideSection>
 
-            {/* recent */}
+            {/* recent (mock-only) */}
             <SideSection label="Recent Concepts" icon={History}>
               <div className="flex flex-wrap gap-1.5 px-1">
                 {recentConcepts.map((c) => (
@@ -172,7 +330,7 @@ export function KnowledgeBase() {
               </div>
             </SideSection>
 
-            {/* saved views */}
+            {/* saved views (mock-only) */}
             <SideSection label="Saved Views" icon={Tag}>
               {savedViews.map((v) => (
                 <button
@@ -208,24 +366,50 @@ export function KnowledgeBase() {
           </button>
         )}
 
-        <GraphCanvas
-          selectedId={selectedId}
-          searchQuery={searchQuery}
-          onNodeClick={(id) => setSelectedId(id === selectedId ? null : id)}
-          onNodeDoubleClick={(id) => setDrawerConceptId(id)}
-          onPaneClick={() => { setSelectedId(null); setDiscoveries(null); }}
-        />
+        {/* Rebuild action for non-empty graphs */}
+        {graph && !isEmpty && !loading && (
+          <div className="absolute right-3 top-3 z-20">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 bg-card shadow-sm"
+              onClick={build}
+              disabled={building}
+            >
+              {building ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCw className="size-3.5" />}
+              {building ? "Rebuilding…" : "Rebuild"}
+            </Button>
+          </div>
+        )}
+
+        {loading ? (
+          <GraphLoading />
+        ) : isEmpty ? (
+          <GraphEmpty onBuild={build} building={building} />
+        ) : (
+          <GraphCanvas
+            nodes={graph!.nodes}
+            edges={graph!.edges}
+            selectedId={selectedId}
+            searchQuery={searchQuery}
+            onNodeClick={(id) => setSelectedId(id === selectedId ? null : id)}
+            onNodeDoubleClick={(id) => setDrawerConceptId(id)}
+            onPaneClick={() => setSelectedId(null)}
+          />
+        )}
 
         {/* Bottom canvas legend */}
-        <div className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2">
-          <div className="flex items-center gap-4 rounded-full border border-border bg-card/80 px-4 py-2 text-[11px] text-muted-foreground backdrop-blur">
-            <LegendDot cls="size-4 border-2 border-foreground bg-card" label="Large (hub)" />
-            <LegendDot cls="size-3 border border-foreground/60 bg-card" label="Medium" />
-            <LegendDot cls="size-2.5 border border-foreground/40 bg-card" label="Small (rare)" />
-            <span className="h-3 w-px bg-border" />
-            <span className="flex items-center gap-1">Click to inspect · Double-click for details</span>
+        {!loading && !isEmpty && (
+          <div className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2">
+            <div className="flex items-center gap-4 rounded-full border border-border bg-card/80 px-4 py-2 text-[11px] text-muted-foreground backdrop-blur">
+              <LegendDot cls="size-4 border-2 border-foreground bg-card" label="Large (hub)" />
+              <LegendDot cls="size-3 border border-foreground/60 bg-card" label="Medium" />
+              <LegendDot cls="size-2.5 border border-foreground/40 bg-card" label="Small (rare)" />
+              <span className="h-3 w-px bg-border" />
+              <span className="flex items-center gap-1">Click to inspect · Double-click for details</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ── Right inspector ── */}
@@ -244,9 +428,8 @@ export function KnowledgeBase() {
           <ScrollArea className="min-h-0 flex-1">
             {selectedId ? (
               <InspectorContent
+                key={selectedId}
                 conceptId={selectedId}
-                discoveries={discoveries}
-                onDiscover={discover}
                 onOpenDrawer={() => setDrawerConceptId(selectedId)}
               />
             ) : (
@@ -260,7 +443,7 @@ export function KnowledgeBase() {
       <Sheet open={!!drawerConceptId} onOpenChange={(o) => !o && setDrawerConceptId(null)}>
         <SheetContent side="right" className="w-[540px] max-w-full overflow-y-auto p-0 sm:max-w-[540px]">
           {drawerConceptId && (
-            <ConceptDrawerContent conceptId={drawerConceptId} onClose={() => setDrawerConceptId(null)} />
+            <ConceptDrawerContent key={drawerConceptId} conceptId={drawerConceptId} onClose={() => setDrawerConceptId(null)} />
           )}
         </SheetContent>
       </Sheet>
@@ -268,15 +451,85 @@ export function KnowledgeBase() {
   );
 }
 
+// ─── data hook ────────────────────────────────────────────────────────────────
+
+function useConcept(conceptId: string) {
+  const [concept, setConcept] = useState<ConceptInspector | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setConcept(null);
+    api
+      .getConcept(conceptId)
+      .then((c) => {
+        if (!cancelled) setConcept(c);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          toast.error(err instanceof Error ? err.message : "Failed to load concept");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [conceptId]);
+
+  return { concept, loading };
+}
+
+// ─── graph states ─────────────────────────────────────────────────────────────
+
+function GraphLoading() {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 bg-background text-muted-foreground">
+      <Loader2 className="size-6 animate-spin text-violet" />
+      <span className="text-sm">Loading knowledge graph…</span>
+    </div>
+  );
+}
+
+function GraphEmpty({ onBuild, building }: { onBuild: () => void; building: boolean }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center bg-background px-6 text-center">
+      <div className="flex size-14 items-center justify-center rounded-2xl border border-border bg-card text-muted-foreground">
+        <Network className="size-7" />
+      </div>
+      <h3 className="mt-5 text-lg font-semibold">No knowledge graph yet</h3>
+      <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+        Build your knowledge graph to discover how concepts across your indexed documents
+        connect. This runs the LLM over your documents and may take a while.
+      </p>
+      <Button className="mt-6 gap-2" onClick={onBuild} disabled={building}>
+        {building ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+        {building ? "Building knowledge graph…" : "Build knowledge graph"}
+      </Button>
+      {building && (
+        <p className="mt-3 text-xs text-muted-foreground">
+          Extracting concepts and relationships — this can take a minute or two.
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ─── graph canvas ─────────────────────────────────────────────────────────────
 
 function GraphCanvas({
+  nodes: sourceNodes,
+  edges: sourceEdges,
   selectedId,
   searchQuery,
   onNodeClick,
   onNodeDoubleClick,
   onPaneClick,
 }: {
+  nodes: Node<ConceptData>[];
+  edges: Edge[];
   selectedId: string | null;
   searchQuery: string;
   onNodeClick: (id: string) => void;
@@ -285,9 +538,9 @@ function GraphCanvas({
 }) {
   const q = searchQuery.toLowerCase().trim();
 
-  const baseNodes = useMemo(
+  const styledNodes = useMemo(
     () =>
-      conceptNodes.map((n) => ({
+      sourceNodes.map((n) => ({
         ...n,
         selected: n.id === selectedId,
         style:
@@ -295,11 +548,19 @@ function GraphCanvas({
             ? { opacity: 0.25, transition: "opacity 0.2s" }
             : { opacity: 1, transition: "opacity 0.2s" },
       })),
-    [selectedId, q],
+    [sourceNodes, selectedId, q],
   );
 
-  const [nodes, , onNodesChange] = useNodesState(baseNodes);
-  const [edges, , onEdgesChange] = useEdgesState(conceptEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(styledNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(sourceEdges);
+
+  // keep ReactFlow's internal state in sync when graph/selection/search change
+  useEffect(() => {
+    setNodes(styledNodes);
+  }, [styledNodes, setNodes]);
+  useEffect(() => {
+    setEdges(sourceEdges);
+  }, [sourceEdges, setEdges]);
 
   const handleNodeClick: NodeMouseHandler = useCallback(
     (_, node) => onNodeClick(node.id),
@@ -344,24 +605,44 @@ function GraphCanvas({
 
 function InspectorContent({
   conceptId,
-  discoveries,
-  onDiscover,
   onOpenDrawer,
 }: {
   conceptId: string;
-  discoveries: string[] | null;
-  onDiscover: () => void;
   onOpenDrawer: () => void;
 }) {
-  const concept = getInspector(conceptId);
+  const { concept, loading } = useConcept(conceptId);
+  const [discoveries, setDiscoveries] = useState<string[] | null>(null);
+  const [discovering, setDiscovering] = useState(false);
 
+  const onDiscover = useCallback(async () => {
+    setDiscovering(true);
+    try {
+      const list = await api.discoverConcepts(conceptId);
+      setDiscoveries(list);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to discover related concepts");
+    } finally {
+      setDiscovering(false);
+    }
+  }, [conceptId]);
+
+  if (loading || !concept) {
+    return (
+      <div className="flex flex-col items-center gap-3 px-6 pt-20 text-muted-foreground">
+        <Loader2 className="size-5 animate-spin text-violet" />
+        <span className="text-sm">Loading concept…</span>
+      </div>
+    );
+  }
+
+  const ri = concept.referencedIn ?? {};
   const refInRows = [
-    { label: "Documents", icon: FileText, count: concept.referencedIn.documents },
-    { label: "Notebook Notes", icon: Notebook, count: concept.referencedIn.notes },
-    { label: "Flashcards", icon: Layers, count: concept.referencedIn.flashcards },
-    { label: "Quizzes", icon: ListChecks, count: concept.referencedIn.quizzes },
-    { label: "Saved Answers", icon: Sparkles, count: concept.referencedIn.answers },
-    { label: "Diagrams", icon: Workflow, count: concept.referencedIn.diagrams },
+    { label: "Documents", icon: FileText, count: ri.documents ?? 0 },
+    { label: "Notebook Notes", icon: Notebook, count: ri.notes ?? 0 },
+    { label: "Flashcards", icon: Layers, count: ri.flashcards ?? 0 },
+    { label: "Quizzes", icon: ListChecks, count: ri.quizzes ?? 0 },
+    { label: "Saved Answers", icon: Sparkles, count: ri.answers ?? 0 },
+    { label: "Diagrams", icon: Workflow, count: ri.diagrams ?? 0 },
   ];
 
   const aiActions = [
@@ -495,9 +776,11 @@ function InspectorContent({
         <Button
           onClick={onDiscover}
           variant="outline"
+          disabled={discovering}
           className="w-full gap-2 border-violet/30 text-violet hover:bg-violet-soft"
         >
-          <Compass className="size-4" /> Discover Related Concepts
+          {discovering ? <Loader2 className="size-4 animate-spin" /> : <Compass className="size-4" />}
+          {discovering ? "Discovering…" : "Discover Related Concepts"}
         </Button>
         <AnimatePresence>
           {discoveries && (
@@ -510,16 +793,20 @@ function InspectorContent({
               <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 <Sparkles className="size-3 text-violet" /> AI Suggestions
               </div>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {discoveries.map((d) => (
-                  <button
-                    key={d}
-                    className="rounded-full border border-violet/30 bg-violet-soft px-2.5 py-1 text-[11px] text-violet"
-                  >
-                    + {d}
-                  </button>
-                ))}
-              </div>
+              {discoveries.length === 0 ? (
+                <p className="mt-2 text-xs text-muted-foreground">No related concepts found.</p>
+              ) : (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {discoveries.map((d) => (
+                    <button
+                      key={d}
+                      className="rounded-full border border-violet/30 bg-violet-soft px-2.5 py-1 text-[11px] text-violet"
+                    >
+                      + {d}
+                    </button>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -558,15 +845,25 @@ function EmptyInspector() {
 // ─── concept drawer ───────────────────────────────────────────────────────────
 
 function ConceptDrawerContent({ conceptId, onClose }: { conceptId: string; onClose: () => void }) {
-  const concept = getInspector(conceptId);
+  const { concept, loading } = useConcept(conceptId);
 
+  if (loading || !concept) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
+        <Loader2 className="size-6 animate-spin text-violet" />
+        <span className="text-sm">Loading concept…</span>
+      </div>
+    );
+  }
+
+  const ri = concept.referencedIn ?? {};
   const refInRows = [
-    { label: "Documents", icon: FileText, count: concept.referencedIn.documents },
-    { label: "Notes", icon: Notebook, count: concept.referencedIn.notes },
-    { label: "Flashcards", icon: Layers, count: concept.referencedIn.flashcards },
-    { label: "Quizzes", icon: ListChecks, count: concept.referencedIn.quizzes },
-    { label: "Answers", icon: Sparkles, count: concept.referencedIn.answers },
-    { label: "Diagrams", icon: Workflow, count: concept.referencedIn.diagrams },
+    { label: "Documents", icon: FileText, count: ri.documents ?? 0 },
+    { label: "Notes", icon: Notebook, count: ri.notes ?? 0 },
+    { label: "Flashcards", icon: Layers, count: ri.flashcards ?? 0 },
+    { label: "Quizzes", icon: ListChecks, count: ri.quizzes ?? 0 },
+    { label: "Answers", icon: Sparkles, count: ri.answers ?? 0 },
+    { label: "Diagrams", icon: Workflow, count: ri.diagrams ?? 0 },
   ];
 
   return (

@@ -7,6 +7,7 @@ from fastapi.concurrency import run_in_threadpool
 
 from scholarcli.api.rag_service import run_ask
 from scholarcli.api.schemas import (
+    CollectionOut,
     NotebookAssistRequest,
     NotebookAssistResponse,
     NotebookCreate,
@@ -46,6 +47,7 @@ def _full(nb: Notebook) -> NotebookOut:
         course=nb.course,
         color=nb.color,
         blocks=nb.blocks or [],
+        tags=nb.tags or [],
         updated=_fmt_updated(nb),
     )
 
@@ -72,6 +74,7 @@ def create_notebook(payload: NotebookCreate) -> NotebookOut:
             course=payload.course or "",
             color=payload.color or _COLORS[hash(title) % len(_COLORS)],
             blocks=[],
+            tags=payload.tags or [],
         )
         session.add(nb)
         session.commit()

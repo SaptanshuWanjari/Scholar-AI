@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -23,16 +23,31 @@ import {
   Info,
   TriangleAlert,
   Check,
+  BookOpen,
+  Loader2,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
 } from "../components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { cn } from "../components/ui/utils";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
@@ -40,15 +55,17 @@ import { Button } from "../components/ui/button";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { DiagramViewer } from "../components/DiagramViewer";
 import { SelectionToolbar } from "../components/SelectionToolbar";
-import {
-  notebooks,
-  collections,
-  tags,
-  recentNotes,
-  activeNotebookPage,
-  inspector,
-  type NotebookBlock,
-} from "../lib/notebook-data";
+import { collections, tags, recentNotes, inspector, type NotebookBlock } from "../lib/notebook-data";
+import { api, type NotebookMeta, type NotebookFull } from "../lib/api";
+import type { Course } from "../lib/types";
+
+// Deterministic default icon per notebook (no icon field on real notebooks).
+const NOTEBOOK_ICONS = [BookOpen, FileText, Layers, ScrollText, Lightbulb] as const;
+function iconFor(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return NOTEBOOK_ICONS[h % NOTEBOOK_ICONS.length];
+}
 
 const calloutMeta = {
   note: { icon: Info, cls: "border-border bg-muted/50 text-foreground", iconCls: "text-muted-foreground" },
@@ -57,20 +74,160 @@ const calloutMeta = {
 };
 
 export function Notebooks() {
-  const [activeId, setActiveId] = useState("nb1");
+  const [list, setList] = useState<NotebookMeta[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [active, setActive] = useState<NotebookFull | null>(null);
+  const [blocks, setBlocks] = useState<NotebookBlock[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
+  const [loadingNotebook, setLoadingNotebook] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [assisting, setAssisting] = useState(false);
+
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
-  const [blocks, setBlocks] = useState<NotebookBlock[]>(activeNotebookPage.blocks);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // New-notebook dialog state
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newCourse, setNewCourse] = useState<string>("none");
+  const [creating, setCreating] = useState(false);
+
+  // Load the notebook list on mount.
+  useEffect(() => {
+    setLoadingList(true);
+    api
+      .listNotebooks()
+      .then((nbs) => {
+        setList(nbs);
+        if (nbs.length > 0) setActiveId(nbs[0].id);
+      })
+      .catch((e) => toast.error(`Failed to load notebooks: ${e.message}`))
+      .finally(() => setLoadingList(false));
+    api.listCourses().then(setCourses).catch(() => setCourses([]));
+  }, []);
+
+  // Load the selected notebook whenever the active id changes.
+  useEffect(() => {
+    if (!activeId) {
+      setActive(null);
+      setBlocks([]);
+      return;
+    }
+    let cancelled = false;
+    setLoadingNotebook(true);
+    api
+      .getNotebook(activeId)
+      .then((nb) => {
+        if (cancelled) return;
+        setActive(nb);
+        setBlocks((nb.blocks ?? []) as NotebookBlock[]);
+      })
+      .catch((e) => {
+        if (!cancelled) toast.error(`Failed to open notebook: ${e.message}`);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingNotebook(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeId]);
+
+  // Persist the given blocks for the active notebook, and reflect any
+  // server-side metadata changes (e.g. updated timestamp / notes count).
+  async function persistBlocks(next: NotebookBlock[]) {
+    if (!activeId) return;
+    setBlocks(next);
+    setSaving(true);
+    try {
+      const updated = await api.updateNotebook(activeId, { blocks: next });
+      setActive(updated);
+      setList((prev) =>
+        prev.map((n) =>
+          n.id === activeId ? { ...n, notes: updated.blocks?.length ?? n.notes, lastEdited: "just now" } : n,
+        ),
+      );
+    } catch (e: any) {
+      toast.error(`Failed to save: ${e.message}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleCreate() {
+    const title = newTitle.trim();
+    if (!title) {
+      toast.error("Enter a notebook title");
+      return;
+    }
+    setCreating(true);
+    try {
+      const nb = await api.createNotebook(title, newCourse === "none" ? null : newCourse);
+      const meta: NotebookMeta = {
+        id: nb.id,
+        name: nb.title,
+        course: nb.course,
+        color: nb.color,
+        notes: nb.blocks?.length ?? 0,
+        lastEdited: "just now",
+      };
+      setList((prev) => [meta, ...prev]);
+      setActiveId(nb.id);
+      setCreateOpen(false);
+      setNewTitle("");
+      setNewCourse("none");
+      toast.success(`Created “${nb.title}”`);
+    } catch (e: any) {
+      toast.error(`Failed to create notebook: ${e.message}`);
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  // AI assist: run the action on the selected text, then insert the
+  // returned markdown as a new ai-answer block and persist.
+  async function runAssist(action: "explain" | "summarize" | "improve", selected: string) {
+    const sel = selected.trim();
+    if (!sel) {
+      toast.error("Select some text first");
+      return;
+    }
+    if (!activeId || assisting) return;
+    const labels: Record<typeof action, string> = {
+      explain: "Explaining selection…",
+      summarize: "Summarizing selection…",
+      improve: "Improving selection…",
+    };
+    setAssisting(true);
+    const toastId = toast.loading(labels[action]);
+    try {
+      const { text } = await api.notebookAssist(action, sel, active?.course ?? null);
+      const block: NotebookBlock = {
+        type: "ai-answer",
+        question: `${action[0].toUpperCase()}${action.slice(1)}: ${sel.slice(0, 80)}${sel.length > 80 ? "…" : ""}`,
+        answer: text,
+        confidence: 1,
+        sources: 0,
+      };
+      await persistBlocks([...blocks, block]);
+      toast.success("AI block added", { id: toastId });
+    } catch (e: any) {
+      toast.error(`AI assist failed: ${e.message}`, { id: toastId });
+    } finally {
+      setAssisting(false);
+    }
+  }
+
   const actions = [
-    { label: "Explain", icon: Wand2, onSelect: () => toast.success("Generating explanation…") },
-    { label: "Summarize", icon: ScrollText, onSelect: () => toast.success("Summarizing selection…") },
-    { label: "Flashcards", icon: Layers, onSelect: () => toast.success("Creating flashcards…") },
-    { label: "Quiz", icon: ListChecks, onSelect: () => toast.success("Generating quiz…") },
-    { label: "Diagram", icon: Workflow, onSelect: () => toast.success("Generating diagram…") },
+    { label: "Explain", icon: Wand2, onSelect: (text: string) => runAssist("explain", text) },
+    { label: "Summarize", icon: ScrollText, onSelect: (text: string) => runAssist("summarize", text) },
+    { label: "Improve", icon: Sparkles, onSelect: (text: string) => runAssist("improve", text) },
     { label: "Cite", icon: Quote, onSelect: () => toast.success("Citation saved") },
   ];
+
+  const activeMeta = list.find((n) => n.id === activeId);
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -87,7 +244,7 @@ export function Notebooks() {
             <Button variant="ghost" size="icon" className="size-7" onClick={() => setLeftCollapsed(true)}>
               <PanelLeftClose className="size-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="size-7" onClick={() => toast.success("New notebook")}>
+            <Button variant="ghost" size="icon" className="size-7" onClick={() => setCreateOpen(true)}>
               <Plus className="size-4" />
             </Button>
           </div>
@@ -100,27 +257,43 @@ export function Notebooks() {
         </div>
 
         <div className="space-y-1 p-2">
-          {notebooks.map((n) => (
+          {loadingList ? (
+            <div className="flex items-center gap-2 px-2.5 py-3 text-xs text-muted-foreground">
+              <Loader2 className="size-3.5 animate-spin" /> Loading notebooks…
+            </div>
+          ) : list.length === 0 ? (
             <button
-              key={n.id}
-              onClick={() => setActiveId(n.id)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors",
-                activeId === n.id ? "bg-accent" : "hover:bg-accent/50",
-              )}
+              onClick={() => setCreateOpen(true)}
+              className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border px-2.5 py-3 text-left text-xs text-muted-foreground hover:border-violet/50 hover:text-violet"
             >
-              <div className="flex h-6 w-6 items-center justify-center rounded bg-background/50">
-                <n.icon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium">{n.name}</div>
-                <div className="text-[11px] text-muted-foreground">
-                  {n.notes} notes · {n.lastEdited}
-                </div>
-              </div>
-              <span className="size-1.5 rounded-full" style={{ backgroundColor: n.color }} />
+              <Plus className="size-3.5" /> Create your first notebook
             </button>
-          ))}
+          ) : (
+            list.map((n) => {
+              const Icon = iconFor(n.id);
+              return (
+                <button
+                  key={n.id}
+                  onClick={() => setActiveId(n.id)}
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors",
+                    activeId === n.id ? "bg-accent" : "hover:bg-accent/50",
+                  )}
+                >
+                  <div className="flex h-6 w-6 items-center justify-center rounded bg-background/50">
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">{n.name}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {n.notes} notes · {n.lastEdited}
+                    </div>
+                  </div>
+                  <span className="size-1.5 rounded-full" style={{ backgroundColor: n.color }} />
+                </button>
+              );
+            })
+          )}
         </div>
 
         <Section label="Collections" icon={FolderClosed}>
@@ -185,69 +358,100 @@ export function Notebooks() {
         </div>
 
         <div ref={contentRef} className="mx-auto max-w-[900px] px-10 py-12">
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {notebooks.find((n) => n.id === activeNotebookPage.notebookId)?.name} · {activeNotebookPage.updated}
-          </div>
-          <h1 className="mt-3 text-[2.75rem] leading-[1.1]">{activeNotebookPage.title}</h1>
-          <p className="mt-3 font-reading text-lg italic text-muted-foreground">
-            {activeNotebookPage.subtitle}
-          </p>
+          {loadingNotebook ? (
+            <div className="flex items-center gap-2 py-20 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" /> Loading notebook…
+            </div>
+          ) : !active ? (
+            <div className="flex flex-col items-center gap-4 py-24 text-center text-muted-foreground">
+              <BookOpen className="size-10 opacity-40" />
+              <div>
+                <div className="text-base font-medium text-foreground">No notebook selected</div>
+                <p className="mt-1 text-sm">Pick a notebook from the sidebar or create a new one.</p>
+              </div>
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-2 size-4" /> New notebook
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <span>
+                  {activeMeta?.name ?? active.title} · {active.updated}
+                </span>
+                {saving && <Loader2 className="size-3 animate-spin" />}
+              </div>
+              <h1 className="mt-3 text-[2.75rem] leading-[1.1]">{active.title}</h1>
+              {active.subtitle && (
+                <p className="mt-3 font-reading text-lg italic text-muted-foreground">{active.subtitle}</p>
+              )}
 
-          <div className="mt-8 space-y-5">
-            {blocks.map((block, i) => (
-              <BlockView key={i} block={block} />
-            ))}
+              <div className="mt-8 space-y-5">
+                {blocks.length === 0 && (
+                  <div className="rounded-xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
+                    This notebook is empty. Add a block below, or select text elsewhere and use AI assist.
+                  </div>
+                )}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.add("border-violet", "bg-violet-soft/50", "text-violet");
-                  }}
-                  onDragLeave={(e) => {
-                    e.currentTarget.classList.remove("border-violet", "bg-violet-soft/50", "text-violet");
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.remove("border-violet", "bg-violet-soft/50", "text-violet");
-                    try {
-                      const data = e.dataTransfer.getData("application/json");
-                      if (data) {
-                        setBlocks([...blocks, JSON.parse(data)]);
-                        return;
+                {blocks.map((block, i) => (
+                  <BlockView key={i} block={block} />
+                ))}
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.classList.add("border-violet", "bg-violet-soft/50", "text-violet");
+                      }}
+                      onDragLeave={(e) => {
+                        e.currentTarget.classList.remove("border-violet", "bg-violet-soft/50", "text-violet");
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.classList.remove("border-violet", "bg-violet-soft/50", "text-violet");
+                        try {
+                          const data = e.dataTransfer.getData("application/json");
+                          if (data) {
+                            persistBlocks([...blocks, JSON.parse(data) as NotebookBlock]);
+                          }
+                        } catch (err) {
+                          /* ignore malformed drop payloads */
+                        }
+                      }}
+                      className="group flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet"
+                    >
+                      <Plus className="size-4" /> Add block — or drag in an AI answer, diagram or deck
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-[300px]">
+                    <DropdownMenuItem
+                      onClick={() => persistBlocks([...blocks, { type: "text", text: "New text block. Edit me!" }])}
+                    >
+                      <FileText className="mr-2 size-4 text-muted-foreground" /> Text
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => persistBlocks([...blocks, { type: "heading", level: 2, text: "New Heading" }])}
+                    >
+                      <Hash className="mr-2 size-4 text-muted-foreground" /> Heading
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => persistBlocks([...blocks, { type: "callout", tone: "note", text: "New note callout." }])}
+                    >
+                      <Info className="mr-2 size-4 text-muted-foreground" /> Callout
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        persistBlocks([...blocks, { type: "code", lang: "python", code: "print('Hello world')" }])
                       }
-                    } catch (err) {}
-                    
-                    setBlocks([...blocks, {
-                      type: "ai-answer",
-                      question: "Dropped AI Concept",
-                      answer: "This block was generated via drag-and-drop. In a full implementation, you would drag a real AI response here.",
-                      confidence: 0.95,
-                      sources: 2
-                    }]);
-                  }}
-                  className="group flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet"
-                >
-                  <Plus className="size-4" /> Add block — or drag in an AI answer, diagram or deck
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-[300px]">
-                <DropdownMenuItem onClick={() => setBlocks([...blocks, { type: "text", text: "New text block. Edit me!" }])}>
-                  <FileText className="mr-2 size-4 text-muted-foreground" /> Text
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setBlocks([...blocks, { type: "heading", level: 2, text: "New Heading" }])}>
-                  <Hash className="mr-2 size-4 text-muted-foreground" /> Heading
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setBlocks([...blocks, { type: "callout", tone: "note", text: "New note callout." }])}>
-                  <Info className="mr-2 size-4 text-muted-foreground" /> Callout
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setBlocks([...blocks, { type: "code", lang: "python", code: "print('Hello world')" }])}>
-                  <Workflow className="mr-2 size-4 text-muted-foreground" /> Code
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                    >
+                      <Workflow className="mr-2 size-4 text-muted-foreground" /> Code
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </>
+          )}
         </div>
       </main>
 
@@ -312,6 +516,55 @@ export function Notebooks() {
           </InspectorBlock>
         </div>
       </aside>
+
+      {/* New notebook dialog */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New notebook</DialogTitle>
+            <DialogDescription>Give your notebook a title and optionally link a course.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Title</label>
+              <Input
+                autoFocus
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !creating) handleCreate();
+                }}
+                placeholder="e.g. Machine Learning"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Course (optional)</label>
+              <Select value={newCourse} onValueChange={setNewCourse}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="No course" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No course</SelectItem>
+                  {courses.map((c) => (
+                    <SelectItem key={c.id} value={c.name}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={creating}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} disabled={creating || !newTitle.trim()}>
+              {creating && <Loader2 className="mr-2 size-4 animate-spin" />}
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

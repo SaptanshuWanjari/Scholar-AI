@@ -10,6 +10,8 @@ import {
   ChevronRight,
   Sparkles,
   Loader2,
+  Save,
+  Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
@@ -27,8 +29,8 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { api } from "../lib/api";
+import type { DeckOut } from "../lib/api";
 import type { Course, Flashcard } from "../lib/types";
-import { decks } from "../lib/mock-data";
 import { cn } from "../components/ui/utils";
 
 type View = "grid" | "list" | "study";
@@ -45,8 +47,30 @@ export function Flashcards() {
   const [generating, setGenerating] = useState(false);
   const [ungrounded, setUngrounded] = useState(false);
 
+  const [decks, setDecks] = useState<DeckOut[]>([]);
+  const [loadingDecks, setLoadingDecks] = useState(true);
+  const [loadingCards, setLoadingCards] = useState(false);
+  const [saving, setSaving] = useState(false);
+  // Name of the deck the current cards belong to, or null when they are a
+  // freshly generated (unsaved) set that can still be saved.
+  const [activeDeck, setActiveDeck] = useState<string | null>(null);
+  // The deck name proposed by the generate flow (used as default save name).
+  const [generatedDeckName, setGeneratedDeckName] = useState<string | null>(null);
+
+  const loadDecks = async () => {
+    setLoadingDecks(true);
+    try {
+      setDecks(await api.listDecks());
+    } catch {
+      setDecks([]);
+    } finally {
+      setLoadingDecks(false);
+    }
+  };
+
   useEffect(() => {
     api.listCourses().then(setCourses).catch(() => setCourses([]));
+    void loadDecks();
   }, []);
 
   const generate = async () => {
@@ -58,11 +82,15 @@ export function Flashcards() {
       const set = await api.generateFlashcards(value, course);
       if (!set.grounded || set.cards.length === 0) {
         setCards([]);
+        setActiveDeck(null);
+        setGeneratedDeckName(null);
         setUngrounded(true);
         toast.error(NO_GROUNDED_MESSAGE);
         return;
       }
       setCards(set.cards);
+      setActiveDeck(null);
+      setGeneratedDeckName(set.deck);
       setView("grid");
       toast.success(`Generated ${set.cards.length} flashcards`);
     } catch (err) {
@@ -72,7 +100,83 @@ export function Flashcards() {
     }
   };
 
+  const saveDeck = async () => {
+    if (saving || cards.length === 0 || activeDeck) return;
+    const name = (generatedDeckName ?? topic.trim() ?? "").trim() || "Untitled deck";
+    setSaving(true);
+    try {
+      const deck = await api.saveDeck(name, course, cards);
+      toast.success(`Saved "${deck.name}"`);
+      // Reload from the persisted deck so card ids become DB ids (reviewable).
+      setActiveDeck(deck.name);
+      setGeneratedDeckName(null);
+      await loadDecks();
+      await openDeck(deck);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save deck");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openDeck = async (deck: DeckOut) => {
+    setLoadingCards(true);
+    setUngrounded(false);
+    try {
+      const loaded = await api.listSavedFlashcards(deck.name);
+      setCards(loaded);
+      setActiveDeck(deck.name);
+      setGeneratedDeckName(null);
+      setView("grid");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to load deck");
+    } finally {
+      setLoadingCards(false);
+    }
+  };
+
+  const deleteDeck = async (deck: DeckOut) => {
+    try {
+      await api.deleteDeck(deck.id);
+      toast.success(`Deleted "${deck.name}"`);
+      if (activeDeck === deck.name) {
+        setCards([]);
+        setActiveDeck(null);
+      }
+      await loadDecks();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete deck");
+    }
+  };
+
+  const deleteCard = async (card: Flashcard) => {
+    const prev = cards;
+    setCards((cs) => cs.filter((c) => c.id !== card.id));
+    try {
+      await api.deleteCard(card.id);
+      toast.success("Card deleted");
+      await loadDecks();
+    } catch (err) {
+      setCards(prev);
+      toast.error(err instanceof Error ? err.message : "Failed to delete card");
+    }
+  };
+
+  const reviewCard = async (card: Flashcard, ease: Flashcard["ease"]) => {
+    // Optimistic local update.
+    setCards((cs) => cs.map((c) => (c.id === card.id ? { ...c, ease } : c)));
+    if (!activeDeck) return; // Unsaved cards have no DB id to persist against.
+    try {
+      const updated = await api.reviewCard(card.id, ease);
+      setCards((cs) => cs.map((c) => (c.id === card.id ? updated : c)));
+      void loadDecks();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save review");
+    }
+  };
+
   const hasCards = cards.length > 0;
+  const canSave = hasCards && !activeDeck;
 
   return (
     <Page className="space-y-6">
@@ -132,61 +236,133 @@ export function Flashcards() {
       {/* Decks */}
       <div>
         <SectionTitle title="Decks" />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {decks.map((d) => (
-            <motion.div
-              key={d.id}
-              whileHover={{ y: -2 }}
-              className="rounded-xl border border-border bg-card p-4"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex size-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${d.color}22`, color: d.color }}>
-                  <GraduationCap className="size-4" />
+        {loadingDecks ? (
+          <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/40 px-4 py-8 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" /> Loading decks…
+          </div>
+        ) : decks.length === 0 ? (
+          <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card/40 px-6 py-10 text-center">
+            <div className="flex size-10 items-center justify-center rounded-xl border border-border bg-card text-violet">
+              <GraduationCap className="size-5" />
+            </div>
+            <h3 className="mt-4 text-sm font-semibold">No saved decks yet</h3>
+            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+              Generate a set of flashcards above and save it as a deck to start
+              building your spaced-repetition library.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {decks.map((d) => (
+              <motion.div
+                key={d.id}
+                whileHover={{ y: -2 }}
+                onClick={() => void openDeck(d)}
+                className={cn(
+                  "group relative cursor-pointer rounded-xl border bg-card p-4 transition-colors",
+                  activeDeck === d.name ? "border-violet/60 ring-1 ring-violet/30" : "border-border hover:border-border",
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex size-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${d.color}22`, color: d.color }}>
+                    <GraduationCap className="size-4" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">{d.cards} cards</span>
                 </div>
-                <span className="text-xs text-muted-foreground">{d.cards} cards</span>
-              </div>
-              <div className="mt-3 text-sm font-medium">{d.name}</div>
-              <div className="text-xs text-muted-foreground">{d.course}</div>
-              <Progress value={(d.mastered / d.cards) * 100} className="mt-3 h-1.5" />
-              <div className="mt-1.5 text-xs text-muted-foreground">{d.mastered} mastered</div>
-            </motion.div>
-          ))}
-        </div>
+                <div className="mt-3 text-sm font-medium">{d.name}</div>
+                <div className="text-xs text-muted-foreground">{d.course}</div>
+                <Progress value={d.cards ? (d.mastered / d.cards) * 100 : 0} className="mt-3 h-1.5" />
+                <div className="mt-1.5 text-xs text-muted-foreground">{d.mastered} mastered</div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void deleteDeck(d);
+                  }}
+                  aria-label={`Delete ${d.name}`}
+                  className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger group-hover:opacity-100"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* View switcher */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Cards</h3>
-        <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
-          {([
-            { id: "grid", icon: LayoutGrid, label: "Grid" },
-            { id: "list", icon: List, label: "List" },
-            { id: "study", icon: RotateCw, label: "Study" },
-          ] as const).map((v) => (
-            <button
-              key={v.id}
-              onClick={() => setView(v.id)}
-              disabled={!hasCards}
-              className={cn(
-                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors",
-                view === v.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-                !hasCards && "cursor-not-allowed opacity-50",
-              )}
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold">Cards</h3>
+          {activeDeck && (
+            <Badge variant="outline" className="text-[10px] font-medium">
+              {activeDeck}
+            </Badge>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {canSave && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => void saveDeck()}
+              disabled={saving}
             >
-              <v.icon className="size-4" /> {v.label}
-            </button>
-          ))}
+              {saving ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> Saving…
+                </>
+              ) : (
+                <>
+                  <Save className="size-4" /> Save as deck
+                </>
+              )}
+            </Button>
+          )}
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+            {([
+              { id: "grid", icon: LayoutGrid, label: "Grid" },
+              { id: "list", icon: List, label: "List" },
+              { id: "study", icon: RotateCw, label: "Study" },
+            ] as const).map((v) => (
+              <button
+                key={v.id}
+                onClick={() => setView(v.id)}
+                disabled={!hasCards}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors",
+                  view === v.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  !hasCards && "cursor-not-allowed opacity-50",
+                )}
+              >
+                <v.icon className="size-4" /> {v.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {!hasCards ? (
+      {loadingCards ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 px-6 py-14 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" /> Loading cards…
+        </div>
+      ) : !hasCards ? (
         <EmptyCards ungrounded={ungrounded} />
       ) : (
         <>
           {view === "grid" && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {cards.map((c) => (
-                <FlashcardCard key={c.id} card={c} />
+                <div key={c.id} className="group/card relative">
+                  <FlashcardCard card={c} />
+                  <button
+                    onClick={() => void deleteCard(c)}
+                    aria-label="Delete card"
+                    className="absolute right-2 top-2 z-10 flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground opacity-0 backdrop-blur transition-opacity hover:bg-danger-soft hover:text-danger group-hover/card:opacity-100"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
               ))}
             </div>
           )}
@@ -196,7 +372,7 @@ export function Flashcards() {
               {cards.map((c, i) => (
                 <div
                   key={c.id}
-                  className={cn("flex items-center gap-4 px-4 py-3 hover:bg-accent/30", i !== 0 && "border-t border-border")}
+                  className={cn("group/row flex items-center gap-4 px-4 py-3 hover:bg-accent/30", i !== 0 && "border-t border-border")}
                 >
                   <Badge variant="outline" className="text-[10px] uppercase">{c.type}</Badge>
                   <div className="min-w-0 flex-1">
@@ -205,12 +381,21 @@ export function Flashcards() {
                   </div>
                   <span className="text-xs text-muted-foreground">{c.deck}</span>
                   <span className="text-xs text-muted-foreground">{c.due}</span>
+                  <button
+                    onClick={() => void deleteCard(c)}
+                    aria-label="Delete card"
+                    className="flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger group-hover/row:opacity-100"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
                 </div>
               ))}
             </div>
           )}
 
-          {view === "study" && <StudyMode cards={cards} />}
+          {view === "study" && (
+            <StudyMode cards={cards} onReview={reviewCard} persisted={!!activeDeck} />
+          )}
         </>
       )}
     </Page>
@@ -229,16 +414,24 @@ function EmptyCards({ ungrounded }: { ungrounded: boolean }) {
       <p className="mt-2 max-w-md text-sm text-muted-foreground">
         {ungrounded
           ? NO_GROUNDED_MESSAGE
-          : "Enter a topic above and generate a set of source-grounded flashcards to start studying."}
+          : "Enter a topic above and generate a set of source-grounded flashcards, or pick a saved deck to start studying."}
       </p>
     </div>
   );
 }
 
-function StudyMode({ cards }: { cards: Flashcard[] }) {
+function StudyMode({
+  cards,
+  onReview,
+  persisted,
+}: {
+  cards: Flashcard[];
+  onReview: (card: Flashcard, ease: Flashcard["ease"]) => void;
+  persisted: boolean;
+}) {
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const card = cards[idx];
+  const card = cards[idx % cards.length];
   const progress = ((idx + 1) / cards.length) * 100;
 
   const next = () => {
@@ -248,6 +441,11 @@ function StudyMode({ cards }: { cards: Flashcard[] }) {
   const prev = () => {
     setFlipped(false);
     setIdx((i) => (i - 1 + cards.length) % cards.length);
+  };
+
+  const grade = (ease: Flashcard["ease"]) => {
+    onReview(card, ease);
+    next();
   };
 
   return (
@@ -313,10 +511,10 @@ function StudyMode({ cards }: { cards: Flashcard[] }) {
           <ChevronLeft className="size-5" />
         </Button>
         <div className="flex gap-4">
-          <Button variant="outline" className="h-11 gap-2 rounded-full border-danger/40 px-6 font-medium text-danger hover:bg-danger-soft" onClick={next}>
+          <Button variant="outline" className="h-11 gap-2 rounded-full border-danger/40 px-6 font-medium text-danger hover:bg-danger-soft" onClick={() => grade("learning")}>
             <X className="size-4" /> Hard
           </Button>
-          <Button variant="outline" className="h-11 gap-2 rounded-full border-success/40 px-6 font-medium text-success hover:bg-success-soft" onClick={next}>
+          <Button variant="outline" className="h-11 gap-2 rounded-full border-success/40 px-6 font-medium text-success hover:bg-success-soft" onClick={() => grade("mastered")}>
             <Check className="size-4" /> Easy
           </Button>
         </div>
@@ -324,6 +522,12 @@ function StudyMode({ cards }: { cards: Flashcard[] }) {
           <ChevronRight className="size-5" />
         </Button>
       </div>
+
+      {!persisted && (
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Save this set as a deck to record your reviews.
+        </p>
+      )}
     </div>
   );
 }
