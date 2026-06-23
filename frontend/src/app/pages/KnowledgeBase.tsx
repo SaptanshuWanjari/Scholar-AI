@@ -55,7 +55,9 @@ import {
   savedViews,
   type ConceptData,
 } from "../lib/graph-data";
+import { useNavigate } from "react-router";
 import { api, type KGGraph, type KGSidebar, type ConceptInspector } from "../lib/api";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import type { Course } from "../lib/types";
 
 // stable node type map — must be outside component
@@ -643,8 +645,62 @@ function InspectorContent({
   onOpenDrawer: () => void;
 }) {
   const { concept, loading } = useConcept(conceptId);
+  const navigate = useNavigate();
   const [discoveries, setDiscoveries] = useState<string[] | null>(null);
   const [discovering, setDiscovering] = useState(false);
+  const [running, setRunning] = useState<string | null>(null);
+  const [result, setResult] = useState<{ title: string; body: string; mono: boolean } | null>(null);
+
+  const runAction = useCallback(
+    async (label: string) => {
+      if (!concept || running) return;
+      const name = concept.name;
+      setRunning(label);
+      setResult(null);
+      const open = (to: string) => ({ label: "Open", onClick: () => navigate(to) });
+      try {
+        if (label === "Explain Concept") {
+          const r = await api.ask(`Explain the concept: ${name}`);
+          setResult({ title: `Explain: ${name}`, body: r.content, mono: false });
+        } else if (label === "Generate Summary") {
+          const r = await api.generateRevision({ topic: name, format: "summary" });
+          setResult({ title: `Summary: ${name}`, body: r.markdown, mono: false });
+        } else if (label === "Generate Mind Map") {
+          const r = await api.generateMindmap(name);
+          setResult({ title: `Mind Map: ${name}`, body: r.text, mono: true });
+        } else if (label === "Generate Flashcards") {
+          const r = await api.generateFlashcards(name);
+          if (!r.cards.length) return void toast.error("No grounded flashcards for this concept");
+          await api.saveDeck(name, null, r.cards);
+          toast.success(`${r.cards.length} flashcards saved`, { action: open("/flashcards") });
+        } else if (label === "Generate Quiz") {
+          const r = await api.generateQuiz(name);
+          if (!r.questions.length) return void toast.error("No grounded quiz for this concept");
+          await api.saveQuiz({ title: name, difficulty: r.difficulty, questions: r.questions });
+          toast.success("Quiz saved", { action: open("/quiz") });
+        } else if (label === "Generate Diagram") {
+          const r = await api.generateDiagram(name);
+          if (!r.grounded || !r.mermaid.trim()) return void toast.error("Couldn't generate a diagram");
+          toast.success("Diagram generated", { action: open("/diagrams") });
+        } else if (label === "Add To Notebook") {
+          const ex = await api.ask(`Explain the concept: ${name}`);
+          const nb = await api.createNotebook(name);
+          await api.updateNotebook(nb.id, {
+            blocks: [
+              { type: "heading", level: 1, text: name },
+              { type: "ai-answer", question: `Explain ${name}`, answer: ex.content, confidence: 1, sources: 0 },
+            ],
+          });
+          toast.success("Added to notebook", { action: open("/notebooks") });
+        }
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : `${label} failed`);
+      } finally {
+        setRunning(null);
+      }
+    },
+    [concept, running, navigate],
+  );
 
   const onDiscover = useCallback(async () => {
     setDiscovering(true);
@@ -768,15 +824,15 @@ function InspectorContent({
         <InspectorBlock title="Generated Assets">
           <div className="grid grid-cols-2 gap-2">
             {[
-              { label: "Open Flashcards", icon: Layers },
-              { label: "Open Quiz", icon: ListChecks },
-              { label: "Open Diagram", icon: Workflow },
-              { label: "Open Mind Map", icon: Network },
-              { label: "Open Notebook", icon: Notebook },
+              { label: "Open Flashcards", icon: Layers, to: "/flashcards" },
+              { label: "Open Quiz", icon: ListChecks, to: "/quiz" },
+              { label: "Open Diagram", icon: Workflow, to: "/diagrams" },
+              { label: "Open Mind Map", icon: Network, to: "/mindmaps" },
+              { label: "Open Notebook", icon: Notebook, to: "/notebooks" },
             ].map((a) => (
               <button
                 key={a.label}
-                onClick={() => toast.success(`Opening ${a.label}…`)}
+                onClick={() => navigate(a.to)}
                 className="flex items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-2 text-[12px] font-medium text-foreground/80 transition-colors hover:border-violet/40 hover:text-violet"
               >
                 <a.icon className="size-3.5" /> {a.label}
@@ -793,13 +849,43 @@ function InspectorContent({
             {aiActions.map((a) => (
               <button
                 key={a.label}
-                onClick={() => toast.success(`${a.label}…`)}
-                className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
+                onClick={() => runAction(a.label)}
+                disabled={running !== null}
+                className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground/80 transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
               >
-                <a.icon className="size-4 text-violet" /> {a.label}
+                {running === a.label ? (
+                  <Loader2 className="size-4 animate-spin text-violet" />
+                ) : (
+                  <a.icon className="size-4 text-violet" />
+                )}
+                {running === a.label ? `${a.label}…` : a.label}
               </button>
             ))}
           </div>
+          <AnimatePresence>
+            {result && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-3 overflow-hidden rounded-lg border border-border bg-card"
+              >
+                <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                  <span className="text-xs font-medium">{result.title}</span>
+                  <button onClick={() => setResult(null)} className="text-muted-foreground hover:text-foreground">
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+                <div className="max-h-80 overflow-y-auto p-3">
+                  {result.mono ? (
+                    <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-foreground/80">{result.body}</pre>
+                  ) : (
+                    <MarkdownRenderer content={result.body} />
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </InspectorBlock>
       </div>
 
@@ -878,6 +964,28 @@ function EmptyInspector() {
 
 function ConceptDrawerContent({ conceptId, onClose }: { conceptId: string; onClose: () => void }) {
   const { concept, loading } = useConcept(conceptId);
+  const navigate = useNavigate();
+  const [adding, setAdding] = useState(false);
+
+  const addToNotebook = async () => {
+    if (!concept || adding) return;
+    setAdding(true);
+    try {
+      const ex = await api.ask(`Explain the concept: ${concept.name}`);
+      const nb = await api.createNotebook(concept.name);
+      await api.updateNotebook(nb.id, {
+        blocks: [
+          { type: "heading", level: 1, text: concept.name },
+          { type: "ai-answer", question: `Explain ${concept.name}`, answer: ex.content, confidence: 1, sources: 0 },
+        ],
+      });
+      toast.success("Added to notebook", { action: { label: "Open", onClick: () => navigate("/notebooks") } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to add to notebook");
+    } finally {
+      setAdding(false);
+    }
+  };
 
   if (loading || !concept) {
     return (

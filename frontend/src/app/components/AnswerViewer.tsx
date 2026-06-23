@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Copy, Sparkles, User } from "lucide-react";
+import { Check, Copy, Sparkles, User, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
 import type { ChatMessage } from "../lib/types";
 import { MarkdownRenderer } from "./MarkdownRenderer";
@@ -48,13 +48,15 @@ export function AnswerViewer({ message, onCitationClick }: AnswerViewerProps) {
             onCitationClick={onCitationClick}
           />
         ) : (
-          <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
-            <span className="flex gap-1">
-              <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]" />
-              <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]" />
-              <span className="size-1.5 animate-bounce rounded-full bg-primary" />
-            </span>
-            Searching your knowledge base…
+          <div className="flex flex-col gap-3 py-1">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin text-primary" />
+              Searching your knowledge base…
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+              <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
+            </div>
           </div>
         )}
         {message.streaming && message.content && (

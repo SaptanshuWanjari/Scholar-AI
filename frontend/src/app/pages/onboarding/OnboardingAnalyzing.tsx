@@ -185,7 +185,7 @@ export function OnboardingAnalyzing() {
               <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Detected Topics
               </p>
-              <div className="flex flex-wrap gap-1.5 min-h-[60px]">
+              <div className="flex flex-wrap items-start content-start gap-1.5 min-h-[60px]">
                 <AnimatePresence>
                   {(analysis?.topics ?? []).map((t) => (
                     <motion.span
@@ -209,7 +209,7 @@ export function OnboardingAnalyzing() {
               <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Detected Concepts
               </p>
-              <div className="flex flex-wrap gap-1.5 min-h-[60px]">
+              <div className="flex flex-wrap items-start content-start gap-1.5 min-h-[60px]">
                 <AnimatePresence>
                   {(analysis?.concepts ?? []).map((c) => (
                     <motion.span

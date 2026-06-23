@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { ArrowUp, Gauge, Paperclip, Sparkles, Trash2, BookOpen } from "lucide-react";
 import { motion } from "motion/react";
 import { useChatStore } from "../stores/useChatStore";
@@ -15,14 +15,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { api } from "../lib/api";
-import type { Course } from "../lib/types";
-
-const suggestions = [
-  "Explain backpropagation using my lecture notes",
-  "Compare SN1 and SN2 reaction mechanisms",
-  "Summarize the IS-LM model with key formulas",
-  "What are eigenvalues and why do they matter?",
-];
+import type { Course, DocumentItem } from "../lib/types";
 
 export function AskAI() {
   const { messages, isStreaming, ask, reset, course, setCourse } = useChatStore();
@@ -30,11 +23,27 @@ export function AskAI() {
   const [input, setInput] = useState("");
   const [activeSource, setActiveSource] = useState<string | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     api.listCourses().then(setCourses).catch(() => setCourses([]));
+    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
   }, []);
+
+  const suggestions = useMemo(() => {
+    const generic = [
+      "Summarize the key concepts across my courses",
+      "What are the most important formulas to remember?",
+    ];
+    if (!documents.length) return generic;
+
+    const dynamic = documents
+      .slice(0, 2)
+      .map((doc) => `Explain the main topics in ${doc.title}`);
+
+    return [...dynamic, ...generic].slice(0, 4);
+  }, [documents]);
 
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
   const sources = lastAssistant?.sources ?? [];
@@ -115,7 +124,7 @@ export function AskAI() {
         <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto max-w-3xl px-6 py-6">
             {messages.length === 0 ? (
-              <EmptyAsk onPick={submit} />
+              <EmptyAsk onPick={submit} suggestions={suggestions} />
             ) : (
               <div className="space-y-4">
                 {messages.map((m) => (
@@ -172,7 +181,7 @@ export function AskAI() {
   );
 }
 
-function EmptyAsk({ onPick }: { onPick: (q: string) => void }) {
+function EmptyAsk({ onPick, suggestions }: { onPick: (q: string) => void; suggestions: string[] }) {
   return (
     <div className="flex flex-col items-center pt-12 text-center">
       <motion.div
