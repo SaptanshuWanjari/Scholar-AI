@@ -55,8 +55,8 @@ import { Button } from "../components/ui/button";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { DiagramViewer } from "../components/DiagramViewer";
 import { SelectionToolbar } from "../components/SelectionToolbar";
-import { collections, tags, recentNotes, inspector, type NotebookBlock } from "../lib/notebook-data";
-import { api, type NotebookMeta, type NotebookFull } from "../lib/api";
+import { inspector, type NotebookBlock } from "../lib/notebook-data";
+import { api, type NotebookMeta, type NotebookFull, type Collection } from "../lib/api";
 import type { Course } from "../lib/types";
 
 // Deterministic default icon per notebook (no icon field on real notebooks).
@@ -87,12 +87,23 @@ export function Notebooks() {
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // Dynamic sidebar sections (collections + tags).
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+
   // New-notebook dialog state
   const [courses, setCourses] = useState<Course[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newCourse, setNewCourse] = useState<string>("none");
   const [creating, setCreating] = useState(false);
+
+  // Fetch the dynamic sidebar sections (collections + tags). Called on mount
+  // and again whenever a notebook is created so counts/tags stay fresh.
+  function loadSidebar() {
+    api.listNotebookCollections().then(setCollections).catch(() => setCollections([]));
+    api.listNotebookTags().then(setTags).catch(() => setTags([]));
+  }
 
   // Load the notebook list on mount.
   useEffect(() => {
@@ -106,6 +117,7 @@ export function Notebooks() {
       .catch((e) => toast.error(`Failed to load notebooks: ${e.message}`))
       .finally(() => setLoadingList(false));
     api.listCourses().then(setCourses).catch(() => setCourses([]));
+    loadSidebar();
   }, []);
 
   // Load the selected notebook whenever the active id changes.
@@ -178,6 +190,7 @@ export function Notebooks() {
       setCreateOpen(false);
       setNewTitle("");
       setNewCourse("none");
+      loadSidebar();
       toast.success(`Created “${nb.title}”`);
     } catch (e: any) {
       toast.error(`Failed to create notebook: ${e.message}`);
@@ -228,6 +241,14 @@ export function Notebooks() {
   ];
 
   const activeMeta = list.find((n) => n.id === activeId);
+
+  // Recent notes derived from the already-loaded notebook list (list is kept
+  // in recency order — newly created notebooks are prepended).
+  const recentNotes = list.slice(0, 5).map((n) => ({
+    id: n.id,
+    title: n.name,
+    notebook: n.course || "Notebook",
+  }));
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -297,31 +318,43 @@ export function Notebooks() {
         </div>
 
         <Section label="Collections" icon={FolderClosed}>
-          {collections.map((c) => (
-            <div key={c.id} className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50">
-              <span className="truncate">{c.name}</span>
-              <span className="text-xs text-muted-foreground">{c.count}</span>
-            </div>
-          ))}
+          {collections.length === 0 ? (
+            <div className="px-2.5 py-1.5 text-xs text-muted-foreground">No collections</div>
+          ) : (
+            collections.map((c) => (
+              <div key={c.id} className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50">
+                <span className="truncate">{c.name}</span>
+                <span className="text-xs text-muted-foreground">{c.count}</span>
+              </div>
+            ))
+          )}
         </Section>
 
         <Section label="Tags" icon={Hash}>
-          <div className="flex flex-wrap gap-1.5 px-2">
-            {tags.map((t) => (
-              <span key={t} className="rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground">
-                #{t}
-              </span>
-            ))}
-          </div>
+          {tags.length === 0 ? (
+            <div className="px-2.5 py-1.5 text-xs text-muted-foreground">No tags</div>
+          ) : (
+            <div className="flex flex-wrap gap-1.5 px-2">
+              {tags.map((t) => (
+                <span key={t} className="rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground">
+                  #{t}
+                </span>
+              ))}
+            </div>
+          )}
         </Section>
 
         <Section label="Recent" icon={Clock}>
-          {recentNotes.map((r) => (
-            <div key={r.id} className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50">
-              <FileText className="size-3.5 shrink-0 text-muted-foreground" />
-              <span className="truncate">{r.title}</span>
-            </div>
-          ))}
+          {recentNotes.length === 0 ? (
+            <div className="px-2.5 py-1.5 text-xs text-muted-foreground">No recent notes</div>
+          ) : (
+            recentNotes.map((r) => (
+              <div key={r.id} className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50">
+                <FileText className="size-3.5 shrink-0 text-muted-foreground" />
+                <span className="truncate">{r.title}</span>
+              </div>
+            ))
+          )}
         </Section>
       </aside>
 

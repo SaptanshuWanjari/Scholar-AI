@@ -86,6 +86,38 @@ def create_notebook(payload: NotebookCreate) -> NotebookOut:
         session.close()
 
 
+@router.get("/collections", response_model=list[CollectionOut])
+def notebook_collections() -> list[CollectionOut]:
+    """Collections = notebooks grouped by course."""
+    session = get_session()
+    try:
+        counts: dict[str, int] = {}
+        for nb in session.query(Notebook).all():
+            key = nb.course or "Uncategorized"
+            counts[key] = counts.get(key, 0) + 1
+        return [
+            CollectionOut(id=f"col-{i}", name=name, count=n)
+            for i, (name, n) in enumerate(sorted(counts.items()))
+        ]
+    finally:
+        session.close()
+
+
+@router.get("/tags", response_model=list[str])
+def notebook_tags() -> list[str]:
+    """Distinct tags across all notebooks."""
+    session = get_session()
+    try:
+        seen: list[str] = []
+        for nb in session.query(Notebook).all():
+            for t in (nb.tags or []):
+                if t not in seen:
+                    seen.append(t)
+        return seen
+    finally:
+        session.close()
+
+
 @router.get("/{notebook_id}", response_model=NotebookOut)
 def get_notebook(notebook_id: int) -> NotebookOut:
     session = get_session()
@@ -118,38 +150,6 @@ def update_notebook(notebook_id: int, patch: NotebookPatch) -> NotebookOut:
         session.commit()
         session.refresh(nb)
         return _full(nb)
-    finally:
-        session.close()
-
-
-@router.get("/collections", response_model=list[CollectionOut])
-def notebook_collections() -> list[CollectionOut]:
-    """Collections = notebooks grouped by course."""
-    session = get_session()
-    try:
-        counts: dict[str, int] = {}
-        for nb in session.query(Notebook).all():
-            key = nb.course or "Uncategorized"
-            counts[key] = counts.get(key, 0) + 1
-        return [
-            CollectionOut(id=f"col-{i}", name=name, count=n)
-            for i, (name, n) in enumerate(sorted(counts.items()))
-        ]
-    finally:
-        session.close()
-
-
-@router.get("/tags", response_model=list[str])
-def notebook_tags() -> list[str]:
-    """Distinct tags across all notebooks."""
-    session = get_session()
-    try:
-        seen: list[str] = []
-        for nb in session.query(Notebook).all():
-            for t in (nb.tags or []):
-                if t not in seen:
-                    seen.append(t)
-        return seen
     finally:
         session.close()
 

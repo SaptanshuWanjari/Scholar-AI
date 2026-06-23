@@ -136,6 +136,27 @@ export interface KGGraph {
   edges: KGEdge[];
 }
 
+export interface DashboardData {
+  metrics: { documents: number; flashcards: number; quizzesTaken: number; studySessions: number };
+  studyActivity: { day: string; minutes: number; cards: number }[];
+  recentSessions: { id: string; title: string; course: string; duration: string; date: string }[];
+  activity: { id: string; kind: string; text: string; time: string }[];
+  weakTopics: { id: string; topic: string; course: string; mastery: number }[];
+  suggestedRevision: { id: string; topic: string; reason: string; course: string }[];
+}
+
+export interface Collection {
+  id: string;
+  name: string;
+  count: number;
+}
+
+export interface KGSidebar {
+  collections: { id: string; label: string; count: number }[];
+  recentConcepts: string[];
+  sourceFilters: string[];
+}
+
 export interface ConceptInspector {
   id: string;
   name: string;
@@ -433,9 +454,35 @@ export const api = {
     return request<string[]>(`/api/concepts/discover?conceptId=${conceptId}`);
   },
 
+  // ---- Dashboard ----
+  getDashboard(): Promise<DashboardData> {
+    return request<DashboardData>("/api/dashboard");
+  },
+
+  // ---- Notebook side-panels ----
+  listNotebookCollections(): Promise<Collection[]> {
+    return request<Collection[]>("/api/notebooks/collections");
+  },
+  listNotebookTags(): Promise<string[]> {
+    return request<string[]>("/api/notebooks/tags");
+  },
+
+  // ---- Knowledge graph side-panel ----
+  getKnowledgeSidebar(course?: string | null): Promise<KGSidebar> {
+    const p = new URLSearchParams();
+    if (course) p.set("course", course);
+    const qs = p.toString();
+    return request<KGSidebar>(`/api/knowledge/sidebar${qs ? `?${qs}` : ""}`);
+  },
+
   // ---- Trace ----
   getTrace(): Promise<TraceData> {
     return request<TraceData>("/api/trace/last");
+  },
+
+  // ---- Onboarding ----
+  onboardingAnalysis(): Promise<{ documents: number; pages: number; topics: string[]; concepts: string[]; sources: number }> {
+    return request("/api/onboarding/analysis");
   },
 
   // ---- Settings / models ----

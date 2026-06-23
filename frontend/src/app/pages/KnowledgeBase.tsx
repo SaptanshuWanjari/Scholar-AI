@@ -52,13 +52,10 @@ import {
 } from "../components/ui/sheet";
 import { ConceptNode } from "../components/ConceptNode";
 import {
-  explorerCollections,
-  recentConcepts,
   savedViews,
-  sourceFilters,
   type ConceptData,
 } from "../lib/graph-data";
-import { api, type KGGraph, type ConceptInspector } from "../lib/api";
+import { api, type KGGraph, type KGSidebar, type ConceptInspector } from "../lib/api";
 import type { Course } from "../lib/types";
 
 // stable node type map — must be outside component
@@ -161,7 +158,7 @@ export function KnowledgeBase() {
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
-  const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set(sourceFilters));
+  const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
 
   // graph state loaded from the backend
   const [graph, setGraph] = useState<{ nodes: Node<ConceptData>[]; edges: Edge[] } | null>(null);
@@ -169,6 +166,26 @@ export function KnowledgeBase() {
   const [building, setBuilding] = useState(false);
   const [course, setCourse] = useState<string | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
+
+  // explorer side-panel data loaded from the backend
+  const [sidebar, setSidebar] = useState<KGSidebar>({
+    collections: [],
+    recentConcepts: [],
+    sourceFilters: [],
+  });
+
+  const loadSidebar = useCallback(async (c: string | null) => {
+    try {
+      const s = await api.getKnowledgeSidebar(c);
+      setSidebar(s);
+      // default every source-type filter to enabled
+      setActiveFilters(new Set(s.sourceFilters));
+    } catch {
+      // side-panel is non-critical — fall back to empty state
+      setSidebar({ collections: [], recentConcepts: [], sourceFilters: [] });
+      setActiveFilters(new Set());
+    }
+  }, []);
 
   const loadGraph = useCallback(async (c: string | null) => {
     setLoading(true);
@@ -185,7 +202,8 @@ export function KnowledgeBase() {
 
   useEffect(() => {
     loadGraph(course);
-  }, [course, loadGraph]);
+    loadSidebar(course);
+  }, [course, loadGraph, loadSidebar]);
 
   // load courses once for the optional filter
   useEffect(() => {
@@ -200,13 +218,13 @@ export function KnowledgeBase() {
     try {
       const { concepts, edges } = await api.buildKnowledgeGraph(course);
       toast.success(`Knowledge graph built — ${concepts} concepts, ${edges} relationships.`);
-      await loadGraph(course);
+      await Promise.all([loadGraph(course), loadSidebar(course)]);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to build knowledge graph");
     } finally {
       setBuilding(false);
     }
-  }, [course, loadGraph]);
+  }, [course, loadGraph, loadSidebar]);
 
   const toggleFilter = (f: string) => {
     setActiveFilters((prev) => {
@@ -280,54 +298,68 @@ export function KnowledgeBase() {
               </SideSection>
             )}
 
-            {/* source filters (mock-only, kept static) */}
-            <SideSection label="Source Type" icon={SlidersHorizontal}>
-              <div className="space-y-1">
-                {sourceFilters.map((f) => (
-                  <label key={f} className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1 text-sm text-foreground/80 hover:bg-accent/50">
-                    <input
-                      type="checkbox"
-                      checked={activeFilters.has(f)}
-                      onChange={() => toggleFilter(f)}
-                      className="accent-violet"
-                    />
-                    {f}
-                  </label>
-                ))}
-              </div>
-            </SideSection>
+            {/* source filters (from backend) */}
+            {sidebar.sourceFilters.length > 0 && (
+              <SideSection label="Source Type" icon={SlidersHorizontal}>
+                <div className="space-y-1">
+                  {sidebar.sourceFilters.map((f) => (
+                    <label key={f} className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1 text-sm text-foreground/80 hover:bg-accent/50">
+                      <input
+                        type="checkbox"
+                        checked={activeFilters.has(f)}
+                        onChange={() => toggleFilter(f)}
+                        className="accent-violet"
+                      />
+                      {f}
+                    </label>
+                  ))}
+                </div>
+              </SideSection>
+            )}
 
-            {/* collections (mock-only, kept static) */}
+            {/* collections (from backend, concepts grouped by cluster) */}
             <SideSection label="Collections" icon={Bookmark}>
-              <div className="space-y-0.5">
-                {explorerCollections.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setActiveCollection(c.id === activeCollection ? null : c.id)}
-                    className={cn(
-                      "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
-                      activeCollection === c.id ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
-                    )}
-                  >
-                    <span>{c.label}</span>
-                    <span className="text-xs text-muted-foreground">{c.count}</span>
-                  </button>
-                ))}
-              </div>
+              {sidebar.collections.length === 0 ? (
+                <p className="px-1 text-xs text-muted-foreground">
+                  Build the graph to group concepts into collections.
+                </p>
+              ) : (
+                <div className="space-y-0.5">
+                  {sidebar.collections.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setActiveCollection(c.id === activeCollection ? null : c.id)}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                        activeCollection === c.id ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
+                      )}
+                    >
+                      <span>{c.label}</span>
+                      <span className="text-xs text-muted-foreground">{c.count}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </SideSection>
 
-            {/* recent (mock-only) */}
+            {/* recent (from backend) */}
             <SideSection label="Recent Concepts" icon={History}>
-              <div className="flex flex-wrap gap-1.5 px-1">
-                {recentConcepts.map((c) => (
-                  <button
-                    key={c}
-                    className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground/70 transition-colors hover:border-violet/40 hover:text-violet"
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
+              {sidebar.recentConcepts.length === 0 ? (
+                <p className="px-1 text-xs text-muted-foreground">
+                  No concepts extracted yet.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5 px-1">
+                  {sidebar.recentConcepts.map((c) => (
+                    <button
+                      key={c}
+                      className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground/70 transition-colors hover:border-violet/40 hover:text-violet"
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
             </SideSection>
 
             {/* saved views (mock-only) */}

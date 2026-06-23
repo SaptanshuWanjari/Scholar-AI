@@ -23,8 +23,8 @@ import { Page, SectionTitle } from "../components/Page";
 import { MetricCard } from "../components/MetricCard";
 import { Button } from "../components/ui/button";
 import { Progress } from "../components/ui/progress";
-import { recentSessions } from "../lib/mock-data";
 import { api } from "../lib/api";
+import type { DashboardData } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 
 const activityIcon: Record<string, typeof FileText> = {
@@ -39,13 +39,19 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
 
   useEffect(() => {
     api.listCourses().then(setCourses).catch(() => {});
     api.listDocuments().then(setDocuments).catch(() => {});
+    api.getDashboard().then(setDashboard).catch(() => {});
   }, []);
 
-  const totalCards = courses.reduce((sum, c) => sum + c.flashcards, 0);
+  const metrics = dashboard?.metrics;
+  const studyActivity = dashboard?.studyActivity ?? [];
+  const recentSessions = dashboard?.recentSessions ?? [];
+  const activity = dashboard?.activity ?? [];
+  const weakTopics = dashboard?.weakTopics ?? [];
 
   return (
     <Page className="space-y-6">
@@ -81,17 +87,74 @@ export function Dashboard() {
 
       {/* Metrics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Documents" value={documents.length} icon={FileText} accent="#8b5cf6" hint={`${courses.length} courses`} />
-        <MetricCard label="Flashcards" value={totalCards} icon={Layers} accent="#06b6d4" hint="across all decks" />
-        <MetricCard label="Quizzes taken" value={37} icon={ListChecks} accent="#22c55e" delta={5} hint="Avg score 82%" />
-        <MetricCard label="Study sessions" value={92} icon={Clock} accent="#f59e0b" delta={-3} hint="18h this week" />
+        <MetricCard label="Documents" value={metrics?.documents ?? documents.length} icon={FileText} accent="#8b5cf6" hint={`${courses.length} courses`} />
+        <MetricCard label="Flashcards" value={metrics?.flashcards ?? 0} icon={Layers} accent="#06b6d4" hint="across all decks" />
+        <MetricCard label="Quizzes taken" value={metrics?.quizzesTaken ?? 0} icon={ListChecks} accent="#22c55e" />
+        <MetricCard label="Study sessions" value={metrics?.studySessions ?? 0} icon={Clock} accent="#f59e0b" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left column */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Learning statistics */}
-          
+          {/* Study activity */}
+          <div>
+            <SectionTitle title="Study activity" />
+            <div className="rounded-2xl border border-border bg-card p-5">
+              {studyActivity.length === 0 ? (
+                <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
+                  No study activity yet
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={208}>
+                  <AreaChart data={studyActivity} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                    <defs>
+                      <linearGradient id="grad-minutes" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.35} />
+                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="grad-cards" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="#06b6d4" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis
+                      dataKey="day"
+                      tickLine={false}
+                      axisLine={false}
+                      fontSize={11}
+                      stroke="currentColor"
+                      className="text-muted-foreground"
+                    />
+                    <RTooltip
+                      cursor={{ stroke: "var(--border)" }}
+                      contentStyle={{
+                        background: "var(--card)",
+                        border: "1px solid var(--border)",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="minutes"
+                      name="Minutes"
+                      stroke="#8b5cf6"
+                      strokeWidth={2}
+                      fill="url(#grad-minutes)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="cards"
+                      name="Cards"
+                      stroke="#06b6d4"
+                      strokeWidth={2}
+                      fill="url(#grad-cards)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
 
           {/* Recent documents */}
           <div>
@@ -165,21 +228,76 @@ export function Dashboard() {
           <div className="rounded-2xl border border-border bg-card p-5">
             <SectionTitle title="Recent sessions" />
             <div className="space-y-2">
-              {recentSessions.map((s) => (
-                <div key={s.id} className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40">
-                  <div className="flex size-8 items-center justify-center rounded-lg bg-cyan-soft text-cyan">
-                    <Clock className="size-4" />
+              {recentSessions.length === 0 ? (
+                <p className="py-4 text-center text-xs text-muted-foreground">No sessions yet</p>
+              ) : (
+                recentSessions.map((s) => (
+                  <div key={s.id} className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-cyan-soft text-cyan">
+                      <Clock className="size-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm">{s.title}</div>
+                      <div className="text-xs text-muted-foreground">{s.course}</div>
+                    </div>
+                    <div className="text-right text-xs text-muted-foreground">
+                      <div>{s.duration}</div>
+                      <div>{s.date}</div>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm">{s.title}</div>
-                    <div className="text-xs text-muted-foreground">{s.course}</div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Activity feed */}
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <SectionTitle title="Activity" />
+            <div className="space-y-1">
+              {activity.length === 0 ? (
+                <p className="py-4 text-center text-xs text-muted-foreground">No activity yet</p>
+              ) : (
+                activity.map((a) => {
+                  const Icon = activityIcon[a.kind] ?? Sparkles;
+                  return (
+                    <div key={a.id} className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent/40">
+                      <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                        <Icon className="size-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm leading-snug">{a.text}</div>
+                        <div className="text-xs text-muted-foreground">{a.time}</div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Weak topics */}
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <SectionTitle title="Weak topics" />
+            <div className="space-y-4">
+              {weakTopics.length === 0 ? (
+                <p className="py-4 text-center text-xs text-muted-foreground">No weak topics yet</p>
+              ) : (
+                weakTopics.map((w) => (
+                  <div key={w.id} className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 truncate text-sm">
+                          <AlertTriangle className="size-3.5 shrink-0 text-warning" />
+                          {w.topic}
+                        </div>
+                        <div className="text-xs text-muted-foreground">{w.course}</div>
+                      </div>
+                      <span className="text-xs font-medium text-muted-foreground">{w.mastery}%</span>
+                    </div>
+                    <Progress value={w.mastery} />
                   </div>
-                  <div className="text-right text-xs text-muted-foreground">
-                    <div>{s.duration}</div>
-                    <div>{s.date}</div>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
