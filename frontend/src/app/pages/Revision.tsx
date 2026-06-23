@@ -36,31 +36,26 @@ const formats: { id: RevisionFormat; label: string; icon: typeof NotebookPen }[]
   { id: "summary", label: "Summary Sheet", icon: FileText },
 ];
 
-/** Heuristic: detect a backend "this topic isn't in your documents" message. */
-function looksNotCovered(markdown: string): boolean {
-  const text = markdown.trim().toLowerCase();
-  if (!text) return true;
-  return (
-    text.includes("not covered") ||
-    text.includes("no relevant") ||
-    text.includes("couldn't find") ||
-    text.includes("could not find") ||
-    text.includes("no information") ||
-    text.includes("not found in")
-  );
-}
-
 export function Revision() {
-  const [format, setFormat] = useState<RevisionFormat>("notes");
-  const [topic, setTopic] = useState("");
-  const [course, setCourse] = useState<string>("none");
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [output, setOutput] = useState<string | null>(null);
-  const [title, setTitle] = useState<string | null>(null);
-  const [ungrounded, setUngrounded] = useState(false);
-  const abortRef = useRef<AbortController | null>(null);
+  // Generation state lives in a global store so an in-flight generation keeps
+  // running and its result is preserved when navigating away and back.
+  const {
+    format,
+    topic,
+    course,
+    loading,
+    output,
+    title,
+    ungrounded,
+    setField,
+    generate,
+    stop,
+  } = useRevisionStore();
+  const setFormat = (f: RevisionFormat) => setField("format", f);
+  const setTopic = (v: string) => setField("topic", v);
+  const setCourse = (v: string) => setField("course", v);
 
+  const [courses, setCourses] = useState<Course[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
   useEffect(() => {
@@ -111,57 +106,6 @@ export function Revision() {
     }));
     return [...dynamic, ...generic].slice(0, 4);
   }, [documents]);
-
-  const generate = async () => {
-    const t = topic.trim();
-    const selectedCourse = course === "none" ? null : course;
-    if (!t && !selectedCourse) {
-      toast.error("Enter a topic or pick a course to generate a study sheet");
-      return;
-    }
-
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
-
-    setLoading(true);
-    setOutput(null);
-    setTitle(null);
-    setUngrounded(false);
-
-    let streamed = "";
-    try {
-      await api.revisionStream(
-        { topic: t || undefined, course: selectedCourse, format },
-        {
-          signal: ctrl.signal,
-          onToken: (chunk) => {
-            streamed += chunk;
-            setOutput(streamed);
-          },
-          onDone: ({ grounded, title: t }) => {
-            const notCovered = !grounded || looksNotCovered(streamed);
-            setTitle(t || null);
-            setUngrounded(notCovered);
-            if (notCovered) {
-              toast.warning("This topic may not be covered by your uploaded documents");
-            } else {
-              toast.success("Study sheet generated");
-            }
-          },
-          onError: (msg) => {
-            toast.error(msg || "Failed to generate study sheet");
-          },
-        },
-      );
-    } catch (err) {
-      if ((err as any)?.name !== "AbortError") {
-        toast.error(err instanceof Error ? err.message : "Failed to generate study sheet");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const pickTopic = (value: string) => {
     setTopic(value);
@@ -236,7 +180,7 @@ export function Revision() {
           </div>
 
           <Button
-            onClick={loading ? () => { abortRef.current?.abort(); setLoading(false); } : generate}
+            onClick={loading ? stop : generate}
             className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {loading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}

@@ -30,9 +30,8 @@ import {
 import { api } from "../lib/api";
 import type { Quiz, QuizQuestion, Course } from "../lib/types";
 import { cn } from "../components/ui/utils";
-
-type Stage = "builder" | "player" | "results";
-type Difficulty = Quiz["difficulty"];
+import { useQuizStore } from "../stores/useQuizStore";
+import type { Difficulty } from "../stores/useQuizStore";
 
 const difficulties: Difficulty[] = ["Easy", "Medium", "Hard"];
 
@@ -43,9 +42,15 @@ const diffColor: Record<Quiz["difficulty"], string> = {
 };
 
 export function QuizPage() {
-  const [stage, setStage] = useState<Stage>("builder");
-  const [active, setActive] = useState<Quiz | null>(null);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  // Flow state lives in the store so it survives page navigation.
+  const stage = useQuizStore((s) => s.stage);
+  const active = useQuizStore((s) => s.active);
+  const answers = useQuizStore((s) => s.answers);
+  const start = useQuizStore((s) => s.start);
+  const submit = useQuizStore((s) => s.submit);
+  const backToBuilder = useQuizStore((s) => s.backToBuilder);
+
+  // Page-only ephemeral data that's cheap to refetch stays local.
   const [saved, setSaved] = useState<Quiz[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -61,12 +66,6 @@ export function QuizPage() {
     refreshSaved();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const start = (q: Quiz) => {
-    setActive(q);
-    setAnswers({});
-    setStage("player");
-  };
 
   const saveQuiz = async (quiz: Quiz) => {
     if (saving) return;
@@ -110,10 +109,7 @@ export function QuizPage() {
       {stage === "player" && active && (
         <Player
           quiz={active}
-          onFinish={(a) => {
-            setAnswers(a);
-            setStage("results");
-          }}
+          onFinish={(a) => submit(a)}
           onSave={() => saveQuiz(active)}
           saving={saving}
         />
@@ -123,7 +119,7 @@ export function QuizPage() {
           quiz={active}
           answers={answers}
           onRetry={() => start(active)}
-          onBack={() => setStage("builder")}
+          onBack={backToBuilder}
           onSave={() => saveQuiz(active)}
           saving={saving}
         />
@@ -143,45 +139,25 @@ function Builder({
   loadingSaved: boolean;
   onDelete: (id: string) => void;
 }) {
-  const [topic, setTopic] = useState("");
-  const [course, setCourse] = useState<string>("all");
-  const [difficulty, setDifficulty] = useState<Difficulty>("Medium");
+  // Builder inputs + the in-flight generation flag live in the store so the
+  // selections survive navigation and a running generation keeps going.
+  const topic = useQuizStore((s) => s.topic);
+  const course = useQuizStore((s) => s.course);
+  const difficulty = useQuizStore((s) => s.difficulty);
+  const loading = useQuizStore((s) => s.generating);
+  const setField = useQuizStore((s) => s.setField);
+  const generate = useQuizStore((s) => s.generate);
+
+  const setTopic = (v: string) => setField("topic", v);
+  const setCourse = (v: string) => setField("course", v);
+  const setDifficulty = (v: Difficulty) => setField("difficulty", v);
+
+  // Course list is cheap to refetch — keep it local.
   const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api.listCourses().then(setCourses).catch(() => setCourses([]));
   }, []);
-
-  const groundedError =
-    "Couldn't generate a grounded quiz — try a different topic or upload documents";
-
-  const generate = async () => {
-    const value = topic.trim();
-    if (!value || loading) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const quiz = await api.generateQuiz(
-        value,
-        course === "all" ? null : course,
-        difficulty,
-      );
-      if (!quiz.grounded || quiz.questions.length === 0) {
-        setError(groundedError);
-        toast.error(groundedError);
-        return;
-      }
-      onStart(quiz);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to generate quiz";
-      setError(msg);
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <>
@@ -263,7 +239,6 @@ function Builder({
           loading={loading}
           className="mt-4"
         />
-        {error && <p className="mt-3 text-sm text-danger">{error}</p>}
       </div>
 
       {loadingSaved ? (
@@ -328,30 +303,27 @@ function Player({
   onSave: () => void;
   saving: boolean;
 }) {
-  const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [shortInput, setShortInput] = useState("");
+  // Position + answers live in the store so they survive navigation.
+  const idx = useQuizStore((s) => s.idx);
+  const answers = useQuizStore((s) => s.answers);
+  const goTo = useQuizStore((s) => s.goTo);
+  const answer = useQuizStore((s) => s.answer);
   const q = quiz.questions[idx];
   const progress = ((idx + 1) / quiz.questions.length) * 100;
   const selected = answers[q.id];
 
-  const choose = (value: string) => setAnswers((a) => ({ ...a, [q.id]: value }));
+  const choose = (value: string) => answer(q.id, value);
 
   const advance = () => {
-    let updated = answers;
-    if (q.type === "short") {
-      updated = { ...answers, [q.id]: shortInput };
-      setAnswers(updated);
-      setShortInput("");
-    }
     if (idx === quiz.questions.length - 1) {
-      onFinish(updated);
+      onFinish(answers);
     } else {
-      setIdx((i) => i + 1);
+      goTo(idx + 1);
     }
   };
 
-  const canAdvance = q.type === "short" ? shortInput.trim().length > 0 : !!selected;
+  const canAdvance =
+    q.type === "short" ? (selected ?? "").trim().length > 0 : !!selected;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -388,8 +360,8 @@ function Player({
           <div className="mt-5 space-y-2">
             {q.type === "short" ? (
               <Input
-                value={shortInput}
-                onChange={(e) => setShortInput(e.target.value)}
+                value={selected ?? ""}
+                onChange={(e) => answer(q.id, e.target.value)}
                 placeholder="Type your answer…"
                 className="bg-input-background"
               />

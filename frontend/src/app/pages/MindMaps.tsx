@@ -12,11 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { api, type GeneratedMindmap } from "../lib/api";
+import { api } from "../lib/api";
 import type { Course } from "../lib/types";
+import { useMindmapStore, ALL_COURSES } from "../stores/useMindmapStore";
 import { toast } from "sonner";
-
-const ALL_COURSES = "__all__";
 
 interface TreeNode {
   id: string;
@@ -115,10 +114,11 @@ function TreeBranch({ node, isLast }: { node: TreeNode; isLast: boolean }) {
 
 export function MindMaps() {
   const [courses, setCourses] = useState<Course[]>([]);
-  const [course, setCourse] = useState<string>(ALL_COURSES);
-  const [topic, setTopic] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [mindmap, setMindmap] = useState<GeneratedMindmap | null>(null);
+  // Generation inputs + result live in a global store so an in-flight
+  // generation survives navigating away from and back to this page.
+  const { topic, course, loading, mindmap, setField, generate } = useMindmapStore();
+  const setCourse = (v: string) => setField("course", v);
+  const setTopic = (v: string) => setField("topic", v);
 
   useEffect(() => {
     let active = true;
@@ -141,31 +141,7 @@ export function MindMaps() {
   );
   const nodeCount = useMemo(() => countNodes(tree), [tree]);
 
-  async function handleGenerate() {
-    const trimmed = topic.trim();
-    if (!trimmed) {
-      toast.error("Enter a topic to generate a mind map");
-      return;
-    }
-    setLoading(true);
-    try {
-      const result = await api.generateMindmap(
-        trimmed,
-        course === ALL_COURSES ? null : course,
-      );
-      if (!result.grounded || !result.text?.trim()) {
-        toast.error("No grounded mind map could be generated for this topic");
-        setMindmap(null);
-        return;
-      }
-      setMindmap(result);
-      toast.success("Mind map generated");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate mind map");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const handleGenerate = generate;
 
   return (
     <div className="flex h-full flex-col">

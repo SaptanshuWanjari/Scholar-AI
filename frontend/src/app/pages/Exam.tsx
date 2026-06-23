@@ -39,84 +39,43 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Page } from "../components/Page";
-import { api, type ExamResult, type ExamSession } from "../lib/api";
+import { api } from "../lib/api";
 import type { Course } from "../lib/types";
 import { formulaSheet, type ExamQuestion } from "../lib/exam-data";
-
-type Stage = "builder" | "session" | "results";
+import { useExamStore } from "../stores/useExamStore";
 
 const DIFFICULTIES = ["Easy", "Medium", "Hard", "Adaptive"];
 const COVERAGE = ["Entire Course", "Selected Topics", "Weak Topics Only", "Recent Documents"];
 
-/** Generated questions arrive as the API `ExamQuestionOut` shape; it matches `ExamQuestion`. */
-type GeneratedQuestion = ExamSession["questions"][number];
-
 export function Exam() {
-  const [stage, setStage] = useState<Stage>("builder");
-  const [minutes, setMinutes] = useState(20);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [questions, setQuestions] = useState<GeneratedQuestion[]>([]);
-  const [difficultyLabel, setDifficultyLabel] = useState("Adaptive");
-  const [result, setResult] = useState<ExamResult | null>(null);
+  const stage = useExamStore((s) => s.stage);
 
-  if (stage === "builder")
-    return (
-      <Builder
-        minutes={minutes}
-        setMinutes={setMinutes}
-        onGenerated={(session, difficulty) => {
-          setSessionId(session.sessionId);
-          setQuestions(session.questions);
-          setDifficultyLabel(difficulty);
-          setAnswers({});
-          setResult(null);
-          setStage("session");
-        }}
-      />
-    );
-  if (stage === "session")
-    return (
-      <Session
-        minutes={minutes}
-        questions={questions}
-        difficultyLabel={difficultyLabel}
-        sessionId={sessionId!}
-        answers={answers}
-        setAnswers={setAnswers}
-        onSubmitted={(r) => {
-          setResult(r);
-          setStage("results");
-        }}
-      />
-    );
-  return (
-    <Results
-      result={result!}
-      difficultyLabel={difficultyLabel}
-      onRestart={() => setStage("builder")}
-    />
-  );
+  if (stage === "builder") return <Builder />;
+  if (stage === "session") return <Session />;
+  return <Results />;
 }
 
 /* ---------------- Builder ---------------- */
 
-function Builder({
-  minutes,
-  setMinutes,
-  onGenerated,
-}: {
-  minutes: number;
-  setMinutes: (n: number) => void;
-  onGenerated: (session: ExamSession, difficulty: string) => void;
-}) {
-  const [topic, setTopic] = useState("");
-  const [course, setCourse] = useState<string>("all");
+function Builder() {
+  const topic = useExamStore((s) => s.topic);
+  const course = useExamStore((s) => s.course);
+  const difficulty = useExamStore((s) => s.difficulty);
+  const count = useExamStore((s) => s.count);
+  const minutes = useExamStore((s) => s.minutes);
+  const coverage = useExamStore((s) => s.coverage);
+  const generating = useExamStore((s) => s.generating);
+  const setField = useExamStore((s) => s.setField);
+  const generate = useExamStore((s) => s.generate);
+
   const [courses, setCourses] = useState<Course[]>([]);
-  const [difficulty, setDifficulty] = useState("Adaptive");
-  const [count, setCount] = useState(8);
-  const [coverage, setCoverage] = useState("Entire Course");
-  const [generating, setGenerating] = useState(false);
+
+  const setTopic = (v: string) => setField("topic", v);
+  const setCourse = (v: string) => setField("course", v);
+  const setDifficulty = (v: string) => setField("difficulty", v);
+  const setCount = (v: number) => setField("count", v);
+  const setMinutes = (v: number) => setField("minutes", v);
+  const setCoverage = (v: string) => setField("coverage", v);
 
   useEffect(() => {
     let active = true;
@@ -132,32 +91,6 @@ function Builder({
       active = false;
     };
   }, []);
-
-  const generate = async () => {
-    setGenerating(true);
-    try {
-      const session = await api.generateExam({
-        topic: topic.trim() || undefined,
-        course: course === "all" ? null : course,
-        // "Adaptive" is a UI-only option; the backend expects a concrete level.
-        difficulty:
-          difficulty === "Easy" || difficulty === "Medium" || difficulty === "Hard"
-            ? difficulty
-            : undefined,
-        count,
-      });
-      if (!session.grounded || session.questions.length === 0) {
-        toast.error("Couldn't generate a grounded exam from your materials. Try another topic or course.");
-        return;
-      }
-      toast.success(`Generated ${session.questions.length} questions`);
-      onGenerated(session, difficulty);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate exam");
-    } finally {
-      setGenerating(false);
-    }
-  };
 
   return (
     <Page className="max-w-3xl">

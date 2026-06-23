@@ -32,6 +32,7 @@ import {
 import { api } from "../lib/api";
 import type { DeckOut } from "../lib/api";
 import type { Course, Flashcard } from "../lib/types";
+import { useFlashcardGenStore } from "../stores/useFlashcardGenStore";
 import { cn } from "../components/ui/utils";
 
 type View = "grid" | "list" | "study";
@@ -40,23 +41,39 @@ const NO_GROUNDED_MESSAGE =
   "No grounded flashcards — try uploading documents or a different topic.";
 
 export function Flashcards() {
+  // Generation state lives in the store so freshly generated (unsaved) cards and
+  // in-flight generations survive navigation.
+  const topic = useFlashcardGenStore((s) => s.topic);
+  const course = useFlashcardGenStore((s) => s.course);
+  const generating = useFlashcardGenStore((s) => s.generating);
+  const genCards = useFlashcardGenStore((s) => s.cards);
+  const genUngrounded = useFlashcardGenStore((s) => s.ungrounded);
+  const generatedDeckName = useFlashcardGenStore((s) => s.generatedDeckName);
+  const activeDeck = useFlashcardGenStore((s) => s.activeDeck);
+  const setField = useFlashcardGenStore((s) => s.setField);
+  const setGenCards = useFlashcardGenStore((s) => s.setCards);
+  const generate = useFlashcardGenStore((s) => s.generate);
+
   const [view, setView] = useState<View>("grid");
-  const [cards, setCards] = useState<Flashcard[]>([]);
-  const [topic, setTopic] = useState("");
-  const [course, setCourse] = useState<string | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
-  const [generating, setGenerating] = useState(false);
-  const [ungrounded, setUngrounded] = useState(false);
+  // Cards loaded from a saved deck (view-only / reviewable) — cheap to refetch,
+  // so they stay page-local. The store holds the generated unsaved set instead.
+  const [savedCards, setSavedCards] = useState<Flashcard[]>([]);
 
   const [decks, setDecks] = useState<DeckOut[]>([]);
   const [loadingDecks, setLoadingDecks] = useState(true);
   const [loadingCards, setLoadingCards] = useState(false);
   const [saving, setSaving] = useState(false);
-  // Name of the deck the current cards belong to, or null when they are a
-  // freshly generated (unsaved) set that can still be saved.
-  const [activeDeck, setActiveDeck] = useState<string | null>(null);
-  // The deck name proposed by the generate flow (used as default save name).
-  const [generatedDeckName, setGeneratedDeckName] = useState<string | null>(null);
+
+  // When a saved deck is open (activeDeck set) we display its cards; otherwise we
+  // display the generated unsaved set from the store.
+  const cards = activeDeck ? savedCards : genCards;
+  const ungrounded = activeDeck ? false : genUngrounded;
+  // Helper to update whichever card set is currently displayed.
+  const updateActiveCards = (updater: (cs: Flashcard[]) => Flashcard[]) => {
+    if (activeDeck) setSavedCards(updater);
+    else setGenCards(updater(genCards));
+  };
 
   const loadDecks = async () => {
     setLoadingDecks(true);
@@ -74,31 +91,10 @@ export function Flashcards() {
     void loadDecks();
   }, []);
 
-  const generate = async () => {
-    const value = topic.trim();
-    if (!value || generating) return;
-    setGenerating(true);
-    setUngrounded(false);
-    try {
-      const set = await api.generateFlashcards(value, course);
-      if (!set.grounded || set.cards.length === 0) {
-        setCards([]);
-        setActiveDeck(null);
-        setGeneratedDeckName(null);
-        setUngrounded(true);
-        toast.error(NO_GROUNDED_MESSAGE);
-        return;
-      }
-      setCards(set.cards);
-      setActiveDeck(null);
-      setGeneratedDeckName(set.deck);
-      setView("grid");
-      toast.success(`Generated ${set.cards.length} flashcards`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate flashcards");
-    } finally {
-      setGenerating(false);
-    }
+  // After a successful generation, switch to grid view to show the new cards.
+  const runGenerate = async () => {
+    await generate();
+    if (useFlashcardGenStore.getState().cards.length > 0) setView("grid");
   };
 
   const saveDeck = async () => {
@@ -108,9 +104,9 @@ export function Flashcards() {
     try {
       const deck = await api.saveDeck(name, course, cards);
       toast.success(`Saved "${deck.name}"`);
-      // Reload from the persisted deck so card ids become DB ids (reviewable).
-      setActiveDeck(deck.name);
-      setGeneratedDeckName(null);
+      // Mark the generated set as saved and reload from the persisted deck so
+      // card ids become DB ids (reviewable).
+      setField("generatedDeckName", null);
       await loadDecks();
       await openDeck(deck);
     } catch (err) {
@@ -122,12 +118,12 @@ export function Flashcards() {
 
   const openDeck = async (deck: DeckOut) => {
     setLoadingCards(true);
-    setUngrounded(false);
     try {
       const loaded = await api.listSavedFlashcards(deck.name);
-      setCards(loaded);
-      setActiveDeck(deck.name);
-      setGeneratedDeckName(null);
+      setSavedCards(loaded);
+      setField("activeDeck", deck.name);
+      setField("generatedDeckName", null);
+      setField("ungrounded", false);
       setView("grid");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load deck");
@@ -141,8 +137,8 @@ export function Flashcards() {
       await api.deleteDeck(deck.id);
       toast.success(`Deleted "${deck.name}"`);
       if (activeDeck === deck.name) {
-        setCards([]);
-        setActiveDeck(null);
+        setSavedCards([]);
+        setField("activeDeck", null);
       }
       await loadDecks();
     } catch (err) {
@@ -152,24 +148,24 @@ export function Flashcards() {
 
   const deleteCard = async (card: Flashcard) => {
     const prev = cards;
-    setCards((cs) => cs.filter((c) => c.id !== card.id));
+    updateActiveCards((cs) => cs.filter((c) => c.id !== card.id));
     try {
       await api.deleteCard(card.id);
       toast.success("Card deleted");
       await loadDecks();
     } catch (err) {
-      setCards(prev);
+      updateActiveCards(() => prev);
       toast.error(err instanceof Error ? err.message : "Failed to delete card");
     }
   };
 
   const reviewCard = async (card: Flashcard, ease: Flashcard["ease"]) => {
-    // Optimistic local update.
-    setCards((cs) => cs.map((c) => (c.id === card.id ? { ...c, ease } : c)));
+    // Optimistic update on whichever set is shown.
+    updateActiveCards((cs) => cs.map((c) => (c.id === card.id ? { ...c, ease } : c)));
     if (!activeDeck) return; // Unsaved cards have no DB id to persist against.
     try {
       const updated = await api.reviewCard(card.id, ease);
-      setCards((cs) => cs.map((c) => (c.id === card.id ? updated : c)));
+      setSavedCards((cs) => cs.map((c) => (c.id === card.id ? updated : c)));
       void loadDecks();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save review");
@@ -189,11 +185,11 @@ export function Flashcards() {
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
           <Input
             value={topic}
-            onChange={(e) => setTopic(e.target.value)}
+            onChange={(e) => setField("topic", e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                void generate();
+                void runGenerate();
               }
             }}
             placeholder="Topic, e.g. eigenvalues, SN1 vs SN2…"
@@ -202,7 +198,7 @@ export function Flashcards() {
           />
           <Select
             value={course ?? "all"}
-            onValueChange={(v) => setCourse(v === "all" ? null : v)}
+            onValueChange={(v) => setField("course", v === "all" ? null : v)}
           >
             <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="All courses" />
@@ -217,7 +213,7 @@ export function Flashcards() {
             </SelectContent>
           </Select>
           <Button
-            onClick={() => void generate()}
+            onClick={() => void runGenerate()}
             disabled={!topic.trim() || generating}
             className="gap-1.5"
           >
