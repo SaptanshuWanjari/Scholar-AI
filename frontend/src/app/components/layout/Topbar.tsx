@@ -4,6 +4,7 @@ import { navItems } from "../../lib/nav";
 import { useUIStore } from "../../stores/useUIStore";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import { toast } from "sonner";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   "/": { title: "Dashboard", subtitle: "Your learning at a glance" },
@@ -56,7 +57,7 @@ export function Topbar() {
         <span className="absolute right-2 top-2 size-1.5 rounded-full bg-primary" />
       </Button>
 
-      <Button className="shrink-0 gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+      <Button onClick={() => toast.success("New item created")} className="shrink-0 gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
         <Plus className="size-4" /> New
       </Button>
 

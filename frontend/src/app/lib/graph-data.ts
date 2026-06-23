@@ -270,11 +270,13 @@ export const recentConcepts = [
   "Chunking", "Embeddings", "Hybrid Search", "Agent Memory", "Tool Calling",
 ];
 
+import { Microscope, Target, TrendingDown, Clock } from "lucide-react";
+
 export const savedViews = [
-  { id: "sv1", label: "My Research", icon: "🔬" },
-  { id: "sv2", label: "Exam Topics", icon: "🎯" },
-  { id: "sv3", label: "Weak Areas", icon: "📉" },
-  { id: "sv4", label: "Recently Added", icon: "🕐" },
+  { id: "sv1", label: "My Research", icon: Microscope },
+  { id: "sv2", label: "Exam Topics", icon: Target },
+  { id: "sv3", label: "Weak Areas", icon: TrendingDown },
+  { id: "sv4", label: "Recently Added", icon: Clock },
 ];
 
 export const sourceFilters = [

@@ -15,6 +15,7 @@ import { Diagrams } from "./pages/Diagrams";
 import { MindMaps } from "./pages/MindMaps";
 import { SearchPage } from "./pages/Search";
 import { SettingsPage } from "./pages/Settings";
+import { Trace } from "./pages/Trace";
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/mindmaps" element={<MindMaps />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/trace" element={<Trace />} />
         </Route>
       </Routes>
       <Toaster position="bottom-right" theme="light" />

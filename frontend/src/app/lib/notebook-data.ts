@@ -1,18 +1,20 @@
+import { Brain, FlaskConical, Monitor, Lightbulb, Target } from "lucide-react";
+
 export interface NotebookMeta {
   id: string;
   name: string;
-  emoji: string;
+  icon: any;
   notes: number;
   lastEdited: string;
   color: string;
 }
 
 export const notebooks: NotebookMeta[] = [
-  { id: "nb1", name: "Machine Learning", emoji: "🧠", notes: 18, lastEdited: "2h ago", color: "#4f4d7a" },
-  { id: "nb2", name: "Organic Chemistry", emoji: "⚗️", notes: 12, lastEdited: "Yesterday", color: "#3f6b6f" },
-  { id: "nb3", name: "Operating Systems", emoji: "🖥️", notes: 9, lastEdited: "3d ago", color: "#a3771f" },
-  { id: "nb4", name: "Research Ideas", emoji: "💡", notes: 24, lastEdited: "1w ago", color: "#3f7a4e" },
-  { id: "nb5", name: "Exam Prep", emoji: "🎯", notes: 7, lastEdited: "1w ago", color: "#9f3a36" },
+  { id: "nb1", name: "Machine Learning", icon: Brain, notes: 18, lastEdited: "2h ago", color: "#4f4d7a" },
+  { id: "nb2", name: "Organic Chemistry", icon: FlaskConical, notes: 12, lastEdited: "Yesterday", color: "#3f6b6f" },
+  { id: "nb3", name: "Operating Systems", icon: Monitor, notes: 9, lastEdited: "3d ago", color: "#a3771f" },
+  { id: "nb4", name: "Research Ideas", icon: Lightbulb, notes: 24, lastEdited: "1w ago", color: "#3f7a4e" },
+  { id: "nb5", name: "Exam Prep", icon: Target, notes: 7, lastEdited: "1w ago", color: "#9f3a36" },
 ];
 
 export const collections = [

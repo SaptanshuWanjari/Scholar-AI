@@ -179,7 +179,7 @@ export function KnowledgeBase() {
                   key={v.id}
                   className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50"
                 >
-                  <span>{v.icon}</span>
+                  <v.icon className="size-4 text-muted-foreground" />
                   <span>{v.label}</span>
                 </button>
               ))}

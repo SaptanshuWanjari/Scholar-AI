@@ -270,6 +270,8 @@
   /* Highlighter mark — a student touch */
   .study-mark {
     background: linear-gradient(transparent 60%, rgba(163, 119, 31, 0.28) 60%);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
   /* Faint paper texture for hero surfaces */
   .paper {

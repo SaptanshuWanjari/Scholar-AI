@@ -138,7 +138,7 @@ export function Documents() {
                 <StatusIcon className={`size-3 ${d.status === "processing" ? "animate-spin" : ""}`} />
                 {status.label}
               </Badge>
-              <Button variant="ghost" size="icon" className="size-8 text-muted-foreground">
+              <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); toast.success("Options opened"); }} className="size-8 text-muted-foreground">
                 <MoreVertical className="size-4" />
               </Button>
             </motion.div>

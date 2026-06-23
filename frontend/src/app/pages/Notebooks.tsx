@@ -26,6 +26,13 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "../components/ui/dropdown-menu";
 import { cn } from "../components/ui/utils";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
@@ -53,6 +60,7 @@ export function Notebooks() {
   const [activeId, setActiveId] = useState("nb1");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [blocks, setBlocks] = useState<NotebookBlock[]>(activeNotebookPage.blocks);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const actions = [
@@ -101,7 +109,9 @@ export function Notebooks() {
                 activeId === n.id ? "bg-accent" : "hover:bg-accent/50",
               )}
             >
-              <span className="text-base leading-none">{n.emoji}</span>
+              <div className="flex h-6 w-6 items-center justify-center rounded bg-background/50">
+                <n.icon className="h-4 w-4 text-muted-foreground" />
+              </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{n.name}</div>
                 <div className="text-[11px] text-muted-foreground">
@@ -184,16 +194,59 @@ export function Notebooks() {
           </p>
 
           <div className="mt-8 space-y-5">
-            {activeNotebookPage.blocks.map((block, i) => (
+            {blocks.map((block, i) => (
               <BlockView key={i} block={block} />
             ))}
 
-            <button
-              onClick={() => toast.success("Block menu", { description: "Drag content from Ask AI, Flashcards or Diagrams." })}
-              className="group flex w-full items-center gap-2 rounded-lg border border-dashed border-border py-3 text-sm text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet"
-            >
-              <Plus className="size-4" /> Add block — or drag in an AI answer, diagram or deck
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.add("border-violet", "bg-violet-soft/50", "text-violet");
+                  }}
+                  onDragLeave={(e) => {
+                    e.currentTarget.classList.remove("border-violet", "bg-violet-soft/50", "text-violet");
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.remove("border-violet", "bg-violet-soft/50", "text-violet");
+                    try {
+                      const data = e.dataTransfer.getData("application/json");
+                      if (data) {
+                        setBlocks([...blocks, JSON.parse(data)]);
+                        return;
+                      }
+                    } catch (err) {}
+                    
+                    setBlocks([...blocks, {
+                      type: "ai-answer",
+                      question: "Dropped AI Concept",
+                      answer: "This block was generated via drag-and-drop. In a full implementation, you would drag a real AI response here.",
+                      confidence: 0.95,
+                      sources: 2
+                    }]);
+                  }}
+                  className="group flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet"
+                >
+                  <Plus className="size-4" /> Add block — or drag in an AI answer, diagram or deck
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[300px]">
+                <DropdownMenuItem onClick={() => setBlocks([...blocks, { type: "text", text: "New text block. Edit me!" }])}>
+                  <FileText className="mr-2 size-4 text-muted-foreground" /> Text
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setBlocks([...blocks, { type: "heading", level: 2, text: "New Heading" }])}>
+                  <Hash className="mr-2 size-4 text-muted-foreground" /> Heading
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setBlocks([...blocks, { type: "callout", tone: "note", text: "New note callout." }])}>
+                  <Info className="mr-2 size-4 text-muted-foreground" /> Callout
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setBlocks([...blocks, { type: "code", lang: "python", code: "print('Hello world')" }])}>
+                  <Workflow className="mr-2 size-4 text-muted-foreground" /> Code
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </main>
