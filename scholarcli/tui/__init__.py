@@ -15,7 +15,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, ScrollableContainer
 from textual.screen import Screen, ModalScreen
-from textual.widgets import Footer, Input, RichLog, Rule, Static, DataTable, Button, DirectoryTree
+from textual.widgets import Footer, Input, RichLog, Rule, Static, DataTable, Button, DirectoryTree, Select, Markdown
 from pathlib import Path
 from typing import Iterable
 import os
@@ -437,11 +437,13 @@ class AskScreen(Screen):
     BINDINGS = [
         Binding("escape", "go_back", "Back"),
         Binding("s", "toggle_sources", "Toggle Sources"),
+        Binding("ctrl+s", "save_chat", "Save Chat"),
     ]
 
     def __init__(self, course: str | None = None) -> None:
         super().__init__()
         self._course = course
+        self._chat_history: list[dict[str, str]] = []
 
     def compose(self) -> ComposeResult:
         yield Static("[b]❯ Ask — ScholarCLI[/b]", classes="screen-header")
@@ -482,9 +484,12 @@ class AskScreen(Screen):
         src_log.clear()
         src_log.write("[dim]Searching…[/dim]")
 
+        self._chat_history.append({"role": "user", "content": text})
+
         try:
             result = await _run_rag(text, self._course)
             answer = result.get("answer", "(no answer)")
+            self._chat_history.append({"role": "assistant", "content": answer})
 
             chunks = result.get("retrieved", [])
             src_log.clear()
@@ -519,6 +524,32 @@ class AskScreen(Screen):
 
     def action_go_back(self) -> None:
         self.app.pop_screen()
+
+    def action_save_chat(self) -> None:
+        if not self._chat_history:
+            self.notify("No chat history to save.", severity="warning")
+            return
+            
+        from scholarcli.config import get_settings
+        import time
+        
+        logs_dir = get_settings().paths.chat_logs_dir
+        filename = f"ask_{int(time.time())}.md"
+        if self._course:
+            filename = f"ask_{self._course}_{int(time.time())}.md"
+            
+        filepath = logs_dir / filename
+        
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(f"# Ask Chat Log\n\n")
+            if self._course:
+                f.write(f"**Course:** {self._course}\n\n")
+                
+            for msg in self._chat_history:
+                role = "User" if msg["role"] == "user" else "ScholarCLI"
+                f.write(f"### {role}\n{msg['content']}\n\n")
+                
+        self.notify(f"Chat saved to {filepath}", title="Chat Saved")
 
 
 # ---------------------------------------------------------------------------
@@ -786,7 +817,10 @@ class CoursesScreen(Screen):
 class _StudyModeScreen(Screen):
     """Base for study mode screens that send queries through RAG with a forced route."""
 
-    BINDINGS = [Binding("escape", "go_back", "Back")]
+    BINDINGS = [
+        Binding("escape", "go_back", "Back"),
+        Binding("ctrl+s", "save_chat", "Save Chat"),
+    ]
 
     # Subclasses set these.
     _icon: str = "📖"
@@ -797,6 +831,7 @@ class _StudyModeScreen(Screen):
     def __init__(self, course: str | None = None) -> None:
         super().__init__()
         self._course = course
+        self._chat_history: list[dict[str, str]] = []
 
     def compose(self) -> ComposeResult:
         yield Static(
@@ -825,6 +860,7 @@ class _StudyModeScreen(Screen):
         event.input.clear()
         log = self.query_one(RichLog)
         log.write(f"[bold cyan]⏳[/bold cyan] Generating {self._title.lower()} for: {text}\n")
+        self._chat_history.append({"role": "user", "content": text})
 
         try:
             result = await _run_rag(text, self._course, route=self._route)
@@ -833,8 +869,10 @@ class _StudyModeScreen(Screen):
 
             if not grounded:
                 log.write(f"[yellow]⚠[/yellow] {answer}\n")
+                self._chat_history.append({"role": "assistant", "content": answer})
             else:
                 self._render_result(log, answer)
+                self._chat_history.append({"role": "assistant", "content": answer})
         except Exception as exc:
             log.write(f"[bold red]Error:[/bold red] {exc}")
             log.write("[dim]Is Ollama running? Check 'ollama serve'.[/dim]\n")
@@ -849,6 +887,34 @@ class _StudyModeScreen(Screen):
     def action_go_back(self) -> None:
         self.app.pop_screen()
 
+    def action_save_chat(self) -> None:
+        if not self._chat_history:
+            self.notify("No chat history to save.", severity="warning")
+            return
+            
+        from scholarcli.config import get_settings
+        import time
+        
+        logs_dir = get_settings().paths.chat_logs_dir
+        mode_name = self.__class__.__name__.lower().replace("screen", "")
+        
+        filename = f"{mode_name}_{int(time.time())}.md"
+        if self._course:
+            filename = f"{mode_name}_{self._course}_{int(time.time())}.md"
+            
+        filepath = logs_dir / filename
+        
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(f"# {self._title} Log\n\n")
+            if self._course:
+                f.write(f"**Course:** {self._course}\n\n")
+                
+            for msg in self._chat_history:
+                role = "Topic" if msg["role"] == "user" else "Result"
+                f.write(f"### {role}\n{msg['content']}\n\n")
+                
+        self.notify(f"Chat saved to {filepath}", title="Chat Saved")
+
 
 class FlashcardsScreen(_StudyModeScreen):
     _icon = "☷"
@@ -859,6 +925,8 @@ class FlashcardsScreen(_StudyModeScreen):
     def _render_result(self, log: RichLog, answer: str) -> None:
         from rich.panel import Panel
         from rich.text import Text
+        from rich.console import Group
+        from rich.rule import Rule
 
         log.write("[bold green]☷ Generated Flashcards:[/bold green]\n")
         # Parse Q:/A: pairs.
@@ -868,20 +936,35 @@ class FlashcardsScreen(_StudyModeScreen):
             if not card:
                 continue
             
-            content = Text()
+            q_text = ""
+            a_text = ""
             lines = card.split("\n")
-            for j, line in enumerate(lines):
+            current_section = None
+            for line in lines:
                 stripped = line.strip()
                 if stripped.startswith("Q:"):
-                    content.append(f"{stripped}", style="bold cyan")
+                    q_text += stripped[2:].strip() + " "
+                    current_section = "Q"
                 elif stripped.startswith("A:"):
-                    content.append(f"{stripped}", style="green")
-                else:
-                    content.append(f"{stripped}")
-                if j < len(lines) - 1:
-                    content.append("\n")
-
-            log.write(Panel(content, title=f"[bold]Card {i}[/bold]", border_style="cyan", expand=False))
+                    a_text += stripped[2:].strip() + " "
+                    current_section = "A"
+                elif current_section == "Q":
+                    q_text += stripped + " "
+                elif current_section == "A":
+                    a_text += stripped + " "
+            
+            q_text = q_text.strip()
+            a_text = a_text.strip()
+            
+            card_content = Group(
+                Text("Question", justify="center", style="bold cyan"),
+                Text(q_text, justify="center"),
+                Rule(style="dim"),
+                Text("Answer", justify="center", style="bold green"),
+                Text(a_text, justify="center")
+            )
+            
+            log.write(Panel(card_content, title=f"[bold]Card {i}[/bold]", border_style="cyan", width=100, padding=(1, 2)))
             log.write("")
 
 
@@ -935,11 +1018,12 @@ class DiagramsScreen(_StudyModeScreen):
         import base64
         import tempfile
         import urllib.request
+        import urllib.error
         import asyncio
         import os
         
         try:
-            from textual_image import TextualImage
+            from textual_image.widget import Image as TextualImage
         except ImportError:
             log.write("[yellow]textual-image not installed. Cannot render image natively.[/yellow]\n")
             return
@@ -957,7 +1041,7 @@ class DiagramsScreen(_StudyModeScreen):
         url = f"https://mermaid.ink/img/{b64}?theme=dark"
         
         def _fetch():
-            req = urllib.request.Request(url, method="GET")
+            req = urllib.request.Request(url, method="GET", headers={"User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req, timeout=10) as resp:
                 if resp.status == 200:
                     return resp.read()
@@ -965,6 +1049,13 @@ class DiagramsScreen(_StudyModeScreen):
                 
         try:
             img_data = await asyncio.to_thread(_fetch)
+        except urllib.error.HTTPError as e:
+            try:
+                err_msg = e.read().decode("utf-8")
+                log.write(f"[red]Mermaid API Error ({e.code}):[/red]\n{err_msg}\n")
+            except Exception:
+                log.write(f"[red]Failed to fetch diagram image: {e}[/red]\n")
+            return
         except Exception as e:
             log.write(f"[red]Failed to fetch diagram image: {e}[/red]\n")
             return
@@ -1028,6 +1119,41 @@ class StudyNotesScreen(_StudyModeScreen):
 
 
 # ---------------------------------------------------------------------------
+# Saved Logs Screen
+# ---------------------------------------------------------------------------
+
+class SavedLogsTree(DirectoryTree):
+    """A DirectoryTree that only shows markdown files."""
+    def filter_paths(self, paths: Iterable[Path]) -> Iterable[Path]:
+        return [p for p in paths if p.is_dir() or p.suffix.lower() == ".md"]
+
+class SavedLogsScreen(Screen):
+    """Browse saved chats, flashcards, diagrams, etc."""
+
+    BINDINGS = [Binding("escape", "go_back", "Back")]
+
+    def compose(self) -> ComposeResult:
+        from scholarcli.config import get_settings
+        yield Static("[b]💾 Saved History — ScholarCLI[/b]", classes="screen-header")
+        with Horizontal(id="saved-logs-split"):
+            yield SavedLogsTree(str(get_settings().paths.chat_logs_dir), id="saved-logs-tree", classes="nav-item")
+            with ScrollableContainer(id="saved-logs-content"):
+                yield Markdown("Select a log file from the left to view it here.", id="saved-logs-viewer")
+
+    async def on_directory_tree_file_selected(self, event: DirectoryTree.FileSelected) -> None:
+        try:
+            with open(event.path, "r", encoding="utf-8") as f:
+                content = f.read()
+            viewer = self.query_one("#saved-logs-viewer", Markdown)
+            await viewer.update(content)
+        except Exception as e:
+            self.notify(f"Could not open file: {e}", severity="error")
+
+    def action_go_back(self) -> None:
+        self.app.pop_screen()
+
+
+# ---------------------------------------------------------------------------
 # Main App — Dashboard
 # ---------------------------------------------------------------------------
 
@@ -1048,6 +1174,7 @@ class ScholarApp(App):
         Binding("g", "open_diagrams", "Diagrams", show=False),
         Binding("m", "open_mindmap", "Mind Map", show=False),
         Binding("n", "open_notes", "Notes", show=False),
+        Binding("v", "open_saved", "Saved", key_display="v"),
         Binding("x", "quit", "Quit", key_display="x"),
     ]
 
@@ -1118,6 +1245,10 @@ class ScholarApp(App):
                     " ✎ Study Notes       [dim]\\[n][/dim]",
                     classes="nav-item",
                 )
+                yield Static(
+                    " 💾 Saved History    [dim]\\[v][/dim]",
+                    classes="nav-item",
+                )
                 yield Static("", classes="nav-spacer")
                 yield Static(
                     " ✕  Quit              [dim]\\[x][/dim]",
@@ -1130,6 +1261,11 @@ class ScholarApp(App):
                     "[b]Welcome back, [green]Scholar[/green]![/b]\n"
                     "[dim]What would you like to study today?[/dim]",
                     id="welcome",
+                )
+
+                yield Select(
+                    [("qwen3:8b", "qwen3:8b"), ("gemma4:12b", "gemma4:12b")],
+                    id="home-model-picker"
                 )
 
                 # Stats row — populated on mount.
@@ -1217,12 +1353,39 @@ class ScholarApp(App):
         await asyncio.to_thread(self._load_dashboard_data)
 
     async def _update_ollama_status(self) -> None:
-        online = await _check_ollama()
+        import urllib.request
+        import json
+        
+        def _ping() -> tuple[bool, list[str]]:
+            try:
+                from scholarcli.config import get_settings
+                url = get_settings().ollama.base_url.rstrip("/") + "/api/tags"
+                req = urllib.request.Request(url, method="GET")
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    if resp.status == 200:
+                        data = json.loads(resp.read().decode("utf-8"))
+                        return True, [m["name"] for m in data.get("models", [])]
+            except Exception:
+                pass
+            return False, []
+            
+        online, models = await asyncio.to_thread(_ping)
+        
         hdr = self.query_one("#hdr-right", Static)
         stat = self.query_one("#stat-ollama", Static)
         if online:
             hdr.update("[green]● Local (Ollama)[/green]")
             stat.update("⚙\n[b][green]Online[/green][/b]\n[dim]Ollama[/dim]")
+            if models:
+                try:
+                    picker = self.query_one("#home-model-picker", Select)
+                    options = [(m, m) for m in models]
+                    if not any(m == "qwen3:8b" for m in models):
+                        options.append(("qwen3:8b", "qwen3:8b"))
+                    picker.set_options(options)
+                    picker.value = "qwen3:8b"
+                except Exception:
+                    pass
         else:
             hdr.update("[red]● Offline[/red]")
             stat.update("⚙\n[b][red]Offline[/red][/b]\n[dim]Ollama[/dim]")
@@ -1320,3 +1483,12 @@ class ScholarApp(App):
 
     def action_open_notes(self) -> None:
         self.push_screen(StudyNotesScreen(course=self._course))
+        
+    def action_open_saved(self) -> None:
+        self.push_screen(SavedLogsScreen())
+
+    def on_select_changed(self, event: Select.Changed) -> None:
+        if event.select.id == "home-model-picker":
+            from scholarcli.config import get_settings
+            if event.value:
+                get_settings().models.override_model = str(event.value)

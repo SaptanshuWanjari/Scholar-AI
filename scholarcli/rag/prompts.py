@@ -81,7 +81,8 @@ Mermaid diagram that visualizes the key concepts and relationships. Rules:
 2. Use flowchart TD (top-down) or graph LR (left-right) as appropriate.
 3. Keep node labels short and readable.
 4. Show relationships and hierarchies from the source material.
-5. Use subgraphs to group related concepts if needed.\
+5. Use subgraphs to group related concepts if needed.
+6. DO NOT use 'note' syntax inside graph or flowchart. Use normal nodes if notes are needed.\
 """
 
 MINDMAP_SYSTEM = """\

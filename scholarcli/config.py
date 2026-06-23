@@ -26,9 +26,12 @@ class ModelsConfig(BaseModel):
     embedding: str = "qwen3-embedding:0.6b"
     # task label -> model tag
     routing: dict[str, str] = Field(default_factory=dict)
+    override_model: str | None = None
 
     def model_for(self, task: str) -> str:
         """Resolve a task label to a model tag, falling back to quick_qa."""
+        if self.override_model:
+            return self.override_model
         if task in self.routing:
             return self.routing[task]
         if "quick_qa" in self.routing:
@@ -53,6 +56,12 @@ class PathsConfig(BaseModel):
         p = Path(self.data_dir)
         if not p.is_absolute():
             p = PROJECT_ROOT / p
+        p.mkdir(parents=True, exist_ok=True)
+        return p
+
+    @property
+    def chat_logs_dir(self) -> Path:
+        p = self.resolved_data_dir() / "chat_logs"
         p.mkdir(parents=True, exist_ok=True)
         return p
 

@@ -62,8 +62,11 @@ def ask(
     course: str = typer.Option(
         None, "--course", "-c", help="Restrict retrieval to this course"
     ),
+    model: str = typer.Option("qwen3:8b", "--model", "-m", help="Model to use"),
 ) -> None:
     """Ask a question grounded in your uploaded materials."""
+    from scholarcli.config import get_settings
+    get_settings().models.override_model = model
     init_db()
     rag = build_rag()
     result = rag.invoke({"query": query, "course": course})
@@ -112,9 +115,12 @@ def tui(
     course: str = typer.Option(
         None, "--course", "-c", help="Restrict retrieval to this course"
     ),
+    model: str = typer.Option("qwen3:8b", "--model", "-m", help="Model to use"),
 ) -> None:
     """Launch the interactive Terminal UI chat."""
     from scholarcli.tui import ScholarApp
+    from scholarcli.config import get_settings
+    get_settings().models.override_model = model
 
     init_db()
     app_instance = ScholarApp(course_name=course)
