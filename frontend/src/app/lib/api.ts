@@ -214,6 +214,11 @@ export interface BackendSettings {
   citationsInline: boolean;
   accent: string;
   density: string;
+  industry: string;
+  role: string;
+  goals: string;
+  interests: string;
+  learningPreferences: string;
 }
 
 export interface ModelsList {

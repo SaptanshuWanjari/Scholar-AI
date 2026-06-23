@@ -12,6 +12,11 @@ interface SettingsState {
   citationsInline: boolean;
   accent: "violet" | "cyan" | "green";
   density: "comfortable" | "compact";
+  industry: string;
+  role: string;
+  goals: string;
+  interests: string;
+  learningPreferences: string;
   hydrated: boolean;
   set: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void;
   hydrate: () => Promise<void>;
@@ -28,6 +33,11 @@ const PERSISTED: (keyof BackendSettings)[] = [
   "citationsInline",
   "accent",
   "density",
+  "industry",
+  "role",
+  "goals",
+  "interests",
+  "learningPreferences",
 ];
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -41,6 +51,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   citationsInline: true,
   accent: "violet",
   density: "comfortable",
+  industry: "",
+  role: "",
+  goals: "",
+  interests: "",
+  learningPreferences: "",
   hydrated: false,
   set: (key, value) => {
     set({ [key]: value } as Partial<SettingsState>);

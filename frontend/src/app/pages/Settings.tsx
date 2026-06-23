@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Cpu, Boxes, Filter, Keyboard } from "lucide-react";
+import { Cpu, Boxes, Filter, Keyboard, User } from "lucide-react";
 import { Page } from "../components/Page";
 import {
   Tabs,
@@ -9,6 +9,7 @@ import {
 } from "../components/ui/tabs";
 import { Slider } from "../components/ui/slider";
 import { Switch } from "../components/ui/switch";
+import { Input } from "../components/ui/input";
 import {
   Select,
   SelectContent,
@@ -80,6 +81,9 @@ export function SettingsPage() {
     <Page className="max-w-4xl">
       <Tabs defaultValue="models">
         <TabsList className="mb-6 bg-card">
+          <TabsTrigger value="profile" className="gap-1.5">
+            <User className="size-4" /> Profile
+          </TabsTrigger>
           <TabsTrigger value="models" className="gap-1.5">
             <Cpu className="size-4" /> Models
           </TabsTrigger>
@@ -244,6 +248,51 @@ export function SettingsPage() {
                 </kbd>
               </Row>
             ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="profile">
+          <div className="rounded-2xl border border-border bg-card px-5">
+            <Row title="Industry" desc="Your professional industry">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.industry}
+                onChange={(e) => s.set("industry", e.target.value)}
+                placeholder="e.g. Technology"
+              />
+            </Row>
+            <Row title="Role" desc="Your primary role or title">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.role}
+                onChange={(e) => s.set("role", e.target.value)}
+                placeholder="e.g. Software Engineer"
+              />
+            </Row>
+            <Row title="Goals" desc="Your learning or professional goals">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.goals}
+                onChange={(e) => s.set("goals", e.target.value)}
+                placeholder="e.g. Learn AI"
+              />
+            </Row>
+            <Row title="Interests" desc="Topics you are interested in">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.interests}
+                onChange={(e) => s.set("interests", e.target.value)}
+                placeholder="e.g. Machine Learning"
+              />
+            </Row>
+            <Row title="Learning Preferences" desc="How you prefer to learn">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.learningPreferences}
+                onChange={(e) => s.set("learningPreferences", e.target.value)}
+                placeholder="e.g. Visual, Hands-on"
+              />
+            </Row>
           </div>
         </TabsContent>
       </Tabs>

@@ -114,6 +114,11 @@ class SettingsOut(BaseModel):
     citationsInline: bool
     accent: str
     density: str
+    industry: str = ""
+    role: str = ""
+    goals: str = ""
+    interests: str = ""
+    learningPreferences: str = ""
 
 
 class SettingsPatch(BaseModel):
@@ -127,6 +132,11 @@ class SettingsPatch(BaseModel):
     citationsInline: bool | None = None
     accent: str | None = None
     density: str | None = None
+    industry: str | None = None
+    role: str | None = None
+    goals: str | None = None
+    interests: str | None = None
+    learningPreferences: str | None = None
 
 
 class ModelsList(BaseModel):

@@ -36,6 +36,11 @@ def _defaults() -> dict:
         "citationsInline": True,
         "accent": "violet",
         "density": "comfortable",
+        "industry": "",
+        "role": "",
+        "goals": "",
+        "interests": "",
+        "learningPreferences": "",
     }
 
 
