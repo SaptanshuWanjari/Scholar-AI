@@ -59,6 +59,7 @@ import { useNavigate } from "react-router";
 import { api, type KGGraph, type KGSidebar, type ConceptInspector } from "../lib/api";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { useConceptActionStore } from "../stores/useConceptActionStore";
+import { useKnowledgeBaseStore } from "../stores/useKnowledgeBaseStore";
 import type { Course } from "../lib/types";
 
 // stable node type map — must be outside component
@@ -155,19 +156,37 @@ function layoutGraph(graph: KGGraph): {
 // ─── main page ───────────────────────────────────────────────────────────────
 
 export function KnowledgeBase() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [drawerConceptId, setDrawerConceptId] = useState<string | null>(null);
-  const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [rightCollapsed, setRightCollapsed] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeCollection, setActiveCollection] = useState<string | null>(null);
-  const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
+  // Exploration/session state lives in a global store so the research session
+  // (selected concept, search, collection/filters, course, panel layout)
+  // survives navigating away from this page and back.
+  const {
+    selectedId,
+    drawerConceptId,
+    leftCollapsed,
+    rightCollapsed,
+    searchQuery,
+    activeCollection,
+    course,
+    activeFilters,
+    setField,
+    toggleFilter,
+  } = useKnowledgeBaseStore();
+  // Component still works with a Set for membership checks; derive it locally
+  // from the serializable array kept in the store.
+  const activeFilterSet = useMemo(() => new Set(activeFilters), [activeFilters]);
 
-  // graph state loaded from the backend
+  const setSelectedId = useCallback((v: string | null) => setField("selectedId", v), [setField]);
+  const setDrawerConceptId = useCallback((v: string | null) => setField("drawerConceptId", v), [setField]);
+  const setLeftCollapsed = useCallback((v: boolean) => setField("leftCollapsed", v), [setField]);
+  const setRightCollapsed = useCallback((v: boolean) => setField("rightCollapsed", v), [setField]);
+  const setSearchQuery = useCallback((v: string) => setField("searchQuery", v), [setField]);
+  const setActiveCollection = useCallback((v: string | null) => setField("activeCollection", v), [setField]);
+  const setCourse = useCallback((v: string | null) => setField("course", v), [setField]);
+
+  // graph state — re-fetched on mount, so it stays local (not in the store)
   const [graph, setGraph] = useState<{ nodes: Node<ConceptData>[]; edges: Edge[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [building, setBuilding] = useState(false);
-  const [course, setCourse] = useState<string | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
 
   // explorer side-panel data loaded from the backend
@@ -181,14 +200,19 @@ export function KnowledgeBase() {
     try {
       const s = await api.getKnowledgeSidebar(c);
       setSidebar(s);
-      // default every source-type filter to enabled
-      setActiveFilters(new Set(s.sourceFilters));
+      // Seed "all source-type filters enabled" only on a fresh session. If the
+      // user already picked filters before navigating away, the store holds
+      // them and we must NOT overwrite them on remount.
+      const { initializedFilters } = useKnowledgeBaseStore.getState();
+      if (!initializedFilters) {
+        setField("activeFilters", s.sourceFilters);
+        setField("initializedFilters", true);
+      }
     } catch {
       // side-panel is non-critical — fall back to empty state
       setSidebar({ collections: [], recentConcepts: [], sourceFilters: [] });
-      setActiveFilters(new Set());
     }
-  }, []);
+  }, [setField]);
 
   const loadGraph = useCallback(async (c: string | null) => {
     setLoading(true);
@@ -228,14 +252,6 @@ export function KnowledgeBase() {
       setBuilding(false);
     }
   }, [course, loadGraph, loadSidebar]);
-
-  const toggleFilter = (f: string) => {
-    setActiveFilters((prev) => {
-      const n = new Set(prev);
-      n.has(f) ? n.delete(f) : n.add(f);
-      return n;
-    });
-  };
 
   const isEmpty = !!graph && graph.nodes.length === 0;
 
@@ -309,7 +325,7 @@ export function KnowledgeBase() {
                     <label key={f} className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1 text-sm text-foreground/80 hover:bg-accent/50">
                       <input
                         type="checkbox"
-                        checked={activeFilters.has(f)}
+                        checked={activeFilterSet.has(f)}
                         onChange={() => toggleFilter(f)}
                         className="accent-violet"
                       />

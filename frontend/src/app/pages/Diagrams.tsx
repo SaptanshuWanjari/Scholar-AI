@@ -27,7 +27,7 @@ const DIAGRAM_TYPES = [
 
 export function Diagrams() {
   const [items, setItems] = useState<DiagramItem[]>([]);
-  const [active, setActive] = useState<DiagramItem | null>(null);
+  const [active, setActiveState] = useState<DiagramItem | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCode, setShowCode] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -38,6 +38,13 @@ export function Diagrams() {
   const setTopic = (v: string) => setField("topic", v);
   const setCourse = (v: string) => setField("course", v);
   const setType = (v: string) => setField("type", v);
+
+  // Selecting a diagram also records its id in the store, so the viewer
+  // restores the same diagram after navigating away and back.
+  const setActive = (d: DiagramItem | null) => {
+    setActiveState(d);
+    setField("activeId", d?.id ?? null);
+  };
 
   // Absorb the latest generated diagram into the list + select it. Runs on
   // mount too, so a diagram generated while the page was unmounted shows up.
@@ -63,7 +70,9 @@ export function Diagrams() {
       .then((ds) => {
         if (cancelled) return;
         setItems(ds);
-        setActive((cur) => cur ?? ds[0] ?? null);
+        // Restore the previously-open diagram by id; fall back to the first.
+        const storedId = useDiagramGenStore.getState().activeId;
+        setActiveState((cur) => cur ?? ds.find((d) => d.id === storedId) ?? ds[0] ?? null);
       })
       .catch(() => {
         /* empty library */
@@ -76,11 +85,9 @@ export function Diagrams() {
   const remove = async (id: string) => {
     try {
       await api.deleteDiagram(id);
-      setItems((prev) => {
-        const next = prev.filter((d) => d.id !== id);
-        setActive((cur) => (cur?.id === id ? next[0] ?? null : cur));
-        return next;
-      });
+      const next = items.filter((d) => d.id !== id);
+      setItems(next);
+      if (active?.id === id) setActive(next[0] ?? null);
       toast.success("Diagram deleted");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to delete diagram");
@@ -93,6 +100,57 @@ export function Diagrams() {
     setCopied(true);
     toast.success("Mermaid copied to clipboard");
     setTimeout(() => setCopied(false), 1500);
+  };
+
+  const exportSvg = () => {
+    const svg = document.querySelector("#diagram-container svg");
+    if (!svg) {
+      toast.error("Diagram not found");
+      return;
+    }
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${active?.title || "diagram"}.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Exported as SVG");
+  };
+
+  const exportPng = () => {
+    const svg = document.querySelector("#diagram-container svg") as SVGElement;
+    if (!svg) {
+      toast.error("Diagram not found");
+      return;
+    }
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const rect = svg.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    if (ctx) {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(2, 2);
+    }
+    const img = new Image();
+    img.onload = () => {
+      ctx?.drawImage(img, 0, 0, rect.width, rect.height);
+      const pngUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = pngUrl;
+      link.download = `${active?.title || "diagram"}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Exported as PNG");
+    };
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
   };
 
   return (
@@ -229,16 +287,16 @@ export function Diagrams() {
                   {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
                   Copy Mermaid
                 </Button>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.success("Exported as SVG")}>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportSvg}>
                   <Download className="size-3.5" /> SVG
                 </Button>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.success("Exported as PNG")}>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportPng}>
                   <FileImage className="size-3.5" /> PNG
                 </Button>
               </div>
             </div>
 
-            <div className="space-y-4 p-6">
+            <div className="space-y-4 p-6" id="diagram-container">
               <DiagramErrorBoundary key={active.id} code={active.mermaid}>
                 <DiagramViewer code={active.mermaid} />
               </DiagramErrorBoundary>

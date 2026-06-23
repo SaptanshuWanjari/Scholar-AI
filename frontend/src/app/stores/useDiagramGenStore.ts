@@ -12,6 +12,7 @@ interface DiagramGenState {
   type: string;
   generating: boolean;
   generated: DiagramItem | null; // most recent successful generation
+  activeId: string | null; // id of the diagram open in the viewer (survives nav)
   setField: <K extends keyof DiagramGenState>(key: K, value: DiagramGenState[K]) => void;
   generate: () => Promise<DiagramItem | null>;
 }
@@ -22,6 +23,7 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
   type: "flowchart",
   generating: false,
   generated: null,
+  activeId: null,
   setField: (key, value) => set({ [key]: value } as Partial<DiagramGenState>),
   generate: async () => {
     const { topic, course, type, generating } = get();
@@ -47,7 +49,7 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
         kind: result.kind,
         mermaid: result.mermaid,
       };
-      set({ generated: diagram });
+      set({ generated: diagram, activeId: diagram.id });
       toast.success("Diagram generated");
       return diagram;
     } catch (err) {

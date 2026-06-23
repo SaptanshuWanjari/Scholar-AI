@@ -139,6 +139,18 @@ class Diagram(Base):
     )
 
 
+class Mindmap(Base):
+    __tablename__ = "mindmaps"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class Concept(Base):
     __tablename__ = "concepts"
 

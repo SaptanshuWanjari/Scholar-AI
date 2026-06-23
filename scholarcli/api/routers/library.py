@@ -10,13 +10,14 @@ from scholarcli.api.schemas import (
     DeckOut,
     DiagramOut,
     FlashcardOut,
+    MindmapOut,
     QuizOut,
     QuizQuestionOut,
     SaveDeckRequest,
     SaveQuizRequest,
 )
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Card, Deck, Diagram, SavedQuiz
+from scholarcli.storage.models import Card, Deck, Diagram, Mindmap, SavedQuiz
 
 router = APIRouter(prefix="/api", tags=["library"])
 
@@ -236,6 +237,35 @@ def delete_diagram(diagram_id: int) -> None:
         if not d:
             raise HTTPException(status_code=404, detail="Diagram not found")
         session.delete(d)
+        session.commit()
+    finally:
+        session.close()
+
+
+# ---------------------------------------------------------------------------
+# Mind maps
+# ---------------------------------------------------------------------------
+
+@router.get("/mindmaps", response_model=list[MindmapOut])
+def list_mindmaps() -> list[MindmapOut]:
+    session = get_session()
+    try:
+        return [
+            MindmapOut(id=str(m.id), title=m.title, course=m.course, text=m.text, grounded=True)
+            for m in session.query(Mindmap).order_by(Mindmap.created_at.desc()).all()
+        ]
+    finally:
+        session.close()
+
+
+@router.delete("/mindmaps/{mindmap_id}", status_code=204)
+def delete_mindmap(mindmap_id: int) -> None:
+    session = get_session()
+    try:
+        m = session.get(Mindmap, mindmap_id)
+        if not m:
+            raise HTTPException(status_code=404, detail="Mind map not found")
+        session.delete(m)
         session.commit()
     finally:
         session.close()

@@ -6,8 +6,11 @@ import { api } from "../lib/api";
 const NO_GROUNDED_MESSAGE =
   "No grounded flashcards — try uploading documents or a different topic.";
 
+type View = "grid" | "list" | "study";
+
 interface FlashcardGenState {
-  // Generation inputs (kept in the store so selections survive navigation too).
+  // View mode + generation inputs kept in the store so they survive navigation.
+  view: View;
   topic: string;
   course: string | null; // null = all courses
   // Generation state — lives in the store, NOT the component, so an in-flight
@@ -30,6 +33,7 @@ interface FlashcardGenState {
 }
 
 export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
+  view: "grid",
   topic: "",
   course: null,
   generating: false,

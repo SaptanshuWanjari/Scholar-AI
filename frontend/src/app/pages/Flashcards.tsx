@@ -54,7 +54,9 @@ export function Flashcards() {
   const setGenCards = useFlashcardGenStore((s) => s.setCards);
   const generate = useFlashcardGenStore((s) => s.generate);
 
-  const [view, setView] = useState<View>("grid");
+  // View mode persists in the store so it survives navigation.
+  const view = useFlashcardGenStore((s) => s.view);
+  const setView = (v: View) => setField("view", v);
   const [courses, setCourses] = useState<Course[]>([]);
   // Cards loaded from a saved deck (view-only / reviewable) — cheap to refetch,
   // so they stay page-local. The store holds the generated unsaved set instead.
@@ -89,6 +91,18 @@ export function Flashcards() {
   useEffect(() => {
     api.listCourses().then(setCourses).catch(() => setCourses([]));
     void loadDecks();
+    // If a saved deck was open before navigating away, re-fetch its cards on
+    // remount (savedCards is local state and would otherwise be empty).
+    const openDeckName = useFlashcardGenStore.getState().activeDeck;
+    if (openDeckName) {
+      setLoadingCards(true);
+      api
+        .listSavedFlashcards(openDeckName)
+        .then(setSavedCards)
+        .catch(() => setField("activeDeck", null))
+        .finally(() => setLoadingCards(false));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // After a successful generation, switch to grid view to show the new cards.

@@ -119,10 +119,27 @@ async def generate_mindmap(req: GenerateMindmapRequest) -> MindmapOut:
         raise HTTPException(status_code=400, detail="topic is required")
     query = f"Generate a mind map about: {topic}"
     result = await run_in_threadpool(run_ask, query, req.course, "mindmap")
+    course_name = req.course or "All courses"
+    mindmap_id = _stable_id("mm", topic)
+
+    if result["grounded"] and result["content"].strip():
+        from scholarcli.storage import get_session
+        from scholarcli.storage.models import Mindmap
+
+        session = get_session()
+        try:
+            row = Mindmap(title=topic, course=course_name, text=result["content"])
+            session.add(row)
+            session.commit()
+            session.refresh(row)
+            mindmap_id = str(row.id)
+        finally:
+            session.close()
+
     return MindmapOut(
-        id=_stable_id("mm", topic),
+        id=mindmap_id,
         title=topic,
-        course=req.course or "All courses",
+        course=course_name,
         text=result["content"],
         grounded=result["grounded"],
     )
