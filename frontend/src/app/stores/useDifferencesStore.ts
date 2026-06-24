@@ -92,7 +92,7 @@ export const useDifferencesStore = create<DifferencesState>((set, get) => ({
     if (!output) return;
     const selectedCourse = course === "none" ? null : course;
     try {
-      const item = await api.saveDifference(output.title, output.content, selectedCourse);
+      const item = await api.saveDifference(output.title, output.content, selectedCourse, output.quality);
       set({ saved: [item, ...get().saved] });
       toast.success("Saved");
     } catch {
@@ -112,7 +112,7 @@ export const useDifferencesStore = create<DifferencesState>((set, get) => ({
 
   loadSaved: (item) => {
     set({
-      output: { title: item.title, content: item.content, grounded: true },
+      output: { title: item.title, content: item.content, grounded: true, quality: item.quality },
       topic: item.title,
     });
   },

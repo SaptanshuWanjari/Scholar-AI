@@ -50,6 +50,7 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
         course: result.course,
         kind: result.kind,
         mermaid: result.mermaid,
+        quality: result.quality,
       };
       set({ generated: diagram, activeId: diagram.id });
       toast.success("Diagram generated");

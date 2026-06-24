@@ -21,6 +21,7 @@ import { SettingsPage } from "./pages/Settings";
 import { Trace } from "./pages/Trace";
 import { Courses } from "./pages/Courses";
 import { Differences } from "./pages/Differences";
+import { Consistency } from "./pages/Consistency";
 import { PromptLibrary } from "./pages/PromptLibrary";
 import { OnboardingHero } from "./pages/onboarding/OnboardingHero";
 import { OnboardingImport } from "./pages/onboarding/OnboardingImport";
@@ -74,6 +75,7 @@ export default function App() {
             <Route path="/trace" element={<Trace />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/differences" element={<Differences />} />
+            <Route path="/consistency" element={<Consistency />} />
             <Route path="/prompts" element={<PromptLibrary />} />
           </Route>
 

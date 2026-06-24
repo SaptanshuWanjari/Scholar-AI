@@ -11,6 +11,7 @@ from scholarcli.api.schemas import (
     DiagramOut,
     FlashcardOut,
     MindmapOut,
+    QualityScore,
     QuizOut,
     QuizQuestionOut,
     SaveDeckRequest,
@@ -22,6 +23,11 @@ from scholarcli.storage.models import Card, Deck, Diagram, Mindmap, SavedQuiz
 router = APIRouter(prefix="/api", tags=["library"])
 
 _DECK_COLORS = ["#4f4d7a", "#3f6b6f", "#3f7a4e", "#a3771f", "#6b3f6f", "#9f3a36"]
+
+
+def _quality(stored: dict | None) -> QualityScore | None:
+    """Map a persisted quality_score JSON blob back to a QualityScore."""
+    return QualityScore(**stored) if stored else None
 
 
 # ---------------------------------------------------------------------------
@@ -37,6 +43,7 @@ def _deck_out(deck: Deck) -> DeckOut:
         color=deck.color,
         cards=len(cards),
         mastered=sum(1 for c in cards if c.ease == "mastered"),
+        quality=_quality(deck.quality_score),
     )
 
 
@@ -57,7 +64,10 @@ def save_deck(payload: SaveDeckRequest) -> DeckOut:
     session = get_session()
     try:
         color = payload.color or _DECK_COLORS[hash(name) % len(_DECK_COLORS)]
-        deck = Deck(name=name, course=payload.course or "", color=color)
+        deck = Deck(
+            name=name, course=payload.course or "", color=color,
+            quality_score=payload.quality.model_dump() if payload.quality else None,
+        )
         for c in payload.cards:
             deck.cards.append(
                 Card(type=c.type, front=c.front, back=c.back, due=c.due, ease=c.ease)
@@ -160,6 +170,7 @@ def _quiz_out(q: SavedQuiz) -> QuizOut:
         difficulty=q.difficulty,
         grounded=True,
         questions=[QuizQuestionOut(**qq) for qq in q.questions],
+        quality=_quality(q.quality_score),
     )
 
 
@@ -184,6 +195,7 @@ def save_quiz(payload: SaveQuizRequest) -> QuizOut:
             course=payload.course or "",
             difficulty=payload.difficulty,
             questions=[qq.model_dump() for qq in payload.questions],
+            quality_score=payload.quality.model_dump() if payload.quality else None,
         )
         session.add(quiz)
         session.commit()
@@ -222,6 +234,7 @@ def list_diagrams() -> list[DiagramOut]:
                 kind=d.kind,
                 mermaid=d.mermaid,
                 grounded=True,
+                quality=_quality(d.quality_score),
             )
             for d in session.query(Diagram).order_by(Diagram.created_at.desc()).all()
         ]
@@ -251,7 +264,10 @@ def list_mindmaps() -> list[MindmapOut]:
     session = get_session()
     try:
         return [
-            MindmapOut(id=str(m.id), title=m.title, course=m.course, text=m.text, grounded=True)
+            MindmapOut(
+                id=str(m.id), title=m.title, course=m.course, text=m.text, grounded=True,
+                quality=_quality(m.quality_score),
+            )
             for m in session.query(Mindmap).order_by(Mindmap.created_at.desc()).all()
         ]
     finally:

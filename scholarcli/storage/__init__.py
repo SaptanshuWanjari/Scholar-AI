@@ -60,6 +60,12 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
     "pyq_questions": [
         ("subtopics", "JSON"),
     ],
+    # Artifact quality scores (api/quality.py), added per artifact table.
+    "decks": [("quality_score", "JSON")],
+    "quizzes": [("quality_score", "JSON")],
+    "diagrams": [("quality_score", "JSON")],
+    "mindmaps": [("quality_score", "JSON")],
+    "difference_tables": [("quality_score", "JSON")],
 }
 
 

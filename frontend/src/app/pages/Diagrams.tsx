@@ -3,6 +3,7 @@ import { Workflow, Copy, Check, Download, FileImage, Code2, Sparkles, Loader2, A
 import { GenerationSteps } from "../components/GenerationSteps";
 import { toast } from "sonner";
 import { DiagramViewer } from "../components/DiagramViewer";
+import QualityBadge from "../components/QualityBadge";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
@@ -294,6 +295,7 @@ export function Diagrams() {
                 <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
                   {active.kind}
                 </Badge>
+                <QualityBadge score={active.quality} />
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setShowCode((s) => !s)}>

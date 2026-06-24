@@ -17,6 +17,7 @@ import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { Page, SectionTitle } from "../components/Page";
+import QualityBadge from "../components/QualityBadge";
 import { FlashcardCard } from "../components/FlashcardCard";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -48,6 +49,7 @@ export function Flashcards() {
   const document = useFlashcardGenStore((s) => s.document);
   const generating = useFlashcardGenStore((s) => s.generating);
   const genCards = useFlashcardGenStore((s) => s.cards);
+  const genQuality = useFlashcardGenStore((s) => s.quality);
   const genUngrounded = useFlashcardGenStore((s) => s.ungrounded);
   const generatedDeckName = useFlashcardGenStore((s) => s.generatedDeckName);
   const activeDeck = useFlashcardGenStore((s) => s.activeDeck);
@@ -119,7 +121,7 @@ export function Flashcards() {
     const name = (generatedDeckName ?? topic.trim() ?? "").trim() || "Untitled deck";
     setSaving(true);
     try {
-      const deck = await api.saveDeck(name, course, cards);
+      const deck = await api.saveDeck(name, course, cards, undefined, genQuality);
       toast.success(`Saved "${deck.name}"`);
       // Mark the generated set as saved and reload from the persisted deck so
       // card ids become DB ids (reviewable).
@@ -305,7 +307,10 @@ export function Flashcards() {
                   <span className="text-xs text-muted-foreground">{d.cards} cards</span>
                 </div>
                 <div className="mt-3 text-sm font-medium">{d.name}</div>
-                <div className="text-xs text-muted-foreground">{d.course}</div>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-xs text-muted-foreground">{d.course}</div>
+                  {d.quality && <QualityBadge score={d.quality} />}
+                </div>
                 <Progress value={d.cards ? (d.mastered / d.cards) * 100 : 0} className="mt-3 h-1.5" />
                 <div className="mt-1.5 text-xs text-muted-foreground">{d.mastered} mastered</div>
                 <button
@@ -333,6 +338,8 @@ export function Flashcards() {
               {activeDeck}
             </Badge>
           )}
+          {/* Quality of the freshly generated, unsaved set. */}
+          {!activeDeck && hasCards && <QualityBadge score={genQuality} />}
         </div>
         <div className="flex items-center gap-2">
           {canSave && (

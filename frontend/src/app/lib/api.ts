@@ -2,7 +2,7 @@
 // In dev, requests go to `/api/*` which Vite proxies to the backend
 // (see vite.config.ts). Override with VITE_API_BASE_URL for production.
 
-import type { Course, DiagramItem, DifferenceTableItem, DocumentItem, Flashcard, GeneratedDifference, Quiz, Source, PromptItem } from "./types";
+import type { Course, DiagramItem, DifferenceTableItem, DocumentItem, Flashcard, GeneratedDifference, QualityScore, Quiz, Source, PromptItem } from "./types";
 
 const BASE: string = (import.meta as any).env?.VITE_API_BASE_URL ?? "";
 
@@ -11,6 +11,7 @@ export interface FlashcardSet {
   course: string | null;
   grounded: boolean;
   cards: Flashcard[];
+  quality?: QualityScore;
 }
 
 export interface GeneratedQuiz extends Quiz {
@@ -27,12 +28,14 @@ export interface GeneratedMindmap {
   course: string;
   text: string;
   grounded: boolean;
+  quality?: QualityScore;
 }
 
 export interface GeneratedRevision {
   title: string;
   markdown: string;
   grounded: boolean;
+  quality?: QualityScore;
 }
 
 // ---- Teach Me ----
@@ -79,6 +82,7 @@ export interface DeckOut {
   color: string;
   cards: number;
   mastered: number;
+  quality?: QualityScore;
 }
 
 export interface NotebookMeta {
@@ -288,6 +292,24 @@ export interface ConceptInspector {
   relatedConcepts: string[];
   referencedIn: Record<string, number>;
   citations: { source: string; detail: string }[];
+}
+
+// ---- Cross-artifact consistency ----
+export interface ArtifactCoverage {
+  artifact: string;
+  coverage: number;
+  covered: string[];
+  weak: string[];
+  missing: string[];
+}
+
+export interface ConsistencyReport {
+  canonicalConcepts: string[];
+  overallCoverage: number;
+  artifacts: ArtifactCoverage[];
+  underrepresented: string[];
+  overrepresented: string[];
+  recommendations: string[];
 }
 
 export interface AskResponse {
@@ -507,7 +529,7 @@ export const api = {
     opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
     handlers: {
       onToken: (chunk: string) => void;
-      onDone?: (meta: { grounded: boolean; title: string }) => void;
+      onDone?: (meta: { grounded: boolean; title: string; quality?: QualityScore }) => void;
       onError?: (message: string) => void;
       signal?: AbortSignal;
     },
@@ -536,7 +558,7 @@ export const api = {
         let evt: any;
         try { evt = JSON.parse(line.slice(5).trim()); } catch { continue; }
         if (evt.type === "token") handlers.onToken(evt.value);
-        else if (evt.type === "done") handlers.onDone?.({ grounded: evt.grounded, title: evt.title ?? "" });
+        else if (evt.type === "done") handlers.onDone?.({ grounded: evt.grounded, title: evt.title ?? "", quality: evt.quality });
         else if (evt.type === "error") handlers.onError?.(evt.value);
       }
     }
@@ -550,8 +572,8 @@ export const api = {
   listDecks(): Promise<DeckOut[]> {
     return request<DeckOut[]>("/api/decks");
   },
-  saveDeck(name: string, course: string | null, cards: Flashcard[], color?: string): Promise<DeckOut> {
-    return request<DeckOut>("/api/decks", json({ name, course, cards, color }));
+  saveDeck(name: string, course: string | null, cards: Flashcard[], color?: string, quality?: QualityScore): Promise<DeckOut> {
+    return request<DeckOut>("/api/decks", json({ name, course, cards, color, quality }));
   },
   deleteDeck(id: string): Promise<void> {
     return request<void>(`/api/decks/${id}`, { method: "DELETE" });
@@ -574,7 +596,7 @@ export const api = {
   listSavedQuizzes(): Promise<Quiz[]> {
     return request<Quiz[]>("/api/quizzes");
   },
-  saveQuiz(quiz: { title: string; course?: string | null; difficulty: string; questions: Quiz["questions"] }): Promise<Quiz> {
+  saveQuiz(quiz: { title: string; course?: string | null; difficulty: string; questions: Quiz["questions"]; quality?: QualityScore }): Promise<Quiz> {
     return request<Quiz>("/api/quizzes", json(quiz));
   },
   deleteQuiz(id: string): Promise<void> {
@@ -740,8 +762,8 @@ export const api = {
   listDifferences(): Promise<DifferenceTableItem[]> {
     return request<DifferenceTableItem[]>("/api/differences");
   },
-  saveDifference(title: string, content: string, course?: string | null): Promise<DifferenceTableItem> {
-    return request<DifferenceTableItem>("/api/differences", json({ title, content, course: course ?? null }));
+  saveDifference(title: string, content: string, course?: string | null, quality?: QualityScore): Promise<DifferenceTableItem> {
+    return request<DifferenceTableItem>("/api/differences", json({ title, content, course: course ?? null, quality }));
   },
   deleteDifference(id: number): Promise<void> {
     return request<void>(`/api/differences/${id}`, { method: "DELETE" });
@@ -769,5 +791,13 @@ export const api = {
   },
   deletePackage(id: string): Promise<void> {
     return request<void>(`/api/teach/packages/${id}`, { method: "DELETE" });
+  },
+
+  // ---- Cross-artifact consistency (analyze-only) ----
+  analyzeConsistency(sourceText: string, artifacts: Record<string, any>): Promise<ConsistencyReport> {
+    return request<ConsistencyReport>("/api/consistency/analyze", json({ sourceText, artifacts }));
+  },
+  analyzeLibraryConsistency(course: string, document?: string | null): Promise<ConsistencyReport> {
+    return request<ConsistencyReport>("/api/consistency/library", json({ course, document: document ?? null }));
   },
 };

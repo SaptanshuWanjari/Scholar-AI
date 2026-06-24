@@ -14,6 +14,7 @@ from fastapi.responses import StreamingResponse
 
 from scholarcli.api import parsers
 from scholarcli.api.activity_service import record_activity
+from scholarcli.api.quality import score_artifact
 from scholarcli.api.rag_service import run_ask, stream_ask
 from scholarcli.api.schemas import (
     DiagramOut,
@@ -45,12 +46,14 @@ async def generate_flashcards(req: GenerateFlashcardsRequest) -> FlashcardSet:
     query = f"Generate {req.count} flashcards covering: {topic}"
     result = await run_in_threadpool(run_ask, query, req.course, req.document, "flashcards", topic)
     cards = parsers.parse_flashcards(result["content"], deck=topic)
+    quality = score_artifact("flashcards", cards, result["retrieved"], result["grounded"])
     record_activity("flashcard", f"Generated flashcards: {topic}", req.course or "")
     return FlashcardSet(
         deck=topic,
         course=req.course,
         grounded=result["grounded"],
         cards=[FlashcardOut(**c) for c in cards],
+        quality=quality,
     )
 
 
@@ -62,6 +65,7 @@ async def generate_quiz(req: GenerateQuizRequest) -> QuizOut:
     query = f"Generate a {req.difficulty} difficulty quiz about: {topic}"
     result = await run_in_threadpool(run_ask, query, req.course, req.document, "quiz", topic)
     questions = parsers.parse_quiz(result["content"])
+    quality = score_artifact("quiz", questions, result["retrieved"], result["grounded"])
     record_activity("quiz", f"Generated quiz: {topic}", req.course or "")
     return QuizOut(
         id=_stable_id("quiz", topic, req.difficulty),
@@ -70,6 +74,7 @@ async def generate_quiz(req: GenerateQuizRequest) -> QuizOut:
         difficulty=req.difficulty,
         grounded=result["grounded"],
         questions=[QuizQuestionOut(**q) for q in questions],
+        quality=quality,
     )
 
 
@@ -82,6 +87,7 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
     query = f"Generate a {kind} diagram about: {topic}"
     result = await run_in_threadpool(run_ask, query, req.course, req.document, "mermaid", topic)
     mermaid = parsers.strip_mermaid_fences(result["content"])
+    quality = score_artifact("mermaid", mermaid, result["retrieved"], result["grounded"])
     course_name = req.course or "All courses"
     kind_label = kind.title()
     diagram_id = _stable_id("dg", topic, kind)
@@ -93,7 +99,10 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
 
         session = get_session()
         try:
-            row = Diagram(title=topic, course=course_name, kind=kind_label, mermaid=mermaid)
+            row = Diagram(
+                title=topic, course=course_name, kind=kind_label, mermaid=mermaid,
+                quality_score=quality.model_dump(),
+            )
             session.add(row)
             session.commit()
             session.refresh(row)
@@ -109,6 +118,7 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
         kind=kind_label,
         mermaid=mermaid,
         grounded=result["grounded"],
+        quality=quality,
     )
 
 
@@ -119,6 +129,7 @@ async def generate_mindmap(req: GenerateMindmapRequest) -> MindmapOut:
         raise HTTPException(status_code=400, detail="topic is required")
     query = f"Generate a mind map about: {topic}"
     result = await run_in_threadpool(run_ask, query, req.course, req.document, "mindmap", topic)
+    quality = score_artifact("mindmap", result["content"], result["retrieved"], result["grounded"])
     course_name = req.course or "All courses"
     mindmap_id = _stable_id("mm", topic)
 
@@ -128,7 +139,10 @@ async def generate_mindmap(req: GenerateMindmapRequest) -> MindmapOut:
 
         session = get_session()
         try:
-            row = Mindmap(title=topic, course=course_name, text=result["content"])
+            row = Mindmap(
+                title=topic, course=course_name, text=result["content"],
+                quality_score=quality.model_dump(),
+            )
             session.add(row)
             session.commit()
             session.refresh(row)
@@ -142,6 +156,7 @@ async def generate_mindmap(req: GenerateMindmapRequest) -> MindmapOut:
         course=course_name,
         text=result["content"],
         grounded=result["grounded"],
+        quality=quality,
     )
 
 
@@ -158,10 +173,12 @@ async def generate_revision(req: GenerateRevisionRequest) -> RevisionOut:
     }[req.format]
     query = f"Create {format_hint} for: {subject}"
     result = await run_in_threadpool(run_ask, query, req.course, req.document, "study_notes", subject)
+    quality = score_artifact("study_notes", result["content"], result["retrieved"], result["grounded"])
     return RevisionOut(
         title=subject,
         markdown=result["content"],
         grounded=result["grounded"],
+        quality=quality,
     )
 
 
@@ -180,11 +197,19 @@ async def generate_revision_stream(req: GenerateRevisionRequest) -> StreamingRes
     record_activity("revision", f"Generated revision: {subject}", req.course or "")
 
     def event_stream():
+        text_parts: list[str] = []
         try:
             for event in stream_ask(query, req.course, req.document, "study_notes", subject):
-                # Attach title on the done event so the frontend can label the result
-                if event.get("type") == "done":
-                    event["title"] = subject
+                if event.get("type") == "token":
+                    text_parts.append(event.get("value", ""))
+                elif event.get("type") == "done":
+                    # Score the assembled notes; drop raw chunks before serializing.
+                    retrieved = event.pop("retrieved", []) or []
+                    quality = score_artifact(
+                        "study_notes", "".join(text_parts), retrieved, event.get("grounded", False)
+                    )
+                    event["quality"] = quality.model_dump()
+                    event["title"] = subject  # so the frontend can label the result
                 yield f"data: {json.dumps(event)}\n\n"
         except Exception as exc:  # noqa: BLE001
             yield f"data: {json.dumps({'type': 'error', 'value': str(exc)})}\n\n"

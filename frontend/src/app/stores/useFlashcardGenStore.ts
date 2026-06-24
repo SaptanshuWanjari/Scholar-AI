@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { toast } from "sonner";
-import type { Flashcard } from "../lib/types";
+import type { Flashcard, QualityScore } from "../lib/types";
 import { api } from "../lib/api";
 
 const NO_GROUNDED_MESSAGE =
@@ -20,6 +20,8 @@ interface FlashcardGenState {
   // The freshly generated (unsaved) cards. The empty array means "no generated
   // set is currently active".
   cards: Flashcard[];
+  // Objective quality estimate for the freshly generated (unsaved) set.
+  quality?: QualityScore;
   ungrounded: boolean;
   // The deck name proposed by the generate flow (used as default save name).
   generatedDeckName: string | null;
@@ -40,13 +42,14 @@ export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
   document: null,
   generating: false,
   cards: [],
+  quality: undefined,
   ungrounded: false,
   generatedDeckName: null,
   activeDeck: null,
   setField: (key, value) => set({ [key]: value } as Partial<FlashcardGenState>),
   setCards: (cards) => set({ cards }),
   clearGenerated: () =>
-    set({ cards: [], ungrounded: false, generatedDeckName: null, activeDeck: null }),
+    set({ cards: [], quality: undefined, ungrounded: false, generatedDeckName: null, activeDeck: null }),
   generate: async () => {
     const { topic, course, document, generating } = get();
     const value = topic.trim();
@@ -57,6 +60,7 @@ export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
       if (!result.grounded || result.cards.length === 0) {
         set({
           cards: [],
+          quality: undefined,
           activeDeck: null,
           generatedDeckName: null,
           ungrounded: true,
@@ -66,6 +70,7 @@ export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
       }
       set({
         cards: result.cards,
+        quality: result.quality,
         activeDeck: null,
         generatedDeckName: result.deck,
         ungrounded: false,

@@ -12,6 +12,29 @@ from pydantic import BaseModel
 
 
 # ---------------------------------------------------------------------------
+# Artifact quality
+# ---------------------------------------------------------------------------
+
+class QualityScore(BaseModel):
+    """Objective quality estimate for a generated artifact (see api/quality.py).
+
+    Sub-scores are 0..100 ints; dimensions that don't apply to an artifact are
+    left ``None`` and omitted from the response.
+    """
+
+    overall: int
+    coverage: int | None = None
+    grounding: int | None = None
+    structure: int | None = None
+    balance: int | None = None
+    diversity: int | None = None
+    redundancy: int | None = None
+    sourceChunks: int = 0
+    documents: int = 0
+    notes: list[str] = []
+
+
+# ---------------------------------------------------------------------------
 # Sources / Ask
 # ---------------------------------------------------------------------------
 
@@ -181,6 +204,7 @@ class FlashcardSet(BaseModel):
     course: str | None = None
     grounded: bool = True
     cards: list[FlashcardOut] = []
+    quality: QualityScore | None = None
 
 
 class GenerateQuizRequest(BaseModel):
@@ -206,6 +230,7 @@ class QuizOut(BaseModel):
     difficulty: str
     grounded: bool = True
     questions: list[QuizQuestionOut] = []
+    quality: QualityScore | None = None
 
 
 class GenerateDiagramRequest(BaseModel):
@@ -222,6 +247,7 @@ class DiagramOut(BaseModel):
     kind: str
     mermaid: str
     grounded: bool = True
+    quality: QualityScore | None = None
 
 
 class GenerateMindmapRequest(BaseModel):
@@ -236,6 +262,7 @@ class MindmapOut(BaseModel):
     course: str
     text: str
     grounded: bool = True
+    quality: QualityScore | None = None
 
 
 class GenerateRevisionRequest(BaseModel):
@@ -249,6 +276,7 @@ class RevisionOut(BaseModel):
     title: str
     markdown: str
     grounded: bool = True
+    quality: QualityScore | None = None
 
 
 class SearchResultOut(BaseModel):
@@ -270,6 +298,7 @@ class DeckOut(BaseModel):
     color: str
     cards: int
     mastered: int
+    quality: QualityScore | None = None
 
 
 class SaveDeckRequest(BaseModel):
@@ -277,6 +306,7 @@ class SaveDeckRequest(BaseModel):
     course: str | None = None
     color: str | None = None
     cards: list[FlashcardOut] = []
+    quality: QualityScore | None = None
 
 
 class CardReview(BaseModel):
@@ -289,6 +319,7 @@ class SaveQuizRequest(BaseModel):
     course: str | None = None
     difficulty: str = "Medium"
     questions: list[QuizQuestionOut] = []
+    quality: QualityScore | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -496,12 +527,14 @@ class DifferenceOut(BaseModel):
     title: str
     content: str
     grounded: bool = True
+    quality: QualityScore | None = None
 
 
 class SaveDifferenceRequest(BaseModel):
     title: str
     content: str
     course: str | None = None
+    quality: QualityScore | None = None
 
 
 class DifferenceTableItem(BaseModel):
@@ -510,6 +543,7 @@ class DifferenceTableItem(BaseModel):
     course: str
     content: str
     createdAt: str
+    quality: QualityScore | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -610,3 +644,38 @@ class PyqDifferenceSuggestion(BaseModel):
     topic: str
     count: int
     example: str
+
+
+# ---------------------------------------------------------------------------
+# Cross-Artifact Consistency Engine
+# ---------------------------------------------------------------------------
+
+class ConsistencyRequest(BaseModel):
+    """Analyze in-memory Teach Me Package artifacts against their source."""
+
+    sourceText: str
+    artifacts: dict[str, dict] = {}  # {notes:{markdown}, flashcards:{cards}, quiz:{questions}, ...}
+
+
+class ConsistencyLibraryRequest(BaseModel):
+    """Analyze saved artifacts for a course (optionally a single document)."""
+
+    course: str
+    document: str | None = None  # document TITLE, optional
+
+
+class ArtifactCoverage(BaseModel):
+    artifact: str
+    coverage: float
+    covered: list[str] = []
+    weak: list[str] = []
+    missing: list[str] = []
+
+
+class ConsistencyReport(BaseModel):
+    canonicalConcepts: list[str] = []
+    overallCoverage: float = 0.0
+    artifacts: list[ArtifactCoverage] = []
+    underrepresented: list[str] = []
+    overrepresented: list[str] = []
+    recommendations: list[str] = []

@@ -24,6 +24,7 @@ import {
 } from "../components/ui/select";
 import { Label } from "../components/ui/label";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
+import QualityBadge from "../components/QualityBadge";
 import { api } from "../lib/api";
 import {
   useRevisionStore,
@@ -52,6 +53,7 @@ export function Revision() {
     output,
     title,
     ungrounded,
+    quality,
     savedRevisions,
     setField,
     generate,
@@ -266,7 +268,10 @@ export function Revision() {
       {/* Preview */}
       <div className="min-w-0 flex-1 overflow-y-auto">
         <div className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-          <span className="text-sm font-medium">{title ?? "Preview"}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">{title ?? "Preview"}</span>
+            {!loading && <QualityBadge score={quality} />}
+          </div>
           {output && (
             <div className="flex gap-2">
               {/* <Button variant="outline" size="sm" className="gap-1.5" onClick={saveRevision}> */}

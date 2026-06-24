@@ -44,6 +44,21 @@ export interface ChatMessage {
   streaming?: boolean;
 }
 
+// Objective artifact quality estimate (backend api/quality.py). Sub-scores are
+// 0..100; dimensions that don't apply to an artifact are omitted.
+export interface QualityScore {
+  overall: number;
+  coverage?: number;
+  grounding?: number;
+  structure?: number;
+  balance?: number;
+  diversity?: number;
+  redundancy?: number;
+  sourceChunks: number;
+  documents: number;
+  notes: string[];
+}
+
 export interface Flashcard {
   id: string;
   type: "basic" | "cloze";
@@ -78,6 +93,7 @@ export interface Quiz {
   course: string;
   questions: QuizQuestion[];
   difficulty: "Easy" | "Medium" | "Hard";
+  quality?: QualityScore;
 }
 
 export interface DiagramItem {
@@ -86,6 +102,7 @@ export interface DiagramItem {
   course: string;
   kind: string;
   mermaid: string;
+  quality?: QualityScore;
 }
 
 export interface TopicNode {
@@ -116,6 +133,7 @@ export interface GeneratedDifference {
   title: string;
   content: string;
   grounded: boolean;
+  quality?: QualityScore;
 }
 
 export interface DifferenceTableItem {
@@ -124,4 +142,5 @@ export interface DifferenceTableItem {
   course: string;
   content: string;
   createdAt: string;
+  quality?: QualityScore;
 }

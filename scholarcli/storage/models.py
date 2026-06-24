@@ -76,6 +76,7 @@ class Deck(Base):
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     color: Mapped[str] = mapped_column(String(16), nullable=False, default="#4f4d7a")
+    quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -107,6 +108,7 @@ class SavedQuiz(Base):
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     difficulty: Mapped[str] = mapped_column(String(16), nullable=False, default="Medium")
     questions: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -135,6 +137,7 @@ class Diagram(Base):
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     kind: Mapped[str] = mapped_column(String(64), nullable=False, default="Flowchart")
     mermaid: Mapped[str] = mapped_column(Text, nullable=False)
+    quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -147,6 +150,7 @@ class Mindmap(Base):
     title: Mapped[str] = mapped_column(String(256), nullable=False)
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     text: Mapped[str] = mapped_column(Text, nullable=False)
+    quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -159,6 +163,7 @@ class DifferenceTable(Base):
     title: Mapped[str] = mapped_column(String(256), nullable=False)
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

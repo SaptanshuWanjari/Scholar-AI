@@ -21,6 +21,7 @@ import {
 } from "../components/ui/select";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { Page, SectionTitle } from "../components/Page";
+import QualityBadge from "../components/QualityBadge";
 import { useDifferencesStore } from "../stores/useDifferencesStore";
 import { cn } from "../components/ui/utils";
 
@@ -172,7 +173,10 @@ export function Differences() {
       {output && (
         <div ref={viewerRef} className="mb-8">
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="font-medium text-foreground">{output.title}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="font-medium text-foreground">{output.title}</h2>
+              <QualityBadge score={output.quality} />
+            </div>
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"

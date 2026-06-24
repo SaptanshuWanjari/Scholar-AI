@@ -44,6 +44,7 @@ def create_app() -> FastAPI:
 
     from scholarcli.api.routers import (
         ask,
+        consistency,
         courses,
         dashboard,
         differences,
@@ -65,6 +66,7 @@ def create_app() -> FastAPI:
 
     for module in (
         ask,
+        consistency,
         courses,
         dashboard,
         differences,

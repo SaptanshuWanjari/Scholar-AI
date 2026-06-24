@@ -16,6 +16,7 @@ import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { Page } from "../components/Page";
+import QualityBadge from "../components/QualityBadge";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Progress } from "../components/ui/progress";
@@ -76,6 +77,7 @@ export function QuizPage() {
         course: quiz.course && quiz.course !== "all" ? quiz.course : null,
         difficulty: quiz.difficulty,
         questions: quiz.questions,
+        quality: quiz.quality,
       });
       await refreshSaved();
       toast.success("Quiz saved");
@@ -352,6 +354,7 @@ function Player({
         <span className="text-xs text-muted-foreground">
           {idx + 1} / {quiz.questions.length}
         </span>
+        <QualityBadge score={quiz.quality} />
         <Button
           variant="outline"
           size="sm"

@@ -18,6 +18,7 @@ import { useMindmapStore, ALL_COURSES } from "../stores/useMindmapStore";
 import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
 import { MindMapTree, parseMindmapText, countNodes } from "../components/MindMapTree";
+import QualityBadge from "../components/QualityBadge";
 
 export function MindMaps() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -194,6 +195,7 @@ export function MindMaps() {
               <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
                 {nodeCount} {nodeCount === 1 ? "node" : "nodes"}
               </Badge>
+              <QualityBadge score={active.quality} />
             </div>
             <ScrollArea className="flex-1">
               <div className="p-6">

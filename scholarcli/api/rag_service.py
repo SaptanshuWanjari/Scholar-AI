@@ -132,6 +132,7 @@ def run_ask(question: str, course: str | None = None, document: str | None = Non
     return {
         "content": result.get("answer", "(no answer)"),
         "sources": serialize_chunks(retrieved),
+        "retrieved": retrieved,  # raw chunks (text/_distance/document_id) for quality scoring
         "confidence": _confidence(retrieved, grounded),
         "grounded": grounded,
         "route": used_route,
@@ -195,6 +196,7 @@ def stream_ask(
         yield {
             "type": "done",
             "sources": [],
+            "retrieved": retrieved,
             "confidence": None,
             "grounded": False,
             "route": used_route,
@@ -213,6 +215,7 @@ def stream_ask(
     yield {
         "type": "done",
         "sources": sources,
+        "retrieved": retrieved,
         "confidence": confidence,
         "grounded": True,
         "route": used_route,

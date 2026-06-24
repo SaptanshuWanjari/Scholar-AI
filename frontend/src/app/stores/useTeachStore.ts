@@ -7,6 +7,7 @@ import {
   type GeneratedDiagram,
   type GeneratedMindmap,
   type GeneratedRevision,
+  type ConsistencyReport,
 } from "../lib/api";
 import type { GeneratedDifference, Source, Course, DocumentItem } from "../lib/types";
 
@@ -15,7 +16,7 @@ export type Depth = "quick" | "standard" | "deep";
 // The lazily-generated artifacts (Overview + Sources are handled separately).
 export type ArtifactKey = "notes" | "flashcards" | "quiz" | "mindmap" | "diagram" | "difference";
 
-export type ViewKey = "overview" | ArtifactKey | "sources";
+export type ViewKey = "overview" | ArtifactKey | "sources" | "consistency";
 
 export type SlotStatus = "idle" | "queued" | "loading" | "done" | "error";
 
@@ -75,6 +76,10 @@ interface TeachState {
 
   artifacts: Record<ArtifactKey, ArtifactSlot>;
 
+  // Cross-artifact consistency analysis (on-demand).
+  consistency: ConsistencyReport | null;
+  consistencyStatus: SlotStatus;
+
   // Live progress for the "what's generating now" UI.
   generating: boolean;
   currentTask: ViewKey | null;
@@ -85,6 +90,7 @@ interface TeachState {
   toggleArtifact: (key: ArtifactKey) => void;
   startGenerate: () => Promise<void>;
   retryArtifact: (key: ArtifactKey) => Promise<void>;
+  runConsistency: () => Promise<void>;
   openView: (view: ViewKey) => void;
   savePackage: () => Promise<void>;
   loadPackage: (id: string) => Promise<void>;
@@ -121,6 +127,9 @@ export const useTeachStore = create<TeachState>((set, get) => ({
   sources: [],
 
   artifacts: freshArtifacts(),
+
+  consistency: null,
+  consistencyStatus: "idle",
 
   generating: false,
   currentTask: null,
@@ -197,6 +206,31 @@ export const useTeachStore = create<TeachState>((set, get) => ({
     await generateArtifact(key, set, get);
   },
 
+  runConsistency: async () => {
+    const { overview, sources, artifacts, consistencyStatus } = get();
+    if (consistencyStatus === "loading") return;
+    // Canonical source = overview + retrieved source snippets.
+    const sourceText = [overview?.markdown ?? "", ...sources.map((s) => s.snippet)]
+      .filter(Boolean)
+      .join("\n\n");
+    if (!sourceText.trim()) {
+      toast.error("Generate the package first");
+      return;
+    }
+    const payload: Record<string, unknown> = {};
+    for (const key of ARTIFACT_KEYS) {
+      if (artifacts[key].data) payload[key] = artifacts[key].data;
+    }
+    set({ consistencyStatus: "loading" });
+    try {
+      const report = await api.analyzeConsistency(sourceText, payload);
+      set({ consistency: report, consistencyStatus: "done" });
+    } catch (err) {
+      set({ consistencyStatus: "error" });
+      toast.error(err instanceof Error ? err.message : "Failed to analyze consistency");
+    }
+  },
+
   openView: (view) => {
     set({ activeView: view });
   },
@@ -264,6 +298,8 @@ export const useTeachStore = create<TeachState>((set, get) => ({
         sources: pkg.sources ?? [],
         artifacts,
         selected,
+        consistency: null,
+        consistencyStatus: "idle",
         generating: false,
         currentTask: null,
       });
@@ -281,6 +317,8 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       overviewStatus: "idle",
       sources: [],
       artifacts: freshArtifacts(),
+      consistency: null,
+      consistencyStatus: "idle",
       generating: false,
       currentTask: null,
     }),

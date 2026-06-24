@@ -18,6 +18,7 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  ShieldCheck,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -37,6 +38,7 @@ import { FlashcardCard } from "../components/FlashcardCard";
 import { DiagramViewer } from "../components/DiagramViewer";
 import { SourcePanel } from "../components/SourcePanel";
 import { MindMapTree, countNodes, parseMindmapText } from "../components/MindMapTree";
+import { ConsistencyReport } from "../components/ConsistencyReport";
 import { cn } from "../components/ui/utils";
 import { api, type PackageMeta, type FlashcardSet, type GeneratedQuiz, type GeneratedDiagram, type GeneratedMindmap, type GeneratedRevision } from "../lib/api";
 import type { GeneratedDifference, Flashcard, QuizQuestion } from "../lib/types";
@@ -75,6 +77,7 @@ const NAV: { id: ViewKey; label: string; icon: typeof BookOpen }[] = [
   { id: "diagram", label: "Diagram", icon: Workflow },
   { id: "difference", label: "Difference Tables", icon: Columns2 },
   { id: "sources", label: "Sources", icon: FileText },
+  { id: "consistency", label: "Consistency", icon: ShieldCheck },
 ];
 
 // ---------------------------------------------------------------------------
@@ -420,10 +423,51 @@ function StatusIcon({ status }: { status: SlotStatus }) {
       }
     }
 
+function ConsistencyView() {
+      const report = useTeachStore((s) => s.consistency);
+      const status = useTeachStore((s) => s.consistencyStatus);
+      const generating = useTeachStore((s) => s.generating);
+      const runConsistency = useTeachStore((s) => s.runConsistency);
+
+      return (
+        <div className="space-y-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-base font-medium text-foreground">Cross-artifact consistency</h2>
+              <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+                Check that every artifact covers the same concepts as the source material.
+                Detects missing, weak and under-represented concepts. Analysis only — nothing
+                is regenerated.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              className="shrink-0 gap-2"
+              disabled={generating || status === "loading"}
+              onClick={() => void runConsistency()}
+            >
+              {status === "loading" ? <Loader2 className="size-3.5 animate-spin" /> : <ShieldCheck className="size-3.5" />}
+              {report ? "Re-analyze" : "Analyze"}
+            </Button>
+          </div>
+
+          {status === "loading" ? (
+            <Spinner message="Extracting concepts and comparing artifacts…" />
+          ) : status === "error" ? (
+            <ViewState icon={AlertTriangle} message="Failed to analyze consistency. Try again." />
+          ) : report ? (
+            <ConsistencyReport report={report} />
+          ) : (
+            <ViewState icon={ShieldCheck} message="Run an analysis to see concept coverage across your artifacts." />
+          )}
+        </div>
+      );
+    }
+
 function WorkspacePhase() {
       const {
         topic, activeView, overview, overviewStatus, sources, packageId, saving,
-        artifacts, selected, generating, currentTask, openView, savePackage, reset,
+        artifacts, selected, generating, currentTask, consistencyStatus, openView, savePackage, reset,
       } = useTeachStore();
 
       const grounded = overview?.grounded;
@@ -432,7 +476,8 @@ function WorkspacePhase() {
       // the overview (its chunks come back with the overview).
       const statusFor = (view: ViewKey): SlotStatus => {
         if (view === "overview" || view === "sources") return overviewStatus;
-        return artifacts[view].status;
+        if (view === "consistency") return consistencyStatus;
+        return artifacts[view as ArtifactKey].status;
       };
 
       // Progress across the whole package: overview + each selected artifact.
@@ -559,6 +604,8 @@ function WorkspacePhase() {
                     ) : (
                       <ViewState icon={Sparkles} message="Generating overview…" />
                     )
+                  ) : activeView === "consistency" ? (
+                    <ConsistencyView />
                   ) : (
                     <ArtifactBody view={activeView as ArtifactKey} />
                   )}

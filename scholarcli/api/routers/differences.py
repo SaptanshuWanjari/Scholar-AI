@@ -8,11 +8,13 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.prompt_service import active_body
+from scholarcli.api.quality import score_artifact
 from scholarcli.api.rag_service import run_ask
 from scholarcli.api.schemas import (
     DifferenceOut,
     DifferenceTableItem,
     GenerateDifferenceRequest,
+    QualityScore,
     SaveDifferenceRequest,
 )
 from scholarcli.llm import get_llm
@@ -57,15 +59,19 @@ async def generate_difference(req: GenerateDifferenceRequest) -> DifferenceOut:
     if result["grounded"]:
         content = result["content"]
         grounded = True
+        retrieved = result["retrieved"]
     else:
         content = await run_in_threadpool(_direct_generate, topic)
         grounded = False
+        retrieved = []
 
+    quality = score_artifact("differences", content, retrieved, grounded)
     record_activity("difference", f"Generated difference table: {topic}", req.course or "")
     return DifferenceOut(
         title=topic,
         content=content,
         grounded=grounded,
+        quality=quality,
     )
 
 
@@ -109,6 +115,7 @@ def list_differences() -> list[DifferenceTableItem]:
                 course=r.course,
                 content=r.content,
                 createdAt=r.created_at.isoformat(),
+                quality=QualityScore(**r.quality_score) if r.quality_score else None,
             )
             for r in rows
         ]
@@ -124,6 +131,7 @@ def save_difference(req: SaveDifferenceRequest) -> DifferenceTableItem:
             title=req.title,
             content=req.content,
             course=req.course or "",
+            quality_score=req.quality.model_dump() if req.quality else None,
         )
         session.add(row)
         session.commit()
@@ -134,6 +142,7 @@ def save_difference(req: SaveDifferenceRequest) -> DifferenceTableItem:
             course=row.course,
             content=row.content,
             createdAt=row.created_at.isoformat(),
+            quality=QualityScore(**row.quality_score) if row.quality_score else None,
         )
     finally:
         session.close()

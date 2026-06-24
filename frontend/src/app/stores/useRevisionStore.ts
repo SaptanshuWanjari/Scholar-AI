@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { api } from "../lib/api";
+import type { QualityScore } from "../lib/types";
 
 export type RevisionFormat = "notes" | "concepts" | "formulas" | "summary";
 
@@ -39,6 +40,8 @@ interface RevisionState {
   loading: boolean;
   output: string | null;
   title: string | null;
+  // Objective quality estimate from the stream's `done` event.
+  quality?: QualityScore;
   ungrounded: boolean;
   savedRevisions: SavedRevision[];
   setField: <K extends keyof RevisionState>(key: K, value: RevisionState[K]) => void;
@@ -59,6 +62,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
   loading: false,
   output: null,
   title: null,
+  quality: undefined,
   ungrounded: false,
   savedRevisions: [],
   setField: (key, value) => set({ [key]: value } as Partial<RevisionState>),
@@ -100,6 +104,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
         topic: rev.topic,
         course: rev.course,
         format: rev.format,
+        quality: undefined,
         ungrounded: false,
       });
       toast.success("Revision loaded");
@@ -119,7 +124,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
     const ctrl = new AbortController();
     controller = ctrl;
 
-    set({ loading: true, output: null, title: null, ungrounded: false });
+    set({ loading: true, output: null, title: null, quality: undefined, ungrounded: false });
 
     let streamed = "";
     try {
@@ -131,9 +136,9 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
             streamed += chunk;
             set({ output: streamed });
           },
-          onDone: ({ grounded, title }) => {
+          onDone: ({ grounded, title, quality }) => {
             const notCovered = !grounded || looksNotCovered(streamed);
-            set({ title: title || null, ungrounded: notCovered });
+            set({ title: title || null, quality, ungrounded: notCovered });
             if (notCovered) {
               toast.warning("This topic may not be covered by your uploaded documents");
             } else {
