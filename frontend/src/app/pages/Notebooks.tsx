@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef, useState } from "react";
+import { useMemo, useCallback, useEffect, useRef, useState } from "react";
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -64,6 +64,7 @@ import {
   type Collection,
 } from "../lib/api";
 import type { Course } from "../lib/types";
+import { useAutoSave } from "../hooks/useAutoSave";
 
 // Deterministic default icon per notebook (no icon field on real notebooks).
 const NOTEBOOK_ICONS = [
@@ -104,7 +105,6 @@ export function Notebooks() {
   const [blocks, setBlocks] = useState<NotebookBlock[]>([]);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingNotebook, setLoadingNotebook] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [assisting, setAssisting] = useState(false);
 
   const [leftCollapsed, setLeftCollapsed] = useState(false);
@@ -126,6 +126,28 @@ export function Notebooks() {
   const [newTitle, setNewTitle] = useState("");
   const [newCourse, setNewCourse] = useState<string>("none");
   const [creating, setCreating] = useState(false);
+
+  // Draft restore banner state
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
+
+  // Auto-save wiring
+  const saveFn = useCallback(
+    async (next: NotebookBlock[]) => {
+      if (!activeId) return;
+      const updated = await api.updateNotebook(activeId, { blocks: next, is_draft: true });
+      setActive(updated);
+      setList((prev) =>
+        prev.map((n) =>
+          n.id === activeId
+            ? { ...n, notes: next.length, lastEdited: "just now" }
+            : n,
+        ),
+      );
+    },
+    [activeId],
+  );
+
+  const { schedule: autoSave, flush: flushSave, saving, lastSaved } = useAutoSave(saveFn);
 
   // Fetch the dynamic sidebar sections (collections + tags). Called on mount
   // and again whenever a notebook is created so counts/tags stay fresh.
@@ -173,6 +195,7 @@ export function Notebooks() {
         if (cancelled) return;
         setActive(nb);
         setBlocks((nb.blocks ?? []) as NotebookBlock[]);
+        setShowDraftBanner(nb.is_draft === true);
       })
       .catch((e) => {
         if (!cancelled) toast.error(`Failed to open notebook: ${e.message}`);
@@ -185,31 +208,25 @@ export function Notebooks() {
     };
   }, [activeId]);
 
-  // Persist the given blocks for the active notebook, and reflect any
-  // server-side metadata changes (e.g. updated timestamp / notes count).
-  async function persistBlocks(next: NotebookBlock[]) {
+  // beforeunload: flush any pending debounced save before the tab closes.
+  useEffect(() => {
+    window.addEventListener("beforeunload", flushSave);
+    return () => window.removeEventListener("beforeunload", flushSave);
+  }, [flushSave]);
+
+  // Dismiss the draft-restore banner and mark the notebook as no longer a draft.
+  async function dismissDraftBanner() {
+    setShowDraftBanner(false);
+    if (activeId) {
+      await api.updateNotebook(activeId, { is_draft: false }).catch(() => {});
+    }
+  }
+
+  // Persist the given blocks for the active notebook via debounced auto-save.
+  function persistBlocks(next: NotebookBlock[]) {
     if (!activeId) return;
     setBlocks(next);
-    setSaving(true);
-    try {
-      const updated = await api.updateNotebook(activeId, { blocks: next });
-      setActive(updated);
-      setList((prev) =>
-        prev.map((n) =>
-          n.id === activeId
-            ? {
-              ...n,
-              notes: updated.blocks?.length ?? n.notes,
-              lastEdited: "just now",
-            }
-            : n,
-        ),
-      );
-    } catch (e: any) {
-      toast.error(`Failed to save: ${e.message}`);
-    } finally {
-      setSaving(false);
-    }
+    autoSave(next);
   }
 
   // Append a fresh block of the given type and jump straight into editing it.
@@ -307,7 +324,7 @@ export function Notebooks() {
         confidence: 1,
         sources: 0,
       };
-      await persistBlocks([...blocks, block]);
+      persistBlocks([...blocks, block]);
       toast.success("AI block added", { id: toastId });
     } catch (e: any) {
       toast.error(`AI assist failed: ${e.message}`, { id: toastId });
@@ -611,6 +628,18 @@ export function Notebooks() {
               )}
 
               <div className="mt-8 space-y-5">
+                {showDraftBanner && (
+                  <div className="mb-3 flex items-center justify-between rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+                    <span>Auto-saved changes from your last session have been restored.</span>
+                    <button
+                      className="ml-4 text-xs font-medium underline hover:no-underline"
+                      onClick={dismissDraftBanner}
+                    >
+                      Got it
+                    </button>
+                  </div>
+                )}
+
                 {blocks.length === 0 && (
                   <div className="rounded-xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
                     This notebook is empty. Add a block below, or select text
