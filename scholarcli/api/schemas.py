@@ -231,6 +231,9 @@ class QuizOut(BaseModel):
     grounded: bool = True
     questions: list[QuizQuestionOut] = []
     quality: QualityScore | None = None
+    session_answers: dict | None = None
+    session_current_question: int | None = None
+    session_started_at: str | None = None
 
 
 class GenerateDiagramRequest(BaseModel):
@@ -320,6 +323,11 @@ class SaveQuizRequest(BaseModel):
     difficulty: str = "Medium"
     questions: list[QuizQuestionOut] = []
     quality: QualityScore | None = None
+
+
+class QuizSessionPatch(BaseModel):
+    session_answers: dict
+    session_current_question: int
 
 
 # ---------------------------------------------------------------------------
@@ -622,6 +630,16 @@ class PyqQuestionOut(BaseModel):
     subtopics: list[str] = []
     difficulty: str
     type: str
+    marks: int | None = None
+    year: int | None = None
+
+
+class PyqQuestionPatch(BaseModel):
+    text: str | None = None
+    topic: str | None = None
+    subtopics: list[str] | None = None
+    difficulty: Literal["Easy", "Medium", "Hard"] | None = None
+    type: str | None = None  # maps to PYQQuestion.qtype
     marks: int | None = None
     year: int | None = None
 

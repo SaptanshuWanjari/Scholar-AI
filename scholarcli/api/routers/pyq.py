@@ -22,6 +22,7 @@ from scholarcli.api.schemas import (
     PyqDifferenceSuggestion,
     PyqPaperOut,
     PyqQuestionOut,
+    PyqQuestionPatch,
     PyqUploadResponse,
 )
 from scholarcli.config import get_settings
@@ -168,5 +169,49 @@ def list_questions(
             )
             for r in rows
         ]
+    finally:
+        session.close()
+
+
+_QUESTION_FIELD_MAP = {"type": "qtype"}
+
+
+@router.patch("/questions/{question_id}", response_model=PyqQuestionOut)
+def patch_question(question_id: int, body: PyqQuestionPatch) -> PyqQuestionOut:
+    session = get_session()
+    try:
+        q = session.get(PYQQuestion, question_id)
+        if not q:
+            raise HTTPException(status_code=404, detail="Question not found")
+        for field, value in body.model_dump(exclude_unset=True).items():
+            setattr(q, _QUESTION_FIELD_MAP.get(field, field), value)
+        session.commit()
+        session.refresh(q)
+        return PyqQuestionOut(
+            id=q.id,
+            text=q.text,
+            topic=q.topic,
+            subtopics=q.subtopics or [],
+            difficulty=q.difficulty,
+            type=q.qtype,
+            marks=q.marks,
+            year=q.year,
+        )
+    finally:
+        session.close()
+
+
+@router.delete("/questions/{question_id}", status_code=204)
+def delete_question(question_id: int) -> None:
+    session = get_session()
+    try:
+        q = session.get(PYQQuestion, question_id)
+        if not q:
+            raise HTTPException(status_code=404, detail="Question not found")
+        paper = session.get(QuestionPaper, q.paper_id)
+        session.delete(q)
+        if paper and paper.question_count > 0:
+            paper.question_count -= 1
+        session.commit()
     finally:
         session.close()
