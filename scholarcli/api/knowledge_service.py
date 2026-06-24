@@ -268,3 +268,69 @@ def sidebar(course: str | None = None) -> dict:
         }
     finally:
         session.close()
+
+
+# ---------------------------------------------------------------------------
+# Manual curation — prune (delete) and merge synonymous concepts.
+# ---------------------------------------------------------------------------
+
+def delete_concept(concept_id: int) -> bool:
+    """Remove a concept and any edges touching it."""
+    session = get_session()
+    try:
+        concept = session.get(Concept, concept_id)
+        if not concept:
+            return False
+        session.query(ConceptEdge).filter(
+            (ConceptEdge.source_id == concept_id) | (ConceptEdge.target_id == concept_id)
+        ).delete(synchronize_session=False)
+        session.delete(concept)
+        session.commit()
+        return True
+    finally:
+        session.close()
+
+
+def merge_concepts(keep_id: int, drop_id: int) -> dict | None:
+    """Merge ``drop_id`` into ``keep_id``: repoint its edges, fold in its refs,
+    then delete it. Returns the kept concept's inspector dict, or None if either
+    id is missing / they're the same.
+    """
+    if keep_id == drop_id:
+        return None
+    session = get_session()
+    try:
+        keep = session.get(Concept, keep_id)
+        drop = session.get(Concept, drop_id)
+        if not keep or not drop:
+            return None
+
+        # Fold descriptive fields + reference counts into the survivor.
+        if not keep.description and drop.description:
+            keep.description = drop.description
+        if not keep.definition and drop.definition:
+            keep.definition = drop.definition
+        keep.ref_count = keep.ref_count + drop.ref_count
+        keep.source_count = max(keep.source_count, drop.source_count)
+
+        # Repoint edges from drop → keep, dropping self-loops and duplicates.
+        existing: set[tuple[int, int]] = {
+            (e.source_id, e.target_id) for e in session.query(ConceptEdge).all()
+        }
+        for edge in session.query(ConceptEdge).filter(
+            (ConceptEdge.source_id == drop_id) | (ConceptEdge.target_id == drop_id)
+        ).all():
+            new_src = keep_id if edge.source_id == drop_id else edge.source_id
+            new_tgt = keep_id if edge.target_id == drop_id else edge.target_id
+            if new_src == new_tgt or (new_src, new_tgt) in existing or (new_tgt, new_src) in existing:
+                session.delete(edge)
+            else:
+                edge.source_id = new_src
+                edge.target_id = new_tgt
+                existing.add((new_src, new_tgt))
+
+        session.delete(drop)
+        session.commit()
+    finally:
+        session.close()
+    return inspector(keep_id)

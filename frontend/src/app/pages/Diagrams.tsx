@@ -317,7 +317,7 @@ export function Diagrams() {
             <div className="relative flex min-h-0 flex-1 flex-col" id="diagram-container">
               <div className="min-h-0 flex-1 relative">
                 <DiagramErrorBoundary key={active.id} code={active.mermaid}>
-                  <DiagramViewer code={active.mermaid} flush />
+                  <DiagramViewer code={active.mermaid} flush title={active.title || "diagram"} />
                 </DiagramErrorBoundary>
               </div>
               {showCode && (

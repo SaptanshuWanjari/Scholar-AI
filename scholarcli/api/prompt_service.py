@@ -18,7 +18,7 @@ from scholarcli.rag.prompts import (
     STUDY_NOTES_SYSTEM,
 )
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Prompt
+from scholarcli.storage.models import Prompt, PromptExperiment
 
 # Category metadata surfaced to the frontend. ``key`` is the RAG route.
 CATEGORIES: list[dict[str, str]] = [
@@ -396,14 +396,19 @@ def seed_prompts() -> None:
 
 
 def active_body(category: str | None) -> str | None:
-    """Return the active prompt body for a category, or None to use the default.
+    """Return the prompt body to use for a category, or None for the default.
 
-    Best-effort: any DB/lookup failure returns None so generation falls back to
-    the hard-coded RAG default.
+    If an A/B experiment is active for the category, a variant is picked
+    (balanced round-robin) and its use is counted. Otherwise the single active
+    prompt's body is returned. Best-effort: any DB/lookup failure returns None
+    so generation falls back to the hard-coded RAG default.
     """
     if not category or category not in _CATEGORY_KEYS:
         return None
     try:
+        body = _experiment_body(category)
+        if body is not None:
+            return body
         session = get_session()
         try:
             row = (
@@ -416,3 +421,120 @@ def active_body(category: str | None) -> str | None:
             session.close()
     except Exception:  # noqa: BLE001 — never let prompt lookup break generation
         return None
+
+
+# ---------------------------------------------------------------------------
+# A/B testing — pit two prompt variants against each other.
+# ---------------------------------------------------------------------------
+
+def _experiment_body(category: str) -> str | None:
+    """If an experiment is active, pick a variant (balanced), count its use, and
+    return that prompt's body. Returns None when no experiment is active.
+    """
+    session = get_session()
+    try:
+        exp = (
+            session.query(PromptExperiment)
+            .filter(PromptExperiment.category == category, PromptExperiment.active.is_(True))
+            .order_by(PromptExperiment.id.desc())
+            .first()
+        )
+        if not exp:
+            return None
+        # Pick the variant used fewer times (ties → A) to keep the split even.
+        pick_a = exp.a_uses <= exp.b_uses
+        prompt_id = exp.variant_a_id if pick_a else exp.variant_b_id
+        prompt = session.get(Prompt, prompt_id)
+        if not prompt:
+            return None
+        if pick_a:
+            exp.a_uses += 1
+        else:
+            exp.b_uses += 1
+        session.commit()
+        return prompt.body
+    finally:
+        session.close()
+
+
+def start_experiment(category: str, variant_a_id: int, variant_b_id: int) -> dict:
+    """Begin (or replace) an A/B experiment for a category. Deactivates any
+    prior experiment in the same category so only one runs at a time.
+    """
+    if category not in _CATEGORY_KEYS:
+        raise ValueError(f"Unknown category {category!r}")
+    if variant_a_id == variant_b_id:
+        raise ValueError("Pick two different prompts")
+    session = get_session()
+    try:
+        for a, b in ((variant_a_id, "A"), (variant_b_id, "B")):
+            p = session.get(Prompt, a)
+            if not p or p.category != category:
+                raise ValueError(f"Variant {b} is not a prompt in category {category!r}")
+        session.query(PromptExperiment).filter(
+            PromptExperiment.category == category, PromptExperiment.active.is_(True)
+        ).update({"active": False})
+        exp = PromptExperiment(
+            category=category, variant_a_id=variant_a_id, variant_b_id=variant_b_id, active=True
+        )
+        session.add(exp)
+        session.commit()
+        session.refresh(exp)
+        return _experiment_out(session, exp)
+    finally:
+        session.close()
+
+
+def record_score(category: str, variant: str, score: float) -> None:
+    """Add a quality score to the active experiment's chosen variant ('A'/'B')."""
+    session = get_session()
+    try:
+        exp = (
+            session.query(PromptExperiment)
+            .filter(PromptExperiment.category == category, PromptExperiment.active.is_(True))
+            .order_by(PromptExperiment.id.desc())
+            .first()
+        )
+        if not exp:
+            return
+        if variant.upper() == "A":
+            exp.a_score += float(score)
+        elif variant.upper() == "B":
+            exp.b_score += float(score)
+        session.commit()
+    finally:
+        session.close()
+
+
+def list_experiments() -> list[dict]:
+    session = get_session()
+    try:
+        rows = session.query(PromptExperiment).order_by(PromptExperiment.id.desc()).all()
+        return [_experiment_out(session, e) for e in rows]
+    finally:
+        session.close()
+
+
+def stop_experiment(experiment_id: int) -> bool:
+    session = get_session()
+    try:
+        exp = session.get(PromptExperiment, experiment_id)
+        if not exp:
+            return False
+        session.delete(exp)
+        session.commit()
+        return True
+    finally:
+        session.close()
+
+
+def _experiment_out(session, exp: PromptExperiment) -> dict:
+    a = session.get(Prompt, exp.variant_a_id)
+    b = session.get(Prompt, exp.variant_b_id)
+    return {
+        "id": exp.id,
+        "category": exp.category,
+        "active": exp.active,
+        "variantA": {"id": exp.variant_a_id, "name": a.name if a else "(deleted)", "uses": exp.a_uses, "score": round(exp.a_score, 1)},
+        "variantB": {"id": exp.variant_b_id, "name": b.name if b else "(deleted)", "uses": exp.b_uses, "score": round(exp.b_score, 1)},
+    }

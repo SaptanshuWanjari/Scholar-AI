@@ -24,10 +24,12 @@ import {
   ExternalLink,
   BrainCircuit,
   Box,
-  Hash
+  Hash,
+  ThumbsDown,
+  TriangleAlert,
 } from 'lucide-react';
 import { toast } from "sonner";
-import { api, type TraceData } from "../lib/api";
+import { api, type TraceData, type TraceAnalytics } from "../lib/api";
 
 interface MetricProps {
   label: string;
@@ -60,6 +62,11 @@ const FlowStep = ({ title, icon: Icon, isLast = false }: { title: string, icon: 
 export const RetrievalTracePanel = () => {
   const [trace, setTrace] = useState<TraceData | null>(null);
   const [selectedChunk, setSelectedChunk] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<TraceAnalytics | null>(null);
+
+  const loadAnalytics = () => {
+    api.getTraceAnalytics().then(setAnalytics).catch(() => {});
+  };
 
   const load = () => {
     api
@@ -69,12 +76,24 @@ export const RetrievalTracePanel = () => {
         setSelectedChunk(t.chunks[0]?.id ?? null);
       })
       .catch(() => toast.error("Could not load trace"));
+    loadAnalytics();
   };
 
   useEffect(load, []);
 
   const chunks = trace?.chunks ?? [];
   const selected = chunks.find((c) => c.id === selectedChunk) ?? null;
+
+  const flagChunk = async () => {
+    if (!selected) return;
+    try {
+      await api.sendChunkFeedback(selected.source, selected.id, trace?.query ?? "", selected.similarity);
+      toast.success("Chunk flagged as unhelpful");
+      loadAnalytics();
+    } catch {
+      toast.error("Could not record feedback");
+    }
+  };
 
   return (
     <Card className="w-full h-full flex flex-col rounded-none border-0 shadow-none bg-background">
@@ -113,6 +132,44 @@ export const RetrievalTracePanel = () => {
               <MetricItem label="Vector Store" value={trace?.vectorStore || "LanceDB"} icon={Database} />
               <MetricItem label="Top K" value={trace?.topK ?? 0} icon={Layers} />
             </div>
+          </div>
+
+          {/* Bad-chunk analytics */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center">
+              <TriangleAlert className="h-4 w-4 mr-2 text-muted-foreground" />
+              Low-quality Chunk Analytics
+              <Badge variant="outline" className="ml-2 text-xs">{analytics?.totalFlags ?? 0} flags</Badge>
+            </h3>
+            {analytics && analytics.sources.length > 0 ? (
+              <div className="border rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Source</TableHead>
+                      <TableHead className="text-right">Weak</TableHead>
+                      <TableHead className="text-right">👎</TableHead>
+                      <TableHead className="text-right">Avg Sim</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {analytics.sources.map((s) => (
+                      <TableRow key={s.source}>
+                        <TableCell className="max-w-[180px] truncate" title={s.source}>{s.source}</TableCell>
+                        <TableCell className="text-right text-muted-foreground">{s.weakCount}</TableCell>
+                        <TableCell className="text-right text-muted-foreground">{s.downCount}</TableCell>
+                        <TableCell className="text-right font-mono">{s.avgSimilarity.toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                No weak generations recorded yet. Chunks retrieved for ungrounded or low-confidence
+                answers — plus any you flag below — show up here.
+              </p>
+            )}
           </div>
 
           {/* Retrieval Flow */}
@@ -209,6 +266,10 @@ export const RetrievalTracePanel = () => {
               <Button size="sm" variant="secondary" className="flex-1" onClick={() => toast.success("Comparing chunk")}>
                 <GitCompare className="h-4 w-4 mr-2" />
                 Compare
+              </Button>
+              <Button size="sm" variant="outline" className="flex-1" disabled={!selected} onClick={flagChunk}>
+                <ThumbsDown className="h-4 w-4 mr-2" />
+                Flag unhelpful
               </Button>
             </div>
           </div>

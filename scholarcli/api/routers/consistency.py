@@ -12,6 +12,8 @@ from fastapi.concurrency import run_in_threadpool
 
 from scholarcli.api import consistency_service
 from scholarcli.api.schemas import (
+    ConsistencyApplyRequest,
+    ConsistencyApplyResponse,
     ConsistencyLibraryRequest,
     ConsistencyReport,
     ConsistencyRequest,
@@ -38,3 +40,13 @@ async def library(req: ConsistencyLibraryRequest) -> ConsistencyReport:
         consistency_service.build_library_report, req.course, req.document
     )
     return ConsistencyReport(**report)
+
+
+@router.post("/apply", response_model=ConsistencyApplyResponse)
+async def apply(req: ConsistencyApplyRequest) -> ConsistencyApplyResponse:
+    if not req.course.strip():
+        raise HTTPException(status_code=400, detail="course is required")
+    result = await run_in_threadpool(
+        consistency_service.apply_correction, req.course, req.artifactType, req.concepts
+    )
+    return ConsistencyApplyResponse(**result)

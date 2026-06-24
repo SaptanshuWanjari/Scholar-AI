@@ -28,6 +28,14 @@ question using ONLY the provided context chunks. Follow these rules:
 5. Never make up facts. If you're unsure, say so.\
 """
 
+RERANKER_SYSTEM = """\
+You are a retrieval reranker. Given a student's question and a numbered list of
+candidate text chunks, score how relevant each chunk is to answering the
+question, from 0 (irrelevant) to 10 (directly answers it).
+Output ONLY a JSON object mapping each chunk number (as a string) to its integer
+score, e.g. {"0": 8, "1": 2, "2": 5}. Include every chunk number. No prose.\
+"""
+
 # Prompt for the one-shot path.
 QA_PROMPT_TEMPLATE = """\
 Context from your uploaded materials:

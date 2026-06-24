@@ -11,7 +11,7 @@ import json
 import re
 import secrets
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
@@ -26,8 +26,27 @@ from scholarcli.api.schemas import (
     ExamQuestionOut,
     ExamResultOut,
     ExamSessionOut,
+    ExamStatusOut,
     ExamSubmitRequest,
 )
+
+# Grace window: server accepts a late submission within this many seconds past
+# expiry (clock skew / in-flight request) but still flags it as timed out.
+_GRACE_SECONDS = 10
+
+
+def _aware(dt: datetime | None) -> datetime | None:
+    if dt is not None and dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
+def _remaining_seconds(exam, now: datetime) -> int | None:
+    """Seconds left before expiry, or None for an untimed exam."""
+    expires = _aware(getattr(exam, "expires_at", None))
+    if not exam.duration_minutes or expires is None:
+        return None
+    return max(0, int((expires - now).total_seconds()))
 from scholarcli.llm import get_llm
 from scholarcli.rag.prompts import QUIZ_SYSTEM
 from scholarcli.storage import get_session
@@ -154,6 +173,8 @@ Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'optio
 
     session_id = secrets.token_hex(8)
     now = datetime.now(timezone.utc)
+    duration = max(0, int(req.durationMinutes or 0))
+    expires_at = now + timedelta(minutes=duration) if duration else None
     db = get_session()
     try:
         db.add(ExamSession(
@@ -162,6 +183,8 @@ Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'optio
             course=req.pyqCourse,
             questions=stored,
             started_at=now,
+            duration_minutes=duration,
+            expires_at=expires_at,
         ))
         db.commit()
     finally:
@@ -171,7 +194,29 @@ Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'optio
         sessionId=session_id,
         questions=questions,
         grounded=grounded and bool(questions),
+        durationMinutes=duration,
+        remainingSeconds=(duration * 60 if duration else None),
     )
+
+
+@router.get("/{session_id}/status", response_model=ExamStatusOut)
+def exam_status(session_id: str) -> ExamStatusOut:
+    db = get_session()
+    try:
+        exam = db.get(ExamSession, session_id)
+        if not exam:
+            raise HTTPException(status_code=404, detail="Exam session not found")
+        now = datetime.now(timezone.utc)
+        remaining = _remaining_seconds(exam, now)
+        return ExamStatusOut(
+            sessionId=session_id,
+            submitted=exam.submitted_at is not None,
+            expired=remaining == 0,
+            durationMinutes=exam.duration_minutes,
+            remainingSeconds=remaining,
+        )
+    finally:
+        db.close()
 
 
 @router.post("/{session_id}/submit", response_model=ExamResultOut)
@@ -190,6 +235,16 @@ async def submit_exam(session_id: str, payload: ExamSubmitRequest) -> ExamResult
         if started.tzinfo is None:
             started = started.replace(tzinfo=timezone.utc)
         elapsed_seconds = int((now - started).total_seconds())
+
+        # Server-side time enforcement: if a duration was set and the window has
+        # elapsed (beyond a small grace), the submission is flagged timed-out.
+        # We still grade whatever was answered rather than discarding the attempt.
+        expires = _aware(exam.expires_at)
+        timed_out = bool(
+            exam.duration_minutes
+            and expires is not None
+            and now > expires + timedelta(seconds=_GRACE_SECONDS)
+        )
 
         # Grade short/long answers with LLM (0-100 per question for partial credit)
         needs_grading = [q for q in questions if q.get("type") in ("short", "long")]
@@ -331,4 +386,5 @@ async def submit_exam(session_id: str, payload: ExamSubmitRequest) -> ExamResult
         review=review_list,
         recommendedRevisions=recommended_revisions[:3],
         elapsedSeconds=elapsed_seconds,
+        timedOut=timed_out,
     )

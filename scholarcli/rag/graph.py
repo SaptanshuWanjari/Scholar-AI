@@ -7,6 +7,7 @@ from __future__ import annotations
 from langgraph.graph import END, StateGraph
 
 from scholarcli.rag.nodes.generator import generate
+from scholarcli.rag.nodes.reranker import rerank
 from scholarcli.rag.nodes.retriever import retrieve
 from scholarcli.rag.nodes.router import route_query
 from scholarcli.rag.nodes.verifier import verify
@@ -36,6 +37,7 @@ def build_graph() -> StateGraph:
 
     builder.add_node("router", route_query)
     builder.add_node("retrieve", retrieve)
+    builder.add_node("rerank", rerank)
     builder.add_node("verify", verify)
     builder.add_node("generate", generate)
 
@@ -48,7 +50,8 @@ def build_graph() -> StateGraph:
         {"retrieve": "retrieve", "generate": "generate"},
     )
 
-    builder.add_edge("retrieve", "verify")
+    builder.add_edge("retrieve", "rerank")
+    builder.add_edge("rerank", "verify")
     builder.add_edge("verify", "generate")
     builder.add_edge("generate", END)
 

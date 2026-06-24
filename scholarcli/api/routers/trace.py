@@ -4,8 +4,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from scholarcli.api import rag_service
-from scholarcli.api.schemas import TraceOut
+from scholarcli.api import rag_service, trace_service
+from scholarcli.api.schemas import (
+    TraceAnalyticsOut,
+    TraceFeedbackRequest,
+    TraceOut,
+)
 
 router = APIRouter(prefix="/api", tags=["trace"])
 
@@ -19,3 +23,13 @@ def last_trace() -> TraceOut:
         s = get_settings()
         return TraceOut(embeddingModel=s.models.embedding, topK=s.retrieval.top_k)
     return TraceOut(**data)
+
+
+@router.get("/trace/analytics", response_model=TraceAnalyticsOut)
+def trace_analytics() -> TraceAnalyticsOut:
+    return TraceAnalyticsOut(**trace_service.analytics())
+
+
+@router.post("/trace/feedback", status_code=204)
+def trace_feedback(req: TraceFeedbackRequest) -> None:
+    trace_service.record_feedback(req.chunkId, req.source, req.query, req.similarity)

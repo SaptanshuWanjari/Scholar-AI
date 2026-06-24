@@ -332,6 +332,11 @@ class ExamSession(Base):
     submitted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    # Server-side time enforcement. duration_minutes==0 means untimed.
+    duration_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
 
 class Activity(Base):
@@ -345,6 +350,115 @@ class Activity(Base):
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     cards: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+# ---------------------------------------------------------------------------
+# Chat history (cross-session Q&A persistence).
+# ---------------------------------------------------------------------------
+
+class ChatSession(Base):
+    __tablename__ = "chat_sessions"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False, default="New chat")
+    course: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    messages: Mapped[list["ChatMessage"]] = relationship(
+        back_populates="session", cascade="all, delete-orphan"
+    )
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    session_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("chat_sessions.id"), nullable=False
+    )
+    role: Mapped[str] = mapped_column(String(16), nullable=False)  # user|assistant
+    content: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    sources: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    session: Mapped["ChatSession"] = relationship(back_populates="messages")
+
+
+# ---------------------------------------------------------------------------
+# Durable background jobs (e.g. document ingestion) — survive a reload so the
+# UI can poll progress instead of holding it only in request-scoped state.
+# ---------------------------------------------------------------------------
+
+class BackgroundJob(Base):
+    __tablename__ = "background_jobs"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    kind: Mapped[str] = mapped_column(String(32), nullable=False)  # ingest|...
+    status: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="queued"
+    )  # queued|running|done|failed
+    label: Mapped[str] = mapped_column(String(512), nullable=False, default="")
+    payload: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    result: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+# ---------------------------------------------------------------------------
+# Prompt A/B testing — pit two prompt variants against each other and tally
+# uses + (optional) quality scores so a user can pick the winner.
+# ---------------------------------------------------------------------------
+
+class PromptExperiment(Base):
+    __tablename__ = "prompt_experiments"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    category: Mapped[str] = mapped_column(String(32), nullable=False)
+    variant_a_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("prompts.id"), nullable=False
+    )
+    variant_b_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("prompts.id"), nullable=False
+    )
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    a_uses: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    b_uses: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    a_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    b_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+# ---------------------------------------------------------------------------
+# Retrieval-trace analytics — which chunks consistently show up in weak (low
+# confidence / ungrounded) generations, plus manual thumbs-down feedback.
+# ---------------------------------------------------------------------------
+
+class ChunkFeedback(Base):
+    __tablename__ = "chunk_feedback"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    query: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    chunk_id: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    source: Mapped[str] = mapped_column(String(512), nullable=False, default="")
+    similarity: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    verdict: Mapped[str] = mapped_column(String(16), nullable=False, default="weak")  # weak|down
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

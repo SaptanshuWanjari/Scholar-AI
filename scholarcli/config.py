@@ -68,6 +68,9 @@ class RetrievalConfig(BaseModel):
     max_distance: float = 0.55
     # Blend BM25 keyword search with vector similarity (Reciprocal Rank Fusion).
     hybrid_search: bool = True
+    # LLM relevance rerank pass that reorders the retrieved top_k before
+    # generation (Ollama-only; not a torch cross-encoder).
+    rerank_enabled: bool = True
 
 
 class PathsConfig(BaseModel):

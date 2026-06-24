@@ -1,58 +1,84 @@
-# ScholarCLI
+# Scholar AI
 
-Terminal-first, **local-first** AI study assistant. Ingest your PDFs and Markdown
-notes into a local knowledge base, then ask questions and get **grounded answers
-with source citations** — all running locally via [Ollama](https://ollama.com).
+A comprehensive, **local-first AI study assistant** that runs entirely on your machine.
+It ingests your PDFs and Markdown notes into a local knowledge base (RAG) and provides a full suite of AI-powered study tools via a React frontend and FastAPI backend.
 
-This is the **MVP vertical slice**: ingest → chunk → embed → retrieve → verify →
-answer-with-citations, exposed via a CLI and a minimal Textual chat view. The
-LangGraph skeleton (router → retrieve → verify → generate) is built so additional
-study modes (flashcards, quiz, diagrams, mind maps, notes) slot in later.
+## Features
 
-## Stack
+- **Knowledge Library (RAG)**: Ingest documents with automatic chunking, LLM metadata extraction, and Hybrid Search (BM25 + Vector similarity) using LanceDB.
+- **Ask AI**: Chat with your documents. Get grounded answers with exact source citations and view the internal RAG execution trace.
+- **Generative Study Tools**: Automatically generate Flashcards, Quizzes, Mindmaps, Diagrams (Mermaid), and Revision Notes from your uploaded courses. Includes draft auto-saving.
+- **Exam Mode & PYQ Analysis**: Upload Previous Year Questions (PYQs) to extract and analyze topic frequencies and question patterns. The system generates mock exams mimicking historical trends and provides LLM-based grading for subjective answers.
+- **Teach Mode**: Generates complete "Learning Packages" (bundled notes, quizzes, mindmaps) for a specific topic.
+- **Reading Mode**: Read documents natively, save highlights and bookmarks.
+- **Concept Graph**: Extracts and visualizes semantic relationships between key concepts.
+- **Consistency Checker**: Cross-checks user-generated notes against source documents to flag contradictions.
 
-- **Python 3.12** (pinned via [uv](https://docs.astral.sh/uv/))
-- **LanceDB** — embedded vector store (no server)
-- **SQLite + SQLAlchemy** — course/document metadata + versioning
-- **Ollama** — local LLMs + embeddings, task-routed:
-  - quick Q&A → `qwen3:8b`
-  - flashcards / diagrams / notes / etc. → `gemma4:12b`
-  - embeddings → `nomic-embed-text`
-- **Typer + Rich** CLI, **Textual** TUI, **LangGraph** orchestration
+## Tech Stack
 
-## Setup
+**Backend**
+
+- Python 3.12 (managed via `uv`)
+- FastAPI
+- LangGraph & LangChain
+- LanceDB (embedded vector + BM25 search)
+- SQLite + SQLAlchemy (metadata & durable artifact persistence)
+- Ollama (Local LLMs and embeddings)
+
+**Frontend**
+
+- React + Vite
+- TypeScript
+- Tailwind CSS
+- Zustand (State management)
+- React Router
+
+## Setup & Installation
+
+### 1. Ollama (LLM Engine)
+
+Start the local Ollama server and pull the required models:
 
 ```bash
-# 1. Ollama: start the server and pull models
-ollama serve            # in a separate terminal
+ollama serve            # Run in a separate terminal
 ollama pull qwen3:8b
 ollama pull gemma4:12b
 ollama pull nomic-embed-text
-ollama list             # confirm tags; edit config/default.toml if they differ
-
-# 2. Install (uv creates a Python 3.12 venv automatically)
-uv sync
 ```
 
-## Usage
+### 2. Backend
+
+Install dependencies and run the API server using `uv`:
 
 ```bash
-# Ingest a file or a directory of PDFs/Markdown into a course
+uv sync
+uv run scholar serve
+# Or manually: uvicorn scholarcli.api.app:app --reload
+```
+
+### 3. Frontend
+
+In a new terminal, install dependencies and start the Vite dev server:
+
+```bash
+cd frontend
+pnpm install
+pnpm run dev
+```
+
+Then open `http://localhost:5173` in your browser.
+
+## CLI Usage
+
+You can still use the CLI for batch ingestion and fast terminal queries:
+
+```bash
+# Ingest documents
 uv run scholar ingest path/to/notes.pdf --course "Operating Systems"
-uv run scholar ingest path/to/folder/   --course "Operating Systems"
 
 # Ask a grounded question
 uv run scholar ask "Explain TCP congestion control." --course "Operating Systems"
 
-# List ingested courses + documents
+# List ingested courses
 uv run scholar courses
-
-# Launch the interactive TUI chat
-uv run scholar tui --course "Operating Systems"
-```
-
-## Tests
-
-```bash
-uv run pytest        # LLM/embeddings are mocked; no Ollama required
 ```
