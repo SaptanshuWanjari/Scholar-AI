@@ -599,17 +599,25 @@ function QuestionCard({ q }: { q: PyqQuestion }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState({ ...q });
 
+  useEffect(() => {
+    if (!editing) setDraft({ ...q });
+  }, [q]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleSave = async () => {
-    await updateQuestion(q.id, {
-      text: draft.text,
-      topic: draft.topic,
-      subtopics: draft.subtopics,
-      difficulty: draft.difficulty,
-      type: draft.type,
-      marks: draft.marks,
-      year: draft.year,
-    });
-    setEditing(false);
+    try {
+      await updateQuestion(q.id, {
+        text: draft.text,
+        topic: draft.topic,
+        subtopics: draft.subtopics,
+        difficulty: draft.difficulty,
+        type: draft.type,
+        marks: draft.marks,
+        year: draft.year,
+      });
+      setEditing(false);
+    } catch {
+      // error toast already shown by updateQuestion; keep editing open
+    }
   };
 
   const handleDelete = () => {
