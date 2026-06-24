@@ -345,6 +345,7 @@ def build_report(source_text: str, artifacts: dict) -> dict:
     ]
 
     recommendations = _build_recommendations(per_artifact, underrepresented, overall)
+    suggestions = _build_suggestions(per_artifact)
 
     return {
         "canonicalConcepts": concepts,
@@ -353,7 +354,140 @@ def build_report(source_text: str, artifacts: dict) -> dict:
         "underrepresented": underrepresented,
         "overrepresented": overrepresented,
         "recommendations": recommendations,
+        "suggestions": suggestions,
     }
+
+
+# ---------------------------------------------------------------------------
+# Auto-correct: suggest + apply revised artifact text covering missing concepts.
+# ---------------------------------------------------------------------------
+
+# Only text-shaped artifacts can be auto-corrected in place. Flashcards/quizzes
+# are structured and excluded.
+_APPLYABLE = {"notes", "mindmap", "diagram", "difference"}
+
+
+def _build_suggestions(per_artifact: list[dict]) -> list[dict]:
+    """Deterministic list of fixable gaps the UI can offer an 'Apply' button for."""
+    out: list[dict] = []
+    for a in per_artifact:
+        key = a["artifact"]
+        if key not in _APPLYABLE:
+            continue
+        gap = a["missing"] + a["weak"]
+        if not gap:
+            continue
+        label = _ARTIFACT_LABELS.get(key, key.title())
+        out.append(
+            {
+                "artifactType": key,
+                "label": label,
+                "issue": f"{label} under-covers {len(gap)} concept(s).",
+                "concepts": gap[:8],
+            }
+        )
+    return out
+
+
+_REVISE_SYSTEM = """\
+You revise study artifacts so they fully cover a set of concepts that are
+currently missing or weak, WITHOUT removing existing correct content. Keep the
+artifact's existing format exactly:
+- notes / difference: Markdown.
+- mindmap: an indented text tree using ├──/└── connectors.
+- diagram: valid Mermaid syntax only (no fences, no prose).
+Output ONLY the revised artifact, no commentary.\
+"""
+
+
+def apply_correction(course: str, artifact_type: str, concepts: list[str]) -> dict:
+    """Regenerate a saved artifact so it covers ``concepts``, then persist it.
+
+    Returns {applied, artifactType, preview, message}.
+    """
+    if artifact_type not in _APPLYABLE:
+        return {"applied": False, "artifactType": artifact_type, "preview": "",
+                "message": f"{artifact_type} cannot be auto-corrected."}
+
+    session = get_session()
+    try:
+        row, current = _load_applyable(session, course, artifact_type)
+        if row is None:
+            return {"applied": False, "artifactType": artifact_type, "preview": "",
+                    "message": f"No saved {artifact_type} found for course '{course}'."}
+
+        concept_list = ", ".join(concepts) or "the source's key concepts"
+        human = (
+            f"Concepts to ensure are covered: {concept_list}\n\n"
+            f"Current {artifact_type} to revise:\n{current}"
+        )
+        try:
+            llm = get_llm("study_notes")
+            resp = llm.invoke(
+                [SystemMessage(content=_REVISE_SYSTEM), HumanMessage(content=human)]
+            )
+            revised = (getattr(resp, "content", "") or "").strip()
+        except Exception as exc:  # noqa: BLE001
+            return {"applied": False, "artifactType": artifact_type, "preview": "",
+                    "message": f"Revision failed: {exc}"}
+        if not revised:
+            return {"applied": False, "artifactType": artifact_type, "preview": "",
+                    "message": "Model returned no revision."}
+
+        _write_applyable(row, artifact_type, revised)
+        session.commit()
+        return {"applied": True, "artifactType": artifact_type,
+                "preview": revised[:600], "message": "Applied to saved artifact."}
+    finally:
+        session.close()
+
+
+def _load_applyable(session, course: str, artifact_type: str):
+    """Return (row, current_text) for the most-recent applyable artifact."""
+    if artifact_type == "notes":
+        row = (
+            session.query(Notebook)
+            .filter(Notebook.course == course)
+            .order_by(Notebook.updated_at.desc())
+            .first()
+        )
+        return row, (_notebook_to_markdown(row.blocks) if row else "")
+    if artifact_type == "mindmap":
+        row = (
+            session.query(Mindmap)
+            .filter(Mindmap.course == course)
+            .order_by(Mindmap.created_at.desc())
+            .first()
+        )
+        return row, (row.text if row else "")
+    if artifact_type == "diagram":
+        row = (
+            session.query(Diagram)
+            .filter(Diagram.course == course)
+            .order_by(Diagram.created_at.desc())
+            .first()
+        )
+        return row, (row.mermaid if row else "")
+    # difference
+    row = (
+        session.query(DifferenceTable)
+        .filter(DifferenceTable.course == course)
+        .order_by(DifferenceTable.created_at.desc())
+        .first()
+    )
+    return row, (row.content if row else "")
+
+
+def _write_applyable(row, artifact_type: str, revised: str) -> None:
+    if artifact_type == "notes":
+        # Replace blocks with a single markdown block holding the revised notes.
+        row.blocks = [{"type": "markdown", "text": revised}]
+    elif artifact_type == "mindmap":
+        row.text = revised
+    elif artifact_type == "diagram":
+        row.mermaid = revised
+    else:  # difference
+        row.content = revised
 
 
 # ---------------------------------------------------------------------------

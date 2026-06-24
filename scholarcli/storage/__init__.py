@@ -76,6 +76,10 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
     "diagrams": [("quality_score", "JSON")],
     "mindmaps": [("quality_score", "JSON")],
     "difference_tables": [("quality_score", "JSON")],
+    "exam_sessions": [
+        ("duration_minutes", "INTEGER NOT NULL DEFAULT 0"),
+        ("expires_at", "TEXT"),
+    ],
 }
 
 

@@ -54,6 +54,36 @@ class AskRequest(BaseModel):
     course: str | None = None
     document: str | None = None
     route: str | None = None  # force a study mode; None = let the router decide
+    sessionId: str | None = None  # persist this turn into a chat session
+
+
+# ---------------------------------------------------------------------------
+# Chat history (cross-session persistence)
+# ---------------------------------------------------------------------------
+
+class ChatMessageOut(BaseModel):
+    id: str
+    role: Literal["user", "assistant"]
+    content: str
+    sources: list = []
+    createdAt: str = ""
+
+
+class ChatSessionMeta(BaseModel):
+    id: str
+    title: str
+    course: str = ""
+    messageCount: int = 0
+    updatedAt: str = ""
+
+
+class ChatSessionOut(ChatSessionMeta):
+    messages: list[ChatMessageOut] = []
+
+
+class ChatSessionCreate(BaseModel):
+    course: str | None = None
+    title: str | None = None
 
 
 class AskResponse(BaseModel):
@@ -104,6 +134,21 @@ class DocumentPatch(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Background jobs
+# ---------------------------------------------------------------------------
+
+class JobOut(BaseModel):
+    id: str
+    kind: str
+    status: str  # queued | running | done | failed
+    label: str = ""
+    result: dict | None = None
+    error: str | None = None
+    createdAt: str = ""
+    updatedAt: str = ""
+
+
+# ---------------------------------------------------------------------------
 # Trace
 # ---------------------------------------------------------------------------
 
@@ -127,6 +172,26 @@ class TraceOut(BaseModel):
     retrievedChunks: int = 0
     avgSimilarity: float = 0.0
     chunks: list[TraceChunk] = []
+
+
+class TraceSourceStat(BaseModel):
+    source: str
+    weakCount: int = 0
+    downCount: int = 0
+    total: int = 0
+    avgSimilarity: float = 0.0
+
+
+class TraceAnalyticsOut(BaseModel):
+    totalFlags: int = 0
+    sources: list[TraceSourceStat] = []
+
+
+class TraceFeedbackRequest(BaseModel):
+    chunkId: str = ""
+    source: str
+    query: str = ""
+    similarity: float = 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -440,6 +505,8 @@ class ExamGenerateRequest(BaseModel):
     # When set, bias the generated exam toward the PYQ topic/difficulty mix of
     # this course (and record per-topic accuracy on submit).
     pyqCourse: str | None = None
+    # Server-enforced time limit in minutes; 0 = untimed.
+    durationMinutes: int = 0
 
 
 class ExamQuestionOut(BaseModel):
@@ -456,6 +523,16 @@ class ExamSessionOut(BaseModel):
     sessionId: str
     questions: list[ExamQuestionOut]
     grounded: bool = True
+    durationMinutes: int = 0
+    remainingSeconds: int | None = None  # null = untimed
+
+
+class ExamStatusOut(BaseModel):
+    sessionId: str
+    submitted: bool = False
+    expired: bool = False
+    durationMinutes: int = 0
+    remainingSeconds: int | None = None  # null = untimed
 
 
 class ExamSubmitRequest(BaseModel):
@@ -472,6 +549,7 @@ class ExamResultOut(BaseModel):
     review: list[dict] = []  # each item includes score: int (0-100) for partial credit
     recommendedRevisions: list[str] = []
     elapsedSeconds: int | None = None
+    timedOut: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -508,6 +586,11 @@ class KGEdge(BaseModel):
 class KGGraphOut(BaseModel):
     nodes: list[KGNode] = []
     edges: list[KGEdge] = []
+
+
+class ConceptMergeRequest(BaseModel):
+    keepId: int
+    dropId: int
 
 
 class ConceptInspectorOut(BaseModel):
@@ -693,6 +776,13 @@ class ArtifactCoverage(BaseModel):
     missing: list[str] = []
 
 
+class ConsistencySuggestion(BaseModel):
+    artifactType: str  # notes | mindmap | diagram | difference
+    label: str
+    issue: str
+    concepts: list[str] = []
+
+
 class ConsistencyReport(BaseModel):
     canonicalConcepts: list[str] = []
     overallCoverage: float = 0.0
@@ -700,3 +790,17 @@ class ConsistencyReport(BaseModel):
     underrepresented: list[str] = []
     overrepresented: list[str] = []
     recommendations: list[str] = []
+    suggestions: list[ConsistencySuggestion] = []
+
+
+class ConsistencyApplyRequest(BaseModel):
+    course: str
+    artifactType: str  # notes | mindmap | diagram | difference
+    concepts: list[str] = []
+
+
+class ConsistencyApplyResponse(BaseModel):
+    applied: bool
+    artifactType: str
+    preview: str = ""
+    message: str = ""

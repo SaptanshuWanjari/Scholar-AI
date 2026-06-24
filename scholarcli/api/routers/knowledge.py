@@ -8,6 +8,7 @@ from fastapi.concurrency import run_in_threadpool
 from scholarcli.api import knowledge_service
 from scholarcli.api.schemas import (
     ConceptInspectorOut,
+    ConceptMergeRequest,
     KGBuildRequest,
     KGBuildResponse,
     KGGraphOut,
@@ -45,3 +46,17 @@ def get_concept(concept_id: int) -> ConceptInspectorOut:
     if not data:
         raise HTTPException(status_code=404, detail="Concept not found")
     return ConceptInspectorOut(**data)
+
+
+@router.post("/concepts/merge", response_model=ConceptInspectorOut)
+def merge_concepts(req: ConceptMergeRequest) -> ConceptInspectorOut:
+    data = knowledge_service.merge_concepts(req.keepId, req.dropId)
+    if not data:
+        raise HTTPException(status_code=400, detail="Invalid concept ids for merge")
+    return ConceptInspectorOut(**data)
+
+
+@router.delete("/concepts/{concept_id}", status_code=204)
+def delete_concept(concept_id: int) -> None:
+    if not knowledge_service.delete_concept(concept_id):
+        raise HTTPException(status_code=404, detail="Concept not found")

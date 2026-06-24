@@ -17,6 +17,7 @@ from scholarcli.llm import get_llm
 from scholarcli.rag.graph import get_rag_app
 from scholarcli.rag.nodes.generator import _ROUTE_PROMPTS
 from scholarcli.api.prompt_service import active_body
+from scholarcli.rag.nodes.reranker import rerank
 from scholarcli.rag.nodes.retriever import retrieve
 from scholarcli.rag.nodes.router import route_query
 from scholarcli.rag.nodes.verifier import verify
@@ -128,6 +129,9 @@ def run_ask(question: str, course: str | None = None, document: str | None = Non
     grounded = bool(result.get("grounded", False))
     used_route = result.get("route", route)
     _record_trace(question, used_route, retrieved, grounded)
+    confidence = _confidence(retrieved, grounded)
+    from scholarcli.api import trace_service
+    trace_service.log_weak_generation(question, retrieved, grounded, confidence)
 
     return {
         "content": result.get("answer", "(no answer)"),
@@ -178,9 +182,10 @@ def stream_ask(
     if route:
         state["route"] = route
 
-    # Router (LLM classify unless route forced) → retrieve → verify.
+    # Router (LLM classify unless route forced) → retrieve → rerank → verify.
     state = route_query(state)
     state = retrieve(state)
+    state = rerank(state)
     state = verify(state)
 
     retrieved = state.get("retrieved", []) or []
@@ -190,6 +195,8 @@ def stream_ask(
 
     sources = serialize_chunks(retrieved)
     confidence = _confidence(retrieved, grounded)
+    from scholarcli.api import trace_service
+    trace_service.log_weak_generation(question, retrieved, grounded, confidence)
 
     if not grounded:
         yield {"type": "token", "value": NOT_GROUNDED}

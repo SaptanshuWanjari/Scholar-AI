@@ -138,6 +138,16 @@ export interface ExamSession {
   sessionId: string;
   questions: ExamQuestionOut[];
   grounded: boolean;
+  durationMinutes?: number;
+  remainingSeconds?: number | null;
+}
+
+export interface ExamStatus {
+  sessionId: string;
+  submitted: boolean;
+  expired: boolean;
+  durationMinutes: number;
+  remainingSeconds: number | null;
 }
 
 export interface ExamResult {
@@ -148,6 +158,7 @@ export interface ExamResult {
   difficultyAnalysis: { level: string; correct: number; total: number }[];
   review: { id: string; prompt: string; given: string; expected: string; correct: boolean; topic: string }[];
   recommendedRevisions: string[];
+  timedOut?: boolean;
 }
 
 // ---- PYQ analysis ----
@@ -304,6 +315,13 @@ export interface ArtifactCoverage {
   missing: string[];
 }
 
+export interface ConsistencySuggestion {
+  artifactType: string;
+  label: string;
+  issue: string;
+  concepts: string[];
+}
+
 export interface ConsistencyReport {
   canonicalConcepts: string[];
   overallCoverage: number;
@@ -311,6 +329,63 @@ export interface ConsistencyReport {
   underrepresented: string[];
   overrepresented: string[];
   recommendations: string[];
+  suggestions?: ConsistencySuggestion[];
+}
+
+// ---- Chat history ----
+export interface ChatSessionMeta {
+  id: string;
+  title: string;
+  course: string;
+  messageCount: number;
+  updatedAt: string;
+}
+
+export interface ChatMessageRow {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources: Source[];
+  createdAt: string;
+}
+
+export interface ChatSessionFull extends ChatSessionMeta {
+  messages: ChatMessageRow[];
+}
+
+// ---- Background jobs ----
+export interface JobItem {
+  id: string;
+  kind: string;
+  status: "queued" | "running" | "done" | "failed";
+  label: string;
+  result: Record<string, any> | null;
+  error: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---- Prompt A/B experiments ----
+export interface PromptExperiment {
+  id: number;
+  category: string;
+  active: boolean;
+  variantA: { id: number; name: string; uses: number; score: number };
+  variantB: { id: number; name: string; uses: number; score: number };
+}
+
+// ---- Trace analytics ----
+export interface TraceSourceStat {
+  source: string;
+  weakCount: number;
+  downCount: number;
+  total: number;
+  avgSimilarity: number;
+}
+
+export interface TraceAnalytics {
+  totalFlags: number;
+  sources: TraceSourceStat[];
 }
 
 export interface AskResponse {
@@ -397,8 +472,8 @@ function json(body: unknown): RequestInit {
 
 export const api = {
   // ---- Ask / chat ----
-  ask(question: string, course?: string | null, document?: string | null): Promise<AskResponse> {
-    return request<AskResponse>("/api/ask", json({ question, course: course ?? null, document: document ?? null }));
+  ask(question: string, course?: string | null, document?: string | null, sessionId?: string | null): Promise<AskResponse> {
+    return request<AskResponse>("/api/ask", json({ question, course: course ?? null, document: document ?? null, sessionId: sessionId ?? null }));
   },
 
   /** Stream an answer token-by-token over SSE. Returns the final metadata. */
@@ -412,9 +487,10 @@ export const api = {
       onError?: (message: string) => void;
       signal?: AbortSignal;
     },
+    sessionId?: string | null,
   ): Promise<void> {
     const res = await fetch(`${BASE}/api/ask/stream`, {
-      ...json({ question, course: course ?? null, document: document ?? null }),
+      ...json({ question, course: course ?? null, document: document ?? null, sessionId: sessionId ?? null }),
       signal: handlers.signal,
     });
     if (!res.ok || !res.body) {
@@ -646,11 +722,14 @@ export const api = {
   },
 
   // ---- Exam ----
-  generateExam(opts: { topic?: string; course?: string | null; document?: string | null; difficulty?: "Easy" | "Medium" | "Hard"; count?: number; types?: string[]; pyqCourse?: string | null }): Promise<ExamSession> {
+  generateExam(opts: { topic?: string; course?: string | null; document?: string | null; difficulty?: "Easy" | "Medium" | "Hard"; count?: number; types?: string[]; pyqCourse?: string | null; durationMinutes?: number }): Promise<ExamSession> {
     return request<ExamSession>("/api/exams/generate", json(opts));
   },
   submitExam(sessionId: string, answers: Record<string, string>, timeSpent?: number): Promise<ExamResult> {
     return request<ExamResult>(`/api/exams/${sessionId}/submit`, json({ answers, timeSpent }));
+  },
+  examStatus(sessionId: string): Promise<ExamStatus> {
+    return request<ExamStatus>(`/api/exams/${sessionId}/status`);
   },
 
   // ---- PYQ analysis ----
@@ -707,6 +786,12 @@ export const api = {
   },
   discoverConcepts(conceptId: string): Promise<string[]> {
     return request<string[]>(`/api/concepts/discover?conceptId=${conceptId}`);
+  },
+  mergeConcepts(keepId: number, dropId: number): Promise<ConceptInspector> {
+    return request<ConceptInspector>("/api/concepts/merge", json({ keepId, dropId }));
+  },
+  deleteConcept(id: string): Promise<void> {
+    return request<void>(`/api/concepts/${id}`, { method: "DELETE" });
   },
 
   // ---- Dashboard ----
@@ -812,5 +897,65 @@ export const api = {
   },
   analyzeLibraryConsistency(course: string, document?: string | null): Promise<ConsistencyReport> {
     return request<ConsistencyReport>("/api/consistency/library", json({ course, document: document ?? null }));
+  },
+  applyConsistencyFix(course: string, artifactType: string, concepts: string[]): Promise<{ applied: boolean; artifactType: string; preview: string; message: string }> {
+    return request("/api/consistency/apply", json({ course, artifactType, concepts }));
+  },
+
+  // ---- Chat history ----
+  listChatSessions(): Promise<ChatSessionMeta[]> {
+    return request<ChatSessionMeta[]>("/api/chat/sessions");
+  },
+  createChatSession(course?: string | null, title?: string | null): Promise<ChatSessionMeta> {
+    return request<ChatSessionMeta>("/api/chat/sessions", json({ course: course ?? null, title: title ?? null }));
+  },
+  getChatSession(id: string): Promise<ChatSessionFull> {
+    return request<ChatSessionFull>(`/api/chat/sessions/${id}`);
+  },
+  deleteChatSession(id: string): Promise<void> {
+    return request<void>(`/api/chat/sessions/${id}`, { method: "DELETE" });
+  },
+
+  // ---- Background jobs ----
+  listJobs(): Promise<JobItem[]> {
+    return request<JobItem[]>("/api/jobs");
+  },
+  getJob(id: string): Promise<JobItem> {
+    return request<JobItem>(`/api/jobs/${id}`);
+  },
+
+  // ---- Prompt A/B experiments ----
+  listPromptExperiments(): Promise<PromptExperiment[]> {
+    return request<PromptExperiment[]>("/api/prompts/experiments");
+  },
+  startPromptExperiment(category: string, variantAId: number, variantBId: number): Promise<PromptExperiment> {
+    return request<PromptExperiment>("/api/prompts/experiments", json({ category, variantAId, variantBId }));
+  },
+  scorePromptExperiment(category: string, variant: "A" | "B", score: number): Promise<void> {
+    return request<void>("/api/prompts/experiments/score", json({ category, variant, score }));
+  },
+  stopPromptExperiment(id: number): Promise<void> {
+    return request<void>(`/api/prompts/experiments/${id}`, { method: "DELETE" });
+  },
+
+  // ---- Trace analytics ----
+  getTraceAnalytics(): Promise<TraceAnalytics> {
+    return request<TraceAnalytics>("/api/trace/analytics");
+  },
+  sendChunkFeedback(source: string, chunkId = "", query = "", similarity = 0): Promise<void> {
+    return request<void>("/api/trace/feedback", json({ source, chunkId, query, similarity }));
+  },
+
+  // ---- Anki import/export ----
+  /** Returns the .apkg URL for a deck (browser navigates / downloads it). */
+  deckExportUrl(deckId: string): string {
+    return `${BASE}/api/decks/${deckId}/export`;
+  },
+  importAnkiDeck(file: File, course?: string | null, name?: string | null): Promise<DeckOut> {
+    const fd = new FormData();
+    fd.append("file", file);
+    if (course) fd.append("course", course);
+    if (name) fd.append("name", name);
+    return request<DeckOut>("/api/decks/import", { method: "POST", body: fd });
   },
 };

@@ -7,6 +7,7 @@ from pathlib import Path
 from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, UploadFile
 
 import scholarcli.llm
+from scholarcli.api import job_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import serialize_chunks
 from scholarcli.api.schemas import DocumentOut, DocumentPatch, SourceOut
@@ -115,20 +116,27 @@ async def upload_document(
     finally:
         session.close()
 
-    background_tasks.add_task(_ingest_bg, dest, course_name, doc_id)
+    job_id = job_service.create_job(
+        "ingest", label=f"Ingesting {filename}", payload={"documentId": doc_id, "course": course_name}
+    )
+    background_tasks.add_task(_ingest_bg, dest, course_name, doc_id, job_id)
     return stub_out
 
 
-def _ingest_bg(path: Path, course_name: str, doc_id: int) -> None:
-    """Background ingestion task — updates Document status on completion."""
+def _ingest_bg(path: Path, course_name: str, doc_id: int, job_id: str) -> None:
+    """Background ingestion task — updates Document + Job status on completion."""
+    job_service.mark_running(job_id)
     try:
         status = ingest_file(path, course_name)
         if status == "no-content":
             _set_doc_status(doc_id, "failed", "No extractable text in document")
+            job_service.mark_failed(job_id, "No extractable text in document")
         else:
             record_activity("document", f"Indexed {path.name}", course_name)
+            job_service.mark_done(job_id, {"documentId": doc_id, "status": status})
     except Exception as exc:  # noqa: BLE001
         _set_doc_status(doc_id, "failed", str(exc)[:500])
+        job_service.mark_failed(job_id, str(exc))
 
 
 def _set_doc_status(doc_id: int, status: str, error: str | None = None) -> None:

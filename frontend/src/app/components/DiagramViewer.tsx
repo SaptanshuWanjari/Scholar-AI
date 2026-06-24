@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
-import { Loader2, AlertCircle, ZoomIn, ZoomOut, Maximize } from "lucide-react";
+import { Loader2, AlertCircle, ZoomIn, ZoomOut, Maximize, ImageDown, FileDown } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { exportNodeToPng, exportNodeToPdf } from "../lib/export";
 
 mermaid.initialize({
   startOnLoad: false,
@@ -22,10 +23,20 @@ mermaid.initialize({
 
 let counter = 0;
 
-export function DiagramViewer({ code, flush }: { code: string; flush?: boolean }) {
+export function DiagramViewer({ code, flush, title = "diagram" }: { code: string; flush?: boolean; title?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const doExport = async (kind: "png" | "pdf") => {
+    if (!ref.current) return;
+    try {
+      if (kind === "png") await exportNodeToPng(ref.current, title);
+      else await exportNodeToPdf(ref.current, title);
+    } catch (err) {
+      console.error("Diagram export failed:", err);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -92,6 +103,21 @@ export function DiagramViewer({ code, flush }: { code: string; flush?: boolean }
           {({ zoomIn, zoomOut, resetTransform }) => (
             <>
               <div className="absolute bottom-4 right-4 z-10 flex gap-2 rounded-lg border border-border bg-card/80 p-1.5 backdrop-blur shadow-sm">
+                <button
+                  onClick={() => doExport("png")}
+                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  title="Export PNG"
+                >
+                  <ImageDown className="size-4" />
+                </button>
+                <button
+                  onClick={() => doExport("pdf")}
+                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  title="Export PDF"
+                >
+                  <FileDown className="size-4" />
+                </button>
+                <span className="mx-0.5 w-px self-stretch bg-border" />
                 <button
                   onClick={() => zoomOut()}
                   className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"

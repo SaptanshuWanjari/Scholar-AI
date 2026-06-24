@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { Network, Sparkles, Loader2, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Network, Sparkles, Loader2, Trash2, ImageDown, FileDown } from "lucide-react";
+import { exportNodeToPng, exportNodeToPdf } from "../lib/export";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -73,6 +74,18 @@ export function MindMaps() {
     [active],
   );
   const nodeCount = useMemo(() => countNodes(tree), [tree]);
+
+  const treeRef = useRef<HTMLDivElement>(null);
+  const exportTree = async (kind: "png" | "pdf") => {
+    if (!treeRef.current || !active) return;
+    try {
+      const name = active.title || "mindmap";
+      if (kind === "png") await exportNodeToPng(treeRef.current, name);
+      else await exportNodeToPdf(treeRef.current, name);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Export failed");
+    }
+  };
 
   return (
     <div className="flex h-full">
@@ -196,9 +209,17 @@ export function MindMaps() {
                 {nodeCount} {nodeCount === 1 ? "node" : "nodes"}
               </Badge>
               <QualityBadge score={active.quality} />
+              <div className="ml-auto flex items-center gap-1">
+                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => exportTree("png")} title="Export PNG">
+                  <ImageDown className="size-3.5" /> PNG
+                </Button>
+                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => exportTree("pdf")} title="Export PDF">
+                  <FileDown className="size-3.5" /> PDF
+                </Button>
+              </div>
             </div>
             <ScrollArea className="flex-1">
-              <div className="p-6">
+              <div className="p-6" ref={treeRef}>
                 {active.course && (
                   <p className="mb-4 text-xs uppercase tracking-wide text-muted-foreground">
                     {active.course}
