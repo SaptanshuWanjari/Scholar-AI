@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from fastapi.concurrency import run_in_threadpool
+from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, UploadFile
 
 import scholarcli.llm
 from scholarcli.api.activity_service import record_activity
@@ -15,7 +14,7 @@ from scholarcli.config import get_settings
 from scholarcli.ingest.pipeline import ingest_file
 from scholarcli.storage import get_session
 from scholarcli.storage.models import Course, Document
-from scholarcli.storage.vectors import delete_document, search
+from scholarcli.storage.vectors import delete_document, hybrid_search, search
 
 router = APIRouter(prefix="/api", tags=["documents"])
 
@@ -54,7 +53,9 @@ def list_documents(course: str | None = None, search: str | None = None) -> list
 
 @router.post("/documents/upload", response_model=DocumentOut, status_code=201)
 async def upload_document(
-    file: UploadFile = File(...), course: str = Form(...)
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    course: str = Form(...),
 ) -> DocumentOut:
     course_name = course.strip()
     if not course_name:
@@ -73,27 +74,73 @@ async def upload_document(
     dest = uploads_dir / filename
     dest.write_bytes(await file.read())
 
-    try:
-        status = await run_in_threadpool(ingest_file, dest, course_name)
-    except Exception as exc:  # noqa: BLE001 — surface ingest failures to the client
-        raise HTTPException(status_code=500, detail=f"Ingestion failed: {exc}") from exc
-
-    if status == "no-content":
-        raise HTTPException(status_code=422, detail="No extractable text in document")
-
+    # Create a stub Document row immediately so the frontend can show status.
     session = get_session()
     try:
-        row = (
-            session.query(Document, Course)
-            .join(Course, Document.course_id == Course.id)
-            .filter(Document.path == str(dest.resolve()), Course.name == course_name)
+        course_obj = session.query(Course).filter(Course.name == course_name).first()
+        if course_obj is None:
+            course_obj = Course(name=course_name)
+            session.add(course_obj)
+            session.commit()
+            session.refresh(course_obj)
+
+        existing = (
+            session.query(Document)
+            .filter(Document.path == str(dest.resolve()), Document.course_id == course_obj.id)
             .first()
         )
-        if not row:
-            raise HTTPException(status_code=500, detail="Document not found after ingest")
-        doc, c = row
-        record_activity("document", f"Indexed {doc.title}", c.name)
-        return _serialize(doc, c.name)
+        if existing:
+            existing.status = "processing"
+            existing.error = None
+            session.commit()
+            doc_id = existing.id
+            stub_out = _serialize(existing, course_name)
+        else:
+            size_kb = max(1, round(dest.stat().st_size / 1024))
+            doc = Document(
+                path=str(dest.resolve()),
+                title=Path(filename).stem,
+                file_type=suffix.lstrip("."),
+                content_hash="",
+                size_kb=size_kb,
+                pages=0,
+                status="processing",
+                course_id=course_obj.id,
+            )
+            session.add(doc)
+            session.commit()
+            session.refresh(doc)
+            doc_id = doc.id
+            stub_out = _serialize(doc, course_name)
+    finally:
+        session.close()
+
+    background_tasks.add_task(_ingest_bg, dest, course_name, doc_id)
+    return stub_out
+
+
+def _ingest_bg(path: Path, course_name: str, doc_id: int) -> None:
+    """Background ingestion task — updates Document status on completion."""
+    try:
+        status = ingest_file(path, course_name)
+        if status == "no-content":
+            _set_doc_status(doc_id, "failed", "No extractable text in document")
+        else:
+            record_activity("document", f"Indexed {path.name}", course_name)
+    except Exception as exc:  # noqa: BLE001
+        _set_doc_status(doc_id, "failed", str(exc)[:500])
+
+
+def _set_doc_status(doc_id: int, status: str, error: str | None = None) -> None:
+    session = get_session()
+    try:
+        doc = session.get(Document, doc_id)
+        if doc:
+            doc.status = status
+            doc.error = error
+            session.commit()
+    except Exception:  # noqa: BLE001
+        pass
     finally:
         session.close()
 
@@ -141,13 +188,19 @@ def update_document_endpoint(document_id: int, patch: DocumentPatch) -> Document
 
 @router.get("/sources/search", response_model=list[SourceOut])
 def search_sources(q: str, course: str | None = None, limit: int = 5) -> list[SourceOut]:
+    from scholarcli.config import get_settings
     query = q.strip()
     if not query:
         return []
     emb = scholarcli.llm.get_embeddings()
     vector = emb.embed_query(query)
-    results = search(vector, top_k=max(1, min(limit, 20)), course=course)
-    return [SourceOut(**s) for s in serialize_chunks(results)]
+    top_k = max(1, min(limit, 20))
+    cfg = get_settings()
+    if cfg.retrieval.hybrid_search:
+        results = hybrid_search(query_text=query, query_vector=vector, top_k=top_k, course=course)
+    else:
+        results = search(vector, top_k=top_k, course=course)
+    return [SourceOut(**src) for src in serialize_chunks(results)]
 
 
 from fastapi.responses import FileResponse

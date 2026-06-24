@@ -1,12 +1,17 @@
 """Exam mode — generate a timed question set and grade submissions.
 
-Sessions live in memory (keyed by sessionId) for the life of the process —
-enough to support generate → take → submit without a new persistence table.
+Sessions are persisted in the ExamSession table so they survive process
+restarts. Subjective answers (short/long) are scored 0-100 by the LLM for
+partial credit. Timing is measured server-side from started_at.
 """
 
 from __future__ import annotations
 
+import json
+import re
+import secrets
 from collections import defaultdict
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
@@ -26,12 +31,9 @@ from scholarcli.api.schemas import (
 from scholarcli.llm import get_llm
 from scholarcli.rag.prompts import QUIZ_SYSTEM
 from scholarcli.storage import get_session
-from scholarcli.storage.models import PYQQuestion
+from scholarcli.storage.models import ExamSession, PYQQuestion
 
 router = APIRouter(prefix="/api/exams", tags=["exam"])
-
-# sessionId -> {"questions": [dict], "topic": str}
-_sessions: dict[str, dict] = {}
 
 
 def _sample_pyq_questions(course: str, limit: int = 16) -> list[dict]:
@@ -56,14 +58,13 @@ def _sample_pyq_questions(course: str, limit: int = 16) -> list[dict]:
 def _direct_quiz_generate(query: str) -> str:
     """Generate quiz/exam content via a direct LLM call (no RAG grounding gate).
 
-    Used for PYQ-driven exams: the source of truth is the user's uploaded
-    question papers, not the document vector index (which may be empty for a
-    course that only has PYQs).
+    Used for PYQ-driven exams where the vector index may be empty.
     """
     system = active_body("quiz") or QUIZ_SYSTEM
     llm = get_llm("quiz")
     resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=query)])
-    return resp.content if hasattr(resp, "content") else str(resp)
+    content = resp.content if hasattr(resp, "content") else str(resp)
+    return content if isinstance(content, str) else str(content)
 
 
 @router.post("/generate", response_model=ExamSessionOut)
@@ -74,9 +75,6 @@ async def generate_exam(req: ExamGenerateRequest) -> ExamSessionOut:
 
     types_str = ", ".join(req.types) if req.types else "multiple choice"
 
-    # PYQ-aware generation: mirror the real paper's topic/difficulty/style mix
-    # and force each question to be tagged with one of the PYQ topics, so the
-    # submit step can accumulate per-topic accuracy.
     pyq_block = ""
     pyq_topics: list[str] = []
     if req.pyqCourse:
@@ -108,9 +106,6 @@ Marks distribution seen in past papers: {marks_lines or "n/a"}.
 Set each question's 'topic' field to the single best-matching topic from the list above.
 """
 
-    # Ground PYQ-driven exams in the user's actual uploaded papers (a sample of
-    # real past questions) so generation works even when the course has no
-    # indexed notes in the document vector store.
     use_pyq = bool(req.pyqCourse and pyq_topics)
     sample_block = ""
     if use_pyq:
@@ -157,8 +152,20 @@ Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'optio
         stored.append(eq)
         questions.append(ExamQuestionOut(**eq))
 
-    session_id = f"exam-{abs(hash(subject + content)) % 10_000_000}"
-    _sessions[session_id] = {"questions": stored, "topic": subject, "course": req.pyqCourse}
+    session_id = secrets.token_hex(8)
+    now = datetime.now(timezone.utc)
+    db = get_session()
+    try:
+        db.add(ExamSession(
+            id=session_id,
+            topic=subject,
+            course=req.pyqCourse,
+            questions=stored,
+            started_at=now,
+        ))
+        db.commit()
+    finally:
+        db.close()
 
     return ExamSessionOut(
         sessionId=session_id,
@@ -169,113 +176,159 @@ Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'optio
 
 @router.post("/{session_id}/submit", response_model=ExamResultOut)
 async def submit_exam(session_id: str, payload: ExamSubmitRequest) -> ExamResultOut:
-    session = _sessions.get(session_id)
-    if not session:
-        raise HTTPException(status_code=404, detail="Exam session not found or expired")
+    db = get_session()
+    try:
+        exam = db.get(ExamSession, session_id)
+        if not exam:
+            raise HTTPException(status_code=404, detail="Exam session not found or expired")
+        if exam.submitted_at is not None:
+            raise HTTPException(status_code=409, detail="Exam already submitted")
 
-    questions = session["questions"]
-    total = len(questions)
+        questions = exam.questions
+        now = datetime.now(timezone.utc)
+        started = exam.started_at
+        if started.tzinfo is None:
+            started = started.replace(tzinfo=timezone.utc)
+        elapsed_seconds = int((now - started).total_seconds())
 
-    # Pre-grade short/long questions with LLM
-    needs_grading = [q for q in questions if q.get("type") in ("short", "long")]
-    graded_results = {}
-    if needs_grading:
-        prompt = "Grade the following user answers against the expected answers. Respond strictly with a JSON object mapping question ID to a boolean (true if the given answer is conceptually correct or very close, false otherwise). Be lenient for minor typos or phrasing differences.\n\n"
-        for q in needs_grading:
+        # Grade short/long answers with LLM (0-100 per question for partial credit)
+        needs_grading = [q for q in questions if q.get("type") in ("short", "long")]
+        graded_scores: dict[str, int] = {}
+        if needs_grading:
+            prompt = (
+                "Grade the following student answers against the expected answers. "
+                "Respond ONLY with a JSON object mapping question ID to an integer score 0-100. "
+                "100 = fully correct, 0 = completely wrong; award partial credit proportionally. "
+                'Example: {"e1": 100, "e2": 45, "e3": 0}\n\n'
+            )
+            for q in needs_grading:
+                given = (payload.answers.get(q["id"]) or "").strip()
+                expected = (q.get("answer") or "").strip()
+                prompt += f'ID: {q["id"]}\nQuestion: {q["prompt"]}\nExpected: {expected}\nGiven: {given}\n\n'
+            try:
+                res = await run_in_threadpool(run_ask, prompt, None, None, "study")
+                json_str = res["content"]
+                fence = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', json_str, re.DOTALL | re.IGNORECASE)
+                if fence:
+                    json_str = fence.group(1)
+                elif "{" in json_str and "}" in json_str:
+                    json_str = json_str[json_str.find("{"):json_str.rfind("}") + 1]
+                raw = json.loads(json_str)
+                # Normalise: accept booleans (legacy) and convert to 0/100
+                for k, v in raw.items():
+                    if isinstance(v, bool):
+                        graded_scores[k] = 100 if v else 0
+                    else:
+                        graded_scores[k] = max(0, min(100, int(v)))
+            except Exception:
+                pass
+
+        correct: float = 0.0
+        by_topic: dict[str, list[int]] = defaultdict(lambda: [0, 0])
+        by_diff: dict[str, list[int]] = defaultdict(lambda: [0, 0])
+        review_list = []
+        incorrect_questions = []
+
+        for q in questions:
             given = (payload.answers.get(q["id"]) or "").strip()
             expected = (q.get("answer") or "").strip()
-            prompt += f'ID: {q["id"]}\nQuestion: {q["prompt"]}\nExpected: {expected}\nGiven: {given}\n\n'
-        prompt += 'Output ONLY the JSON object, e.g. `{"e1": true, "e2": false}`'
-        try:
-            import re, json
-            res = await run_in_threadpool(run_ask, prompt, None, None, "study")
-            match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', res["content"], re.DOTALL | re.IGNORECASE)
-            json_str = match.group(1) if match else res["content"]
-            if "{" in json_str and "}" in json_str:
-                json_str = json_str[json_str.find("{"):json_str.rfind("}")+1]
-                graded_results = json.loads(json_str)
-        except Exception:
-            pass
 
-    correct = 0
-    by_topic: dict[str, list[int]] = defaultdict(lambda: [0, 0])  # topic -> [correct, total]
-    by_diff: dict[str, list[int]] = defaultdict(lambda: [0, 0])
+            if q.get("type") in ("short", "long"):
+                q_score = graded_scores.get(q["id"], 0)
+                contribution = q_score / 100.0
+            else:
+                g_clean = re.sub(r'^[a-d][\)\.\:]\s*', '', given.lower()).strip()
+                e_clean = re.sub(r'^[a-d][\)\.\:]\s*', '', expected.lower()).strip()
+                match = bool(e_clean) and g_clean == e_clean
+                q_score = 100 if match else 0
+                contribution = float(match)
 
-    review_list = []
-    incorrect_questions = []
+            correct += contribution
+            if contribution < 1.0:
+                incorrect_questions.append({
+                    "prompt": q["prompt"],
+                    "topic": q["topic"],
+                    "given": given,
+                    "expected": expected,
+                })
 
-    for q in questions:
-        given = (payload.answers.get(q["id"]) or "").strip()
-        expected = (q.get("answer") or "").strip()
-        
-        if q.get("type") in ("short", "long"):
-            ok = graded_results.get(q["id"], False)
-        else:
-            import re
-            g_clean = re.sub(r'^[a-d][\)\.\:]\s*', '', given.lower()).strip()
-            e_clean = re.sub(r'^[a-d][\)\.\:]\s*', '', expected.lower()).strip()
-            ok = bool(e_clean) and g_clean == e_clean
-            
-        if ok:
-            correct += 1
-        else:
-            incorrect_questions.append({"prompt": q["prompt"], "topic": q["topic"], "given": given, "expected": expected})
-            
-        by_topic[q["topic"]][0] += int(ok)
-        by_topic[q["topic"]][1] += 1
-        by_diff[q["difficulty"]][0] += int(ok)
-        by_diff[q["difficulty"]][1] += 1
-        
-        review_list.append({
-            "id": q["id"],
-            "prompt": q["prompt"],
-            "given": given,
-            "expected": expected,
-            "correct": ok,
-            "topic": q["topic"]
-        })
+            by_topic[q["topic"]][0] += round(contribution * 100)
+            by_topic[q["topic"]][1] += 100
+            by_diff[q["difficulty"]][0] += round(contribution * 100)
+            by_diff[q["difficulty"]][1] += 100
 
-    score = round(100 * correct / total) if total else 0
-    record_activity("exam", f"Exam: {session['topic']} — {score}%", "", minutes=payload.timeSpent // 60 if payload.timeSpent else None)
-    # Feed the PYQ accuracy loop when this exam was generated from a course's PYQs.
-    if session.get("course"):
-        pyq_service.record_topic_results(session["course"], dict(by_topic))
+            review_list.append({
+                "id": q["id"],
+                "prompt": q["prompt"],
+                "given": given,
+                "expected": expected,
+                "correct": contribution >= 1.0,
+                "score": q_score,
+                "topic": q["topic"],
+            })
+
+        total = len(questions)
+        score = round(100 * correct / total) if total else 0
+
+        record_activity(
+            "exam",
+            f"Exam: {exam.topic} — {score}%",
+            exam.course or "",
+            minutes=elapsed_seconds // 60 or None,
+        )
+
+        if exam.course:
+            # Convert back to [correct_count, total_count] for the existing API
+            topic_for_stat = {
+                t: [vals[0] // 100, vals[1] // 100]
+                for t, vals in by_topic.items()
+            }
+            pyq_service.record_topic_results(exam.course, topic_for_stat)
+
+        exam.submitted_at = now
+        db.commit()
+    finally:
+        db.close()
+
     topic_perf = [
-        {"topic": t, "score": round(100 * c / n) if n else 0} for t, (c, n) in by_topic.items()
+        {"topic": t, "score": round(100 * c / n) if n else 0}
+        for t, (c, n) in by_topic.items()
     ]
     diff_analysis = [
-        {"level": lvl, "correct": c, "total": n} for lvl, (c, n) in by_diff.items()
+        {"level": lvl, "correct": c, "total": n}
+        for lvl, (c, n) in by_diff.items()
     ]
 
-    recommended_revisions = []
+    recommended_revisions: list[str] = []
     if incorrect_questions:
-        prompt = f"The user answered these exam questions incorrectly:\n"
+        rev_prompt = "The user answered these exam questions incorrectly:\n"
         for iq in incorrect_questions:
-            prompt += f"- Q: {iq['prompt']} (Topic: {iq['topic']})\n"
-        prompt += "\nBased on these mistakes, identify the specific weak topics. Return ONLY a bulleted list of 2-3 short, highly actionable recommended revision topics. Do not include introductory text."
-        
+            rev_prompt += f"- Q: {iq['prompt']} (Topic: {iq['topic']})\n"
+        rev_prompt += (
+            "\nBased on these mistakes, identify the specific weak topics. "
+            "Return ONLY a bulleted list of 2-3 short, highly actionable recommended revision topics. "
+            "Do not include introductory text."
+        )
         try:
-            result = await run_in_threadpool(run_ask, prompt, None, None, "study")
-            content = result["content"]
-            lines = [line.strip() for line in content.split("\n")]
+            result = await run_in_threadpool(run_ask, rev_prompt, None, None, "study")
+            lines = [line.strip() for line in result["content"].split("\n")]
             for line in lines:
-                if line.startswith("- "):
-                    recommended_revisions.append(line[2:].strip())
-                elif line.startswith("* "):
+                if line.startswith(("- ", "* ")):
                     recommended_revisions.append(line[2:].strip())
                 elif len(line) > 2 and line[0].isdigit() and line[1] in [".", ")"]:
                     recommended_revisions.append(line[2:].strip())
             if not recommended_revisions:
-                recommended_revisions = [line for line in lines if line]
+                recommended_revisions = [l for l in lines if l]
         except Exception:
             pass
 
     return ExamResultOut(
         score=score,
-        correct=correct,
+        correct=round(correct, 2),
         total=total,
         topicPerformance=topic_perf,
         difficultyAnalysis=diff_analysis,
         review=review_list,
-        recommendedRevisions=recommended_revisions[:3]
+        recommendedRevisions=recommended_revisions[:3],
+        elapsedSeconds=elapsed_seconds,
     )
