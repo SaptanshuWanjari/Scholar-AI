@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, HTTPException
 
 from scholarcli.api.activity_service import record_activity
@@ -14,6 +16,7 @@ from scholarcli.api.schemas import (
     QualityScore,
     QuizOut,
     QuizQuestionOut,
+    QuizSessionPatch,
     SaveDeckRequest,
     SaveQuizRequest,
 )
@@ -171,6 +174,9 @@ def _quiz_out(q: SavedQuiz) -> QuizOut:
         grounded=True,
         questions=[QuizQuestionOut(**qq) for qq in q.questions],
         quality=_quality(q.quality_score),
+        session_answers=q.session_answers,
+        session_current_question=q.session_current_question,
+        session_started_at=q.session_started_at.isoformat() if q.session_started_at else None,
     )
 
 
@@ -213,6 +219,39 @@ def delete_quiz(quiz_id: int) -> None:
         if not quiz:
             raise HTTPException(status_code=404, detail="Quiz not found")
         session.delete(quiz)
+        session.commit()
+    finally:
+        session.close()
+
+
+@router.patch("/quizzes/{quiz_id}/session", response_model=QuizOut)
+def patch_quiz_session(quiz_id: int, payload: QuizSessionPatch) -> QuizOut:
+    session = get_session()
+    try:
+        quiz = session.get(SavedQuiz, quiz_id)
+        if not quiz:
+            raise HTTPException(status_code=404, detail="Quiz not found")
+        quiz.session_answers = payload.session_answers
+        quiz.session_current_question = payload.session_current_question
+        if quiz.session_started_at is None:
+            quiz.session_started_at = datetime.now(timezone.utc)
+        session.commit()
+        session.refresh(quiz)
+        return _quiz_out(quiz)
+    finally:
+        session.close()
+
+
+@router.delete("/quizzes/{quiz_id}/session", status_code=204)
+def clear_quiz_session(quiz_id: int) -> None:
+    session = get_session()
+    try:
+        quiz = session.get(SavedQuiz, quiz_id)
+        if not quiz:
+            raise HTTPException(status_code=404, detail="Quiz not found")
+        quiz.session_answers = None
+        quiz.session_current_question = None
+        quiz.session_started_at = None
         session.commit()
     finally:
         session.close()
