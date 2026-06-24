@@ -73,7 +73,7 @@ def _read_text(path: Path) -> str:
         return _read_pdf_text(path)
     content_hash = hashlib.sha256(path.read_bytes()).hexdigest()
     pages, _ = load_document(path, content_hash)
-    return "\n\n".join(p.text for p in pages).strip()
+    return "\n\n".join(p.text for p in pages).strip()[:_MAX_CHARS]
 
 
 def _read_pdf_text(path: Path) -> str:
