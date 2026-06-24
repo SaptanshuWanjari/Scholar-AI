@@ -519,6 +519,8 @@ class DifferenceTableItem(BaseModel):
 class TeachRequest(BaseModel):
     topic: str
     depth: Literal["quick", "standard", "deep"] = "standard"
+    course: str | None = None
+    document: str | None = None
 
 
 class OverviewOut(BaseModel):

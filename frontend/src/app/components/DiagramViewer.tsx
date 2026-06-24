@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ZoomIn, ZoomOut, Maximize } from "lucide-react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 mermaid.initialize({
   startOnLoad: false,
@@ -21,7 +22,7 @@ mermaid.initialize({
 
 let counter = 0;
 
-export function DiagramViewer({ code }: { code: string }) {
+export function DiagramViewer({ code, flush }: { code: string; flush?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +41,8 @@ export function DiagramViewer({ code }: { code: string }) {
       try {
         // Clear any previous content
         ref.current.innerHTML = "";
-        
+        // Validate syntax first so it throws instead of rendering an error SVG
+        await mermaid.parse(code);
         const { svg } = await mermaid.render(id, code);
         
         if (isMounted && ref.current) {
@@ -64,7 +66,7 @@ export function DiagramViewer({ code }: { code: string }) {
   }, [code]);
 
   return (
-    <div className="relative flex min-h-[400px] w-full items-center justify-center overflow-hidden rounded-lg border border-border bg-card p-8 paper">
+    <div className={`relative flex w-full items-center justify-center overflow-hidden ${flush ? "h-full" : "min-h-[400px] rounded-lg border border-border bg-card p-8 paper"}`}>
       {loading && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-card/50 backdrop-blur-sm">
           <Loader2 className="size-8 animate-spin text-primary" />
@@ -86,11 +88,42 @@ export function DiagramViewer({ code }: { code: string }) {
           </pre>
         </div>
       ) : (
-        <div 
-          ref={ref} 
-          className="flex w-full items-center justify-center transition-opacity duration-300 [&_svg]:max-w-full [&_svg]:h-auto"
-          style={{ opacity: loading ? 0 : 1 }}
-        />
+        <TransformWrapper initialScale={1} minScale={0.1} maxScale={8} centerOnInit>
+          {({ zoomIn, zoomOut, resetTransform }) => (
+            <>
+              <div className="absolute bottom-4 right-4 z-10 flex gap-2 rounded-lg border border-border bg-card/80 p-1.5 backdrop-blur shadow-sm">
+                <button
+                  onClick={() => zoomOut()}
+                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  title="Zoom Out"
+                >
+                  <ZoomOut className="size-4" />
+                </button>
+                <button
+                  onClick={() => resetTransform()}
+                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  title="Reset Zoom"
+                >
+                  <Maximize className="size-4" />
+                </button>
+                <button
+                  onClick={() => zoomIn()}
+                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  title="Zoom In"
+                >
+                  <ZoomIn className="size-4" />
+                </button>
+              </div>
+              <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div 
+                  ref={ref} 
+                  className="flex h-full w-full items-center justify-center transition-opacity duration-300 [&_svg]:max-w-full [&_svg]:h-auto"
+                  style={{ opacity: loading ? 0 : 1 }}
+                />
+              </TransformComponent>
+            </>
+          )}
+        </TransformWrapper>
       )}
     </div>
   );

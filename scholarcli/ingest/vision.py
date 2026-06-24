@@ -34,8 +34,11 @@ _DESCRIBE_PROMPT = (
 
 _TRANSCRIBE_PROMPT = (
     "Transcribe ALL text in this page image exactly, preserving reading "
-    "order, headings and lists. Output only the transcribed text — no "
-    "commentary, no markdown fences."
+    "order, headings and lists. If there are tables, extract them and "
+    "convert them into clean, valid Markdown format using `|` for column "
+    "separators and `---` for the header separator. For multi-line cell "
+    "content, use `<br>` to separate lines. Output only the transcribed "
+    "text — no commentary, no markdown fences."
 )
 
 _VALID_TYPES = {"image", "diagram", "chart"}

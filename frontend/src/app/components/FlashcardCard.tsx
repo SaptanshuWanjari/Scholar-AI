@@ -20,28 +20,36 @@ export function FlashcardCard({ card }: { card: Flashcard }) {
     >
       <motion.div
         animate={{ rotateY: flipped ? 180 : 0 }}
-        transition={{ 
+        transition={{
           duration: 0.6,
           type: "spring",
           stiffness: 260,
-          damping: 20 
+          damping: 20,
         }}
         className="relative size-full [transform-style:preserve-3d]"
       >
         {/* Front */}
-        <div 
+        <div
           className="absolute inset-0 flex flex-col rounded-xl border border-border bg-card p-4 [backface-visibility:hidden] [transform:rotateY(0deg)]"
           style={{ zIndex: flipped ? 0 : 1 }}
         >
           <div className="flex items-center justify-between">
-            <Badge variant="outline" className="text-[10px] font-medium uppercase tracking-wider">
+            <Badge
+              variant="outline"
+              className="text-[10px] font-medium uppercase tracking-wider"
+            >
               {card.type}
             </Badge>
-            <Badge variant="outline" className={cn("text-[10px] font-medium", easeMeta[card.ease])}>
+            <Badge
+              variant="outline"
+              className={cn("text-[10px] font-medium", easeMeta[card.ease])}
+            >
               {card.ease}
             </Badge>
           </div>
-          <p className="mt-4 flex-1 font-serif text-base leading-snug text-foreground/90">{card.front}</p>
+          <p className="mt-4 flex-1 font-serif text-base leading-snug text-foreground/90">
+            {card.front}
+          </p>
           <div className="mt-2 flex items-center justify-between text-[11px] font-medium text-muted-foreground uppercase tracking-tight">
             <span>{card.deck}</span>
             <span className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
@@ -51,16 +59,21 @@ export function FlashcardCard({ card }: { card: Flashcard }) {
         </div>
 
         {/* Back */}
-        <div 
+        <div
           className="absolute inset-0 flex flex-col rounded-xl border border-violet/30 bg-[#fdfcfa] p-4 [backface-visibility:hidden] [transform:rotateY(180deg)]"
           style={{ zIndex: flipped ? 1 : 0 }}
         >
           <div className="flex items-center justify-between mb-3">
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-violet">Definition</div>
-            <div className="text-[10px] font-medium text-muted-foreground italic">Due {card.due}</div>
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-violet">
+              Definition
+            </div>
+            <div className="text-[10px] font-medium text-muted-foreground italic">
+              Due {card.due}
+            </div>
           </div>
-          <p className="flex-1 font-serif text-base leading-snug text-foreground">{card.back}</p>
-          <div className="mt-2 text-[10px] font-medium text-violet/60 uppercase tracking-wider">ScholarAI Study Card</div>
+          <p className="flex-1 font-serif text-base leading-snug text-foreground">
+            {card.back}
+          </p>
         </div>
       </motion.div>
     </button>

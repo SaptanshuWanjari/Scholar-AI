@@ -115,9 +115,11 @@ def get_last_trace() -> dict[str, Any]:
     return dict(_last_trace)
 
 
-def run_ask(question: str, course: str | None = None, document: str | None = None, route: str | None = None) -> dict:
+def run_ask(question: str, course: str | None = None, document: str | None = None, route: str | None = None, search_query: str | None = None) -> dict:
     """One-shot RAG answer. Returns answer, sources, confidence, grounded, route."""
     state: GraphState = {"query": question, "course": course, "document": document}
+    if search_query:
+        state["search_query"] = search_query
     if route:
         state["route"] = route
     result = get_rag_app().invoke(state)
@@ -161,7 +163,7 @@ def _build_generation_prompt(state: GraphState) -> tuple[str, str]:
 
 
 def stream_ask(
-    question: str, course: str | None = None, document: str | None = None, route: str | None = None
+    question: str, course: str | None = None, document: str | None = None, route: str | None = None, search_query: str | None = None
 ) -> Iterator[dict]:
     """Yield streaming events for the Ask endpoint.
 
@@ -170,6 +172,8 @@ def stream_ask(
       {"type": "done", "sources": [...], "confidence": float|None, "grounded": bool, "route": str}
     """
     state: GraphState = {"query": question, "course": course, "document": document}
+    if search_query:
+        state["search_query"] = search_query
     if route:
         state["route"] = route
 

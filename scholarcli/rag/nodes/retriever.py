@@ -11,7 +11,7 @@ from scholarcli.storage.vectors import search
 def retrieve(state: GraphState) -> GraphState:
     s = get_settings()
     emb = scholarcli.llm.get_embeddings()
-    query = state["query"]
+    query = state.get("search_query") or state["query"]
     course = state.get("course")
 
     # embed_query returns list[float].

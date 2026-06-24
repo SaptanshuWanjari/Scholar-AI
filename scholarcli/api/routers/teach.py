@@ -46,7 +46,7 @@ async def generate_overview(req: TeachRequest) -> OverviewOut:
         "Definition, Importance, Prerequisites, Related Topics, "
         "Estimated Study Time, Difficulty."
     )
-    result = await run_in_threadpool(run_ask, query, None, None, "study_notes")
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "study_notes", topic)
     record_activity("revision", f"Teach overview: {topic}", "")
     return OverviewOut(
         title=topic,

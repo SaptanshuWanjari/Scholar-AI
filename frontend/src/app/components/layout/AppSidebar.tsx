@@ -33,7 +33,7 @@ export function AppSidebar() {
       .then((cs) => {
         if (!cancelled) setCourses(cs);
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => { cancelled = true; };
   }, []);
 
@@ -127,28 +127,6 @@ export function AppSidebar() {
           </div>
         ))}
 
-        {!collapsed && (
-          <div className="mb-2">
-            <div className="px-3 pb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
-              Courses
-            </div>
-            <div className="space-y-1">
-              {courses.map((c) => (
-                <div
-                  key={c.id}
-                  className="flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm text-sidebar-foreground hover:bg-sidebar-accent/60"
-                >
-                  <span
-                    className="size-2 shrink-0 rounded-full"
-                    style={{ backgroundColor: c.color }}
-                  />
-                  <span className="truncate">{c.name}</span>
-                  <span className="ml-auto text-xs text-muted-foreground">{c.documents}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* Footer */}

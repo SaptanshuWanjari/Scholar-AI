@@ -163,8 +163,8 @@ export function Diagrams() {
         <div className="border-b border-border px-4 py-3 text-sm font-medium">
           Diagrams
         </div>
-        <ScrollArea className="flex-1">
-          <div className="space-y-1 p-2">
+        <ScrollArea className="flex-1 [&>[data-radix-scroll-area-viewport]>div]:!block">
+          <div className="space-y-1 p-2 w-full">
             {generating && (
               <div className="flex w-full items-center gap-3 rounded-lg border border-dashed border-violet/40 bg-violet-soft/40 p-3">
                 <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-violet">
@@ -220,7 +220,7 @@ export function Diagrams() {
       </div>
 
       {/* Preview */}
-      <div className="min-w-0 flex-1 overflow-y-auto">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Generate control */}
         <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card/40 px-6 py-3">
           <Input
@@ -288,7 +288,7 @@ export function Diagrams() {
 
         {active ? (
           <>
-            <div className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
+            <div className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">{active.title}</span>
                 <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
@@ -312,14 +312,18 @@ export function Diagrams() {
               </div>
             </div>
 
-            <div className="space-y-4 p-6" id="diagram-container">
-              <DiagramErrorBoundary key={active.id} code={active.mermaid}>
-                <DiagramViewer code={active.mermaid} />
-              </DiagramErrorBoundary>
+            <div className="relative flex min-h-0 flex-1 flex-col" id="diagram-container">
+              <div className="min-h-0 flex-1 relative">
+                <DiagramErrorBoundary key={active.id} code={active.mermaid}>
+                  <DiagramViewer code={active.mermaid} flush />
+                </DiagramErrorBoundary>
+              </div>
               {showCode && (
-                <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-4 font-mono text-[13px] text-foreground/80">
-                  {active.mermaid}
-                </pre>
+                <div className="absolute bottom-4 left-4 z-20">
+                  <pre className="max-h-64 max-w-2xl overflow-auto rounded-lg border border-border bg-secondary/95 p-4 font-mono text-[13px] text-foreground/80 shadow-lg backdrop-blur">
+                    {active.mermaid}
+                  </pre>
+                </div>
               )}
             </div>
           </>

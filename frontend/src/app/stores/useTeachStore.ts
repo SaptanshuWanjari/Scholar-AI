@@ -8,7 +8,7 @@ import {
   type GeneratedMindmap,
   type GeneratedRevision,
 } from "../lib/api";
-import type { GeneratedDifference, Source } from "../lib/types";
+import type { GeneratedDifference, Source, Course, DocumentItem } from "../lib/types";
 
 export type Depth = "quick" | "standard" | "deep";
 
@@ -58,7 +58,13 @@ interface TeachState {
   phase: "input" | "workspace";
   topic: string;
   depth: Depth;
+  course: string;
+  document: string | null;
   selected: Record<ArtifactKey, boolean>;
+
+  courses: Course[];
+  documents: DocumentItem[];
+  _listsLoaded: boolean;
 
   packageId: string | null;
   activeView: ViewKey;
@@ -83,12 +89,21 @@ interface TeachState {
   savePackage: () => Promise<void>;
   loadPackage: (id: string) => Promise<void>;
   reset: () => void;
+
+  setCourse: (c: string) => void;
+  setDocument: (d: string | null) => void;
+  fetchCoursesAndDocs: () => void;
 }
 
 export const useTeachStore = create<TeachState>((set, get) => ({
   phase: "input",
   topic: "",
   depth: "standard",
+  course: "none",
+  document: null,
+  courses: [],
+  documents: [],
+  _listsLoaded: false,
   selected: {
     notes: true,
     flashcards: true,
@@ -113,6 +128,16 @@ export const useTeachStore = create<TeachState>((set, get) => ({
   saving: false,
 
   setField: (key, value) => set({ [key]: value } as Partial<TeachState>),
+
+  setCourse: (c) => set({ course: c, document: null }),
+  setDocument: (d) => set({ document: d }),
+
+  fetchCoursesAndDocs: () => {
+    if (get()._listsLoaded) return;
+    Promise.all([api.listCourses(), api.listDocuments()])
+      .then(([courses, documents]) => set({ courses, documents, _listsLoaded: true }))
+      .catch(() => {});
+  },
 
   toggleArtifact: (key) =>
     set((s) => ({ selected: { ...s.selected, [key]: !s.selected[key] } })),
@@ -144,7 +169,8 @@ export const useTeachStore = create<TeachState>((set, get) => ({
 
     // 1) Overview (and the sources that drive the Sources view).
     try {
-      const result = await api.generateOverview(trimmed, depth);
+      const selectedCourse = get().course === "none" ? null : get().course;
+      const result = await api.generateOverview(trimmed, depth, selectedCourse, get().document);
       set({
         overview: { title: result.title, markdown: result.markdown, grounded: result.grounded },
         sources: result.sources,
@@ -274,25 +300,27 @@ async function generateArtifact(
 
   setSlot({ status: "loading", error: null });
   try {
+    const selectedCourse = get().course === "none" ? null : get().course;
+    const doc = get().document;
     let data: FlashcardSet | GeneratedQuiz | GeneratedDiagram | GeneratedMindmap | GeneratedRevision | GeneratedDifference;
     switch (key) {
       case "notes":
-        data = await api.generateRevision({ topic: t, format: "notes" });
+        data = await api.generateRevision({ topic: t, course: selectedCourse, document: doc, format: "notes" });
         break;
       case "flashcards":
-        data = await api.generateFlashcards(t, null, null, DEPTH_COUNT[depth]);
+        data = await api.generateFlashcards(t, selectedCourse, doc, DEPTH_COUNT[depth]);
         break;
       case "quiz":
-        data = await api.generateQuiz(t, null, null, DEPTH_DIFFICULTY[depth]);
+        data = await api.generateQuiz(t, selectedCourse, doc, DEPTH_DIFFICULTY[depth]);
         break;
       case "mindmap":
-        data = await api.generateMindmap(t);
+        data = await api.generateMindmap(t, selectedCourse, doc);
         break;
       case "diagram":
-        data = await api.generateDiagram(t);
+        data = await api.generateDiagram(t, selectedCourse, doc);
         break;
       case "difference":
-        data = await api.generateDifference(t);
+        data = await api.generateDifference(t, selectedCourse, doc);
         break;
     }
     setSlot({ status: "done", data });

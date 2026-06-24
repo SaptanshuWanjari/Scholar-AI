@@ -7,9 +7,9 @@ import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
 
 const STYLE_BADGE: Record<string, string> = {
-  Concise: "bg-sky-500/10 text-sky-400",
-  Comprehensive: "bg-violet-500/10 text-violet-400",
-  Socratic: "bg-amber-500/10 text-amber-400",
+  Concise: "bg-cyan-soft text-cyan",
+  Comprehensive: "bg-violet-soft text-violet",
+  Socratic: "bg-warning-soft text-warning",
   "": "bg-muted text-muted-foreground",
 };
 
@@ -123,7 +123,7 @@ export function PromptLibrary() {
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5 truncate text-sm font-medium text-foreground">
-                    {p.active && <Check className="size-3 shrink-0 text-green-400" />}
+                    {p.active && <Check className="size-3 shrink-0 text-success" />}
                     <span className="truncate">{p.name}</span>
                   </div>
                   {p.style && (
@@ -242,7 +242,7 @@ export function PromptLibrary() {
                   </button>
                 )}
                 {selected.active && (
-                  <span className="flex items-center gap-1.5 rounded-md bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-400">
+                  <span className="flex items-center gap-1.5 rounded-md bg-success-soft px-3 py-1.5 text-xs font-medium text-success">
                     <Check className="size-3" /> Active
                   </span>
                 )}
