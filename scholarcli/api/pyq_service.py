@@ -19,6 +19,7 @@ from pathlib import Path
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from scholarcli.api import parsers
+from scholarcli.config import get_settings
 from scholarcli.ingest.loaders import load_document
 from scholarcli.llm import get_llm
 from scholarcli.storage import get_session
@@ -62,10 +63,39 @@ _PATTERN_LABELS = {
 # ---------------------------------------------------------------------------
 
 def _read_text(path: Path) -> str:
-    """Load a document's plain text (joined pages) for extraction."""
+    """Load a document's plain text for extraction.
+
+    PDFs use a direct fitz pass with per-page OCR fallback for sparse pages,
+    bypassing the full ingest pipeline (which filters full-page background
+    images and would miss typical scanned exam papers).
+    """
+    if path.suffix.lower() == ".pdf":
+        return _read_pdf_text(path)
     content_hash = hashlib.sha256(path.read_bytes()).hexdigest()
     pages, _ = load_document(path, content_hash)
     return "\n\n".join(p.text for p in pages).strip()
+
+
+def _read_pdf_text(path: Path) -> str:
+    """Extract text from a PDF with per-page OCR for sparse pages."""
+    import fitz
+    from scholarcli.ingest import ocr as ocr_mod
+
+    min_chars = get_settings().ingest.scanned_min_chars
+    parts: list[str] = []
+    doc = fitz.open(str(path))
+    try:
+        for page in doc:
+            text = page.get_text("text").strip()
+            if len(text) < min_chars:
+                ocr_text, _ = ocr_mod.ocr_page(page)
+                if ocr_text.strip():
+                    parts.append(ocr_text.strip())
+            else:
+                parts.append(text)
+    finally:
+        doc.close()
+    return "\n\n".join(parts)[:_MAX_CHARS]
 
 
 def extract_and_store(
