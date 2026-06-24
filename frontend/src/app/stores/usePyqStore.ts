@@ -33,6 +33,8 @@ interface PyqState {
   fetchQuestions: () => Promise<void>;
   uploadPaper: (file: File, year?: number | null) => Promise<void>;
   deletePaper: (id: number) => Promise<void>;
+  updateQuestion: (id: number, patch: Partial<Omit<PyqQuestion, 'id'>>) => Promise<void>;
+  deleteQuestion: (id: number) => Promise<void>;
 }
 
 export const usePyqStore = create<PyqState>((set, get) => ({
@@ -111,6 +113,25 @@ export const usePyqStore = create<PyqState>((set, get) => ({
       await get().refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to delete paper");
+    }
+  },
+
+  updateQuestion: async (id, patch) => {
+    try {
+      const updated = await api.patchPyqQuestion(id, patch);
+      set((s) => ({ questions: s.questions.map((q) => (q.id === id ? updated : q)) }));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update question");
+    }
+  },
+
+  deleteQuestion: async (id) => {
+    try {
+      await api.deletePyqQuestion(id);
+      set((s) => ({ questions: s.questions.filter((q) => q.id !== id) }));
+      toast.success("Question removed");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete question");
     }
   },
 }));
