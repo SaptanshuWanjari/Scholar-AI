@@ -94,6 +94,9 @@ export interface Quiz {
   questions: QuizQuestion[];
   difficulty: "Easy" | "Medium" | "Hard";
   quality?: QualityScore;
+  session_answers?: Record<string, string> | null;
+  session_current_question?: number | null;
+  session_started_at?: string | null;
 }
 
 export interface DiagramItem {

@@ -102,6 +102,7 @@ export interface NotebookFull {
   color: string;
   blocks: any[];
   updated: string;
+  is_draft: boolean;
 }
 
 export interface ReadingSection {
@@ -602,6 +603,12 @@ export const api = {
   deleteQuiz(id: string): Promise<void> {
     return request<void>(`/api/quizzes/${id}`, { method: "DELETE" });
   },
+  patchQuizSession(id: string, payload: { session_answers: Record<string, string>; session_current_question: number }): Promise<void> {
+    return request<void>(`/api/quizzes/${id}/session`, { ...json(payload), method: "PATCH" });
+  },
+  clearQuizSession(id: string): Promise<void> {
+    return request<void>(`/api/quizzes/${id}/session`, { method: "DELETE" });
+  },
 
   // ---- Notebooks ----
   listNotebooks(): Promise<NotebookMeta[]> {
@@ -613,7 +620,7 @@ export const api = {
   createNotebook(title: string, course?: string | null): Promise<NotebookFull> {
     return request<NotebookFull>("/api/notebooks", json({ title, course }));
   },
-  updateNotebook(id: string, patch: { title?: string; subtitle?: string; blocks?: any[]; color?: string }): Promise<NotebookFull> {
+  updateNotebook(id: string, patch: { title?: string; subtitle?: string; blocks?: any[]; color?: string; is_draft?: boolean }): Promise<NotebookFull> {
     return request<NotebookFull>(`/api/notebooks/${id}`, { ...json(patch), method: "PUT" });
   },
   deleteNotebook(id: string): Promise<void> {
@@ -677,6 +684,12 @@ export const api = {
   },
   getPyqDifferenceSuggestions(course: string): Promise<PyqDifferenceSuggestion[]> {
     return request<PyqDifferenceSuggestion[]>(`/api/pyq/difference-suggestions?course=${encodeURIComponent(course)}`);
+  },
+  patchPyqQuestion(id: number, patch: Partial<Omit<PyqQuestion, "id">>): Promise<PyqQuestion> {
+    return request<PyqQuestion>(`/api/pyq/questions/${id}`, { ...json(patch), method: "PATCH" });
+  },
+  deletePyqQuestion(id: number): Promise<void> {
+    return request<void>(`/api/pyq/questions/${id}`, { method: "DELETE" });
   },
 
   // ---- Knowledge graph ----
