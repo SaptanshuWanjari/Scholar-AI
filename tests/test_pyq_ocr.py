@@ -1,8 +1,7 @@
 """Tests for pyq_service._read_text OCR fallback."""
 from __future__ import annotations
 
-from pathlib import Path
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 
 def _make_mock_doc(pages_text: list[str]):
@@ -41,7 +40,7 @@ def test_read_text_skips_ocr_for_rich_page(tmp_path):
     pdf.write_bytes(b"%PDF-1.4 fake")
     rich_text = "x" * 100  # well above scanned_min_chars default of 40
 
-    doc, pages = _make_mock_doc([rich_text])
+    doc, _ = _make_mock_doc([rich_text])
 
     with patch("fitz.open", return_value=doc):
         with patch("scholarcli.ingest.ocr.ocr_page") as mock_ocr:
