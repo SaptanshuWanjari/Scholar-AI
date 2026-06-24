@@ -216,6 +216,7 @@ export function Notebooks() {
 
   // Dismiss the draft-restore banner and mark the notebook as no longer a draft.
   async function dismissDraftBanner() {
+    flushSave();
     setShowDraftBanner(false);
     if (activeId) {
       await api.updateNotebook(activeId, { is_draft: false }).catch(() => {});

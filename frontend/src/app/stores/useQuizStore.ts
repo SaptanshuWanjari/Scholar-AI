@@ -90,11 +90,26 @@ export const useQuizStore = create<QuizState>((set, get) => ({
           session_answers: latest,
           session_current_question: currentIdx,
         }).catch(() => {});
+        _sessionTimer = null;
       }, 2000);
     }
   },
 
-  goTo: (idx) => set({ idx }),
+  goTo: (idx) => {
+    set({ idx });
+    const { active } = get();
+    if (active && !isNaN(Number(active.id))) {
+      if (_sessionTimer) clearTimeout(_sessionTimer);
+      _sessionTimer = setTimeout(() => {
+        const { answers: latest, idx: currentIdx } = get();
+        api.patchQuizSession(active.id, {
+          session_answers: latest,
+          session_current_question: currentIdx,
+        }).catch(() => {});
+        _sessionTimer = null;
+      }, 2000);
+    }
+  },
 
   submit: (answers) => {
     const { active } = get();
