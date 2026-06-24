@@ -51,6 +51,9 @@ export function QuizPage() {
   const submit = useQuizStore((s) => s.submit);
   const backToBuilder = useQuizStore((s) => s.backToBuilder);
 
+  const restoreSession = useQuizStore((s) => s.restoreSession);
+  const [pendingRestore, setPendingRestore] = useState<Quiz | null>(null);
+
   // Page-only ephemeral data that's cheap to refetch stays local.
   const [saved, setSaved] = useState<Quiz[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(true);
@@ -102,7 +105,13 @@ export function QuizPage() {
     <Page className="space-y-6">
       {stage === "builder" && (
         <Builder
-          onStart={start}
+          onStart={(q) => {
+            if (q.session_answers && Object.keys(q.session_answers).length > 0) {
+              setPendingRestore(q);
+            } else {
+              start(q);
+            }
+          }}
           saved={saved}
           loadingSaved={loadingSaved}
           onDelete={deleteQuiz}
@@ -125,6 +134,41 @@ export function QuizPage() {
           onSave={() => saveQuiz(active)}
           saving={saving}
         />
+      )}
+      {pendingRestore && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-80 rounded-xl border bg-background p-5 shadow-lg">
+            <p className="font-medium">Resume in-progress exam?</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              You have {Object.keys(pendingRestore.session_answers ?? {}).length} answer
+              {Object.keys(pendingRestore.session_answers ?? {}).length !== 1 ? "s" : ""} saved
+              {pendingRestore.session_started_at
+                ? ` from ${new Date(pendingRestore.session_started_at).toLocaleString()}`
+                : ""}.
+            </p>
+            <div className="mt-4 flex gap-2">
+              <button
+                className="flex-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
+                onClick={() => {
+                  restoreSession(pendingRestore);
+                  setPendingRestore(null);
+                }}
+              >
+                Resume
+              </button>
+              <button
+                className="flex-1 rounded-md border px-3 py-1.5 text-sm"
+                onClick={() => {
+                  api.clearQuizSession(pendingRestore.id).catch(() => {});
+                  start(pendingRestore);
+                  setPendingRestore(null);
+                }}
+              >
+                Start fresh
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </Page>
   );

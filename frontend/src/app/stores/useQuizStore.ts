@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import type { Quiz } from "../lib/types";
 import { api } from "../lib/api";
 
+let _sessionTimer: ReturnType<typeof setTimeout> | null = null;
+
 export type QuizStage = "builder" | "player" | "results";
 export type Difficulty = Quiz["difficulty"];
 
@@ -33,6 +35,7 @@ interface QuizState {
   submit: (answers: Record<string, string>) => void;
   backToBuilder: () => void;
   reset: () => void;
+  restoreSession: (quiz: Quiz) => void;
 }
 
 export const useQuizStore = create<QuizState>((set, get) => ({
@@ -76,14 +79,42 @@ export const useQuizStore = create<QuizState>((set, get) => ({
 
   start: (quiz) => set({ active: quiz, answers: {}, idx: 0, stage: "player" }),
 
-  answer: (qid, value) =>
-    set((s) => ({ answers: { ...s.answers, [qid]: value } })),
+  answer: (qid, value) => {
+    set((s) => ({ answers: { ...s.answers, [qid]: value } }));
+    const { active, idx } = get();
+    if (active && !isNaN(Number(active.id))) {
+      if (_sessionTimer) clearTimeout(_sessionTimer);
+      _sessionTimer = setTimeout(() => {
+        const { answers: latest, idx: currentIdx } = get();
+        api.patchQuizSession(active.id, {
+          session_answers: latest,
+          session_current_question: currentIdx,
+        }).catch(() => {});
+      }, 2000);
+    }
+  },
 
   goTo: (idx) => set({ idx }),
 
-  submit: (answers) => set({ answers, stage: "results" }),
+  submit: (answers) => {
+    const { active } = get();
+    if (active && !isNaN(Number(active.id))) {
+      if (_sessionTimer) clearTimeout(_sessionTimer);
+      api.clearQuizSession(active.id).catch(() => {});
+    }
+    set({ answers, stage: "results" });
+  },
 
   backToBuilder: () => set({ stage: "builder" }),
 
   reset: () => set({ stage: "builder", active: null, answers: {}, idx: 0 }),
+
+  restoreSession: (quiz) => {
+    set({
+      active: quiz,
+      answers: (quiz.session_answers as Record<string, string>) ?? {},
+      idx: quiz.session_current_question ?? 0,
+      stage: "player",
+    });
+  },
 }));
