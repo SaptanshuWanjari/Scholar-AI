@@ -17,8 +17,9 @@ def client():
 
 
 @pytest.fixture
-def paper_with_question(client):
+def paper_with_question():
     """Insert a paper + one question into the test DB, return (paper_id, question_id)."""
+    init_db()
     session = get_session()
     try:
         paper = QuestionPaper(
