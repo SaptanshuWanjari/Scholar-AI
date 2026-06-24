@@ -15,6 +15,7 @@ from langchain_core.embeddings import Embeddings
 
 from sqlalchemy.orm import Session
 
+from scholarcli.config import get_settings
 from scholarcli.ingest.chunker import chunk_pages
 from scholarcli.ingest.loaders import load_document
 from scholarcli.storage import get_session, init_db
@@ -124,6 +125,27 @@ def ingest_file(
         )
 
     add_chunks(rows)
+
+    # Optional LLM metadata extraction (summary, tags, topics).
+    cfg = get_settings().ingest
+    if cfg.metadata_extraction and chunks:
+        from scholarcli.ingest.metadata_extractor import extract as extract_metadata
+        sample = "\n\n".join(ch["text"] for ch in chunks[:20])
+        meta = extract_metadata(sample)
+        if meta["summary"] or meta["tags"] or meta["topics"]:
+            doc_row = session.get(Document, doc_id)
+            if doc_row:
+                doc_row.summary = meta["summary"] or None
+                doc_row.tags = meta["tags"] or None
+                doc_row.topics = meta["topics"] or None
+                session.commit()
+
+    # Clear any previous error on successful re-index.
+    doc_row = session.get(Document, doc_id)
+    if doc_row and doc_row.error is not None:
+        doc_row.error = None
+        session.commit()
+
     return "indexed"
 
 

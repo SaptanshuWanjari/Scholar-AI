@@ -88,12 +88,17 @@ def add_chunks(rows: list[dict]) -> None:
                 "run reindex_all() (or re-upload) to restore all documents."
             )
             db.drop_table(TABLE_NAME)
-            db.create_table(TABLE_NAME, data=rows)
+            tbl = db.create_table(TABLE_NAME, data=rows)
         else:
             tbl.add(rows)
     else:
         # First batch — create the table so the vector dimension is correct.
-        db.create_table(TABLE_NAME, data=rows)
+        tbl = db.create_table(TABLE_NAME, data=rows)
+
+    try:
+        tbl.create_fts_index(["text"], replace=True)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("FTS index creation failed (hybrid search disabled): %s", exc)
 
 
 def search(query_vector: list[float], top_k: int = 5, course: str | None = None, document: str | None = None) -> list[dict]:
@@ -157,3 +162,65 @@ def update_document_course(document_id: int, course: str) -> None:
     if not _has_table():
         return
     _open_table().update(where=f"document_id = {document_id}", values={"course": course})
+
+
+def hybrid_search(
+    query_text: str,
+    query_vector: list[float],
+    top_k: int = 5,
+    course: str | None = None,
+    document: str | None = None,
+) -> list[dict]:
+    """Blend BM25 keyword and vector similarity via Reciprocal Rank Fusion.
+
+    Falls back to pure vector search if the FTS index is unavailable.
+    """
+    if not _has_table():
+        return []
+
+    tbl = _open_table()
+    filters = []
+    if course:
+        filters.append(f"course = '{course}'")
+    if document:
+        filters.append(f"document_id = {document}")
+    where_clause = " AND ".join(filters) if filters else None
+
+    fetch_n = top_k * 3
+
+    # Vector search.
+    vq = tbl.search(query_vector).metric("cosine").limit(fetch_n)
+    if where_clause:
+        vq = vq.where(where_clause, prefilter=True)
+    try:
+        vector_results = vq.to_list()
+    except Exception:
+        vector_results = []
+
+    # BM25 / FTS search.
+    try:
+        fq = tbl.search(query_text, query_type="fts").limit(fetch_n)
+        if where_clause:
+            fq = fq.where(where_clause)
+        bm25_results = fq.to_list()
+    except Exception:
+        return search(query_vector, top_k=top_k, course=course, document=document)
+
+    # Reciprocal Rank Fusion (k=60 is a standard default).
+    K = 60
+    scores: dict[str, float] = {}
+    id_to_row: dict[str, dict] = {}
+
+    for rank, row in enumerate(vector_results):
+        rid = str(row.get("id", ""))
+        scores[rid] = scores.get(rid, 0.0) + 1.0 / (K + rank + 1)
+        id_to_row[rid] = row
+
+    for rank, row in enumerate(bm25_results):
+        rid = str(row.get("id", ""))
+        scores[rid] = scores.get(rid, 0.0) + 1.0 / (K + rank + 1)
+        if rid not in id_to_row:
+            id_to_row[rid] = row
+
+    ranked = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
+    return [id_to_row[rid] for rid, _ in ranked[:top_k] if rid in id_to_row]

@@ -59,11 +59,15 @@ class IngestConfig(BaseModel):
     tables_enabled: bool = True
     # Pages whose native text is shorter than this are treated as scanned.
     scanned_min_chars: int = 40
+    # Run an LLM pass post-ingestion to extract summary, tags, and topics.
+    metadata_extraction: bool = True
 
 
 class RetrievalConfig(BaseModel):
     top_k: int = 5
     max_distance: float = 0.55
+    # Blend BM25 keyword search with vector similarity (Reciprocal Rank Fusion).
+    hybrid_search: bool = True
 
 
 class PathsConfig(BaseModel):
