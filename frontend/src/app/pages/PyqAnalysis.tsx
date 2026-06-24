@@ -17,6 +17,9 @@ import {
   BookOpen,
   FileSearch,
   Columns2,
+  Pencil,
+  Save,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Page } from "../components/Page";
@@ -39,7 +42,7 @@ import {
   DialogDescription,
 } from "../components/ui/dialog";
 import { api } from "../lib/api";
-import type { PyqTopicFreq } from "../lib/api";
+import type { PyqQuestion, PyqTopicFreq } from "../lib/api";
 import type { Course } from "../lib/types";
 import { usePyqStore } from "../stores/usePyqStore";
 import { useExamStore } from "../stores/useExamStore";
@@ -582,6 +585,135 @@ function ExamReadiness({ a }: { a: NonNullable<ReturnType<typeof usePyqStore.get
   );
 }
 
+/* ---------------- Question card (inline edit/delete) ---------------- */
+
+const QTYPES = [
+  "definition", "explanation", "comparison", "advantages", "architecture",
+  "case_study", "numerical", "problem_solving", "short_answer", "long_answer", "other",
+];
+
+function QuestionCard({ q }: { q: PyqQuestion }) {
+  const updateQuestion = usePyqStore((s) => s.updateQuestion);
+  const deleteQuestion = usePyqStore((s) => s.deleteQuestion);
+
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({ ...q });
+
+  const handleSave = async () => {
+    await updateQuestion(q.id, {
+      text: draft.text,
+      topic: draft.topic,
+      subtopics: draft.subtopics,
+      difficulty: draft.difficulty,
+      type: draft.type,
+      marks: draft.marks,
+      year: draft.year,
+    });
+    setEditing(false);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Remove this question?")) {
+      deleteQuestion(q.id);
+    }
+  };
+
+  if (editing) {
+    return (
+      <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+        <textarea
+          className="w-full rounded border border-border bg-background p-2 text-sm resize-none"
+          rows={3}
+          value={draft.text}
+          onChange={(e) => setDraft((d) => ({ ...d, text: e.target.value }))}
+        />
+        <div className="flex flex-wrap gap-2">
+          <input
+            className="rounded border border-border bg-background px-2 py-1 text-xs w-36"
+            placeholder="Topic"
+            value={draft.topic}
+            onChange={(e) => setDraft((d) => ({ ...d, topic: e.target.value }))}
+          />
+          <select
+            className="rounded border border-border bg-background px-2 py-1 text-xs"
+            value={draft.difficulty}
+            onChange={(e) => setDraft((d) => ({ ...d, difficulty: e.target.value }))}
+          >
+            {["Easy", "Medium", "Hard"].map((v) => <option key={v}>{v}</option>)}
+          </select>
+          <select
+            className="rounded border border-border bg-background px-2 py-1 text-xs"
+            value={draft.type}
+            onChange={(e) => setDraft((d) => ({ ...d, type: e.target.value }))}
+          >
+            {QTYPES.map((v) => <option key={v}>{v}</option>)}
+          </select>
+          <input
+            className="rounded border border-border bg-background px-2 py-1 text-xs w-20"
+            type="number"
+            placeholder="Marks"
+            value={draft.marks ?? ""}
+            onChange={(e) => setDraft((d) => ({ ...d, marks: e.target.value ? Number(e.target.value) : null }))}
+          />
+          <input
+            className="rounded border border-border bg-background px-2 py-1 text-xs w-20"
+            type="number"
+            placeholder="Year"
+            value={draft.year ?? ""}
+            onChange={(e) => setDraft((d) => ({ ...d, year: e.target.value ? Number(e.target.value) : null }))}
+          />
+        </div>
+        <div className="flex gap-2">
+          <button
+            className="flex items-center gap-1 rounded px-2 py-1 text-xs bg-primary text-primary-foreground hover:opacity-90"
+            onClick={handleSave}
+          >
+            <Save className="size-3" /> Save
+          </button>
+          <button
+            className="flex items-center gap-1 rounded px-2 py-1 text-xs border border-border hover:bg-muted"
+            onClick={() => { setDraft({ ...q }); setEditing(false); }}
+          >
+            <X className="size-3" /> Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="group rounded-lg border border-border p-3">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm flex-1">{q.text}</p>
+        <div className="flex shrink-0 gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            className="rounded p-1 hover:bg-muted text-muted-foreground hover:text-foreground"
+            title="Edit question"
+            onClick={() => { setDraft({ ...q }); setEditing(true); }}
+          >
+            <Pencil className="size-3.5" />
+          </button>
+          <button
+            className="rounded p-1 hover:bg-muted text-muted-foreground hover:text-danger"
+            title="Delete question"
+            onClick={handleDelete}
+          >
+            <Trash2 className="size-3.5" />
+          </button>
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+        <Badge variant="outline">{q.topic}</Badge>
+        {q.subtopics?.map((st) => <Badge key={st} variant="outline" className="text-violet">{st}</Badge>)}
+        <Badge variant="secondary">{q.difficulty}</Badge>
+        <Badge variant="outline">{q.type.replace(/_/g, " ")}</Badge>
+        {q.marks != null && <Badge variant="outline">{q.marks} marks</Badge>}
+        {q.year != null && <Badge variant="outline">{q.year}</Badge>}
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- Question explorer ---------------- */
 
 function QuestionExplorer() {
@@ -628,17 +760,7 @@ function QuestionExplorer() {
       <div className="max-h-[460px] space-y-2 overflow-y-auto">
         {questions.length === 0 && <p className="text-sm text-muted-foreground">No questions match these filters.</p>}
         {questions.map((q) => (
-          <div key={q.id} className="rounded-lg border border-border p-3">
-            <p className="text-sm">{q.text}</p>
-            <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
-              <Badge variant="outline">{q.topic}</Badge>
-              {q.subtopics?.map((st) => <Badge key={st} variant="outline" className="text-violet">{st}</Badge>)}
-              <Badge variant="secondary">{q.difficulty}</Badge>
-              <Badge variant="outline">{q.type.replace(/_/g, " ")}</Badge>
-              {q.marks != null && <Badge variant="outline">{q.marks} marks</Badge>}
-              {q.year != null && <Badge variant="outline">{q.year}</Badge>}
-            </div>
-          </div>
+          <QuestionCard key={q.id} q={q} />
         ))}
       </div>
     </section>
