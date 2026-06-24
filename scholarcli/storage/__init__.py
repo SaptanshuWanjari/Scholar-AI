@@ -53,16 +53,26 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("size_kb", "INTEGER NOT NULL DEFAULT 0"),
         ("pages", "INTEGER NOT NULL DEFAULT 0"),
         ("status", "VARCHAR(16) NOT NULL DEFAULT 'indexed'"),
+        ("error", "TEXT"),
+        ("summary", "TEXT"),
+        ("tags", "JSON"),
+        ("topics", "JSON"),
     ],
     "notebooks": [
         ("tags", "JSON"),
+        ("is_draft", "INTEGER NOT NULL DEFAULT 0"),
     ],
     "pyq_questions": [
         ("subtopics", "JSON"),
     ],
     # Artifact quality scores (api/quality.py), added per artifact table.
     "decks": [("quality_score", "JSON")],
-    "quizzes": [("quality_score", "JSON")],
+    "quizzes": [
+        ("quality_score", "JSON"),
+        ("session_answers", "JSON"),
+        ("session_current_question", "INTEGER"),
+        ("session_started_at", "TEXT"),
+    ],
     "diagrams": [("quality_score", "JSON")],
     "mindmaps": [("quality_score", "JSON")],
     "difference_tables": [("quality_score", "JSON")],

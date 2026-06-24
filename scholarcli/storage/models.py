@@ -53,6 +53,10 @@ class Document(Base):
     status: Mapped[str] = mapped_column(
         String(16), nullable=False, default="indexed"
     )  # indexed, processing, failed
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    tags: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    topics: Mapped[list | None] = mapped_column(JSON, nullable=True)
     indexed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -112,6 +116,11 @@ class SavedQuiz(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    session_answers: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    session_current_question: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    session_started_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
 
 class Notebook(Base):
@@ -124,6 +133,7 @@ class Notebook(Base):
     color: Mapped[str] = mapped_column(String(16), nullable=False, default="#4f4d7a")
     blocks: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     tags: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    is_draft: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
@@ -304,6 +314,23 @@ class LearningPackage(Base):
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class ExamSession(Base):
+    """Durable exam session — persists generate → submit across process restarts."""
+
+    __tablename__ = "exam_sessions"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    topic: Mapped[str] = mapped_column(String(256), nullable=False)
+    course: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    questions: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    submitted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
     )
 
 
