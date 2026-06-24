@@ -78,6 +78,7 @@ def parse_quiz(text: str) -> list[dict]:
                         "options": q.get("options", []),
                         "answer": q.get("answer", ""),
                         "explanation": q.get("explanation", ""),
+                        "topic": q.get("topic", ""),  # carried through for PYQ-tagged exams
                     })
                 if questions:
                     return questions
@@ -123,6 +124,64 @@ def parse_quiz(text: str) -> list[dict]:
             prompt = _Q_RE.match(line).group(1)  # type: ignore[union-attr]
     flush()
     return questions
+
+
+_DIFFICULTIES = {"easy": "Easy", "medium": "Medium", "hard": "Hard"}
+_QTYPES = {"compare", "explain", "short", "case", "numerical", "other"}
+
+
+def parse_pyq(text: str) -> list[dict]:
+    """Parse an extracted-questions JSON array into PYQ question dicts.
+
+    Forgiving like ``parse_quiz``: grab the first ``[`` … last ``]``, ``json.loads``,
+    and skip/normalize bad items. Each item may carry ``text``/``question``,
+    ``topic``, ``difficulty``, ``type``, ``marks``, ``year``.
+    """
+    import json
+
+    start = text.find("[")
+    end = text.rfind("]")
+    if start == -1 or end == -1 or end <= start:
+        return []
+    try:
+        parsed = json.loads(text[start : end + 1])
+    except Exception:
+        return []
+    if not isinstance(parsed, list):
+        return []
+
+    out: list[dict] = []
+    for q in parsed:
+        if not isinstance(q, dict):
+            continue
+        body = str(q.get("text") or q.get("question") or "").strip()
+        if not body:
+            continue
+        diff = _DIFFICULTIES.get(str(q.get("difficulty", "")).strip().lower(), "Medium")
+        qtype = str(q.get("type") or q.get("qtype") or "other").strip().lower()
+        if qtype not in _QTYPES:
+            qtype = "other"
+        marks = q.get("marks")
+        try:
+            marks = int(marks) if marks not in (None, "") else None
+        except (TypeError, ValueError):
+            marks = None
+        year = q.get("year")
+        try:
+            year = int(year) if year not in (None, "") else None
+        except (TypeError, ValueError):
+            year = None
+        out.append(
+            {
+                "text": body,
+                "topic": str(q.get("topic") or "General").strip()[:256] or "General",
+                "difficulty": diff,
+                "type": qtype,
+                "marks": marks,
+                "year": year,
+            }
+        )
+    return out
 
 
 def strip_mermaid_fences(text: str) -> str:

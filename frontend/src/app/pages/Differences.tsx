@@ -1,0 +1,250 @@
+import { useEffect, useRef, useState } from "react";
+import {
+  Columns2,
+  Copy,
+  Download,
+  Loader2,
+  Sparkles,
+  Trash2,
+  Code,
+  Eye,
+} from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
+import { Page, SectionTitle } from "../components/Page";
+import { api } from "../lib/api";
+import type { DifferenceTableItem, GeneratedDifference } from "../lib/types";
+import { cn } from "../components/ui/utils";
+
+export function Differences() {
+  const [topic, setTopic] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [output, setOutput] = useState<GeneratedDifference | null>(null);
+  const [showRaw, setShowRaw] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [saved, setSaved] = useState<DifferenceTableItem[]>([]);
+  const viewerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    api.getDifferenceSuggestions().then(setSuggestions).catch(() => {});
+    api.listDifferences().then(setSaved).catch(() => {});
+  }, []);
+
+  async function generate() {
+    const t = topic.trim();
+    if (!t) return;
+    setLoading(true);
+    setOutput(null);
+    try {
+      const result = await api.generateDifference(t);
+      setOutput(result);
+      setTimeout(() => viewerRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    } catch {
+      toast.error("Failed to generate comparison");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function copyMarkdown() {
+    if (!output) return;
+    navigator.clipboard.writeText(output.content);
+    toast.success("Copied to clipboard");
+  }
+
+  function exportMarkdown() {
+    if (!output) return;
+    const blob = new Blob([output.content], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${output.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.md`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success("Exported as Markdown");
+  }
+
+  async function saveTable() {
+    if (!output) return;
+    try {
+      const item = await api.saveDifference(output.title, output.content);
+      setSaved((prev) => [item, ...prev]);
+      toast.success("Saved");
+    } catch {
+      toast.error("Failed to save");
+    }
+  }
+
+  async function deleteTable(id: number) {
+    try {
+      await api.deleteDifference(id);
+      setSaved((prev) => prev.filter((s) => s.id !== id));
+      toast.success("Deleted");
+    } catch {
+      toast.error("Failed to delete");
+    }
+  }
+
+  function loadSaved(item: DifferenceTableItem) {
+    setOutput({ title: item.title, content: item.content, grounded: true });
+    setTopic(item.title);
+    setTimeout(() => viewerRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+  }
+
+  const isEmpty = !output && saved.length === 0 && !loading;
+
+  return (
+    <Page>
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <Columns2 className="size-5 text-violet" />
+          <h1 className="text-2xl font-semibold tracking-tight">Difference Tables</h1>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Compare concepts, architectures, algorithms and systems.
+        </p>
+      </div>
+
+      {/* Search */}
+      <div className="flex gap-2 mb-4">
+        <Input
+          placeholder="Compare concepts… e.g. Process vs Thread"
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && !loading && generate()}
+          className="flex-1"
+        />
+        <Button onClick={generate} disabled={loading || !topic.trim()}>
+          {loading ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Sparkles className="size-4" />
+          )}
+          {loading ? "Generating…" : "Generate Table"}
+        </Button>
+      </div>
+
+      {/* Suggestions */}
+      {suggestions.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {suggestions.map((s) => (
+            <button
+              key={s}
+              onClick={() => {
+                setTopic(s);
+              }}
+              className="rounded-full border border-border bg-muted/50 px-3 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Viewer */}
+      {output && (
+        <div ref={viewerRef} className="mb-8">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="font-medium text-foreground">{output.title}</h2>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowRaw((v) => !v)}
+                className="gap-1.5"
+              >
+                {showRaw ? <Eye className="size-3.5" /> : <Code className="size-3.5" />}
+                {showRaw ? "Rendered" : "Raw"}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={copyMarkdown} className="gap-1.5">
+                <Copy className="size-3.5" /> Copy
+              </Button>
+              <Button variant="ghost" size="sm" onClick={exportMarkdown} className="gap-1.5">
+                <Download className="size-3.5" /> Export
+              </Button>
+              <Button size="sm" onClick={saveTable} className="gap-1.5">
+                Save
+              </Button>
+            </div>
+          </div>
+          <div
+            className={cn(
+              "rounded-lg border border-border bg-card p-4",
+              showRaw && "font-mono text-xs",
+            )}
+          >
+            {showRaw ? (
+              <pre className="whitespace-pre-wrap text-foreground">{output.content}</pre>
+            ) : (
+              <MarkdownRenderer content={output.content} />
+            )}
+          </div>
+          {!output.grounded && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Based on general knowledge — upload documents for grounded comparisons.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {isEmpty && (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Columns2 className="size-10 text-muted-foreground/40 mb-3" />
+          <p className="font-medium text-muted-foreground mb-1">Generate your first comparison.</p>
+          <p className="text-sm text-muted-foreground/70">
+            Compare two concepts to create an exam-ready revision table.
+          </p>
+          <div className="flex gap-2 mt-4 flex-wrap justify-center">
+            {["Process vs Thread", "REST vs gRPC", "Monolith vs Microservices"].map((ex) => (
+              <button
+                key={ex}
+                onClick={() => setTopic(ex)}
+                className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                {ex}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Saved tables */}
+      {saved.length > 0 && (
+        <div>
+          <SectionTitle title="Saved Comparisons" />
+          <div className="space-y-2">
+            {saved.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 hover:bg-muted/50 transition-colors"
+              >
+                <button
+                  className="flex-1 text-left"
+                  onClick={() => loadSaved(item)}
+                >
+                  <p className="text-sm font-medium text-foreground">{item.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {new Date(item.createdAt).toLocaleDateString()}
+                    {item.course && ` · ${item.course}`}
+                  </p>
+                </button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => deleteTable(item.id)}
+                  className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </Page>
+  );
+}

@@ -17,77 +17,7 @@ import type { Course, DocumentItem } from "../lib/types";
 import { useMindmapStore, ALL_COURSES } from "../stores/useMindmapStore";
 import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
-
-interface TreeNode {
-  id: string;
-  label: string;
-  depth: number;
-  children: TreeNode[];
-}
-
-function parseMindmapText(text: string): TreeNode[] {
-  const roots: TreeNode[] = [];
-  const stack: TreeNode[] = [];
-  let counter = 0;
-
-  const lines = text.replace(/\r\n/g, "\n").split("\n");
-  for (const raw of lines) {
-    if (!raw.trim()) continue;
-
-    const match = raw.match(/^([\s│|]*)(?:[├└+`]?[-─]{2,}\s*)?(.*)$/u);
-    const indentRaw = match ? match[1] : "";
-    let label = (match ? match[2] : raw).trim();
-    label = label.replace(/^[├└│|+`\-─\s]+/u, "").trim();
-    if (!label) continue;
-
-    const indentWidth = indentRaw.replace(/\t/g, "    ").length;
-    const depth = Math.floor(indentWidth / 4);
-
-    const node: TreeNode = { id: `n${counter++}`, label, depth, children: [] };
-
-    while (stack.length && stack[stack.length - 1].depth >= depth) {
-      stack.pop();
-    }
-    if (stack.length === 0) {
-      roots.push(node);
-    } else {
-      stack[stack.length - 1].children.push(node);
-    }
-    stack.push(node);
-  }
-
-  return roots;
-}
-
-function countNodes(nodes: TreeNode[]): number {
-  return nodes.reduce((acc, n) => acc + 1 + countNodes(n.children), 0);
-}
-
-function TreeBranch({ node }: { node: TreeNode; isLast: boolean }) {
-  const accent =
-    node.depth === 0
-      ? "border-foreground bg-foreground text-background font-semibold"
-      : node.depth === 1
-        ? "border-cyan/40 bg-cyan-soft text-cyan"
-        : "border-border bg-card text-foreground";
-
-  return (
-    <li className="relative">
-      <span
-        className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[13px] leading-tight ${accent}`}
-      >
-        {node.label}
-      </span>
-      {node.children.length > 0 && (
-        <ul className="ml-5 mt-1.5 flex flex-col gap-1.5 border-l border-border pl-4">
-          {node.children.map((child, i) => (
-            <TreeBranch key={child.id} node={child} isLast={i === node.children.length - 1} />
-          ))}
-        </ul>
-      )}
-    </li>
-  );
-}
+import { MindMapTree, parseMindmapText, countNodes } from "../components/MindMapTree";
 
 export function MindMaps() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -272,11 +202,7 @@ export function MindMaps() {
                     {active.course}
                   </p>
                 )}
-                <ul className="flex flex-col gap-1.5">
-                  {tree.map((root) => (
-                    <TreeBranch key={root.id} node={root} isLast />
-                  ))}
-                </ul>
+                <MindMapTree text={active.text} />
               </div>
             </ScrollArea>
           </>

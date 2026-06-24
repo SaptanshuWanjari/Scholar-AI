@@ -10,6 +10,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from scholarcli.llm import get_llm
 from scholarcli.api.prompt_service import active_body
 from scholarcli.rag.prompts import (
+    DIFFERENCES_SYSTEM,
     FLASHCARDS_SYSTEM,
     GENERATOR_SYSTEM,
     MERMAID_SYSTEM,
@@ -30,6 +31,7 @@ _ROUTE_PROMPTS: dict[str, str] = {
     "mermaid": MERMAID_SYSTEM,
     "mindmap": MINDMAP_SYSTEM,
     "study_notes": STUDY_NOTES_SYSTEM,
+    "differences": DIFFERENCES_SYSTEM,
 }
 
 

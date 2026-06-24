@@ -2,7 +2,7 @@
 // In dev, requests go to `/api/*` which Vite proxies to the backend
 // (see vite.config.ts). Override with VITE_API_BASE_URL for production.
 
-import type { Course, DiagramItem, DocumentItem, Flashcard, Quiz, Source, PromptItem } from "./types";
+import type { Course, DiagramItem, DifferenceTableItem, DocumentItem, Flashcard, GeneratedDifference, Quiz, Source, PromptItem } from "./types";
 
 const BASE: string = (import.meta as any).env?.VITE_API_BASE_URL ?? "";
 
@@ -33,6 +33,35 @@ export interface GeneratedRevision {
   title: string;
   markdown: string;
   grounded: boolean;
+}
+
+// ---- Teach Me ----
+export interface TeachOverview {
+  title: string;
+  markdown: string;
+  grounded: boolean;
+  sources: Source[];
+}
+
+export interface PackageMeta {
+  id: string;
+  title: string;
+  course: string;
+  depth: string;
+  artifactCount: number;
+  createdAt: string;
+}
+
+export interface PackageFull {
+  id: string;
+  title: string;
+  course: string;
+  depth: string;
+  overview: { markdown?: string; grounded?: boolean };
+  artifacts: Record<string, any>;
+  sources: Source[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface SearchResult {
@@ -114,6 +143,83 @@ export interface ExamResult {
   difficultyAnalysis: { level: string; correct: number; total: number }[];
   review: { id: string; prompt: string; given: string; expected: string; correct: boolean; topic: string }[];
   recommendedRevisions: string[];
+}
+
+// ---- PYQ analysis ----
+export interface PyqPaper {
+  id: number;
+  course: string;
+  title: string;
+  year: number | null;
+  questionCount: number;
+  createdAt: string;
+}
+
+export interface PyqQuestion {
+  id: number;
+  text: string;
+  topic: string;
+  difficulty: string;
+  type: string;
+  marks: number | null;
+  year: number | null;
+}
+
+export interface PyqTopicFreq {
+  topic: string;
+  occurrences: number;
+  frequency: string;
+  trend: string;
+  importance: number;
+  accuracy: number | null;
+  styles: string[];
+}
+
+export interface PyqPattern {
+  type: string;
+  label: string;
+  pct: number;
+  count: number;
+  examples: string[];
+}
+
+export interface PyqYearTrend {
+  topic: string;
+  years: { year: number; count: number }[];
+}
+
+export interface PyqRevisionRisk {
+  topic: string;
+  occurrences: number;
+  accuracy: number;
+  risk: string;
+  score: number;
+}
+
+export interface PyqAnalysis {
+  course: string;
+  papers: number;
+  totalQuestions: number;
+  yearsLabel: string;
+  summary: {
+    topicsIdentified?: number;
+    recurringTopics?: number;
+    questionTypes?: number;
+    avgDifficulty?: string;
+    coverage?: number;
+    readiness?: number;
+  };
+  topicFrequency: PyqTopicFreq[];
+  patterns: PyqPattern[];
+  difficulty: { level: string; count: number }[];
+  yearTrends: PyqYearTrend[];
+  revisionRisk: PyqRevisionRisk[];
+  readiness: {
+    coverage?: number;
+    readiness?: number;
+    weakTopics?: string[];
+    strongTopics?: string[];
+  };
 }
 
 export interface KGNode {
@@ -498,11 +604,41 @@ export const api = {
   },
 
   // ---- Exam ----
-  generateExam(opts: { topic?: string; course?: string | null; document?: string | null; difficulty?: "Easy" | "Medium" | "Hard"; count?: number; types?: string[] }): Promise<ExamSession> {
+  generateExam(opts: { topic?: string; course?: string | null; document?: string | null; difficulty?: "Easy" | "Medium" | "Hard"; count?: number; types?: string[]; pyqCourse?: string | null }): Promise<ExamSession> {
     return request<ExamSession>("/api/exams/generate", json(opts));
   },
   submitExam(sessionId: string, answers: Record<string, string>, timeSpent?: number): Promise<ExamResult> {
     return request<ExamResult>(`/api/exams/${sessionId}/submit`, json({ answers, timeSpent }));
+  },
+
+  // ---- PYQ analysis ----
+  uploadPyqPaper(file: File, course: string, year?: number | null): Promise<{ paper: PyqPaper; extracted: number }> {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("course", course);
+    if (year != null) fd.append("year", String(year));
+    return request<{ paper: PyqPaper; extracted: number }>("/api/pyq/papers/upload", { method: "POST", body: fd });
+  },
+  listPyqPapers(course?: string): Promise<PyqPaper[]> {
+    const p = new URLSearchParams();
+    if (course && course !== "all") p.set("course", course);
+    const qs = p.toString();
+    return request<PyqPaper[]>(`/api/pyq/papers${qs ? `?${qs}` : ""}`);
+  },
+  deletePyqPaper(id: number): Promise<void> {
+    return request<void>(`/api/pyq/papers/${id}`, { method: "DELETE" });
+  },
+  getPyqAnalysis(course: string): Promise<PyqAnalysis> {
+    return request<PyqAnalysis>(`/api/pyq/analysis?course=${encodeURIComponent(course)}`);
+  },
+  listPyqQuestions(course: string, filters?: { year?: number; topic?: string; difficulty?: string; type?: string; q?: string }): Promise<PyqQuestion[]> {
+    const p = new URLSearchParams({ course });
+    if (filters?.year != null) p.set("year", String(filters.year));
+    if (filters?.topic) p.set("topic", filters.topic);
+    if (filters?.difficulty) p.set("difficulty", filters.difficulty);
+    if (filters?.type) p.set("type", filters.type);
+    if (filters?.q) p.set("q", filters.q);
+    return request<PyqQuestion[]>(`/api/pyq/questions?${p.toString()}`);
   },
 
   // ---- Knowledge graph ----
@@ -578,5 +714,44 @@ export const api = {
   },
   deletePrompt(id: number): Promise<void> {
     return request<void>(`/api/prompts/${id}`, { method: "DELETE" });
+  },
+  generateDifference(topic: string, course?: string | null, document?: string | null): Promise<GeneratedDifference> {
+    return request<GeneratedDifference>("/api/differences/generate", json({ topic, course: course ?? null, document: document ?? null }));
+  },
+  getDifferenceSuggestions(): Promise<string[]> {
+    return request<string[]>("/api/differences/suggestions");
+  },
+  listDifferences(): Promise<DifferenceTableItem[]> {
+    return request<DifferenceTableItem[]>("/api/differences");
+  },
+  saveDifference(title: string, content: string, course?: string | null): Promise<DifferenceTableItem> {
+    return request<DifferenceTableItem>("/api/differences", json({ title, content, course: course ?? null }));
+  },
+  deleteDifference(id: number): Promise<void> {
+    return request<void>(`/api/differences/${id}`, { method: "DELETE" });
+  },
+
+  // ---- Teach Me ----
+  generateOverview(topic: string, depth: "quick" | "standard" | "deep" = "standard"): Promise<TeachOverview> {
+    return request<TeachOverview>("/api/teach/overview", json({ topic, depth }));
+  },
+  listPackages(): Promise<PackageMeta[]> {
+    return request<PackageMeta[]>("/api/teach/packages");
+  },
+  getPackage(id: string): Promise<PackageFull> {
+    return request<PackageFull>(`/api/teach/packages/${id}`);
+  },
+  savePackage(pkg: {
+    title: string;
+    course?: string | null;
+    depth: string;
+    overview: Record<string, any>;
+    artifacts: Record<string, any>;
+    sources: Source[];
+  }): Promise<PackageFull> {
+    return request<PackageFull>("/api/teach/packages", json(pkg));
+  },
+  deletePackage(id: string): Promise<void> {
+    return request<void>(`/api/teach/packages/${id}`, { method: "DELETE" });
   },
 };

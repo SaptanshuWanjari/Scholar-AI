@@ -152,6 +152,18 @@ class Mindmap(Base):
     )
 
 
+class DifferenceTable(Base):
+    __tablename__ = "difference_tables"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class Prompt(Base):
     """A user-customizable system prompt for a generation category.
 
@@ -208,6 +220,84 @@ class ReadingState(Base):
     highlights: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     bookmarks: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     progress: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+
+
+class QuestionPaper(Base):
+    """An uploaded previous-year question paper (PYQ)."""
+
+    __tablename__ = "question_papers"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    title: Mapped[str] = mapped_column(String(512), nullable=False)
+    year: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    source_document: Mapped[str] = mapped_column(String(512), nullable=False, default="")
+    question_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    questions: Mapped[list["PYQQuestion"]] = relationship(
+        back_populates="paper", cascade="all, delete-orphan"
+    )
+
+
+class PYQQuestion(Base):
+    """A single question extracted from a question paper."""
+
+    __tablename__ = "pyq_questions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    paper_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("question_papers.id"), nullable=False
+    )
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    year: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    topic: Mapped[str] = mapped_column(String(256), nullable=False, default="General")
+    difficulty: Mapped[str] = mapped_column(String(16), nullable=False, default="Medium")  # Easy|Medium|Hard
+    qtype: Mapped[str] = mapped_column(String(32), nullable=False, default="other")  # compare|explain|short|case|numerical|other
+    marks: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    paper: Mapped["QuestionPaper"] = relationship(back_populates="questions")
+
+
+class TopicStat(Base):
+    """Accumulated per-topic answer accuracy for a course (the feedback loop)."""
+
+    __tablename__ = "topic_stats"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    topic: Mapped[str] = mapped_column(String(256), nullable=False)
+    correct: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    total: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_attempt: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+
+class LearningPackage(Base):
+    """A saved ``/teach`` workspace — a topic's whole mini-course bundled into
+    one row. Overview, per-artifact payloads and sources are stored as JSON so
+    the entire workspace can be restored without re-generating anything.
+    """
+
+    __tablename__ = "learning_packages"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)  # the topic
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    depth: Mapped[str] = mapped_column(String(16), nullable=False, default="standard")  # quick|standard|deep
+    overview: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)  # {markdown, grounded}
+    artifacts: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)  # {notes, flashcards, quiz, mindmap, diagram, difference}
+    sources: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
 
 class Activity(Base):

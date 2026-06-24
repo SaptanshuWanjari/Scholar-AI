@@ -107,3 +107,17 @@ export interface PromptItem {
   built_in: boolean;
   active: boolean;
 }
+
+export interface GeneratedDifference {
+  title: string;
+  content: string;
+  grounded: boolean;
+}
+
+export interface DifferenceTableItem {
+  id: number;
+  title: string;
+  course: string;
+  content: string;
+  createdAt: string;
+}

@@ -9,15 +9,18 @@ import { AskAI } from "./pages/AskAI";
 import { Notebooks } from "./pages/Notebooks";
 import { Reading } from "./pages/Reading";
 import { Exam } from "./pages/Exam";
+import { PyqAnalysis } from "./pages/PyqAnalysis";
 import { Revision } from "./pages/Revision";
 import { Flashcards } from "./pages/Flashcards";
 import { QuizPage } from "./pages/Quiz";
 import { Diagrams } from "./pages/Diagrams";
 import { MindMaps } from "./pages/MindMaps";
+import { Teach } from "./pages/Teach";
 import { SearchPage } from "./pages/Search";
 import { SettingsPage } from "./pages/Settings";
 import { Trace } from "./pages/Trace";
 import { Courses } from "./pages/Courses";
+import { Differences } from "./pages/Differences";
 import { PromptLibrary } from "./pages/PromptLibrary";
 import { OnboardingHero } from "./pages/onboarding/OnboardingHero";
 import { OnboardingImport } from "./pages/onboarding/OnboardingImport";
@@ -53,12 +56,14 @@ export default function App() {
           {/* Main workspace — guarded by first-launch check */}
           <Route element={<FirstLaunchGuard><AppLayout /></FirstLaunchGuard>}>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/teach" element={<Teach />} />
             <Route path="/knowledge" element={<KnowledgeBase />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/ask" element={<AskAI />} />
             <Route path="/notebooks" element={<Notebooks />} />
             <Route path="/reading" element={<Reading />} />
             <Route path="/exam" element={<Exam />} />
+            <Route path="/exam-analysis" element={<PyqAnalysis />} />
             <Route path="/revision" element={<Revision />} />
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/quiz" element={<QuizPage />} />
@@ -68,6 +73,7 @@ export default function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/trace" element={<Trace />} />
             <Route path="/courses" element={<Courses />} />
+            <Route path="/differences" element={<Differences />} />
             <Route path="/prompts" element={<PromptLibrary />} />
           </Route>
 

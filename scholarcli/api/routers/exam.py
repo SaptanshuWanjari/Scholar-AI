@@ -11,7 +11,7 @@ from collections import defaultdict
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
 
-from scholarcli.api import parsers
+from scholarcli.api import parsers, pyq_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import run_ask
 from scholarcli.api.schemas import (
@@ -35,10 +35,38 @@ async def generate_exam(req: ExamGenerateRequest) -> ExamSessionOut:
         raise HTTPException(status_code=400, detail="topic or course is required")
 
     types_str = ", ".join(req.types) if req.types else "multiple choice"
+
+    # PYQ-aware generation: mirror the real paper's topic/difficulty/style mix
+    # and force each question to be tagged with one of the PYQ topics, so the
+    # submit step can accumulate per-topic accuracy.
+    pyq_block = ""
+    pyq_topics: list[str] = []
+    if req.pyqCourse:
+        analysis = await run_in_threadpool(pyq_service.build_analysis, req.pyqCourse)
+        topics = analysis.get("topicFrequency", [])[:10]
+        pyq_topics = [t["topic"] for t in topics]
+        if pyq_topics:
+            topic_lines = "\n".join(
+                f"- {t['topic']} ({t['frequency']} frequency, {t['occurrences']} past questions)"
+                for t in topics
+            )
+            diff_lines = ", ".join(
+                f"{d['level']}: {d['count']}" for d in analysis.get("difficulty", [])
+            )
+            pyq_block = f"""
+Base this exam on the real previous-year-question trends for this subject.
+Weight questions toward the most frequent topics below; mirror the historical difficulty mix.
+Topics (most → least frequent):
+{topic_lines}
+Historical difficulty distribution: {diff_lines}.
+Set each question's 'topic' field to the single best-matching topic from the list above.
+"""
+
     query = f"""Generate a {req.difficulty} difficulty {req.count}-question exam about: {subject}.
 Include these question types: {types_str}.
+{pyq_block}
 Output the exam strictly as a markdown JSON array block ```json [...] ```.
-Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'options' (array of strings, for mcq/truefalse), 'answer' (the exact correct answer string), and 'explanation'.
+Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'options' (array of strings, for mcq/truefalse), 'answer' (the exact correct answer string), 'explanation', and 'topic' (a short topic label).
 """
     result = await run_in_threadpool(run_ask, query, req.course, req.document, "quiz")
     parsed = parsers.parse_quiz(result["content"])
@@ -49,7 +77,7 @@ Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'optio
         eq = {
             "id": f"e{i + 1}",
             "type": q.get("type", "mcq"),
-            "topic": subject,
+            "topic": (q.get("topic") or "").strip() or subject,
             "difficulty": req.difficulty,
             "prompt": q["prompt"],
             "options": q.get("options"),
@@ -59,7 +87,7 @@ Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'optio
         questions.append(ExamQuestionOut(**eq))
 
     session_id = f"exam-{abs(hash(subject + result['content'])) % 10_000_000}"
-    _sessions[session_id] = {"questions": stored, "topic": subject}
+    _sessions[session_id] = {"questions": stored, "topic": subject, "course": req.pyqCourse}
 
     return ExamSessionOut(
         sessionId=session_id,
@@ -138,6 +166,9 @@ async def submit_exam(session_id: str, payload: ExamSubmitRequest) -> ExamResult
 
     score = round(100 * correct / total) if total else 0
     record_activity("exam", f"Exam: {session['topic']} — {score}%", "", minutes=payload.timeSpent // 60 if payload.timeSpent else None)
+    # Feed the PYQ accuracy loop when this exam was generated from a course's PYQs.
+    if session.get("course"):
+        pyq_service.record_topic_results(session["course"], dict(by_topic))
     topic_perf = [
         {"topic": t, "score": round(100 * c / n) if n else 0} for t, (c, n) in by_topic.items()
     ]

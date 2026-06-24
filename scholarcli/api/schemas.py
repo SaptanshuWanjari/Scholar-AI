@@ -391,6 +391,9 @@ class ExamGenerateRequest(BaseModel):
     difficulty: Literal["Easy", "Medium", "Hard"] = "Medium"
     count: int = 8
     types: list[Literal["mcq", "truefalse", "short", "long"]] = ["mcq"]
+    # When set, bias the generated exam toward the PYQ topic/difficulty mix of
+    # this course (and record per-topic accuracy on submit).
+    pyqCourse: str | None = None
 
 
 class ExamQuestionOut(BaseModel):
@@ -472,3 +475,121 @@ class ConceptInspectorOut(BaseModel):
     relatedConcepts: list[str] = []
     referencedIn: dict = {}
     citations: list[dict] = []
+
+
+# ---------------------------------------------------------------------------
+# Differences
+# ---------------------------------------------------------------------------
+
+class GenerateDifferenceRequest(BaseModel):
+    topic: str
+    course: str | None = None
+    document: str | None = None
+
+
+class DifferenceOut(BaseModel):
+    title: str
+    content: str
+    grounded: bool = True
+
+
+class SaveDifferenceRequest(BaseModel):
+    title: str
+    content: str
+    course: str | None = None
+
+
+class DifferenceTableItem(BaseModel):
+    id: int
+    title: str
+    course: str
+    content: str
+    createdAt: str
+
+
+# ---------------------------------------------------------------------------
+# Teach Me — learning overview + saved packages
+# ---------------------------------------------------------------------------
+
+class TeachRequest(BaseModel):
+    topic: str
+    depth: Literal["quick", "standard", "deep"] = "standard"
+
+
+class OverviewOut(BaseModel):
+    title: str
+    markdown: str
+    grounded: bool = True
+    sources: list[SourceOut] = []
+
+
+class PackageIn(BaseModel):
+    title: str
+    course: str | None = None
+    depth: str = "standard"
+    overview: dict = {}
+    artifacts: dict = {}
+    sources: list = []
+
+
+class PackageMeta(BaseModel):
+    id: str
+    title: str
+    course: str
+    depth: str
+    artifactCount: int
+    createdAt: str
+
+
+class PackageOut(BaseModel):
+    id: str
+    title: str
+    course: str
+    depth: str
+    overview: dict = {}
+    artifacts: dict = {}
+    sources: list = []
+    createdAt: str
+    updatedAt: str
+
+
+# ---------------------------------------------------------------------------
+# PYQ analysis
+# ---------------------------------------------------------------------------
+
+class PyqPaperOut(BaseModel):
+    id: int
+    course: str
+    title: str
+    year: int | None = None
+    questionCount: int
+    createdAt: str
+
+
+class PyqUploadResponse(BaseModel):
+    paper: PyqPaperOut
+    extracted: int
+
+
+class PyqQuestionOut(BaseModel):
+    id: int
+    text: str
+    topic: str
+    difficulty: str
+    type: str
+    marks: int | None = None
+    year: int | None = None
+
+
+class PyqAnalysisOut(BaseModel):
+    course: str
+    papers: int
+    totalQuestions: int
+    yearsLabel: str = ""
+    summary: dict = {}
+    topicFrequency: list[dict] = []
+    patterns: list[dict] = []
+    difficulty: list[dict] = []
+    yearTrends: list[dict] = []
+    revisionRisk: list[dict] = []
+    readiness: dict = {}

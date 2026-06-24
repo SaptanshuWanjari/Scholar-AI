@@ -46,6 +46,7 @@ def create_app() -> FastAPI:
         ask,
         courses,
         dashboard,
+        differences,
         documents,
         exam,
         knowledge,
@@ -53,10 +54,12 @@ def create_app() -> FastAPI:
         notebooks,
         onboarding,
         prompts,
+        pyq,
         reading,
         search,
         settings,
         study,
+        teach,
         trace,
     )
 
@@ -64,6 +67,7 @@ def create_app() -> FastAPI:
         ask,
         courses,
         dashboard,
+        differences,
         documents,
         exam,
         knowledge,
@@ -71,10 +75,12 @@ def create_app() -> FastAPI:
         notebooks,
         onboarding,
         prompts,
+        pyq,
         reading,
         search,
         settings,
         study,
+        teach,
         trace,
     ):
         app.include_router(module.router)

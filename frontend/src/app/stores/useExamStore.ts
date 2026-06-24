@@ -38,6 +38,9 @@ interface ExamState {
   minutes: number;
   coverage: string;
   types: string[];
+  /** When set, the backend mirrors this course's PYQ topic/difficulty mix and
+   * records per-topic accuracy on submit. Seeded by the PYQ Analysis page. */
+  pyqCourse: string | null;
 
   setField: <K extends keyof ExamState>(key: K, value: ExamState[K]) => void;
   answer: (qid: string, value: string) => void;
@@ -72,6 +75,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
   minutes: 20,
   coverage: "Entire Course",
   types: ["mcq"],
+  pyqCourse: null,
 
   setField: (key, value) => set({ [key]: value } as Partial<ExamState>),
 
@@ -96,7 +100,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
     }),
 
   generate: async () => {
-    const { generating, topic, course, document, difficulty, count, minutes, types } = get();
+    const { generating, topic, course, document, difficulty, count, minutes, types, pyqCourse } = get();
     if (generating) return;
     set({ generating: true });
     try {
@@ -111,6 +115,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
             : undefined,
         count,
         types,
+        pyqCourse,
       });
       if (!session.grounded || session.questions.length === 0) {
         toast.error(
@@ -168,5 +173,6 @@ export const useExamStore = create<ExamState>((set, get) => ({
       visited: [],
       deadline: null,
       submitting: false,
+      pyqCourse: null,
     }),
 }));
