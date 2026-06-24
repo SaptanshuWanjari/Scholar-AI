@@ -55,6 +55,11 @@ def _build_sections(document_id: int, fallback_title: str) -> list[ReadingSectio
         paragraphs = []
 
     for ch in chunks:
+        # Image/diagram chunks exist for retrieval; the image itself already
+        # renders inline (with its description as caption) inside the text
+        # chunk, so skip the standalone description here to avoid duplicates.
+        if ch.get("source_type") in ("image", "diagram"):
+            continue
         heading = (ch.get("heading") or "").strip()
         if current_heading is None:
             current_heading = heading

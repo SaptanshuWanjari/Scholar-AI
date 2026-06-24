@@ -101,6 +101,21 @@ export function MarkdownRenderer({
               </li>
             );
           },
+          img: ({ src, alt }) => (
+            <figure className="my-4">
+              <img
+                src={typeof src === "string" ? src : ""}
+                alt={alt ?? ""}
+                loading="lazy"
+                className="mx-auto max-h-[28rem] rounded-lg border border-border object-contain"
+              />
+              {alt && alt !== "Image" && (
+                <figcaption className="mt-2 text-center text-xs italic text-muted-foreground">
+                  {alt}
+                </figcaption>
+              )}
+            </figure>
+          ),
           a: ({ children, href }) => (
             <a
               href={href}

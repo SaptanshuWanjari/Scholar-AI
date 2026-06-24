@@ -6,6 +6,9 @@ base_url = "http://localhost:11434"
 
 [models]
 embedding = "qwen3-embedding:0.6b"
+# Vision model for image/diagram descriptions + low-confidence OCR recovery.
+# Lightweight by default; override per-user from the Settings page.
+vision = "qwen2.5vl:3b"
 
 # Per-task generation model routing. The router picks a task label; the LLM
 # factory maps the label -> model tag here. Add a row to wire a new study mode.
@@ -23,6 +26,14 @@ deep_analysis = "gemma4:12b"
 # token-ish budget (approx 4 chars/token); structural boundaries preferred
 chunk_size = 800
 chunk_overlap = 120
+
+[ingest]
+# Multimodal ingestion via Ollama only (no torch/heavy OCR engine).
+# Set vision_enabled = false to skip image descriptions + scanned-page OCR.
+ocr_enabled = true
+vision_enabled = true
+tables_enabled = true
+scanned_min_chars = 40
 
 [retrieval]
 top_k = 5

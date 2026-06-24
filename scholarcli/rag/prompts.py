@@ -28,7 +28,7 @@ question using ONLY the provided context chunks. Follow these rules:
 5. Never make up facts. If you're unsure, say so.\
 """
 
-# Prompt for the one-shot (non-TUI) path. TUI may use a multi-turn variant.
+# Prompt for the one-shot path.
 QA_PROMPT_TEMPLATE = """\
 Context from your uploaded materials:
 {context}

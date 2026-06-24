@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from scholarcli.api.activity_service import record_activity
+from scholarcli.api.prompt_service import active_body
 from scholarcli.api.rag_service import run_ask
 from scholarcli.api.schemas import (
     DifferenceOut,
@@ -13,6 +15,8 @@ from scholarcli.api.schemas import (
     GenerateDifferenceRequest,
     SaveDifferenceRequest,
 )
+from scholarcli.llm import get_llm
+from scholarcli.rag.prompts import DIFFERENCES_SYSTEM
 from scholarcli.storage import get_session
 from scholarcli.storage.models import Concept, DifferenceTable
 
@@ -30,6 +34,18 @@ _FALLBACK_SUGGESTIONS = [
 ]
 
 
+def _direct_generate(topic: str) -> str:
+    """Direct LLM call — no RAG grounding gate. Used when documents don't cover the topic."""
+    system = active_body("differences") or DIFFERENCES_SYSTEM
+    llm = get_llm("differences")
+    resp = llm.invoke([
+        SystemMessage(content=system),
+        HumanMessage(content=f"Compare and contrast: {topic}"),
+    ])
+    content = resp.content if hasattr(resp, "content") else str(resp)
+    return content if isinstance(content, str) else str(content)
+
+
 @router.post("/generate", response_model=DifferenceOut)
 async def generate_difference(req: GenerateDifferenceRequest) -> DifferenceOut:
     topic = req.topic.strip()
@@ -37,11 +53,19 @@ async def generate_difference(req: GenerateDifferenceRequest) -> DifferenceOut:
         raise HTTPException(status_code=400, detail="topic is required")
     query = f"Compare and contrast: {topic}"
     result = await run_in_threadpool(run_ask, query, req.course, req.document, "differences")
+
+    if result["grounded"]:
+        content = result["content"]
+        grounded = True
+    else:
+        content = await run_in_threadpool(_direct_generate, topic)
+        grounded = False
+
     record_activity("difference", f"Generated difference table: {topic}", req.course or "")
     return DifferenceOut(
         title=topic,
-        content=result["content"],
-        grounded=result["grounded"],
+        content=content,
+        grounded=grounded,
     )
 
 

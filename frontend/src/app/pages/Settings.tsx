@@ -66,6 +66,7 @@ export function SettingsPage() {
     fastModels: [],
     reasoningModels: [],
     embeddingModels: [],
+    visionModels: [],
   });
 
   useEffect(() => {
@@ -177,6 +178,25 @@ export function SettingsPage() {
                   <ModelOptions
                     models={models.embeddingModels}
                     current={s.embeddingModel}
+                  />
+                </SelectContent>
+              </Select>
+            </Row>
+            <Row
+              title="Vision / OCR model"
+              desc="Describes images & diagrams and recovers low-confidence OCR"
+            >
+              <Select
+                value={s.visionModel}
+                onValueChange={(v) => s.set("visionModel", v)}
+              >
+                <SelectTrigger className="w-56 bg-input-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <ModelOptions
+                    models={models.visionModels}
+                    current={s.visionModel}
                   />
                 </SelectContent>
               </Select>

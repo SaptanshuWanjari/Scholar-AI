@@ -57,6 +57,9 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
     "notebooks": [
         ("tags", "JSON"),
     ],
+    "pyq_questions": [
+        ("subtopics", "JSON"),
+    ],
 }
 
 

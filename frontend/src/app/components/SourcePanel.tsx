@@ -1,6 +1,6 @@
-import { FileText } from "lucide-react";
+import { FileText, ScanLine, Table, Image as ImageIcon, Workflow, Type } from "lucide-react";
 import { motion } from "motion/react";
-import type { Source } from "../lib/types";
+import type { Source, SourceType } from "../lib/types";
 import { cn } from "./ui/utils";
 import { ScrollArea } from "./ui/scroll-area";
 
@@ -15,6 +15,24 @@ function scoreColor(score: number) {
   if (score >= 0.8) return "var(--cyan)";
   if (score >= 0.7) return "var(--warning)";
   return "var(--muted-foreground)";
+}
+
+const TYPE_META: Record<SourceType, { label: string; Icon: typeof Type }> = {
+  text: { label: "Text", Icon: Type },
+  ocr: { label: "OCR", Icon: ScanLine },
+  table: { label: "Table", Icon: Table },
+  image: { label: "Image", Icon: ImageIcon },
+  diagram: { label: "Diagram", Icon: Workflow },
+};
+
+function SourceTypeBadge({ type }: { type: SourceType }) {
+  const { label, Icon } = TYPE_META[type] ?? TYPE_META.text;
+  return (
+    <span className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+      <Icon className="size-3" />
+      {label}
+    </span>
+  );
 }
 
 export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
@@ -57,11 +75,22 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium">{s.title}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {s.course} · p.{s.page}
+                  <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <SourceTypeBadge type={s.sourceType ?? "text"} />
+                    <span>
+                      {s.course} · p.{s.page}
+                    </span>
                   </div>
                 </div>
               </div>
+              {s.imageUrl && (s.sourceType === "image" || s.sourceType === "diagram") && (
+                <img
+                  src={s.imageUrl}
+                  alt={s.snippet}
+                  loading="lazy"
+                  className="mt-2 max-h-32 w-full rounded-md border border-border object-contain bg-muted/40"
+                />
+              )}
               <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
                 {s.snippet}
               </p>

@@ -15,6 +15,7 @@ import {
   Save,
   Plus,
   Trash2,
+  Clock,
   CheckCircle2,
   XCircle,
 } from "lucide-react";
@@ -38,6 +39,7 @@ import {
   type ArtifactKey,
   type Depth,
   type ViewKey,
+  type SlotStatus,
 } from "../stores/useTeachStore";
 
 const EXAMPLES = ["CAP Theorem", "RAG", "Deadlocks", "Service Discovery", "OS Scheduling", "LangGraph"];
@@ -292,13 +294,21 @@ function QuizReview({ questions }: { questions: QuizQuestion[] }) {
 function ArtifactBody({ view }: { view: ArtifactKey }) {
   const slot = useTeachStore((s) => s.artifacts[view]);
   const selected = useTeachStore((s) => s.selected[view]);
+  const retryArtifact = useTeachStore((s) => s.retryArtifact);
 
   if (!selected) {
     return <ViewState icon={XCircle} message={`${ARTIFACT_LABELS[view]} was not included in this package.`} />;
   }
-  if (slot.loading) return <Spinner message={`Generating ${ARTIFACT_LABELS[view].toLowerCase()}…`} />;
-  if (slot.error) {
-    return <ViewState icon={AlertTriangle} message={slot.error} />;
+  if (slot.status === "queued") return <Spinner message="Queued — waiting for earlier artifacts…" />;
+  if (slot.status === "loading") return <Spinner message={`Generating ${ARTIFACT_LABELS[view].toLowerCase()}…`} />;
+  if (slot.status === "error") {
+    return (
+      <div className="flex flex-col items-center gap-3 pt-24 text-center text-muted-foreground">
+        <AlertTriangle className="size-7 text-danger/70" />
+        <p className="max-w-sm text-sm">{slot.error}</p>
+        <Button variant="outline" size="sm" onClick={() => void retryArtifact(view)}>Retry</Button>
+      </div>
+    );
   }
   if (!slot.data) return <Spinner message="Loading…" />;
 
@@ -340,35 +350,100 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
   }
 }
 
+function StatusIcon({ status }: { status: SlotStatus }) {
+  switch (status) {
+    case "loading":
+      return <Loader2 className="size-3.5 shrink-0 animate-spin text-primary" />;
+    case "done":
+      return <CheckCircle2 className="size-3.5 shrink-0 text-success" />;
+    case "error":
+      return <AlertTriangle className="size-3.5 shrink-0 text-danger" />;
+    case "queued":
+      return <Clock className="size-3.5 shrink-0 text-muted-foreground/60" />;
+    default:
+      return null;
+  }
+}
+
 function WorkspacePhase() {
-  const { topic, activeView, overview, overviewLoading, overviewError, sources, packageId, saving, openView, savePackage, reset } =
-    useTeachStore();
+  const {
+    topic, activeView, overview, overviewStatus, sources, packageId, saving,
+    artifacts, selected, generating, currentTask, openView, savePackage, reset,
+  } = useTeachStore();
 
   const grounded = overview?.grounded;
+
+  // Status per nav item: overview/artifacts have real status; Sources rides on
+  // the overview (its chunks come back with the overview).
+  const statusFor = (view: ViewKey): SlotStatus => {
+    if (view === "overview" || view === "sources") return overviewStatus;
+    return artifacts[view].status;
+  };
+
+  // Progress across the whole package: overview + each selected artifact.
+  const total = 1 + ARTIFACT_KEYS.filter((k) => selected[k]).length;
+  const done =
+    (overviewStatus === "done" ? 1 : 0) +
+    ARTIFACT_KEYS.filter((k) => selected[k] && artifacts[k].status === "done").length;
+  const currentLabel = currentTask ? NAV.find((n) => n.id === currentTask)?.label : null;
 
   return (
     <div className="flex h-full">
       {/* Nav rail */}
-      <div className="flex w-60 shrink-0 flex-col border-r border-border bg-card/40">
+      <div className="flex w-64 shrink-0 flex-col border-r border-border bg-card/40">
         <div className="flex items-center gap-2 border-b border-border px-4 py-3">
           <GraduationCap className="size-4 text-primary" />
           <span className="truncate text-sm font-medium">{topic}</span>
         </div>
+
+        {/* Live progress strip */}
+        <div className="border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-medium text-muted-foreground">
+              {generating ? (
+                <span className="flex items-center gap-1.5 text-foreground">
+                  <Loader2 className="size-3 animate-spin text-primary" />
+                  Generating {currentLabel ?? "…"}
+                </span>
+              ) : done >= total ? (
+                "All artifacts ready"
+              ) : (
+                "Ready"
+              )}
+            </span>
+            <span className="font-mono text-muted-foreground">{done}/{total}</span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+            <motion.div
+              className="h-full rounded-full bg-primary"
+              animate={{ width: `${total ? (done / total) * 100 : 0}%` }}
+              transition={{ duration: 0.4 }}
+            />
+          </div>
+        </div>
+
         <ScrollArea className="flex-1">
           <nav className="space-y-1 p-2">
-            {NAV.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => openView(item.id)}
-                className={cn(
-                  "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                  activeView === item.id ? "bg-violet-soft text-primary" : "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
-                )}
-              >
-                <item.icon className="size-4 shrink-0" />
-                {item.label}
-              </button>
-            ))}
+            {NAV.map((item) => {
+              const st = statusFor(item.id);
+              const isArtifact = (ARTIFACT_KEYS as string[]).includes(item.id);
+              const notIncluded = isArtifact && !selected[item.id as ArtifactKey];
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => openView(item.id)}
+                  className={cn(
+                    "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                    activeView === item.id ? "bg-violet-soft text-primary" : "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
+                    notIncluded && "opacity-40",
+                  )}
+                >
+                  <item.icon className="size-4 shrink-0" />
+                  <span className="flex-1 truncate">{item.label}</span>
+                  <StatusIcon status={st} />
+                </button>
+              );
+            })}
           </nav>
         </ScrollArea>
         <div className="space-y-2 border-t border-border p-3">
@@ -406,10 +481,10 @@ function WorkspacePhase() {
               className="mx-auto max-w-3xl px-8 py-8"
             >
               {activeView === "overview" ? (
-                overviewLoading ? (
+                overviewStatus === "loading" ? (
                   <Spinner message="Retrieving sources…" />
-                ) : overviewError ? (
-                  <ViewState icon={AlertTriangle} message={overviewError} />
+                ) : overviewStatus === "error" ? (
+                  <ViewState icon={AlertTriangle} message="Failed to generate the overview." />
                 ) : overview ? (
                   <MarkdownRenderer content={overview.markdown} />
                 ) : (

@@ -11,6 +11,7 @@ attempts report ``None`` rather than a fabricated number.
 from __future__ import annotations
 
 import hashlib
+import re
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -32,19 +33,26 @@ _EXTRACT_SYSTEM = (
     "Return ONLY a JSON array, no prose. Each element is an object with: "
     "'text' (the full question, verbatim), "
     "'topic' (a short canonical topic name, e.g. 'Deadlocks'), "
+    "'subtopics' (array of 0-4 short subtopic names, e.g. ['Prevention','Avoidance']), "
     "'difficulty' (one of Easy, Medium, Hard), "
-    "'type' (one of compare, explain, short, case, numerical, other), "
+    "'type' (one of: definition, explanation, comparison, advantages, architecture, "
+    "case_study, numerical, problem_solving, short_answer, long_answer, other), "
     "'marks' (integer or null). "
-    "Use consistent topic names across similar questions so they group cleanly. "
+    "Use consistent topic/subtopic names across similar questions so they group cleanly. "
     "Skip instructions, headers, and marks tables — only real questions."
 )
 
 _PATTERN_LABELS = {
-    "compare": "Compare Questions",
-    "explain": "Explain Questions",
-    "short": "Short Notes",
-    "case": "Case Studies",
+    "definition": "Definitions",
+    "explanation": "Explanations",
+    "comparison": "Comparisons",
+    "advantages": "Advantages / Disadvantages",
+    "architecture": "Architecture",
+    "case_study": "Case Studies",
     "numerical": "Numericals",
+    "problem_solving": "Problem Solving",
+    "short_answer": "Short Answers",
+    "long_answer": "Long Answers",
     "other": "Other",
 }
 
@@ -94,6 +102,7 @@ def extract_and_store(
                     year=q["year"] if q["year"] is not None else year,
                     text=q["text"],
                     topic=q["topic"],
+                    subtopics=q.get("subtopics") or [],
                     difficulty=q["difficulty"],
                     qtype=q["type"],
                     marks=q["marks"],
@@ -167,6 +176,54 @@ def _trend(year_counts: dict[int, int]) -> str:
     return "Stable"
 
 
+_DIFF_PATTERNS = [
+    re.compile(r"\bbetween\s+(.+?)\s+and\s+(.+?)(?:[.?\n]|$)", re.IGNORECASE),
+    re.compile(r"\b(.+?)\s+(?:vs\.?|versus)\s+(.+?)(?:[.?\n]|$)", re.IGNORECASE),
+    re.compile(r"\b(?:compare|differentiate|distinguish)\s+(.+?)\s+(?:and|with|from)\s+(.+?)(?:[.?\n]|$)", re.IGNORECASE),
+]
+
+
+def _clean_term(t: str) -> str:
+    t = re.sub(r"\s+", " ", t).strip(" .,:;\"'()").strip()
+    # Drop trailing instructional fragments the regex may capture.
+    t = re.split(
+        r"\b(?:with\s+respect|in\s+terms|in\s+detail|in\s+brief|briefly|using|give|"
+        r"explain|state|with\s+(?:an?\s+)?(?:example|diagram)s?)\b",
+        t,
+        flags=re.IGNORECASE,
+    )[0].strip(" .,:;\"'()").strip()
+    return t[:60]
+
+
+def difference_suggestions(course: str) -> list[dict]:
+    """Mine comparison-style PYQ questions for recurring 'X vs Y' pairs."""
+    session = get_session()
+    try:
+        rows = (
+            session.query(PYQQuestion)
+            .filter(PYQQuestion.course == course, PYQQuestion.qtype == "comparison")
+            .all()
+        )
+        items = [(q.text, q.topic) for q in rows]
+    finally:
+        session.close()
+
+    pairs: dict[tuple, dict] = {}
+    for text, topic in items:
+        for pat in _DIFF_PATTERNS:
+            m = pat.search(text)
+            if not m:
+                continue
+            a, b = _clean_term(m.group(1)), _clean_term(m.group(2))
+            if not a or not b or len(a) < 2 or len(b) < 2 or a.lower() == b.lower():
+                continue
+            key = tuple(sorted([a.lower(), b.lower()]))
+            entry = pairs.setdefault(key, {"a": a, "b": b, "topic": topic, "count": 0, "example": text})
+            entry["count"] += 1
+            break
+    return sorted(pairs.values(), key=lambda e: e["count"], reverse=True)
+
+
 def build_analysis(course: str) -> dict:
     """Aggregate stored PYQ questions + topic stats into the page payload."""
     session = get_session()
@@ -197,6 +254,7 @@ def build_analysis(course: str) -> dict:
             "topicFrequency": [],
             "patterns": [],
             "difficulty": [],
+            "marksDistribution": [],
             "yearTrends": [],
             "revisionRisk": [],
             "readiness": {},
@@ -209,11 +267,14 @@ def build_analysis(course: str) -> dict:
     topic_count: dict[str, int] = defaultdict(int)
     topic_years: dict[str, dict[int, int]] = defaultdict(lambda: defaultdict(int))
     topic_styles: dict[str, set[str]] = defaultdict(set)
+    topic_subs: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     for q in questions:
         topic_count[q.topic] += 1
         if q.year is not None:
             topic_years[q.topic][q.year] += 1
         topic_styles[q.topic].add(q.qtype)
+        for sub in (q.subtopics or []):
+            topic_subs[q.topic][sub] += 1
 
     mx = max(topic_count.values())
     ranked = sorted(topic_count.items(), key=lambda kv: kv[1], reverse=True)
@@ -235,6 +296,9 @@ def build_analysis(course: str) -> dict:
                 "importance": _stars((len(ranked) - i) / len(ranked)),
                 "accuracy": topic_accuracy(topic),
                 "styles": sorted(topic_styles[topic]),
+                "subtopics": [
+                    s for s, _ in sorted(topic_subs[topic].items(), key=lambda kv: kv[1], reverse=True)
+                ][:6],
             }
         )
 
@@ -269,6 +333,15 @@ def build_analysis(course: str) -> dict:
     diff_weight = {"Easy": 1, "Medium": 2, "Hard": 3}
     avg_diff_num = sum(diff_weight.get(q.difficulty, 2) for q in questions) / total_questions
     avg_difficulty = "Easy" if avg_diff_num < 1.66 else "Medium" if avg_diff_num < 2.33 else "Hard"
+
+    # --- marks distribution ---
+    marks_count: dict[int, int] = defaultdict(int)
+    for q in questions:
+        if q.marks is not None:
+            marks_count[q.marks] += 1
+    marks_distribution = [
+        {"marks": m, "count": c} for m, c in sorted(marks_count.items())
+    ]
 
     # --- year trends (per topic, top 8 by frequency) ---
     year_trends = [
@@ -326,6 +399,7 @@ def build_analysis(course: str) -> dict:
         "topicFrequency": topic_freq,
         "patterns": patterns,
         "difficulty": difficulty,
+        "marksDistribution": marks_distribution,
         "yearTrends": year_trends,
         "revisionRisk": revision_risk,
         "readiness": {

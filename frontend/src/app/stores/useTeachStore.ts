@@ -17,6 +17,8 @@ export type ArtifactKey = "notes" | "flashcards" | "quiz" | "mindmap" | "diagram
 
 export type ViewKey = "overview" | ArtifactKey | "sources";
 
+export type SlotStatus = "idle" | "queued" | "loading" | "done" | "error";
+
 export const ARTIFACT_KEYS: ArtifactKey[] = [
   "notes",
   "flashcards",
@@ -27,21 +29,21 @@ export const ARTIFACT_KEYS: ArtifactKey[] = [
 ];
 
 interface ArtifactSlot {
+  status: SlotStatus;
   data: unknown | null;
-  loading: boolean;
   error: string | null;
 }
 
-const emptySlot = (): ArtifactSlot => ({ data: null, loading: false, error: null });
+const idleSlot = (): ArtifactSlot => ({ status: "idle", data: null, error: null });
 
 function freshArtifacts(): Record<ArtifactKey, ArtifactSlot> {
   return {
-    notes: emptySlot(),
-    flashcards: emptySlot(),
-    quiz: emptySlot(),
-    mindmap: emptySlot(),
-    diagram: emptySlot(),
-    difference: emptySlot(),
+    notes: idleSlot(),
+    flashcards: idleSlot(),
+    quiz: idleSlot(),
+    mindmap: idleSlot(),
+    diagram: idleSlot(),
+    difference: idleSlot(),
   };
 }
 
@@ -62,16 +64,21 @@ interface TeachState {
   activeView: ViewKey;
 
   overview: GeneratedRevision | null; // { title, markdown, grounded }
-  overviewLoading: boolean;
-  overviewError: string | null;
+  overviewStatus: SlotStatus;
   sources: Source[];
 
   artifacts: Record<ArtifactKey, ArtifactSlot>;
+
+  // Live progress for the "what's generating now" UI.
+  generating: boolean;
+  currentTask: ViewKey | null;
+
   saving: boolean;
 
   setField: <K extends keyof TeachState>(key: K, value: TeachState[K]) => void;
   toggleArtifact: (key: ArtifactKey) => void;
   startGenerate: () => Promise<void>;
+  retryArtifact: (key: ArtifactKey) => Promise<void>;
   openView: (view: ViewKey) => void;
   savePackage: () => Promise<void>;
   loadPackage: (id: string) => Promise<void>;
@@ -95,11 +102,14 @@ export const useTeachStore = create<TeachState>((set, get) => ({
   activeView: "overview",
 
   overview: null,
-  overviewLoading: false,
-  overviewError: null,
+  overviewStatus: "idle",
   sources: [],
 
   artifacts: freshArtifacts(),
+
+  generating: false,
+  currentTask: null,
+
   saving: false,
 
   setField: (key, value) => set({ [key]: value } as Partial<TeachState>),
@@ -108,42 +118,61 @@ export const useTeachStore = create<TeachState>((set, get) => ({
     set((s) => ({ selected: { ...s.selected, [key]: !s.selected[key] } })),
 
   startGenerate: async () => {
-    const { topic, depth } = get();
+    const { topic, depth, selected } = get();
     const trimmed = topic.trim();
     if (!trimmed) {
       toast.error("Enter a topic to teach");
       return;
+    }
+
+    // Seed the workspace: overview loading, selected artifacts queued.
+    const artifacts = freshArtifacts();
+    for (const key of ARTIFACT_KEYS) {
+      if (selected[key]) artifacts[key].status = "queued";
     }
     set({
       phase: "workspace",
       activeView: "overview",
       packageId: null,
       overview: null,
-      overviewError: null,
-      overviewLoading: true,
+      overviewStatus: "loading",
       sources: [],
-      artifacts: freshArtifacts(),
+      artifacts,
+      generating: true,
+      currentTask: "overview",
     });
+
+    // 1) Overview (and the sources that drive the Sources view).
     try {
       const result = await api.generateOverview(trimmed, depth);
       set({
         overview: { title: result.title, markdown: result.markdown, grounded: result.grounded },
         sources: result.sources,
+        overviewStatus: "done",
       });
     } catch (err) {
-      set({ overviewError: err instanceof Error ? err.message : "Failed to generate overview" });
-    } finally {
-      set({ overviewLoading: false });
+      set({ overviewStatus: "error" });
+      toast.error(err instanceof Error ? err.message : "Failed to generate overview");
     }
+
+    // 2) Each selected artifact, one at a time (clear progress + one model
+    //    loaded at a time on local Ollama).
+    for (const key of ARTIFACT_KEYS) {
+      if (!get().selected[key]) continue;
+      set({ currentTask: key });
+      await generateArtifact(key, set, get);
+    }
+
+    set({ generating: false, currentTask: null });
+  },
+
+  retryArtifact: async (key) => {
+    if (get().artifacts[key].status === "loading") return;
+    await generateArtifact(key, set, get);
   },
 
   openView: (view) => {
     set({ activeView: view });
-    if (view === "overview" || view === "sources") return;
-    const { artifacts, selected } = get();
-    const slot = artifacts[view];
-    if (!selected[view] || slot.loading || slot.data) return;
-    void generateArtifact(view, set, get);
   },
 
   savePackage: async () => {
@@ -190,7 +219,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       for (const key of ARTIFACT_KEYS) {
         const data = pkg.artifacts?.[key];
         if (data) {
-          artifacts[key] = { data, loading: false, error: null };
+          artifacts[key] = { status: "done", data, error: null };
           selected[key] = true;
         }
       }
@@ -205,11 +234,12 @@ export const useTeachStore = create<TeachState>((set, get) => ({
           markdown: pkg.overview?.markdown ?? "",
           grounded: pkg.overview?.grounded ?? false,
         },
-        overviewLoading: false,
-        overviewError: null,
+        overviewStatus: "done",
         sources: pkg.sources ?? [],
         artifacts,
         selected,
+        generating: false,
+        currentTask: null,
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to open package");
@@ -222,15 +252,16 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       packageId: null,
       activeView: "overview",
       overview: null,
-      overviewLoading: false,
-      overviewError: null,
+      overviewStatus: "idle",
       sources: [],
       artifacts: freshArtifacts(),
+      generating: false,
+      currentTask: null,
     }),
 }));
 
 // Generate a single artifact and store it in its slot. Kept outside the store
-// object so openView/loadPackage can share it.
+// object so the pipeline, retry and loadPackage can share it.
 async function generateArtifact(
   key: ArtifactKey,
   set: (partial: Partial<TeachState> | ((s: TeachState) => Partial<TeachState>)) => void,
@@ -241,7 +272,7 @@ async function generateArtifact(
   const setSlot = (slot: Partial<ArtifactSlot>) =>
     set((s) => ({ artifacts: { ...s.artifacts, [key]: { ...s.artifacts[key], ...slot } } }));
 
-  setSlot({ loading: true, error: null });
+  setSlot({ status: "loading", error: null });
   try {
     let data: FlashcardSet | GeneratedQuiz | GeneratedDiagram | GeneratedMindmap | GeneratedRevision | GeneratedDifference;
     switch (key) {
@@ -264,8 +295,8 @@ async function generateArtifact(
         data = await api.generateDifference(t);
         break;
     }
-    setSlot({ data, loading: false });
+    setSlot({ status: "done", data });
   } catch (err) {
-    setSlot({ loading: false, error: err instanceof Error ? err.message : "Generation failed" });
+    setSlot({ status: "error", error: err instanceof Error ? err.message : "Generation failed" });
   }
 }

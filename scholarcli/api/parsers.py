@@ -127,7 +127,24 @@ def parse_quiz(text: str) -> list[dict]:
 
 
 _DIFFICULTIES = {"easy": "Easy", "medium": "Medium", "hard": "Hard"}
-_QTYPES = {"compare", "explain", "short", "case", "numerical", "other"}
+_QTYPES = {
+    "definition", "explanation", "comparison", "advantages", "architecture",
+    "case_study", "numerical", "problem_solving", "short_answer", "long_answer", "other",
+}
+# Tolerate common synonyms the model may emit for the richer taxonomy.
+_QTYPE_ALIASES = {
+    "define": "definition", "definitions": "definition",
+    "explain": "explanation", "explanations": "explanation", "describe": "explanation",
+    "compare": "comparison", "comparisons": "comparison", "difference": "comparison",
+    "advantage": "advantages", "advantages/disadvantages": "advantages",
+    "pros_cons": "advantages", "merits": "advantages",
+    "architecture": "architecture", "diagram": "architecture",
+    "case": "case_study", "case study": "case_study", "casestudy": "case_study",
+    "numerical": "numerical", "numericals": "numerical", "calculation": "numerical",
+    "problem": "problem_solving", "problem solving": "problem_solving",
+    "short": "short_answer", "short note": "short_answer", "short notes": "short_answer",
+    "long": "long_answer", "essay": "long_answer",
+}
 
 
 def parse_pyq(text: str) -> list[dict]:
@@ -158,9 +175,14 @@ def parse_pyq(text: str) -> list[dict]:
         if not body:
             continue
         diff = _DIFFICULTIES.get(str(q.get("difficulty", "")).strip().lower(), "Medium")
-        qtype = str(q.get("type") or q.get("qtype") or "other").strip().lower()
+        qtype = str(q.get("type") or q.get("qtype") or "other").strip().lower().replace("-", "_")
+        qtype = _QTYPE_ALIASES.get(qtype, qtype)
         if qtype not in _QTYPES:
             qtype = "other"
+        subs = q.get("subtopics") or []
+        if isinstance(subs, str):
+            subs = [s.strip() for s in subs.split(",") if s.strip()]
+        subtopics = [str(s).strip()[:128] for s in subs if str(s).strip()][:8] if isinstance(subs, list) else []
         marks = q.get("marks")
         try:
             marks = int(marks) if marks not in (None, "") else None
@@ -175,6 +197,7 @@ def parse_pyq(text: str) -> list[dict]:
             {
                 "text": body,
                 "topic": str(q.get("topic") or "General").strip()[:256] or "General",
+                "subtopics": subtopics,
                 "difficulty": diff,
                 "type": qtype,
                 "marks": marks,

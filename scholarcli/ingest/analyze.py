@@ -1,0 +1,55 @@
+"""Per-page document analysis — cheap heuristics that drive ingest branching.
+
+Not persisted: the flags only decide which extractors run for a page
+(native text vs. OCR, whether to look for images). Tables are handled
+separately by ``tables.extract_tables`` which self-guards.
+"""
+
+from __future__ import annotations
+
+from typing import NamedTuple
+
+from scholarcli.config import get_settings
+
+
+class PageInfo(NamedTuple):
+    page_number: int
+    has_text: bool  # enough native text to use directly
+    has_images: bool  # at least one foreground image block
+    is_scanned: bool  # little/no native text but rendered content present
+
+
+def _has_foreground_image(page) -> bool:
+    page_area = page.rect.width * page.rect.height
+    blocks = page.get_text("dict", sort=True).get("blocks", [])
+    for b in blocks:
+        if b.get("type") != 1:
+            continue
+        bbox = b.get("bbox")
+        if bbox:
+            w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+            if w * h > 0.8 * page_area:
+                continue  # full-page background image, not a figure
+        return True
+    return False
+
+
+def analyze_page(page, page_number: int) -> PageInfo:
+    """Classify a PyMuPDF page for the ingest orchestrator."""
+    min_chars = get_settings().ingest.scanned_min_chars
+    text = page.get_text("text").strip()
+    has_text = len(text) >= min_chars
+    has_images = _has_foreground_image(page)
+
+    try:
+        has_drawings = bool(page.get_drawings())
+    except Exception:  # noqa: BLE001 — older PyMuPDF / odd pages
+        has_drawings = False
+
+    is_scanned = (not has_text) and (has_images or has_drawings)
+    return PageInfo(
+        page_number=page_number,
+        has_text=has_text,
+        has_images=has_images,
+        is_scanned=is_scanned,
+    )

@@ -16,7 +16,7 @@ def chunk_pages(pages: list[Page]) -> list[dict]:
     """Convert pages into chunk dicts ready for embedding + storage.
 
     Returns a list of dicts with keys:
-        page, heading, chunk_index, text
+        page, heading, chunk_index, text, source_type, image_url
     """
     s = get_settings()
     budget = s.chunking.chunk_size
@@ -24,12 +24,18 @@ def chunk_pages(pages: list[Page]) -> list[dict]:
     chunks: list[dict] = []
 
     for page in pages:
-        # Group contiguous text within the same page+heading.
-        # Loaders already give us one Page per heading-section, so we can
-        # chunk each page's text structurally.
-        page_chunks = _token_budget_chunks(
-            page.text, budget=budget, overlap=overlap
-        )
+        source_type = getattr(page, "source_type", "text")
+        image_url = getattr(page, "image_url", "")
+
+        # Non-text artifacts (tables, image/diagram descriptions, OCR) are kept
+        # whole: splitting a markdown table or a caption mid-way destroys it.
+        if source_type != "text":
+            page_chunks = [page.text]
+        else:
+            # Loaders give us one Page per heading-section, so we chunk each
+            # page's text structurally within the token budget.
+            page_chunks = _token_budget_chunks(page.text, budget=budget, overlap=overlap)
+
         for ci, chunk_text in enumerate(page_chunks):
             chunks.append(
                 {
@@ -37,6 +43,8 @@ def chunk_pages(pages: list[Page]) -> list[dict]:
                     "heading": page.heading,
                     "chunk_index": ci,
                     "text": chunk_text,
+                    "source_type": source_type,
+                    "image_url": image_url,
                 }
             )
 

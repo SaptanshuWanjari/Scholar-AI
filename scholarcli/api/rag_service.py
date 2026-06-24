@@ -67,6 +67,8 @@ def serialize_chunks(retrieved: list[dict]) -> list[dict]:
                 "course": ch.get("course", ""),
                 "snippet": snippet,
                 "similarity": _similarity(ch.get("_distance")),
+                "sourceType": ch.get("source_type", "text") or "text",
+                "imageUrl": ch.get("image_url", "") or "",
             }
         )
     return sources
@@ -143,7 +145,9 @@ def _build_generation_prompt(state: GraphState) -> tuple[str, str]:
     citations: list[str] = []
     seen: set[str] = set()
     for ch in chunks:
-        context_parts.append(f"[Source: {ch['title']}, p.{ch['page']}]\n{ch['text']}")
+        st = ch.get("source_type", "text")
+        kind = "" if st in ("text", None) else f", {st}"
+        context_parts.append(f"[Source: {ch['title']}, p.{ch['page']}{kind}]\n{ch['text']}")
         cite = f"[{ch['title']}, p.{ch['page']}]"
         if cite not in seen:
             seen.add(cite)

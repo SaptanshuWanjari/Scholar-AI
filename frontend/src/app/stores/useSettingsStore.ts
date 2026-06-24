@@ -5,6 +5,7 @@ interface SettingsState {
   fastModel: string;
   reasoningModel: string;
   embeddingModel: string;
+  visionModel: string;
   temperature: number;
   topK: number;
   similarityThreshold: number;
@@ -26,6 +27,7 @@ const PERSISTED: (keyof BackendSettings)[] = [
   "fastModel",
   "reasoningModel",
   "embeddingModel",
+  "visionModel",
   "temperature",
   "topK",
   "similarityThreshold",
@@ -44,6 +46,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   fastModel: "qwen3:8b",
   reasoningModel: "gemma4:12b",
   embeddingModel: "qwen3-embedding:0.6b",
+  visionModel: "qwen2.5vl:3b",
   temperature: 0.4,
   topK: 5,
   similarityThreshold: 0.45,

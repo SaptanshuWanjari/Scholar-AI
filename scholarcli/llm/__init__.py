@@ -52,3 +52,29 @@ def get_llm(task: str = "quick_qa", *, temperature: float = 0.0) -> ChatOllama:
 def get_embeddings() -> OllamaEmbeddings:
     s = get_settings()
     return OllamaEmbeddings(model=s.models.embedding, base_url=s.ollama.base_url)
+
+
+def _active_vision_model() -> str:
+    """Resolve the vision model tag, honouring ui_settings.json overrides.
+
+    Priority: ui_settings.json ``visionModel`` → config ``models.vision``.
+    """
+    s = get_settings()
+    ui_path = s.paths.resolved_data_dir() / "ui_settings.json"
+    if ui_path.exists():
+        try:
+            ui = json.loads(ui_path.read_text())
+            tag = ui.get("visionModel")
+            if tag:
+                return tag
+        except (json.JSONDecodeError, OSError):
+            pass
+    return s.models.vision
+
+
+def get_vision_llm(*, temperature: float = 0.0) -> ChatOllama:
+    """Return a ``ChatOllama`` bound to the vision-capable model."""
+    s = get_settings()
+    return ChatOllama(
+        model=_active_vision_model(), temperature=temperature, base_url=s.ollama.base_url
+    )

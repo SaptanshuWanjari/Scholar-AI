@@ -16,6 +16,7 @@ import {
   Trash2,
   BookOpen,
   FileSearch,
+  Columns2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Page } from "../components/Page";
@@ -204,6 +205,10 @@ export function PyqAnalysis() {
           <div className="grid gap-6 lg:grid-cols-2">
             <YearTimeline trends={analysis!.yearTrends} />
             <DifficultyDistribution dist={analysis!.difficulty} />
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <MarksDistribution dist={analysis!.marksDistribution} />
+            <DifferenceSuggestions />
           </div>
           <RevisionRisk onExam={seedExam} onNotes={genRevision} onFlashcards={genFlashcards} />
           <ExamReadiness a={analysis!} />
@@ -411,6 +416,75 @@ function DifficultyDistribution({ dist }: { dist: { level: string; count: number
   );
 }
 
+/* ---------------- Marks distribution ---------------- */
+
+function MarksDistribution({ dist }: { dist: { marks: number; count: number }[] }) {
+  const total = Math.max(1, dist.reduce((a, d) => a + d.count, 0));
+  return (
+    <section className="rounded-2xl border border-border bg-card p-5">
+      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        Marks Distribution
+      </h3>
+      {dist.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No marks data in these papers.</p>
+      ) : (
+        <div className="space-y-3">
+          {dist.map((d) => (
+            <div key={d.marks}>
+              <div className="mb-1 flex justify-between text-sm">
+                <span>{d.marks} marks</span>
+                <span className="text-muted-foreground">{d.count}</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-muted">
+                <div className="h-full bg-violet/70" style={{ width: `${(d.count / total) * 100}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------------- Difference suggestions ---------------- */
+
+function DifferenceSuggestions() {
+  const differences = usePyqStore((s) => s.differences);
+  const navigate = useNavigate();
+  return (
+    <section className="rounded-2xl border border-border bg-card p-5">
+      <h3 className="mb-1 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        Comparison Suggestions
+      </h3>
+      <p className="mb-3 text-xs text-muted-foreground">
+        Recurring "X vs Y" comparisons mined from past papers.
+      </p>
+      {differences.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No comparison questions detected yet.</p>
+      ) : (
+        <div className="space-y-2">
+          {differences.map((d, i) => (
+            <button
+              key={i}
+              onClick={() => navigate(`/differences?a=${encodeURIComponent(d.a)}&b=${encodeURIComponent(d.b)}`)}
+              className="flex w-full items-center justify-between gap-2 rounded-lg border border-border p-3 text-left hover:border-foreground/20"
+              title={d.example}
+            >
+              <span className="text-sm">
+                <b>{d.a}</b> <span className="text-muted-foreground">vs</span> <b>{d.b}</b>
+              </span>
+              <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                {d.count > 1 && <Badge variant="outline">{d.count}×</Badge>}
+                <Columns2 className="size-4" />
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 /* ---------------- Revision risk ---------------- */
 
 function RevisionRisk({
@@ -548,7 +622,7 @@ function QuestionExplorer() {
         </div>
         <FilterSelect label="Topic" value={filters.topic} options={topics} onChange={(v) => setFilter("topic", v)} />
         <FilterSelect label="Difficulty" value={filters.difficulty} options={["Easy", "Medium", "Hard"]} onChange={(v) => setFilter("difficulty", v)} />
-        <FilterSelect label="Type" value={filters.type} options={["compare", "explain", "short", "case", "numerical", "other"]} onChange={(v) => setFilter("type", v)} />
+        <FilterSelect label="Type" value={filters.type} options={["definition", "explanation", "comparison", "advantages", "architecture", "case_study", "numerical", "problem_solving", "short_answer", "long_answer", "other"]} onChange={(v) => setFilter("type", v)} />
         <FilterSelect label="Year" value={filters.year != null ? String(filters.year) : undefined} options={years.map(String)} onChange={(v) => setFilter("year", v ? Number(v) : undefined)} />
       </div>
       <div className="max-h-[460px] space-y-2 overflow-y-auto">
@@ -558,8 +632,9 @@ function QuestionExplorer() {
             <p className="text-sm">{q.text}</p>
             <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
               <Badge variant="outline">{q.topic}</Badge>
+              {q.subtopics?.map((st) => <Badge key={st} variant="outline" className="text-violet">{st}</Badge>)}
               <Badge variant="secondary">{q.difficulty}</Badge>
-              <Badge variant="outline">{q.type}</Badge>
+              <Badge variant="outline">{q.type.replace(/_/g, " ")}</Badge>
               {q.marks != null && <Badge variant="outline">{q.marks} marks</Badge>}
               {q.year != null && <Badge variant="outline">{q.year}</Badge>}
             </div>
@@ -666,9 +741,20 @@ function TopicDrawer({
               <span className="text-muted-foreground">Your performance: </span>
               <Accuracy value={row.accuracy} />
             </div>
+            {row.subtopics.length > 0 && (
+              <div>
+                <p className="mb-1 text-xs font-medium text-muted-foreground">Subtopics / related concepts</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {row.subtopics.map((s) => <Badge key={s} variant="outline" className="text-violet">{s}</Badge>)}
+                </div>
+              </div>
+            )}
             {row.styles.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {row.styles.map((s) => <Badge key={s} variant="outline">{s}</Badge>)}
+              <div>
+                <p className="mb-1 text-xs font-medium text-muted-foreground">Common question styles</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {row.styles.map((s) => <Badge key={s} variant="outline">{s.replace(/_/g, " ")}</Badge>)}
+                </div>
               </div>
             )}
             {trend && (

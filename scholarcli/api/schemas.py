@@ -22,6 +22,8 @@ class SourceOut(BaseModel):
     course: str
     snippet: str
     similarity: float
+    sourceType: str = "text"  # text | ocr | table | image | diagram
+    imageUrl: str = ""
 
 
 class AskRequest(BaseModel):
@@ -112,6 +114,7 @@ class SettingsOut(BaseModel):
     fastModel: str
     reasoningModel: str
     embeddingModel: str
+    visionModel: str
     temperature: float
     topK: int
     similarityThreshold: float
@@ -130,6 +133,7 @@ class SettingsPatch(BaseModel):
     fastModel: str | None = None
     reasoningModel: str | None = None
     embeddingModel: str | None = None
+    visionModel: str | None = None
     temperature: float | None = None
     topK: int | None = None
     similarityThreshold: float | None = None
@@ -148,6 +152,7 @@ class ModelsList(BaseModel):
     fastModels: list[str]
     reasoningModels: list[str]
     embeddingModels: list[str]
+    visionModels: list[str]
 
 
 # ---------------------------------------------------------------------------
@@ -575,6 +580,7 @@ class PyqQuestionOut(BaseModel):
     id: int
     text: str
     topic: str
+    subtopics: list[str] = []
     difficulty: str
     type: str
     marks: int | None = None
@@ -590,6 +596,15 @@ class PyqAnalysisOut(BaseModel):
     topicFrequency: list[dict] = []
     patterns: list[dict] = []
     difficulty: list[dict] = []
+    marksDistribution: list[dict] = []
     yearTrends: list[dict] = []
     revisionRisk: list[dict] = []
     readiness: dict = {}
+
+
+class PyqDifferenceSuggestion(BaseModel):
+    a: str
+    b: str
+    topic: str
+    count: int
+    example: str

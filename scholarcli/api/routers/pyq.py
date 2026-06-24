@@ -1,8 +1,11 @@
 """PYQ (previous-year question) analysis endpoints.
 
-Upload a paper → ingest it (so its content is searchable like any document) →
-extract structured questions via the LLM and persist them. All analytics are
-then computed deterministically from the stored rows (see ``pyq_service``).
+These power a dedicated **Assessment Library** (question papers, mock tests)
+kept *separate* from the Knowledge Library (the RAG-indexed documents). PYQs are
+deliberately NOT ingested into the vector store — mixing exam papers into RAG
+retrieval pollutes answer quality. The ``QuestionPaper`` / ``PYQQuestion`` tables
+are the source of truth here; analytics are computed deterministically from them
+(see ``pyq_service``).
 """
 
 from __future__ import annotations
@@ -16,12 +19,12 @@ from scholarcli.api import pyq_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.schemas import (
     PyqAnalysisOut,
+    PyqDifferenceSuggestion,
     PyqPaperOut,
     PyqQuestionOut,
     PyqUploadResponse,
 )
 from scholarcli.config import get_settings
-from scholarcli.ingest.pipeline import ingest_file
 from scholarcli.storage import get_session
 from scholarcli.storage.models import PYQQuestion, QuestionPaper
 
@@ -59,18 +62,12 @@ async def upload_paper(
             detail=f"Unsupported file type '{suffix}'. Supported: PDF, Markdown, TXT.",
         )
 
-    uploads_dir = get_settings().paths.resolved_data_dir() / "uploads"
-    uploads_dir.mkdir(parents=True, exist_ok=True)
-    dest = uploads_dir / filename
+    # Assessment Library lives apart from the RAG-indexed uploads, so PYQ files
+    # never enter the knowledge base / vector store.
+    pyq_dir = get_settings().paths.resolved_data_dir() / "pyq"
+    pyq_dir.mkdir(parents=True, exist_ok=True)
+    dest = pyq_dir / filename
     dest.write_bytes(await file.read())
-
-    # Ingest so the paper is also a searchable Document (reuses the pipeline).
-    try:
-        status = await run_in_threadpool(ingest_file, dest, course_name)
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=500, detail=f"Ingestion failed: {exc}") from exc
-    if status == "no-content":
-        raise HTTPException(status_code=422, detail="No extractable text in paper")
 
     title = Path(filename).stem
     try:
@@ -126,6 +123,15 @@ async def analysis(course: str) -> PyqAnalysisOut:
     return PyqAnalysisOut(**data)
 
 
+@router.get("/difference-suggestions", response_model=list[PyqDifferenceSuggestion])
+async def difference_suggestions(course: str) -> list[PyqDifferenceSuggestion]:
+    course = course.strip()
+    if not course:
+        raise HTTPException(status_code=400, detail="course is required")
+    pairs = await run_in_threadpool(pyq_service.difference_suggestions, course)
+    return [PyqDifferenceSuggestion(**p) for p in pairs]
+
+
 @router.get("/questions", response_model=list[PyqQuestionOut])
 def list_questions(
     course: str,
@@ -154,6 +160,7 @@ def list_questions(
                 id=r.id,
                 text=r.text,
                 topic=r.topic,
+                subtopics=r.subtopics or [],
                 difficulty=r.difficulty,
                 type=r.qtype,
                 marks=r.marks,

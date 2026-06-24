@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   Columns2,
   Copy,
@@ -12,41 +12,56 @@ import {
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { Page, SectionTitle } from "../components/Page";
-import { api } from "../lib/api";
-import type { DifferenceTableItem, GeneratedDifference } from "../lib/types";
+import { useDifferencesStore } from "../stores/useDifferencesStore";
 import { cn } from "../components/ui/utils";
 
 export function Differences() {
-  const [topic, setTopic] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [output, setOutput] = useState<GeneratedDifference | null>(null);
-  const [showRaw, setShowRaw] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [saved, setSaved] = useState<DifferenceTableItem[]>([]);
+  const topic = useDifferencesStore((s) => s.topic);
+  const course = useDifferencesStore((s) => s.course);
+  const document = useDifferencesStore((s) => s.document);
+  const loading = useDifferencesStore((s) => s.loading);
+  const output = useDifferencesStore((s) => s.output);
+  const showRaw = useDifferencesStore((s) => s.showRaw);
+  const suggestions = useDifferencesStore((s) => s.suggestions);
+  const saved = useDifferencesStore((s) => s.saved);
+  const courses = useDifferencesStore((s) => s.courses);
+  const documents = useDifferencesStore((s) => s.documents);
+  const setTopic = useDifferencesStore((s) => s.setTopic);
+  const setCourse = useDifferencesStore((s) => s.setCourse);
+  const setDocument = useDifferencesStore((s) => s.setDocument);
+  const setShowRaw = useDifferencesStore((s) => s.setShowRaw);
+  const generate = useDifferencesStore((s) => s.generate);
+  const fetchSuggestions = useDifferencesStore((s) => s.fetchSuggestions);
+  const fetchSaved = useDifferencesStore((s) => s.fetchSaved);
+  const fetchCoursesAndDocs = useDifferencesStore((s) => s.fetchCoursesAndDocs);
+  const saveTable = useDifferencesStore((s) => s.saveTable);
+  const deleteTable = useDifferencesStore((s) => s.deleteTable);
+  const loadSaved = useDifferencesStore((s) => s.loadSaved);
+
   const viewerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    api.getDifferenceSuggestions().then(setSuggestions).catch(() => {});
-    api.listDifferences().then(setSaved).catch(() => {});
-  }, []);
+    fetchSuggestions();
+    fetchSaved();
+    fetchCoursesAndDocs();
+  }, [fetchSuggestions, fetchSaved, fetchCoursesAndDocs]);
 
-  async function generate() {
-    const t = topic.trim();
-    if (!t) return;
-    setLoading(true);
-    setOutput(null);
-    try {
-      const result = await api.generateDifference(t);
-      setOutput(result);
+  const prevOutput = useRef(output);
+  useEffect(() => {
+    if (output && output !== prevOutput.current) {
       setTimeout(() => viewerRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
-    } catch {
-      toast.error("Failed to generate comparison");
-    } finally {
-      setLoading(false);
     }
-  }
+    prevOutput.current = output;
+  }, [output]);
 
   function copyMarkdown() {
     if (!output) return;
@@ -66,32 +81,9 @@ export function Differences() {
     toast.success("Exported as Markdown");
   }
 
-  async function saveTable() {
-    if (!output) return;
-    try {
-      const item = await api.saveDifference(output.title, output.content);
-      setSaved((prev) => [item, ...prev]);
-      toast.success("Saved");
-    } catch {
-      toast.error("Failed to save");
-    }
-  }
-
-  async function deleteTable(id: number) {
-    try {
-      await api.deleteDifference(id);
-      setSaved((prev) => prev.filter((s) => s.id !== id));
-      toast.success("Deleted");
-    } catch {
-      toast.error("Failed to delete");
-    }
-  }
-
-  function loadSaved(item: DifferenceTableItem) {
-    setOutput({ title: item.title, content: item.content, grounded: true });
-    setTopic(item.title);
-    setTimeout(() => viewerRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
-  }
+  const visibleDocs = course === "none"
+    ? documents
+    : documents.filter((d) => d.course === course);
 
   const isEmpty = !output && saved.length === 0 && !loading;
 
@@ -108,8 +100,8 @@ export function Differences() {
         </p>
       </div>
 
-      {/* Search */}
-      <div className="flex gap-2 mb-4">
+      {/* Search + generate */}
+      <div className="flex gap-2 mb-3">
         <Input
           placeholder="Compare concepts… e.g. Process vs Thread"
           value={topic}
@@ -127,15 +119,47 @@ export function Differences() {
         </Button>
       </div>
 
+      {/* Course + document pickers */}
+      <div className="flex gap-2 mb-6">
+        <Select value={course} onValueChange={setCourse}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All courses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">All courses</SelectItem>
+            {courses.map((c) => (
+              <SelectItem key={c.id} value={c.name}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={document ?? "all"}
+          onValueChange={(v) => setDocument(v === "all" ? null : v)}
+        >
+          <SelectTrigger className="w-56">
+            <SelectValue placeholder="All documents" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All documents</SelectItem>
+            {visibleDocs.map((d) => (
+              <SelectItem key={d.id} value={d.id}>
+                {d.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Suggestions */}
       {suggestions.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
           {suggestions.map((s) => (
             <button
               key={s}
-              onClick={() => {
-                setTopic(s);
-              }}
+              onClick={() => setTopic(s)}
               className="rounded-full border border-border bg-muted/50 px-3 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
               {s}
@@ -153,7 +177,7 @@ export function Differences() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowRaw((v) => !v)}
+                onClick={() => setShowRaw(!showRaw)}
                 className="gap-1.5"
               >
                 {showRaw ? <Eye className="size-3.5" /> : <Code className="size-3.5" />}
@@ -220,12 +244,14 @@ export function Differences() {
             {saved.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 hover:bg-muted/50 transition-colors"
+                className={cn(
+                  "flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 transition-colors",
+                  output?.title === item.title
+                    ? "border-violet/40 bg-violet/5"
+                    : "hover:bg-muted/50",
+                )}
               >
-                <button
-                  className="flex-1 text-left"
-                  onClick={() => loadSaved(item)}
-                >
+                <button className="flex-1 text-left" onClick={() => loadSaved(item)}>
                   <p className="text-sm font-medium text-foreground">{item.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {new Date(item.createdAt).toLocaleDateString()}

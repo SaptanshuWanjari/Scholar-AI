@@ -117,12 +117,42 @@ def ingest_file(
                 "heading": ch["heading"],
                 "chunk_index": ch["chunk_index"],
                 "text": ch["text"],
+                "source_type": ch.get("source_type", "text"),
+                "image_url": ch.get("image_url", ""),
                 "vector": vec,
             }
         )
 
     add_chunks(rows)
     return "indexed"
+
+
+def reindex_all() -> list[str]:
+    """Re-ingest every known document (rebuilds the vector store).
+
+    Use after the chunks-table schema changes (e.g. the multimodal upgrade):
+    ``add_chunks`` recreates the table on the first insert, then this re-embeds
+    every document from its source file. Returns ``"title: status"`` strings.
+    """
+    init_db()
+    session = get_session()
+    embeddings = get_embeddings()
+    results: list[str] = []
+    docs = session.query(Document).all()
+    for doc in docs:
+        course = session.get(Course, doc.course_id)
+        course_name = course.name if course else ""
+        src = Path(doc.path)
+        if not src.exists():
+            results.append(f"{doc.title}: missing-file")
+            continue
+        delete_document(doc.id)  # clear stale vectors before re-embedding
+        try:
+            status = ingest_file(src, course_name, embeddings=embeddings)
+        except Exception as exc:  # noqa: BLE001
+            status = f"failed ({exc})"
+        results.append(f"{doc.title}: {status}")
+    return results
 
 
 def ingest_path(path: Path, course_name: str) -> list[str]:

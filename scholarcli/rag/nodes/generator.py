@@ -49,7 +49,9 @@ def generate(state: GraphState) -> GraphState:
     citations: list[str] = []
     seen = set()
     for ch in chunks:
-        ctx = f"[Source: {ch['title']}, p.{ch['page']}]\n{ch['text']}"
+        st = ch.get("source_type", "text")
+        kind = "" if st in ("text", None) else f", {st}"
+        ctx = f"[Source: {ch['title']}, p.{ch['page']}{kind}]\n{ch['text']}"
         context_parts.append(ctx)
         cite = f"[{ch['title']}, p.{ch['page']}]"
         if cite not in seen:

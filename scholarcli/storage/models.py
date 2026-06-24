@@ -2,7 +2,7 @@
 
 YAGNI for MVP: only Course + Document. Chunk text + metadata lives in
 LanceDB — the vector store is the source of truth for chunks. Chat
-history is kept in-memory in the TUI until persistence is justified.
+history is kept in-memory until persistence is justified.
 """
 
 from __future__ import annotations
@@ -255,8 +255,10 @@ class PYQQuestion(Base):
     year: Mapped[int | None] = mapped_column(Integer, nullable=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     topic: Mapped[str] = mapped_column(String(256), nullable=False, default="General")
+    subtopics: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     difficulty: Mapped[str] = mapped_column(String(16), nullable=False, default="Medium")  # Easy|Medium|Hard
-    qtype: Mapped[str] = mapped_column(String(32), nullable=False, default="other")  # compare|explain|short|case|numerical|other
+    # definition|explanation|comparison|advantages|architecture|case_study|numerical|problem_solving|short_answer|long_answer|other
+    qtype: Mapped[str] = mapped_column(String(32), nullable=False, default="other")
     marks: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     paper: Mapped["QuestionPaper"] = relationship(back_populates="questions")

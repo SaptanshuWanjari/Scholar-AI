@@ -9,16 +9,27 @@ Table schema (inferred from first batch):
   - heading     : str
   - chunk_index : int
   - text        : str
+  - source_type : str   (text | ocr | table | image | diagram)
+  - image_url   : str   (served URL for image/diagram artifacts, else "")
   - vector      : list[float]  (dimension inferred from first real embedding)
 """
 
 from __future__ import annotations
 
+import logging
+
 import lancedb
 
 from scholarcli.config import get_settings
 
+logger = logging.getLogger(__name__)
+
 TABLE_NAME = "chunks"
+
+# Columns that an up-to-date chunks table must carry. A pre-multimodal table
+# lacks these, so the first insert recreates it (chunks are rebuildable from
+# the source files under data/uploads via reindex_all()).
+_REQUIRED_COLUMNS = {"source_type", "image_url"}
 
 
 def _db():
@@ -47,17 +58,39 @@ def has_document_chunks(document_id: int) -> bool:
     return count > 0
 
 
+def _schema_is_current(tbl) -> bool:
+    """True if the table already has the multimodal columns."""
+    try:
+        names = set(tbl.schema.names)
+    except Exception:  # noqa: BLE001
+        return False
+    return _REQUIRED_COLUMNS.issubset(names)
+
+
 def add_chunks(rows: list[dict]) -> None:
     """Insert chunk rows. Creates the table from the first batch's schema.
 
     Required keys: id, document_id, course, title, page, heading,
-    chunk_index, text, vector.
+    chunk_index, text, source_type, image_url, vector.
+
+    A pre-multimodal table (missing ``source_type``/``image_url``) is dropped
+    and recreated from this batch — LanceDB schemas are fixed at creation, so
+    re-indexing is the migration path (see ``pipeline.reindex_all``).
     """
     if not rows:
         return
     db = _db()
     if _has_table():
-        db.open_table(TABLE_NAME).add(rows)
+        tbl = db.open_table(TABLE_NAME)
+        if not _schema_is_current(tbl):
+            logger.warning(
+                "chunks table predates multimodal columns — recreating it; "
+                "run reindex_all() (or re-upload) to restore all documents."
+            )
+            db.drop_table(TABLE_NAME)
+            db.create_table(TABLE_NAME, data=rows)
+        else:
+            tbl.add(rows)
     else:
         # First batch — create the table so the vector dimension is correct.
         db.create_table(TABLE_NAME, data=rows)

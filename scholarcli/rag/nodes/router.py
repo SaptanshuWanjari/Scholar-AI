@@ -25,7 +25,7 @@ _WIRED = {
 
 
 def route_query(state: GraphState) -> GraphState:
-    # If route is already set (explicit from TUI button), skip LLM call.
+    # If route is already set, skip LLM call.
     if state.get("route") and state["route"] in _WIRED:
         return state
 

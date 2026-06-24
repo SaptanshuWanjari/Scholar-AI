@@ -24,6 +24,9 @@ class OllamaConfig(BaseModel):
 
 class ModelsConfig(BaseModel):
     embedding: str = "qwen3-embedding:0.6b"
+    # Vision-capable model for image/diagram descriptions + OCR recovery.
+    # Lightweight default; user can override via Settings (ui_settings.json).
+    vision: str = "qwen2.5vl:3b"
     # task label -> model tag
     routing: dict[str, str] = Field(default_factory=dict)
     override_model: str | None = None
@@ -42,6 +45,20 @@ class ModelsConfig(BaseModel):
 class ChunkingConfig(BaseModel):
     chunk_size: int = 800
     chunk_overlap: int = 120
+
+
+class IngestConfig(BaseModel):
+    """Multimodal ingestion toggles + thresholds.
+
+    Everything runs through Ollama (no torch / heavy OCR engine). Each stage is
+    opt-out: set ``vision_enabled = false`` to skip image descriptions + OCR.
+    """
+
+    ocr_enabled: bool = True
+    vision_enabled: bool = True
+    tables_enabled: bool = True
+    # Pages whose native text is shorter than this are treated as scanned.
+    scanned_min_chars: int = 40
 
 
 class RetrievalConfig(BaseModel):
@@ -71,6 +88,7 @@ class Settings(BaseModel):
     models: ModelsConfig = Field(default_factory=ModelsConfig)
     chunking: ChunkingConfig = Field(default_factory=ChunkingConfig)
     retrieval: RetrievalConfig = Field(default_factory=RetrievalConfig)
+    ingest: IngestConfig = Field(default_factory=IngestConfig)
     paths: PathsConfig = Field(default_factory=PathsConfig)
 
     @property

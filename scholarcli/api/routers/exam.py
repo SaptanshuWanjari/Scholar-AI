@@ -10,9 +10,11 @@ from collections import defaultdict
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from scholarcli.api import parsers, pyq_service
 from scholarcli.api.activity_service import record_activity
+from scholarcli.api.prompt_service import active_body
 from scholarcli.api.rag_service import run_ask
 from scholarcli.api.schemas import (
     ExamGenerateRequest,
@@ -21,11 +23,47 @@ from scholarcli.api.schemas import (
     ExamSessionOut,
     ExamSubmitRequest,
 )
+from scholarcli.llm import get_llm
+from scholarcli.rag.prompts import QUIZ_SYSTEM
+from scholarcli.storage import get_session
+from scholarcli.storage.models import PYQQuestion
 
 router = APIRouter(prefix="/api/exams", tags=["exam"])
 
 # sessionId -> {"questions": [dict], "topic": str}
 _sessions: dict[str, dict] = {}
+
+
+def _sample_pyq_questions(course: str, limit: int = 16) -> list[dict]:
+    """Pull real past questions for a course to ground PYQ-based generation."""
+    session = get_session()
+    try:
+        rows = (
+            session.query(PYQQuestion)
+            .filter(PYQQuestion.course == course)
+            .order_by(PYQQuestion.year.desc())
+            .limit(limit)
+            .all()
+        )
+        return [
+            {"text": r.text, "topic": r.topic, "marks": r.marks}
+            for r in rows
+        ]
+    finally:
+        session.close()
+
+
+def _direct_quiz_generate(query: str) -> str:
+    """Generate quiz/exam content via a direct LLM call (no RAG grounding gate).
+
+    Used for PYQ-driven exams: the source of truth is the user's uploaded
+    question papers, not the document vector index (which may be empty for a
+    course that only has PYQs).
+    """
+    system = active_body("quiz") or QUIZ_SYSTEM
+    llm = get_llm("quiz")
+    resp = llm.invoke([SystemMessage(content=system), HumanMessage(content=query)])
+    return resp.content if hasattr(resp, "content") else str(resp)
 
 
 @router.post("/generate", response_model=ExamSessionOut)
@@ -53,23 +91,56 @@ async def generate_exam(req: ExamGenerateRequest) -> ExamSessionOut:
             diff_lines = ", ".join(
                 f"{d['level']}: {d['count']}" for d in analysis.get("difficulty", [])
             )
+            style_lines = ", ".join(
+                f"{p['label']} {p['pct']}%" for p in analysis.get("patterns", [])[:6]
+            )
+            marks_lines = ", ".join(
+                f"{m['marks']}-mark ×{m['count']}" for m in analysis.get("marksDistribution", [])
+            )
             pyq_block = f"""
-Base this exam on the real previous-year-question trends for this subject.
-Weight questions toward the most frequent topics below; mirror the historical difficulty mix.
+Base this exam on the real previous-year-question trends for this subject — do NOT invent a random mix.
+Weight questions toward the most frequent topics below; mirror the historical difficulty, question-style, and marks mix.
 Topics (most → least frequent):
 {topic_lines}
 Historical difficulty distribution: {diff_lines}.
+Question-style distribution to mirror: {style_lines or "n/a"}.
+Marks distribution seen in past papers: {marks_lines or "n/a"}.
 Set each question's 'topic' field to the single best-matching topic from the list above.
+"""
+
+    # Ground PYQ-driven exams in the user's actual uploaded papers (a sample of
+    # real past questions) so generation works even when the course has no
+    # indexed notes in the document vector store.
+    use_pyq = bool(req.pyqCourse and pyq_topics)
+    sample_block = ""
+    if use_pyq:
+        samples = _sample_pyq_questions(req.pyqCourse or "")
+        if samples:
+            sample_lines = "\n".join(
+                f"- {s['text'][:300]}"
+                + (f" [topic: {s['topic']}" + (f", {s['marks']} marks]" if s['marks'] else "]") if s['topic'] else "")
+                for s in samples
+            )
+            sample_block = f"""
+Real previous-year questions from this subject's uploaded papers — match their style, scope and difficulty, and generate NEW questions in the same spirit (do NOT copy verbatim):
+{sample_lines}
 """
 
     query = f"""Generate a {req.difficulty} difficulty {req.count}-question exam about: {subject}.
 Include these question types: {types_str}.
 {pyq_block}
+{sample_block}
 Output the exam strictly as a markdown JSON array block ```json [...] ```.
 Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'options' (array of strings, for mcq/truefalse), 'answer' (the exact correct answer string), 'explanation', and 'topic' (a short topic label).
 """
-    result = await run_in_threadpool(run_ask, query, req.course, req.document, "quiz")
-    parsed = parsers.parse_quiz(result["content"])
+    if use_pyq:
+        content = await run_in_threadpool(_direct_quiz_generate, query)
+        grounded = True
+    else:
+        result = await run_in_threadpool(run_ask, query, req.course, req.document, "quiz")
+        content = result["content"]
+        grounded = result["grounded"]
+    parsed = parsers.parse_quiz(content)
 
     questions: list[ExamQuestionOut] = []
     stored: list[dict] = []
@@ -86,13 +157,13 @@ Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'optio
         stored.append(eq)
         questions.append(ExamQuestionOut(**eq))
 
-    session_id = f"exam-{abs(hash(subject + result['content'])) % 10_000_000}"
+    session_id = f"exam-{abs(hash(subject + content)) % 10_000_000}"
     _sessions[session_id] = {"questions": stored, "topic": subject, "course": req.pyqCourse}
 
     return ExamSessionOut(
         sessionId=session_id,
         questions=questions,
-        grounded=result["grounded"] and bool(questions),
+        grounded=grounded and bool(questions),
     )
 
 

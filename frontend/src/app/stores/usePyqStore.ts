@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { toast } from "sonner";
-import { api, type PyqAnalysis, type PyqPaper, type PyqQuestion } from "../lib/api";
+import { api, type PyqAnalysis, type PyqDifferenceSuggestion, type PyqPaper, type PyqQuestion } from "../lib/api";
 
 export interface PyqFilters {
   year?: number;
@@ -15,6 +15,7 @@ interface PyqState {
   analysis: PyqAnalysis | null;
   papers: PyqPaper[];
   questions: PyqQuestion[];
+  differences: PyqDifferenceSuggestion[];
   filters: PyqFilters;
 
   // UI
@@ -39,6 +40,7 @@ export const usePyqStore = create<PyqState>((set, get) => ({
   analysis: null,
   papers: [],
   questions: [],
+  differences: [],
   filters: {},
   selectedTopic: null,
   selectedPattern: null,
@@ -50,7 +52,7 @@ export const usePyqStore = create<PyqState>((set, get) => ({
     set((s) => ({ filters: { ...s.filters, [key]: value || undefined } })),
 
   selectCourse: async (course) => {
-    set({ course, analysis: null, papers: [], questions: [], filters: {}, selectedTopic: null, selectedPattern: null });
+    set({ course, analysis: null, papers: [], questions: [], differences: [], filters: {}, selectedTopic: null, selectedPattern: null });
     if (course) await get().refresh();
   },
 
@@ -59,11 +61,12 @@ export const usePyqStore = create<PyqState>((set, get) => ({
     if (!course) return;
     set({ loading: true });
     try {
-      const [analysis, papers] = await Promise.all([
+      const [analysis, papers, differences] = await Promise.all([
         api.getPyqAnalysis(course),
         api.listPyqPapers(course),
+        api.getPyqDifferenceSuggestions(course),
       ]);
-      set({ analysis, papers });
+      set({ analysis, papers, differences });
       await get().fetchQuestions();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load PYQ analysis");

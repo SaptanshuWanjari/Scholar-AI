@@ -159,6 +159,7 @@ export interface PyqQuestion {
   id: number;
   text: string;
   topic: string;
+  subtopics: string[];
   difficulty: string;
   type: string;
   marks: number | null;
@@ -173,6 +174,15 @@ export interface PyqTopicFreq {
   importance: number;
   accuracy: number | null;
   styles: string[];
+  subtopics: string[];
+}
+
+export interface PyqDifferenceSuggestion {
+  a: string;
+  b: string;
+  topic: string;
+  count: number;
+  example: string;
 }
 
 export interface PyqPattern {
@@ -212,6 +222,7 @@ export interface PyqAnalysis {
   topicFrequency: PyqTopicFreq[];
   patterns: PyqPattern[];
   difficulty: { level: string; count: number }[];
+  marksDistribution: { marks: number; count: number }[];
   yearTrends: PyqYearTrend[];
   revisionRisk: PyqRevisionRisk[];
   readiness: {
@@ -315,6 +326,7 @@ export interface BackendSettings {
   fastModel: string;
   reasoningModel: string;
   embeddingModel: string;
+  visionModel: string;
   temperature: number;
   topK: number;
   similarityThreshold: number;
@@ -333,6 +345,7 @@ export interface ModelsList {
   fastModels: string[];
   reasoningModels: string[];
   embeddingModels: string[];
+  visionModels: string[];
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -639,6 +652,9 @@ export const api = {
     if (filters?.type) p.set("type", filters.type);
     if (filters?.q) p.set("q", filters.q);
     return request<PyqQuestion[]>(`/api/pyq/questions?${p.toString()}`);
+  },
+  getPyqDifferenceSuggestions(course: string): Promise<PyqDifferenceSuggestion[]> {
+    return request<PyqDifferenceSuggestion[]>(`/api/pyq/difference-suggestions?course=${encodeURIComponent(course)}`);
   },
 
   // ---- Knowledge graph ----

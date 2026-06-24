@@ -1,23 +1,31 @@
 """Document loaders. PDF via PyMuPDF, Markdown via heading-aware splitting.
 
-Each loader returns a list of ``Page`` namedtuples: (page_number, title, heading, text).
+Each loader returns a list of ``Page`` namedtuples. A ``Page`` may be native
+text, OCR output, a table, or an image/diagram description — distinguished by
+``source_type``. The orchestrator in :func:`load_pdf` decides which extractors
+run per page based on :func:`scholarcli.ingest.analyze.analyze_page`.
 """
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import NamedTuple
 
 import fitz  # pymupdf
 
+logger = logging.getLogger(__name__)
+
 
 class Page(NamedTuple):
-    """A page (or section) extracted from a document."""
+    """A page (or section/artifact) extracted from a document."""
 
     page_number: int  # 1-based
     title: str  # document title (same across pages)
     heading: str  # nearest heading on this page, or ""
     text: str
+    source_type: str = "text"  # text | ocr | table | image | diagram
+    image_url: str = ""  # served URL for image/diagram artifacts
 
 
 # ---------------------------------------------------------------------------
@@ -41,49 +49,126 @@ def load_document(path: Path, content_hash: str) -> tuple[list[Page], str]:
 # ---------------------------------------------------------------------------
 
 def load_pdf(path: Path, content_hash: str) -> list[Page]:
+    """Orchestrate multimodal extraction for a PDF.
+
+    Per page: scanned pages go through OCR; otherwise native text is extracted
+    (with images described inline + as separate retrievable chunks) and tables
+    are pulled out as their own markdown chunks. Every optional stage degrades
+    gracefully so a failure never aborts ingestion.
+    """
     from scholarcli.config import get_settings
+    from scholarcli.ingest.analyze import analyze_page
+
+    cfg = get_settings().ingest
     images_dir = get_settings().paths.resolved_data_dir() / "images" / content_hash
 
     doc = fitz.open(path)
     title = _pdf_title(doc, path)
     pages: list[Page] = []
     for i, page in enumerate(doc):
-        page_area = page.rect.width * page.rect.height
-        blocks = page.get_text("dict", sort=True).get("blocks", [])
-        text_parts = []
-        for b_idx, b in enumerate(blocks):
+        page_num = i + 1
+        info = analyze_page(page, page_num)
+        heading = _pdf_page_heading(page)
+
+        # --- Scanned / image-only page → OCR ---------------------------------
+        if cfg.ocr_enabled and info.is_scanned:
+            from scholarcli.ingest.ocr import ocr_page
+
+            try:
+                ocr_text, _conf = ocr_page(page)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("OCR failed on page %d: %s", page_num, exc)
+                ocr_text = ""
+            if ocr_text.strip():
+                pages.append(
+                    Page(page_num, title, heading, ocr_text.strip(), source_type="ocr")
+                )
+            continue  # OCR covers the whole page; skip native/image passes
+
+        # --- Native text + inline/embedded images ----------------------------
+        text_parts: list[str] = []
+        for b_idx, b in enumerate(page.get_text("dict", sort=True).get("blocks", [])):
             if b.get("type") == 0:
-                lines = []
-                for line in b.get("lines", []):
-                    spans = [span.get("text", "") for span in line.get("spans", [])]
-                    lines.append("".join(spans))
+                lines = [
+                    "".join(span.get("text", "") for span in line.get("spans", []))
+                    for line in b.get("lines", [])
+                ]
                 block_text = "\n".join(lines).strip()
                 if block_text:
                     text_parts.append(block_text)
             elif b.get("type") == 1:
-                bbox = b.get("bbox")
-                if bbox:
-                    w = bbox[2] - bbox[0]
-                    h = bbox[3] - bbox[1]
-                    if w * h > 0.8 * page_area:
-                        continue  # Skip background images
+                seg = _handle_image_block(
+                    b, i, b_idx, page, content_hash, images_dir, title, heading, cfg, pages
+                )
+                if seg:
+                    text_parts.append(seg)
 
-                image_bytes = b.get("image")
-                ext = b.get("ext", "png")
-                if image_bytes:
-                    images_dir.mkdir(parents=True, exist_ok=True)
-                    filename = f"{i + 1}_{b_idx}.{ext}"
-                    dest = images_dir / filename
-                    dest.write_bytes(image_bytes)
-                    text_parts.append(f"![Image](/api/documents/images/{content_hash}/{filename})")
-        
         text = "\n\n".join(text_parts).strip()
-        if not text:
-            continue
-        heading = _pdf_page_heading(page)
-        pages.append(Page(page_number=i + 1, title=title, heading=heading, text=text))
+        if text:
+            pages.append(Page(page_num, title, heading, text, source_type="text"))
+
+        # --- Tables (structured markdown chunks) -----------------------------
+        if cfg.tables_enabled:
+            from scholarcli.ingest.tables import extract_tables
+
+            for t in extract_tables(page):
+                pages.append(
+                    Page(page_num, title, heading, t.chunk_text, source_type="table")
+                )
+
     doc.close()
     return pages
+
+
+def _handle_image_block(
+    b, page_idx, b_idx, page, content_hash, images_dir, title, heading, cfg, pages
+) -> str | None:
+    """Save an image block, describe it (if enabled), and append an image chunk.
+
+    Returns the inline markdown to embed in the page's text (so it renders in
+    Reading mode), or ``None`` for background/unsaveable images.
+    """
+    page_area = page.rect.width * page.rect.height
+    bbox = b.get("bbox")
+    if bbox:
+        w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        if w * h > 0.8 * page_area:
+            return None  # full-page background image
+
+    image_bytes = b.get("image")
+    if not image_bytes:
+        return None
+    ext = b.get("ext", "png")
+    images_dir.mkdir(parents=True, exist_ok=True)
+    filename = f"{page_idx + 1}_{b_idx}.{ext}"
+    (images_dir / filename).write_bytes(image_bytes)
+    url = f"/api/documents/images/{content_hash}/{filename}"
+
+    description = ""
+    source_type = "image"
+    if cfg.vision_enabled:
+        from scholarcli.ingest import vision
+
+        result = vision.describe_image(image_bytes, ext)
+        description = result.get("description", "")
+        source_type = "diagram" if result.get("type") == "diagram" else "image"
+
+    # Separate retrievable chunk carrying the description + a thumbnail URL.
+    if description:
+        pages.append(
+            Page(
+                page_idx + 1,
+                title,
+                heading,
+                description,
+                source_type=source_type,
+                image_url=url,
+            )
+        )
+
+    # Inline markdown for Reading mode; alt text doubles as a caption.
+    alt = description.replace("]", " ").replace("\n", " ")[:200] if description else "Image"
+    return f"![{alt}]({url})"
 
 
 def _pdf_title(doc, path: Path) -> str:

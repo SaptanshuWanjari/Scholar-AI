@@ -22,6 +22,8 @@ export interface DocumentItem {
   status: DocStatus;
 }
 
+export type SourceType = "text" | "ocr" | "table" | "image" | "diagram";
+
 export interface Source {
   id: string;
   title: string;
@@ -29,6 +31,8 @@ export interface Source {
   course: string;
   snippet: string;
   similarity: number;
+  sourceType?: SourceType;
+  imageUrl?: string;
 }
 
 export interface ChatMessage {

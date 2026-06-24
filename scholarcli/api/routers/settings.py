@@ -29,6 +29,7 @@ def _defaults() -> dict:
         "fastModel": routing.get("quick_qa", "qwen3:8b"),
         "reasoningModel": routing.get("deep_analysis", routing.get("quick_qa", "qwen3:8b")),
         "embeddingModel": s.models.embedding,
+        "visionModel": s.models.vision,
         "temperature": 0.4,
         "topK": s.retrieval.top_k,
         "similarityThreshold": round(1.0 - s.retrieval.max_distance, 2),
@@ -90,8 +91,18 @@ def list_models() -> ModelsList:
     if not embed_models:
         embed_models = [s.models.embedding]
 
+    # Heuristic: surface likely vision-capable tags first, but allow any chat
+    # model so users running a custom multimodal build can still pick it.
+    _vision_hints = ("vl", "vision", "llava", "moondream", "minicpm", "bakllava", "gemma3")
+    vision_models = [m for m in chat_models if any(h in m.lower() for h in _vision_hints)]
+    # Always include the configured vision tag, then the rest as fallback.
+    ordered = vision_models + [m for m in chat_models if m not in vision_models]
+    if s.models.vision not in ordered:
+        ordered.insert(0, s.models.vision)
+
     return ModelsList(
         fastModels=chat_models,
         reasoningModels=chat_models,
         embeddingModels=embed_models,
+        visionModels=ordered,
     )
