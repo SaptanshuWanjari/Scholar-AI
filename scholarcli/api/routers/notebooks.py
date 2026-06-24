@@ -50,6 +50,7 @@ def _full(nb: Notebook) -> NotebookOut:
         blocks=nb.blocks or [],
         tags=nb.tags or [],
         updated=_fmt_updated(nb),
+        is_draft=nb.is_draft,
     )
 
 
@@ -147,6 +148,8 @@ def update_notebook(notebook_id: int, patch: NotebookPatch) -> NotebookOut:
             nb.color = patch.color
         if patch.tags is not None:
             nb.tags = patch.tags
+        if patch.is_draft is not None:
+            nb.is_draft = patch.is_draft
         session.commit()
         session.refresh(nb)
         return _full(nb)

@@ -11,12 +11,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from scholarcli.storage import init_db
-from scholarcli.api.prompt_service import seed_prompts
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    from scholarcli.api.prompt_service import seed_prompts
     seed_prompts()
     yield
 

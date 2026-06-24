@@ -344,6 +344,7 @@ class NotebookOut(BaseModel):
     blocks: list = []
     tags: list[str] = []
     updated: str
+    is_draft: bool = False
 
 
 class CollectionOut(BaseModel):
@@ -366,6 +367,7 @@ class NotebookPatch(BaseModel):
     blocks: list | None = None
     color: str | None = None
     tags: list[str] | None = None
+    is_draft: bool | None = None
 
 
 class NotebookAssistRequest(BaseModel):
@@ -455,12 +457,13 @@ class ExamSubmitRequest(BaseModel):
 
 class ExamResultOut(BaseModel):
     score: int
-    correct: int
+    correct: float  # fractional with partial credit (e.g. 2.5 out of 5)
     total: int
     topicPerformance: list[dict] = []
     difficultyAnalysis: list[dict] = []
-    review: list[dict] = []
+    review: list[dict] = []  # each item includes score: int (0-100) for partial credit
     recommendedRevisions: list[str] = []
+    elapsedSeconds: int | None = None
 
 
 # ---------------------------------------------------------------------------
