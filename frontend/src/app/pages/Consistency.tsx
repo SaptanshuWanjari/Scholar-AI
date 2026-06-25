@@ -117,7 +117,20 @@ export function Consistency() {
       ) : report ? (
         <div>
           <SectionTitle title="Consistency report" />
-          <ConsistencyReport report={report} />
+          <ConsistencyReport
+            report={report}
+            course={course}
+            onApply={async (artifactType, concepts) => {
+              const result = await api.applyConsistencyFix(course, artifactType, concepts);
+              if (result.applied) {
+                toast.success(`${artifactType} updated`, {
+                  description: result.preview.slice(0, 120) + "…",
+                });
+              } else {
+                toast.error(result.message);
+              }
+            }}
+          />
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3 pt-24 text-center text-muted-foreground">

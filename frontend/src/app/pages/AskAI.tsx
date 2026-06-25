@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { ArrowUp, Gauge, Paperclip, Sparkles, Trash2, BookOpen } from "lucide-react";
+import { ArrowUp, Gauge, Paperclip, Sparkles, Trash2, BookOpen, MessageSquare, Plus } from "lucide-react";
 import { motion } from "motion/react";
 import { useChatStore } from "../stores/useChatStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
@@ -18,17 +18,20 @@ import { api } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 
 export function AskAI() {
-  const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument } = useChatStore();
+  const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument, sessions, activeSessionId, loadSessions, loadSession, deleteSession } = useChatStore();
   const streaming = useSettingsStore((s) => s.streaming);
   const [input, setInput] = useState("");
   const [activeSource, setActiveSource] = useState<string | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [sessionsPanelOpen, setSessionsPanelOpen] = useState(false);
+  const [hoveredSessionId, setHoveredSessionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     api.listCourses().then(setCourses).catch(() => setCourses([]));
     api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
+    loadSessions();
   }, []);
 
   const suggestions = useMemo(() => {
@@ -57,7 +60,7 @@ export function AskAI() {
   const submit = (q?: string) => {
     const value = (q ?? input).trim();
     if (!value || isStreaming) return;
-    void ask(value, { stream: streaming });
+    ask(value, { stream: streaming }).then(() => loadSessions());
     setInput("");
   };
 
@@ -73,16 +76,78 @@ export function AskAI() {
 
   return (
     <div className="flex h-full">
+      {/* Sessions panel — collapsible, lg+ only */}
+      <div
+        className={`hidden lg:flex flex-col border-r border-border bg-sidebar overflow-hidden transition-all duration-200 ${
+          sessionsPanelOpen ? "w-[220px]" : "w-0"
+        }`}
+      >
+        <div className="flex h-12 shrink-0 items-center justify-between border-b border-border px-3">
+          <span className="text-xs font-medium text-muted-foreground">History</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 gap-1 text-xs"
+            onClick={() => { reset(); }}
+          >
+            <Plus className="size-3.5" /> New
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto py-1">
+          {sessions.length === 0 ? (
+            <p className="px-3 py-4 text-center text-xs text-muted-foreground">No sessions yet</p>
+          ) : (
+            sessions.map((s) => (
+              <div
+                key={s.id}
+                className={`group relative mx-1 flex cursor-pointer items-start gap-2 rounded-md px-3 py-2 text-sm ${
+                  s.id === activeSessionId
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "hover:bg-sidebar-accent/50"
+                }`}
+                onClick={() => loadSession(s.id)}
+                onMouseEnter={() => setHoveredSessionId(s.id)}
+                onMouseLeave={() => setHoveredSessionId(null)}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs font-medium">{s.title}</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    {s.messageCount} msg · {relativeTime(s.updatedAt)}
+                  </div>
+                </div>
+                {hoveredSessionId === s.id && (
+                  <button
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={(e) => { e.stopPropagation(); void deleteSession(s.id); }}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
       {/* Sources — 25% */}
       <div className="hidden w-[25%] min-w-[260px] max-w-[360px] lg:block">
         <SourcePanel sources={sources} activeId={activeSource} onSelect={setActiveSource} />
       </div>
 
-      {/* Answer — 75% */}
+      {/* Answer — flex-1 */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Answer header */}
         <div className="flex h-12 items-center justify-between border-b border-border px-6">
           <div className="flex items-center gap-2 text-sm font-medium">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={() => setSessionsPanelOpen((v) => !v)}
+              title={sessionsPanelOpen ? "Hide history" : "Show history"}
+            >
+              <MessageSquare className="size-4" />
+            </Button>
             <BookOpen className="size-4 text-muted-foreground" />
             Answer
           </div>
@@ -195,6 +260,16 @@ export function AskAI() {
       </div>
     </div>
   );
+}
+
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
 }
 
 function EmptyAsk({ onPick, suggestions }: { onPick: (q: string) => void; suggestions: string[] }) {

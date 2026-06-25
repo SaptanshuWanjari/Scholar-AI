@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { BookMarked, Check, Plus, Trash2, X } from "lucide-react";
+import { BookMarked, Check, FlaskConical, Plus, StopCircle, Trash2, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { api } from "../lib/api";
+import type { PromptExperiment } from "../lib/api";
 import type { PromptItem } from "../lib/types";
 import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
@@ -20,12 +21,27 @@ export function PromptLibrary() {
   const [selected, setSelected] = useState<PromptItem | null>(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ name: "", style: "", body: "" });
+  const [view, setView] = useState<"prompts" | "experiments">("prompts");
+  const [experiments, setExperiments] = useState<PromptExperiment[]>([]);
+  const [loadingExp, setLoadingExp] = useState(false);
+  const [newExp, setNewExp] = useState<{ variantAId: number | null; variantBId: number | null }>({ variantAId: null, variantBId: null });
+
+  async function loadExperiments() {
+    setLoadingExp(true);
+    try {
+      const exps = await api.listPromptExperiments();
+      setExperiments(exps);
+    } finally {
+      setLoadingExp(false);
+    }
+  }
 
   useEffect(() => {
     api.listPromptCategories().then((cs) => {
       setCategories(cs);
       if (cs.length) setActiveCategory(cs[0].key);
     });
+    loadExperiments();
   }, []);
 
   useEffect(() => {
@@ -35,6 +51,10 @@ export function PromptLibrary() {
       setSelected(ps.find((p) => p.active) ?? ps[0] ?? null);
     });
   }, [activeCategory]);
+
+  useEffect(() => {
+    if (view === "experiments") loadExperiments();
+  }, [view]);
 
   async function activate(p: PromptItem) {
     await api.activatePrompt(p.id);
@@ -49,6 +69,20 @@ export function PromptLibrary() {
     setPrompts(next);
     if (selected?.id === p.id) setSelected(next[0] ?? null);
     toast.success("Prompt deleted");
+  }
+
+  async function stopExperiment(id: number) {
+    await api.stopPromptExperiment(id);
+    setExperiments((prev) => prev.filter((e) => e.id !== id));
+    toast.success("Experiment stopped");
+  }
+
+  async function startExperiment() {
+    if (!newExp.variantAId || !newExp.variantBId) return;
+    const exp = await api.startPromptExperiment(activeCategory, newExp.variantAId, newExp.variantBId);
+    setExperiments((prev) => [...prev, exp]);
+    setNewExp({ variantAId: null, variantBId: null });
+    toast.success("Experiment started");
   }
 
   async function save() {
@@ -99,57 +133,212 @@ export function PromptLibrary() {
       <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card/50">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <span className="text-sm font-medium text-foreground">{cat?.label}</span>
+          {view === "prompts" && (
+            <button
+              onClick={() => { setCreating(true); setSelected(null); }}
+              className="flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              <Plus className="size-3" /> New
+            </button>
+          )}
+        </div>
+
+        {/* Tab toggle */}
+        <div className="flex border-b border-border px-2 pt-2 gap-1">
           <button
-            onClick={() => { setCreating(true); setSelected(null); }}
-            className="flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+            onClick={() => setView("prompts")}
+            className={cn(
+              "flex items-center gap-1.5 rounded-t-md px-3 py-1.5 text-xs font-medium transition-colors",
+              view === "prompts"
+                ? "bg-sidebar-accent text-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/50"
+            )}
           >
-            <Plus className="size-3" /> New
+            Prompts
+          </button>
+          <button
+            onClick={() => setView("experiments")}
+            className={cn(
+              "flex items-center gap-1.5 rounded-t-md px-3 py-1.5 text-xs font-medium transition-colors",
+              view === "experiments"
+                ? "bg-sidebar-accent text-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/50"
+            )}
+          >
+            <FlaskConical className="size-3" /> A/B Tests
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
-          {visible.map((p) => (
-            <motion.button
-              key={p.id}
-              layout
-              onClick={() => { setSelected(p); setCreating(false); }}
-              className={cn(
-                "group w-full rounded-lg px-3 py-2.5 text-left transition-colors",
-                selected?.id === p.id
-                  ? "bg-sidebar-accent"
-                  : "hover:bg-sidebar-accent/50"
-              )}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 truncate text-sm font-medium text-foreground">
-                    {p.active && <Check className="size-3 shrink-0 text-success" />}
-                    <span className="truncate">{p.name}</span>
+        {view === "prompts" && (
+          <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
+            {visible.map((p) => (
+              <motion.button
+                key={p.id}
+                layout
+                onClick={() => { setSelected(p); setCreating(false); }}
+                className={cn(
+                  "group w-full rounded-lg px-3 py-2.5 text-left transition-colors",
+                  selected?.id === p.id
+                    ? "bg-sidebar-accent"
+                    : "hover:bg-sidebar-accent/50"
+                )}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 truncate text-sm font-medium text-foreground">
+                      {p.active && <Check className="size-3 shrink-0 text-success" />}
+                      <span className="truncate">{p.name}</span>
+                    </div>
+                    {p.style && (
+                      <span className={cn("mt-0.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-medium", STYLE_BADGE[p.style] ?? STYLE_BADGE[""])}>
+                        {p.style}
+                      </span>
+                    )}
                   </div>
-                  {p.style && (
-                    <span className={cn("mt-0.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-medium", STYLE_BADGE[p.style] ?? STYLE_BADGE[""])}>
-                      {p.style}
-                    </span>
+                  {!p.built_in && selected?.id === p.id && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); remove(p); }}
+                      className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
                   )}
                 </div>
-                {!p.built_in && selected?.id === p.id && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); remove(p); }}
-                    className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                )}
-              </div>
-            </motion.button>
-          ))}
-        </div>
+              </motion.button>
+            ))}
+          </div>
+        )}
+
+        {view === "experiments" && (
+          <div className="flex-1 overflow-y-auto px-2 py-2">
+            <p className="px-1 py-1 text-[11px] text-muted-foreground">
+              {loadingExp ? "Loading…" : `${experiments.length} experiment${experiments.length !== 1 ? "s" : ""}`}
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* ── Right: editor / viewer ───────────────────────────────────── */}
+      {/* ── Right: editor / viewer / experiments ────────────────────── */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <AnimatePresence mode="wait">
-          {creating ? (
+          {view === "experiments" ? (
+            <motion.div
+              key="experiments"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="flex h-full flex-col overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex items-center gap-2 border-b border-border px-6 py-3 shrink-0">
+                <FlaskConical className="size-4 text-violet" />
+                <span className="text-sm font-medium text-foreground">A/B Experiments — {cat?.label}</span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+                {/* Active experiments list */}
+                {experiments.length === 0 && !loadingExp && (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <FlaskConical className="mb-3 size-8 text-muted-foreground/40" />
+                    <p className="text-sm text-muted-foreground">No experiments yet</p>
+                    <p className="mt-1 text-xs text-muted-foreground/70">Start one below to compare two prompts head-to-head</p>
+                  </div>
+                )}
+
+                {experiments.map((exp) => (
+                  <div key={exp.id} className="rounded-lg border border-border bg-card p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-foreground">{exp.category}</span>
+                        {exp.active && (
+                          <span className="rounded-full bg-success-soft px-2 py-0.5 text-[10px] font-medium text-success">Active</span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => stopExperiment(exp.id)}
+                        className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:border-destructive hover:text-destructive transition-colors"
+                      >
+                        <StopCircle className="size-3" /> Stop
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { label: "Variant A", v: exp.variantA },
+                        { label: "Variant B", v: exp.variantB },
+                      ].map(({ label, v }) => (
+                        <div key={label} className="rounded-md border border-border bg-muted/30 p-3 space-y-1">
+                          <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
+                          <div className="truncate text-sm font-medium text-foreground">{v.name}</div>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span>{v.uses} uses</span>
+                            <span>{v.score.toFixed(1)} score</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Start New Experiment */}
+                {visible.length >= 2 && (
+                  <div className="rounded-lg border border-dashed border-border bg-card/50 p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Plus className="size-4 text-muted-foreground" />
+                      <span className="text-sm font-medium text-foreground">Start New Experiment</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground">Variant A</label>
+                        <select
+                          value={newExp.variantAId ?? ""}
+                          onChange={(e) => setNewExp((n) => ({ ...n, variantAId: e.target.value ? Number(e.target.value) : null }))}
+                          className="mt-1 w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+                        >
+                          <option value="">Select prompt…</option>
+                          {visible
+                            .filter((p) => p.id !== newExp.variantBId)
+                            .map((p) => (
+                              <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground">Variant B</label>
+                        <select
+                          value={newExp.variantBId ?? ""}
+                          onChange={(e) => setNewExp((n) => ({ ...n, variantBId: e.target.value ? Number(e.target.value) : null }))}
+                          className="mt-1 w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+                        >
+                          <option value="">Select prompt…</option>
+                          {visible
+                            .filter((p) => p.id !== newExp.variantAId)
+                            .map((p) => (
+                              <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={startExperiment}
+                      disabled={!newExp.variantAId || !newExp.variantBId}
+                      className="flex items-center gap-1.5 rounded-md bg-violet px-3 py-2 text-xs font-medium text-white hover:bg-violet/90 disabled:cursor-not-allowed disabled:opacity-50 transition-opacity"
+                    >
+                      <FlaskConical className="size-3" /> Start Experiment
+                    </button>
+                  </div>
+                )}
+
+                {visible.length < 2 && (
+                  <p className="text-xs text-muted-foreground">
+                    Add at least 2 prompts to this category to run an experiment.
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          ) : creating ? (
             <motion.div
               key="create"
               initial={{ opacity: 0, y: 8 }}
