@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { ArrowUp, Gauge, Paperclip, Sparkles, Trash2, BookOpen, MessageSquare, Plus, GraduationCap, ShieldCheck } from "lucide-react";
+import { ArrowUp, Gauge, Paperclip, Sparkles, Trash2, BookOpen, MessageSquare, Plus, GraduationCap, ShieldCheck, PanelRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useChatStore } from "../stores/useChatStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
@@ -21,11 +21,13 @@ export function AskAI() {
   const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument, sessions, activeSessionId, loadSessions, loadSession, deleteSession, socratic, setSocratic } = useChatStore();
   const streaming = useSettingsStore((s) => s.streaming);
   const ragMode = useSettingsStore((s) => s.ragMode);
+  const setSettingsField = useSettingsStore((s) => s.set);
   const [input, setInput] = useState("");
   const [activeSource, setActiveSource] = useState<string | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
-  const [sessionsPanelOpen, setSessionsPanelOpen] = useState(false);
+  const [sessionsPanelOpen, setSessionsPanelOpen] = useState(true);
+  const [sourcesPanelOpen, setSourcesPanelOpen] = useState(true);
   const [hoveredSessionId, setHoveredSessionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -130,10 +132,6 @@ export function AskAI() {
         </div>
       </div>
 
-      {/* Sources — 25% */}
-      <div className="hidden w-[25%] min-w-[260px] max-w-[360px] lg:block">
-        <SourcePanel sources={sources} activeId={activeSource} onSelect={setActiveSource} />
-      </div>
 
       {/* Answer — flex-1 */}
       <div className="flex min-w-0 flex-1 flex-col">
@@ -194,11 +192,49 @@ export function AskAI() {
                 {(confidence * 100).toFixed(0)}% confidence
               </Badge>
             )}
+            {/* RAG Mode toggle — always visible in header */}
+            <button
+              type="button"
+              onClick={() => setSettingsField("ragMode", ragMode === "strict" ? "fallback" : "strict")}
+              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                ragMode === "strict"
+                  ? "border-amber-500/50 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
+                  : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
+              }`}
+              title={ragMode === "strict" ? "Strict RAG — click to switch to AI Fallback" : "AI Fallback — click to switch to Strict RAG"}
+            >
+              <ShieldCheck className="size-3" />
+              {ragMode === "strict" ? "Strict RAG" : "AI Fallback"}
+            </button>
+            {/* Socratic Mode toggle */}
+            <button
+              type="button"
+              onClick={() => setSocratic(!socratic)}
+              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                socratic
+                  ? "border-violet-500/50 bg-violet-500/10 text-violet-600 hover:bg-violet-500/20"
+                  : "border-border text-muted-foreground hover:border-border hover:text-foreground"
+              }`}
+              title={socratic ? "Socratic Mode ON — AI guides, does not answer" : "Enable Socratic Mode"}
+            >
+              <GraduationCap className="size-3" />
+              Socratic
+            </button>
             {messages.length > 0 && (
               <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs" onClick={reset}>
                 <Trash2 className="size-3.5" /> Clear
               </Button>
             )}
+            {/* Sources panel toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 hidden lg:inline-flex"
+              onClick={() => setSourcesPanelOpen((v) => !v)}
+              title={sourcesPanelOpen ? "Hide sources" : "Show sources"}
+            >
+              <PanelRight className="size-4" />
+            </Button>
           </div>
         </div>
 
@@ -247,41 +283,26 @@ export function AskAI() {
               </Button>
             </div>
             <div className="mt-2 flex items-center justify-between px-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5">
                 <Sparkles className="size-3 text-primary" />
                 Grounded in {courses.length} courses · {streaming ? "Streaming on" : "Streaming off"}
-                {ragMode === "strict" ? (
-                  <span className="flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600">
-                    <ShieldCheck className="size-3" /> Strict RAG
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                    <Sparkles className="size-3" /> AI Fallback
-                  </span>
-                )}
               </span>
-              <span className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setSocratic(!socratic)}
-                  className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
-                    socratic
-                      ? "border-violet/60 bg-violet/10 text-violet"
-                      : "border-border text-muted-foreground hover:border-border hover:text-foreground"
-                  }`}
-                  title={socratic ? "Socratic Mode ON — AI guides, does not answer directly" : "Enable Socratic Mode"}
-                >
-                  <GraduationCap className="size-3" />
-                  Socratic
-                </button>
-                <span>
-                  <kbd className="rounded border border-border bg-muted px-1 font-mono">Enter</kbd> to send ·{" "}
-                  <kbd className="rounded border border-border bg-muted px-1 font-mono">Shift+Enter</kbd> newline
-                </span>
+              <span>
+                <kbd className="rounded border border-border bg-muted px-1 font-mono">Enter</kbd> to send ·{" "}
+                <kbd className="rounded border border-border bg-muted px-1 font-mono">Shift+Enter</kbd> newline
               </span>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Sources — collapsible right panel, lg+ only */}
+      <div
+        className={`hidden lg:flex flex-col border-l border-border bg-sidebar overflow-hidden transition-all duration-200 ${
+          sourcesPanelOpen ? "w-[25%] min-w-[260px] max-w-[360px]" : "w-0"
+        }`}
+      >
+        <SourcePanel sources={sources} activeId={activeSource} onSelect={setActiveSource} />
       </div>
     </div>
   );
