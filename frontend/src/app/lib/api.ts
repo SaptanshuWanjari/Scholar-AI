@@ -676,6 +676,12 @@ export const api = {
     const qs = p.toString();
     return request<ArtifactItem[]>(`/api/courses/${id}/artifacts${qs ? `?${qs}` : ""}`);
   },
+  reindexCourse(id: string): Promise<{ id: string; kind: string; status: string; label: string }> {
+    return request(`/api/courses/${id}/reindex`, { method: "POST" });
+  },
+  generateCoursePackage(id: string): Promise<PackageMeta> {
+    return request<PackageMeta>(`/api/courses/${id}/package`, { method: "POST" });
+  },
 
   // ---- Documents ----
   listDocuments(course?: string, search?: string): Promise<DocumentItem[]> {

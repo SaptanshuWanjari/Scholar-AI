@@ -69,6 +69,7 @@ interface TeachState {
   _listsLoaded: boolean;
 
   packageId: string | null;
+  pkgCourse: string;
   activeView: ViewKey;
 
   overview: GeneratedRevision | null; // { title, markdown, grounded }
@@ -129,6 +130,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
   },
 
   packageId: null,
+  pkgCourse: "",
   activeView: "overview",
 
   overview: null,
@@ -336,6 +338,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
         topic: pkg.title,
         depth: (pkg.depth as Depth) || "standard",
         packageId: pkg.id,
+        pkgCourse: pkg.course ?? "",
         activeView: "overview",
         overview: {
           title: pkg.title,
@@ -360,6 +363,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
     set({
       phase: "input",
       packageId: null,
+      pkgCourse: "",
       activeView: "overview",
       overview: null,
       overviewStatus: "idle",

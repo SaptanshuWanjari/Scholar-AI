@@ -22,6 +22,7 @@ import {
   RefreshCw,
   Package,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { api } from "../lib/api";
@@ -460,6 +461,8 @@ function CourseWorkspace({
   const [artifacts, setArtifacts] = useState<ArtifactItem[]>([]);
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [reindexing, setReindexing] = useState(false);
+  const [generatingPackage, setGeneratingPackage] = useState(false);
 
   const loadAll = useCallback(async () => {
     setLoadingStats(true);
@@ -482,6 +485,33 @@ function CourseWorkspace({
     if (!deletingDocId) return;
     try { await api.deleteDocument(deletingDocId); await loadAll(); } catch {}
     setDeletingDocId(null);
+  };
+
+  const handleReindex = async () => {
+    setReindexing(true);
+    try {
+      const job = await api.reindexCourse(course.id);
+      toast.success(`Rebuilding index for ${course.name}`, {
+        description: `Job queued (${job.id.slice(0, 8)}…). Documents will be re-embedded in the background.`,
+      });
+    } catch {
+      toast.error("Failed to start reindex");
+    }
+    setReindexing(false);
+  };
+
+  const handleGeneratePackage = async () => {
+    setGeneratingPackage(true);
+    try {
+      const pkg = await api.generateCoursePackage(course.id);
+      toast.success("Course package generated", {
+        description: `"${pkg.title}" saved. Open Teach Me to view it.`,
+        action: { label: "Open", onClick: () => navigate(`/teach?package=${pkg.id}`) },
+      });
+    } catch {
+      toast.error("Failed to generate course package");
+    }
+    setGeneratingPackage(false);
   };
 
   const STAT_CARDS = stats ? [
@@ -553,11 +583,13 @@ function CourseWorkspace({
                 <Pencil className="size-3.5 mr-1.5" /> Rename
               </Button>
             )}
-            <Button size="sm" variant="outline" disabled title="Coming soon">
-              <RefreshCw className="size-3.5 mr-1.5" /> Rebuild Index
+            <Button size="sm" variant="outline" onClick={handleReindex} disabled={reindexing}>
+              <RefreshCw className={cn("size-3.5 mr-1.5", reindexing && "animate-spin")} />
+              {reindexing ? "Queuing…" : "Rebuild Index"}
             </Button>
-            <Button size="sm" variant="outline" disabled title="Coming soon">
-              <Package className="size-3.5 mr-1.5" /> Generate Package
+            <Button size="sm" variant="outline" onClick={handleGeneratePackage} disabled={generatingPackage}>
+              <Package className={cn("size-3.5 mr-1.5", generatingPackage && "animate-pulse")} />
+              {generatingPackage ? "Generating…" : "Generate Package"}
             </Button>
             <Button
               size="sm"
@@ -680,6 +712,17 @@ export function Courses() {
     const id = searchParams.get("id");
     if (id && id !== selectedCourseId) setSelectedCourse(id);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Resolve ?name= param (set by Teach "Back to course") after courses load
+  useEffect(() => {
+    const name = searchParams.get("name");
+    if (!name || courses.length === 0) return;
+    const match = courses.find((c) => c.name === decodeURIComponent(name));
+    if (match) {
+      setSelectedCourse(match.id);
+      setSearchParams({ id: match.id }, { replace: true });
+    }
+  }, [courses]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectCourse = (id: string) => {
     setSelectedCourse(id);

@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Query
+from pathlib import Path
 
-from scholarcli.api.rag_service import course_code, course_color
-from scholarcli.api.schemas import CourseCreate, CourseOut, CourseStats, ArtifactItem
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+from fastapi.concurrency import run_in_threadpool
+
+from scholarcli.api import job_service
+from scholarcli.api.rag_service import course_code, course_color, run_ask
+from scholarcli.api.schemas import CourseCreate, CourseOut, CourseStats, ArtifactItem, JobOut, PackageMeta
 from scholarcli.storage import get_session
 from scholarcli.storage.models import (
     Course, Deck, Card, SavedQuiz, Notebook, Diagram, Mindmap,
-    DifferenceTable, SavedRevision,
+    DifferenceTable, SavedRevision, LearningPackage,
 )
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
@@ -206,5 +210,106 @@ def get_course_artifacts(
 
         items.sort(key=lambda x: x.created_at, reverse=True)
         return items
+    finally:
+        session.close()
+
+
+# ---------------------------------------------------------------------------
+# Rebuild course index
+# ---------------------------------------------------------------------------
+
+def _reindex_bg(doc_paths: list[tuple[int, str, str]], course_name: str, job_id: str) -> None:
+    from scholarcli.ingest.pipeline import ingest_file
+    job_service.mark_running(job_id)
+    results: dict[str, str] = {}
+    failed = 0
+    for _doc_id, path_str, title in doc_paths:
+        p = Path(path_str)
+        if not p.exists():
+            results[title] = "missing"
+            failed += 1
+            continue
+        try:
+            status = ingest_file(p, course_name)
+            results[title] = status
+        except Exception as exc:  # noqa: BLE001
+            results[title] = f"failed: {exc!s:.100}"
+            failed += 1
+    if failed:
+        job_service.mark_failed(job_id, f"{failed} document(s) failed during reindex")
+    else:
+        job_service.mark_done(job_id, {"results": results})
+
+
+@router.post("/{course_id}/reindex", response_model=JobOut, status_code=202)
+def reindex_course(course_id: int, background_tasks: BackgroundTasks) -> JobOut:
+    session = get_session()
+    try:
+        course = session.query(Course).get(course_id)
+        if not course:
+            raise HTTPException(status_code=404, detail="Course not found")
+        doc_paths = [(d.id, d.path, d.title) for d in course.documents]
+        cname = course.name
+    finally:
+        session.close()
+
+    job_id = job_service.create_job(
+        "reindex",
+        label=f"Rebuilding index for {cname} ({len(doc_paths)} documents)",
+        payload={"courseId": course_id, "courseName": cname, "documentCount": len(doc_paths)},
+    )
+    background_tasks.add_task(_reindex_bg, doc_paths, cname, job_id)
+
+    raw = job_service.get_job(job_id)
+    return JobOut(**raw)  # type: ignore[arg-type]
+
+
+# ---------------------------------------------------------------------------
+# Generate course package
+# ---------------------------------------------------------------------------
+
+@router.post("/{course_id}/package", response_model=PackageMeta)
+async def generate_course_package(course_id: int) -> PackageMeta:
+    session = get_session()
+    try:
+        course = session.query(Course).get(course_id)
+        if not course:
+            raise HTTPException(status_code=404, detail="Course not found")
+        cname = course.name
+    finally:
+        session.close()
+
+    query = (
+        f"Generate a comprehensive study overview for the course: {cname}. "
+        "Include these sections with '## ' headings: "
+        "Course Summary, Key Topics, Core Concepts, Learning Objectives, "
+        "Study Tips, Exam Focus Areas."
+    )
+    result = await run_in_threadpool(run_ask, query, cname, None, "study_notes", cname)
+
+    session = get_session()
+    try:
+        pkg = LearningPackage(
+            title=f"{cname} — Course Overview",
+            course=cname,
+            depth="standard",
+            overview={"markdown": result["content"], "grounded": result["grounded"]},
+            artifacts={},
+            sources=result.get("sources", []),
+        )
+        session.add(pkg)
+        session.commit()
+        session.refresh(pkg)
+        from scholarcli.api.schemas import PackageMeta as _PackageMeta
+        arts = pkg.artifacts or {}
+        count = sum(1 for v in arts.values() if v) + (1 if pkg.overview else 0)
+        return _PackageMeta(
+            id=str(pkg.id),
+            title=pkg.title,
+            course=pkg.course,
+            depth=pkg.depth,
+            artifactCount=count,
+            createdAt=pkg.created_at.isoformat(),
+        )
     finally:
         session.close()
