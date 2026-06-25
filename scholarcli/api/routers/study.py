@@ -168,7 +168,7 @@ async def generate_revision(req: GenerateRevisionRequest) -> RevisionOut:
     format_hint = {
         "notes": "concise revision notes",
         "concepts": "a list of key concepts with short explanations",
-        "formulas": "a formula sheet with each formula explained",
+        "formulas": "a formula explorer. For each formula include: 1. The formula (in LaTeX math blocks), 2. Where it is used, 3. Common mistakes, 4. Variables (with definitions), 5. Units, 6. Related formulas.",
         "summary": "a high-level summary",
     }[req.format]
     query = f"Create {format_hint} for: {subject}"
@@ -190,7 +190,7 @@ async def generate_revision_stream(req: GenerateRevisionRequest) -> StreamingRes
     format_hint = {
         "notes": "concise revision notes",
         "concepts": "a list of key concepts with short explanations",
-        "formulas": "a formula sheet with each formula explained",
+        "formulas": "a formula explorer. For each formula include: 1. The formula (in LaTeX math blocks), 2. Where it is used, 3. Common mistakes, 4. Variables (with definitions), 5. Units, 6. Related formulas.",
         "summary": "a high-level summary",
     }[req.format]
     query = f"Create {format_hint} for: {subject}"

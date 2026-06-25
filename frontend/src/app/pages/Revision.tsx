@@ -41,7 +41,7 @@ const formats: {
 }[] = [
     { id: "notes", label: "Exam Notes", icon: NotebookPen },
     { id: "concepts", label: "Key Concepts", icon: ListTree },
-    { id: "formulas", label: "Formula Sheet", icon: Sigma },
+    { id: "formulas", label: "Formula Explorer", icon: Sigma },
     { id: "summary", label: "Summary Sheet", icon: FileText },
   ];
 
