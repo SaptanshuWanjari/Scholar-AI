@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { toast } from "sonner";
-import { api, type ConceptInspector } from "../lib/api";
+import { api } from "../lib/api";
+
+// runAction only needs a concept's name, so any object with a name works
+// (ConceptInspector, a Learning Path concept card, etc.).
+interface NamedConcept {
+  name: string;
+}
 
 interface ActionResult {
   title: string;
@@ -18,7 +24,7 @@ interface ConceptActionState {
   resultConceptId: string | null;
   clearResult: () => void;
   runAction: (
-    concept: ConceptInspector,
+    concept: NamedConcept,
     conceptId: string,
     label: string,
     navigate: (to: string) => void,

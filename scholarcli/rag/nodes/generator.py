@@ -13,6 +13,7 @@ from scholarcli.rag.prompts import (
     DIFFERENCES_SYSTEM,
     FLASHCARDS_SYSTEM,
     GENERATOR_SYSTEM,
+    LEARNING_PATH_SYSTEM,
     MERMAID_SYSTEM,
     MINDMAP_SYSTEM,
     NOT_GROUNDED,
@@ -32,6 +33,7 @@ _ROUTE_PROMPTS: dict[str, str] = {
     "mindmap": MINDMAP_SYSTEM,
     "study_notes": STUDY_NOTES_SYSTEM,
     "differences": DIFFERENCES_SYSTEM,
+    "learning_path": LEARNING_PATH_SYSTEM,
 }
 
 

@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 
+from scholarcli.api import dependency_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.schemas import (
     CardReview,
@@ -72,6 +73,7 @@ def save_deck(payload: SaveDeckRequest) -> DeckOut:
         color = payload.color or _DECK_COLORS[hash(name) % len(_DECK_COLORS)]
         deck = Deck(
             name=name, course=payload.course or "", color=color,
+            concept_id=dependency_service.resolve_concept(name, payload.course),
             quality_score=payload.quality.model_dump() if payload.quality else None,
         )
         for c in payload.cards:
@@ -367,6 +369,7 @@ def save_revision(payload: SaveRevisionRequest) -> SavedRevisionOut:
             course=payload.course or "",
             format=payload.format,
             content=payload.content,
+            concept_id=dependency_service.resolve_concept(payload.topic, payload.course),
             quality_score=payload.quality.model_dump() if payload.quality else None,
         )
         session.add(rev)

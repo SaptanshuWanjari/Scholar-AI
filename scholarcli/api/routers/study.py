@@ -7,16 +7,21 @@ structured shapes the frontend expects.
 from __future__ import annotations
 
 import json
+import re
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from scholarcli.api import parsers
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.quality import score_artifact
 from scholarcli.api.rag_service import run_ask, stream_ask
 from scholarcli.api.schemas import (
+    ArtifactRecommendRequest,
+    ArtifactRecommendation,
+    ArtifactRecommendResponse,
     DiagramOut,
     FlashcardOut,
     FlashcardSet,
@@ -30,6 +35,8 @@ from scholarcli.api.schemas import (
     QuizQuestionOut,
     RevisionOut,
 )
+from scholarcli.llm import get_llm
+from scholarcli.rag.prompts import _RECOMMEND_SYSTEM
 
 router = APIRouter(prefix="/api", tags=["study"])
 
@@ -218,4 +225,73 @@ async def generate_revision_stream(req: GenerateRevisionRequest) -> StreamingRes
         event_stream(),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+_ARTIFACT_KEYS = ["notes", "flashcards", "quiz", "mindmap", "diagram", "difference"]
+
+_DEFAULT_REASONS = {
+    "notes": "Good for any topic to summarize key ideas.",
+    "flashcards": "Useful for memorizing definitions and terms.",
+    "quiz": "Helps test understanding and recall.",
+    "mindmap": "Shows how concepts relate to each other.",
+    "diagram": "Visualizes processes, flows, or structures.",
+    "difference": "Useful when comparing related concepts.",
+}
+
+
+def _parse_recommendations(text: str) -> list[dict]:
+    match = re.search(r"\[.*\]", text, re.DOTALL)
+    if not match:
+        return []
+    try:
+        data = json.loads(match.group(0))
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(data, list):
+        return []
+    out = []
+    seen: set[str] = set()
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        artifact = str(item.get("artifact", "")).strip().lower()
+        if artifact not in _ARTIFACT_KEYS or artifact in seen:
+            continue
+        seen.add(artifact)
+        try:
+            stars = max(1, min(5, int(item.get("stars", 3))))
+        except (TypeError, ValueError):
+            stars = 3
+        reason = str(item.get("reason", _DEFAULT_REASONS.get(artifact, ""))).strip()[:200]
+        out.append({"artifact": artifact, "stars": stars, "reason": reason})
+    return out
+
+
+@router.post("/artifacts/recommend", response_model=ArtifactRecommendResponse)
+async def recommend_artifacts(req: ArtifactRecommendRequest) -> ArtifactRecommendResponse:
+    topic = req.topic.strip()
+    if not topic:
+        raise HTTPException(status_code=400, detail="topic is required")
+
+    def _call_llm() -> list[dict]:
+        llm = get_llm("study_notes")
+        try:
+            resp = llm.invoke(
+                [SystemMessage(content=_RECOMMEND_SYSTEM), HumanMessage(content=topic)]
+            )
+        except Exception:
+            return []
+        return _parse_recommendations(getattr(resp, "content", str(resp)))
+
+    parsed = await run_in_threadpool(_call_llm)
+
+    # Ensure all 6 artifacts present; fill missing with star=3 defaults.
+    covered = {r["artifact"] for r in parsed}
+    for key in _ARTIFACT_KEYS:
+        if key not in covered:
+            parsed.append({"artifact": key, "stars": 3, "reason": _DEFAULT_REASONS[key]})
+
+    return ArtifactRecommendResponse(
+        recommendations=[ArtifactRecommendation(**r) for r in parsed]
     )

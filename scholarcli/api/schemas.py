@@ -637,6 +637,55 @@ class ConceptInspectorOut(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Concept Dependency Engine
+# ---------------------------------------------------------------------------
+
+class DepBuildRequest(BaseModel):
+    course: str | None = None
+    max_documents: int = 8
+
+
+class DepBuildResponse(BaseModel):
+    concepts: int
+    edges: int
+
+
+class DepLinkOut(BaseModel):
+    id: str
+    name: str
+    difficulty: str
+    masteryStatus: str
+
+
+class DepConceptInspectorOut(BaseModel):
+    id: str
+    name: str
+    definition: str
+    difficulty: str
+    importance: float
+    estStudyTimeMin: int
+    depth: int
+    pyqFrequency: int
+    masteryStatus: str
+    masteryScore: float
+    prerequisites: list[DepLinkOut] = []
+    dependents: list[DepLinkOut] = []
+
+
+class ReadinessMissing(BaseModel):
+    id: str
+    name: str
+    masteryStatus: str
+    reason: str
+
+
+class ReadinessOut(BaseModel):
+    concept: str | None = None
+    ready: bool
+    missing: list[ReadinessMissing] = []
+
+
+# ---------------------------------------------------------------------------
 # Differences
 # ---------------------------------------------------------------------------
 
@@ -715,6 +764,91 @@ class PackageOut(BaseModel):
     sources: list = []
     createdAt: str
     updatedAt: str
+
+
+# ---------------------------------------------------------------------------
+# Learning Path — dependency-ordered roadmap
+# ---------------------------------------------------------------------------
+
+class GenerateLearningPathRequest(BaseModel):
+    topic: str
+    course: str | None = None
+    document: str | None = None
+    rag_mode: str = "fallback"
+
+
+class LearningPathConcept(BaseModel):
+    title: str
+    summary: str = ""
+    difficulty: str = "Medium"  # Easy|Medium|Hard
+    estimatedMinutes: int = 0
+    prerequisites: list[str] = []
+    unlocks: list[str] = []
+    status: str = "not_started"  # not_started|in_progress|completed|needs_revision|weak_area
+
+
+class LearningPathStage(BaseModel):
+    title: str
+    summary: str = ""
+    concepts: list[LearningPathConcept] = []
+
+
+class LearningPathOverview(BaseModel):
+    difficulty: str = "Intermediate"  # Beginner|Intermediate|Advanced
+    conceptCount: int = 0
+    estimatedHours: float = 0.0
+    studySessions: int = 0
+    recommendedPace: str = "1 session/day"
+
+
+class NextRecommendation(BaseModel):
+    conceptTitle: str
+    reason: str
+    estimatedMinutes: int = 0
+
+
+class LearningProgress(BaseModel):
+    conceptsDone: int = 0
+    conceptsTotal: int = 0
+    studyHoursDone: float = 0.0
+    studyHoursTotal: float = 0.0
+    percent: int = 0
+
+
+class LearningAnalytics(BaseModel):
+    strongestStage: str | None = None
+    weakestStage: str | None = None
+    mostRevisedTopic: str | None = None
+    highestMistakeTopic: str | None = None
+    conceptsSkipped: int = 0
+    avgCompletionMinutes: int = 0
+
+
+class LearningPathOut(BaseModel):
+    id: str
+    title: str
+    course: str
+    document: str = ""
+    overview: LearningPathOverview
+    stages: list[LearningPathStage] = []
+    sources: list[SourceOut] = []
+    grounded: bool = True
+    nextRecommendation: NextRecommendation | None = None
+    progress: LearningProgress
+    analytics: LearningAnalytics
+    createdAt: str
+
+
+class LearningPathMeta(BaseModel):
+    id: str
+    title: str
+    course: str
+    conceptCount: int
+    createdAt: str
+
+
+class UpdateConceptStatusRequest(BaseModel):
+    status: str  # not_started|in_progress|completed|needs_revision|weak_area
 
 
 # ---------------------------------------------------------------------------
@@ -833,3 +967,31 @@ class ConsistencyApplyResponse(BaseModel):
     artifactType: str
     preview: str = ""
     message: str = ""
+
+
+# ---------------------------------------------------------------------------
+# Pagination
+# ---------------------------------------------------------------------------
+
+class PaginatedResponse(BaseModel):
+    items: list
+    total: int
+
+
+# ---------------------------------------------------------------------------
+# Artifact Recommendation
+# ---------------------------------------------------------------------------
+
+class ArtifactRecommendRequest(BaseModel):
+    topic: str
+    courseId: int | None = None
+
+
+class ArtifactRecommendation(BaseModel):
+    artifact: str  # notes | flashcards | quiz | mindmap | diagram | difference
+    stars: int     # 1-5
+    reason: str
+
+
+class ArtifactRecommendResponse(BaseModel):
+    recommendations: list[ArtifactRecommendation]

@@ -12,6 +12,7 @@ from __future__ import annotations
 from scholarcli.rag.prompts import (
     FLASHCARDS_SYSTEM,
     GENERATOR_SYSTEM,
+    LEARNING_PATH_SYSTEM,
     MERMAID_SYSTEM,
     MINDMAP_SYSTEM,
     QUIZ_SYSTEM,
@@ -28,6 +29,7 @@ CATEGORIES: list[dict[str, str]] = [
     {"key": "mermaid", "label": "Diagrams", "description": "Generating Mermaid diagrams of concepts."},
     {"key": "mindmap", "label": "Mind Maps", "description": "Generating hierarchical concept trees."},
     {"key": "study_notes", "label": "Study Notes", "description": "Generating revision notes and summaries."},
+    {"key": "learning_path", "label": "Learning Path", "description": "Generating dependency-ordered learning roadmaps."},
 ]
 
 _CATEGORY_KEYS = {c["key"] for c in CATEGORIES}
@@ -426,6 +428,41 @@ provided context, produce notes interleaved with self-test prompts. Rules:
    should be able to answer from the notes above.
 4. End with a "Key Takeaways" section of 3-5 bullets.
 5. Cite sources as [Source: title, p.page].\
+""",
+        ),
+    ],
+    "learning_path": [
+        ("Default", "", LEARNING_PATH_SYSTEM),
+        (
+            "Fast Track",
+            _CONCISE,
+            """\
+You are a learning-path architect. From the provided context, infer a lean,
+dependency-ordered roadmap and output ONLY a single JSON object:
+{"overview":{"difficulty","conceptCount","estimatedHours","studySessions","recommendedPace"},
+ "stages":[{"title","summary","concepts":[{"title","summary","difficulty","estimatedMinutes","prerequisites":[],"unlocks":[]}]}]}
+Rules:
+1. Extract ONLY concepts grounded in the context — no invented topics.
+2. Keep it minimal: only the essential concepts on the critical prerequisite path.
+3. Prefer the simplest prerequisite chain; order stages foundational→advanced.
+4. Short titles (2-4 words). Output valid JSON only.\
+""",
+        ),
+        (
+            "Comprehensive Roadmap",
+            _COMPREHENSIVE,
+            """\
+You are a learning-path architect. From the provided context, infer a thorough,
+dependency-ordered roadmap and output ONLY a single JSON object:
+{"overview":{"difficulty","conceptCount","estimatedHours","studySessions","recommendedPace"},
+ "stages":[{"title","summary","concepts":[{"title","summary","difficulty","estimatedMinutes","prerequisites":[],"unlocks":[]}]}]}
+Rules:
+1. Extract ONLY concepts grounded in the context — never invent topics.
+2. Cover all major concepts and sub-concepts; group them into clear stages from
+   foundational to advanced.
+3. Populate prerequisites AND unlocks for each concept, referencing other
+   concept titles in this roadmap. Avoid circular prerequisites.
+4. Give realistic per-concept study-time estimates. Output valid JSON only.\
 """,
         ),
     ],

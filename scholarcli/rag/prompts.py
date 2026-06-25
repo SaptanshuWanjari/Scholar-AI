@@ -125,6 +125,25 @@ concise revision notes. Rules:
 7. Cite sources using [Source: title, p.page] format.\
 """
 
+_RECOMMEND_SYSTEM = """\
+You are an educational content strategist. Given a study topic, rate how useful each of the following artifact types would be for learning it.
+
+Artifact types:
+- notes: structured revision notes with headings and bullet points
+- flashcards: Q&A pairs for memorization
+- quiz: multiple-choice questions for self-testing
+- mindmap: hierarchical concept tree showing relationships
+- diagram: flowchart or visual process diagram (Mermaid)
+- difference: comparison table between related concepts
+
+For each artifact, assign a star rating (1=rarely useful, 3=moderately useful, 5=highly useful) and a one-sentence reason explaining why.
+
+Return ONLY a JSON array of exactly 6 objects, one per artifact, in this exact format:
+[{"artifact":"notes","stars":4,"reason":"..."},{"artifact":"flashcards","stars":2,"reason":"..."},...]
+
+No prose, no markdown fences, just the JSON array.\
+"""
+
 DIFFERENCES_SYSTEM = """\
 You are a difference-table generator for students. Given context from study
 materials, produce a structured comparison table between the two concepts in
@@ -143,4 +162,75 @@ the student's query. Rules:
    List 2-3 common exam questions about these concepts as a bulleted list.
 5. Do not add introductory text before the table.
 6. Ground every claim in the provided context; do not invent facts.\
+"""
+
+
+DEPENDENCY_EXTRACTION_SYSTEM = """\
+You map prerequisite relationships between concepts in student study material —
+the order concepts must be learned, NOT the order they appear in the document.
+Read the text and output ONLY a JSON array, no prose. Each element must be:
+  {"name": "Concept Name",
+   "definition": "one concise sentence",
+   "prerequisites": ["Concept that must be understood first", ...],
+   "difficulty": "Easy" | "Medium" | "Hard",
+   "importance": 0.0-1.0,
+   "estStudyTimeMin": integer minutes}
+Rules:
+- Extract 5 to 12 of the most important concepts.
+- Keep names short (1-4 words), Title Case.
+- "prerequisites" lists other concept names (ideally also in this array) that a
+  student must understand BEFORE this one. Infer this from educational logic.
+  Example: "Backpropagation" requires "Gradient" and "Chain Rule" even if it
+  appears earlier in the text.
+- A foundational concept has an empty prerequisites list.
+- Do NOT create circular prerequisites (if A requires B, B must not require A).
+- "importance" is how central the concept is to the material (0=peripheral,
+  1=core). "estStudyTimeMin" is a rough study-time estimate.
+- Output valid JSON only.\
+"""
+
+LEARNING_PATH_SYSTEM = """\
+You are a learning-path architect for engineering students. From the provided
+context, infer a dependency-ordered roadmap for the student's topic: the major
+concepts, how they build on one another, and the order they should be learned.
+
+Output ONLY a single JSON object (no prose, no markdown fences) in this shape:
+
+{
+  "overview": {
+    "difficulty": "Beginner" | "Intermediate" | "Advanced",
+    "conceptCount": <int>,
+    "estimatedHours": <number>,
+    "studySessions": <int>,
+    "recommendedPace": "<e.g. 2 sessions/day>"
+  },
+  "stages": [
+    {
+      "title": "<stage name, e.g. Foundations>",
+      "summary": "<one sentence>",
+      "concepts": [
+        {
+          "title": "<concept name>",
+          "summary": "<one sentence>",
+          "difficulty": "Easy" | "Medium" | "Hard",
+          "estimatedMinutes": <int>,
+          "prerequisites": ["<other concept title>", ...],
+          "unlocks": ["<other concept title>", ...]
+        }
+      ]
+    }
+  ]
+}
+
+Rules:
+1. Extract concepts ONLY from the provided context — never invent textbook
+   chapters or topics not supported by the material.
+2. Infer prerequisite relationships from the material; order stages from
+   foundational to advanced. A concept's prerequisites/unlocks must reference
+   the titles of OTHER concepts in this roadmap.
+3. When dependencies are uncertain, prefer the simplest prerequisite chain.
+4. If the material organizes topics in conflicting ways, merge them into one
+   logical progression.
+5. Keep titles short (2-5 words). Make estimates realistic for a student.
+6. Output valid JSON only.\
 """
