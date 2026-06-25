@@ -102,6 +102,31 @@ export function SettingsPage() {
         <TabsContent value="models">
           <div className="rounded-2xl border border-border bg-card px-5">
             <Row
+              title="AI Mode"
+              desc={
+                s.ragMode === "strict"
+                  ? "Strict RAG — only answers from ingested documents"
+                  : "AI Fallback — LLM fills gaps when documents lack context"
+              }
+            >
+              <div className="flex items-center gap-2">
+                <ShieldCheck
+                  className={`size-5 ${s.ragMode === "strict" ? "text-amber-500" : "text-muted-foreground"}`}
+                />
+                <span
+                  className={`text-sm font-medium ${s.ragMode === "strict" ? "text-amber-600" : "text-muted-foreground"}`}
+                >
+                  {s.ragMode === "strict" ? "Strict RAG" : "AI Fallback"}
+                </span>
+                <Switch
+                  checked={s.ragMode === "strict"}
+                  onCheckedChange={(v) =>
+                    s.set("ragMode", v ? "strict" : "fallback")
+                  }
+                />
+              </div>
+            </Row>
+            <Row
               title="General Purpose Fast Model"
               desc="Optimized for speed and quick summaries"
             >
@@ -244,13 +269,21 @@ export function SettingsPage() {
             </Row>
             <Row
               title="Strict RAG Mode"
-              desc={s.ragMode === "strict" ? "Only answers from ingested documents — no AI knowledge" : "AI fills gaps when documents lack context"}
+              desc={
+                s.ragMode === "strict"
+                  ? "Only answers from ingested documents — no AI knowledge"
+                  : "AI fills gaps when documents lack context"
+              }
             >
               <div className="flex items-center gap-2">
-                <ShieldCheck className={`size-4 ${s.ragMode === "strict" ? "text-amber-500" : "text-muted-foreground"}`} />
+                <ShieldCheck
+                  className={`size-4 ${s.ragMode === "strict" ? "text-amber-500" : "text-muted-foreground"}`}
+                />
                 <Switch
                   checked={s.ragMode === "strict"}
-                  onCheckedChange={(v) => s.set("ragMode", v ? "strict" : "fallback")}
+                  onCheckedChange={(v) =>
+                    s.set("ragMode", v ? "strict" : "fallback")
+                  }
                 />
               </div>
             </Row>

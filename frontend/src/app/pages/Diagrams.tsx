@@ -1,5 +1,5 @@
 import { Component, useEffect, useState, type ReactNode } from "react";
-import { Workflow, Copy, Check, Download, FileImage, Code2, Sparkles, Loader2, AlertCircle, Trash2 } from "lucide-react";
+import { Workflow, Copy, Check, Download, FileImage, FileDown, Code2, Sparkles, Loader2, AlertCircle, Trash2 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { toast } from "sonner";
 import { DiagramViewer } from "../components/DiagramViewer";
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { api } from "../lib/api";
+import { exportNodeToPdf } from "../lib/export";
 import type { Course, DiagramItem, DocumentItem } from "../lib/types";
 import { useDiagramGenStore } from "../stores/useDiagramGenStore";
 import { cn } from "../components/ui/utils";
@@ -155,6 +156,21 @@ export function Diagrams() {
       toast.success("Exported as PNG");
     };
     img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
+  const exportPdf = async () => {
+    const svg = document.querySelector("#diagram-container svg") as HTMLElement;
+    if (!svg) {
+      toast.error("Diagram not found");
+      return;
+    }
+    const nodeToExport = svg.parentElement || svg;
+    try {
+      await exportNodeToPdf(nodeToExport, active?.title || "diagram");
+      toast.success("Exported as PDF");
+    } catch (err) {
+      toast.error("Failed to export as PDF");
+    }
   };
 
   return (
@@ -310,6 +326,9 @@ export function Diagrams() {
                 </Button>
                 <Button variant="outline" size="sm" className="gap-1.5" onClick={exportPng}>
                   <FileImage className="size-3.5" /> PNG
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportPdf}>
+                  <FileDown className="size-3.5" /> PDF
                 </Button>
               </div>
             </div>

@@ -37,8 +37,8 @@ function SourceTypeBadge({ type }: { type: SourceType }) {
 
 export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
   return (
-    <div className="flex h-full flex-col border-r border-border bg-card/40">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+    <div className="flex h-full min-h-0 flex-col bg-card/40 overflow-hidden">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3 shrink-0">
         <div className="flex items-center gap-2">
           <FileText className="size-4 text-muted-foreground" />
           <span className="text-sm font-medium">Sources</span>
@@ -47,7 +47,7 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
           {sources.length}
         </span>
       </div>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="space-y-2 p-3">
           {sources.length === 0 && (
             <p className="px-2 py-8 text-center text-sm text-muted-foreground">
@@ -63,7 +63,7 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
               transition={{ delay: i * 0.05 }}
               onClick={() => onSelect?.(s.id)}
               className={cn(
-                "w-full scroll-mt-4 rounded-lg border p-3 text-left transition-colors",
+                "w-full scroll-mt-4 rounded-lg border p-3 text-left transition-colors overflow-hidden",
                 activeId === s.id
                   ? "border-primary/60 bg-violet-soft"
                   : "border-border bg-card hover:border-ring/40 hover:bg-accent/40",
@@ -77,7 +77,7 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
                   <div className="truncate text-sm font-medium">{s.title}</div>
                   <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                     <SourceTypeBadge type={s.sourceType ?? "text"} />
-                    <span>
+                    <span className="truncate">
                       {s.course} · p.{s.page}
                     </span>
                   </div>
@@ -91,7 +91,7 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
                   className="mt-2 max-h-32 w-full rounded-md border border-border object-contain bg-muted/40"
                 />
               )}
-              <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground break-all whitespace-pre-wrap">
                 {s.snippet}
               </p>
               <div className="mt-2.5 flex items-center gap-2">
