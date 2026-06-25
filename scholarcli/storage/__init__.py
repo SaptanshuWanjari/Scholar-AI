@@ -65,8 +65,12 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
     "pyq_questions": [
         ("subtopics", "JSON"),
     ],
+    # Concept Dependency Engine — link signal rows to dep_concepts.id.
+    "topic_stats": [("concept_id", "INTEGER")],
+    "revisions": [("concept_id", "INTEGER")],
+    "learning_packages": [("concept_id", "INTEGER")],
     # Artifact quality scores (api/quality.py), added per artifact table.
-    "decks": [("quality_score", "JSON")],
+    "decks": [("quality_score", "JSON"), ("concept_id", "INTEGER")],
     "quizzes": [
         ("quality_score", "JSON"),
         ("session_answers", "JSON"),

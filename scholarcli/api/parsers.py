@@ -207,6 +207,166 @@ def parse_pyq(text: str) -> list[dict]:
     return out
 
 
+def parse_dependencies(text: str) -> list[dict]:
+    """Parse a dependency-extraction JSON array into concept dicts.
+
+    Forgiving like ``parse_pyq``: grab the first ``[`` … last ``]``,
+    ``json.loads``, and normalize each item. Items carry ``name``,
+    ``definition``, ``prerequisites`` (list of names), ``difficulty``,
+    ``importance`` (0-1), ``estStudyTimeMin``.
+    """
+    import json
+
+    start = text.find("[")
+    end = text.rfind("]")
+    if start == -1 or end == -1 or end <= start:
+        return []
+    try:
+        parsed = json.loads(text[start : end + 1])
+    except Exception:
+        return []
+    if not isinstance(parsed, list):
+        return []
+
+    out: list[dict] = []
+    for c in parsed:
+        if not isinstance(c, dict):
+            continue
+        name = str(c.get("name") or "").strip()[:120]
+        if not name:
+            continue
+        diff = _DIFFICULTIES.get(str(c.get("difficulty", "")).strip().lower(), "Medium")
+        prereqs = c.get("prerequisites") or []
+        if isinstance(prereqs, str):
+            prereqs = [p.strip() for p in prereqs.split(",") if p.strip()]
+        prerequisites = (
+            [str(p).strip()[:120] for p in prereqs if str(p).strip() and str(p).strip() != name][:12]
+            if isinstance(prereqs, list)
+            else []
+        )
+        try:
+            importance = float(c.get("importance", 0.5))
+        except (TypeError, ValueError):
+            importance = 0.5
+        importance = max(0.0, min(1.0, importance))
+        try:
+            est_time = int(c.get("estStudyTimeMin") or c.get("est_study_time_min") or 0)
+        except (TypeError, ValueError):
+            est_time = 0
+        out.append(
+            {
+                "name": name,
+                "definition": str(c.get("definition") or "").strip(),
+                "prerequisites": prerequisites,
+                "difficulty": diff,
+                "importance": importance,
+                "estStudyTimeMin": max(0, est_time),
+            }
+        )
+    return out
+
+
+_DIFF_LEVELS = {"easy": "Easy", "medium": "Medium", "hard": "Hard"}
+_OVERVIEW_DIFF = {"beginner": "Beginner", "intermediate": "Intermediate", "advanced": "Advanced"}
+_VALID_STATUS = {"not_started", "in_progress", "completed", "needs_revision", "weak_area"}
+
+
+def parse_learning_path(text: str) -> dict:
+    """Parse the learning-path JSON object into ``{overview, stages}``.
+
+    Forgiving like the other parsers: grab the first ``{`` … last ``}``,
+    ``json.loads``, and normalize. Each concept gets a ``status`` of
+    ``"not_started"``. Returns ``{"overview": {...}, "stages": []}`` on failure.
+    """
+    import json
+
+    empty = {"overview": {}, "stages": []}
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or end <= start:
+        return empty
+    try:
+        parsed = json.loads(text[start : end + 1])
+    except Exception:
+        return empty
+    if not isinstance(parsed, dict):
+        return empty
+
+    def _int(val: object, default: int = 0) -> int:
+        try:
+            return max(0, int(float(val)))  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            return default
+
+    def _float(val: object, default: float = 0.0) -> float:
+        try:
+            return max(0.0, float(val))  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            return default
+
+    def _titles(val: object, exclude: str) -> list[str]:
+        if isinstance(val, str):
+            val = [p.strip() for p in val.split(",")]
+        if not isinstance(val, list):
+            return []
+        seen: list[str] = []
+        for p in val:
+            t = str(p).strip()[:120]
+            if t and t.lower() != exclude.lower() and t not in seen:
+                seen.append(t)
+        return seen[:12]
+
+    _ov = parsed.get("overview")
+    raw_ov: dict = _ov if isinstance(_ov, dict) else {}
+    overview = {
+        "difficulty": _OVERVIEW_DIFF.get(str(raw_ov.get("difficulty", "")).strip().lower(), "Intermediate"),
+        "conceptCount": _int(raw_ov.get("conceptCount")),
+        "estimatedHours": round(_float(raw_ov.get("estimatedHours")), 1),
+        "studySessions": _int(raw_ov.get("studySessions")),
+        "recommendedPace": str(raw_ov.get("recommendedPace") or "").strip()[:64] or "1 session/day",
+    }
+
+    stages: list[dict] = []
+    seen_concepts: set[str] = set()
+    for st in parsed.get("stages") or []:
+        if not isinstance(st, dict):
+            continue
+        concepts: list[dict] = []
+        for c in st.get("concepts") or []:
+            if not isinstance(c, dict):
+                continue
+            title = str(c.get("title") or "").strip()[:120]
+            if not title or title.lower() in seen_concepts:
+                continue
+            seen_concepts.add(title.lower())
+            concepts.append(
+                {
+                    "title": title,
+                    "summary": str(c.get("summary") or "").strip()[:400],
+                    "difficulty": _DIFF_LEVELS.get(str(c.get("difficulty", "")).strip().lower(), "Medium"),
+                    "estimatedMinutes": _int(c.get("estimatedMinutes")),
+                    "prerequisites": _titles(c.get("prerequisites"), title),
+                    "unlocks": _titles(c.get("unlocks"), title),
+                    "status": "not_started",
+                }
+            )
+        if not concepts:
+            continue
+        stages.append(
+            {
+                "title": str(st.get("title") or f"Stage {len(stages) + 1}").strip()[:120],
+                "summary": str(st.get("summary") or "").strip()[:400],
+                "concepts": concepts,
+            }
+        )
+
+    # Reconcile overview.conceptCount with the concepts we actually parsed.
+    total = sum(len(s["concepts"]) for s in stages)
+    if total:
+        overview["conceptCount"] = total
+    return {"overview": overview, "stages": stages}
+
+
 def strip_mermaid_fences(text: str) -> str:
     """Remove ```mermaid fences and stray prose, returning bare diagram source."""
     t = text.strip()

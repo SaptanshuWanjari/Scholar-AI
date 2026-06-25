@@ -80,6 +80,10 @@ class Deck(Base):
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     color: Mapped[str] = mapped_column(String(16), nullable=False, default="#4f4d7a")
+    # Dependency-engine link for exact mastery rollup (null = unlinked).
+    concept_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("dep_concepts.id"), nullable=True
+    )
     quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -188,6 +192,10 @@ class SavedRevision(Base):
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     format: Mapped[str] = mapped_column(String(64), nullable=False, default="notes")
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    # Dependency-engine link for exact mastery rollup (null = unlinked).
+    concept_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("dep_concepts.id"), nullable=True
+    )
     quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -238,6 +246,38 @@ class ConceptEdge(Base):
     source_id: Mapped[int] = mapped_column(Integer, ForeignKey("concepts.id"), nullable=False)
     target_id: Mapped[int] = mapped_column(Integer, ForeignKey("concepts.id"), nullable=False)
     relation: Mapped[str] = mapped_column(String(64), nullable=False, default="related")
+
+
+# ---------------------------------------------------------------------------
+# Concept Dependency Engine — a directed *prerequisite* graph, kept separate
+# from the knowledge graph (Concept/ConceptEdge) above. Concepts are upserted
+# by (name, course) so their ids stay stable: performance rows (TopicStat,
+# Deck, ...) carry a nullable concept_id FK pointing here for exact mastery.
+# ---------------------------------------------------------------------------
+
+class DepConcept(Base):
+    __tablename__ = "dep_concepts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    definition: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    difficulty: Mapped[str] = mapped_column(String(16), nullable=False, default="Medium")  # Easy|Medium|Hard
+    importance: Mapped[float] = mapped_column(Float, nullable=False, default=0.5)  # 0-1
+    est_study_time_min: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    depth: Mapped[int] = mapped_column(Integer, nullable=False, default=0)  # topological learning depth
+
+
+class DependencyEdge(Base):
+    """A directed prerequisite link: prereq_id must be learned before concept_id."""
+
+    __tablename__ = "dependency_edges"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    prereq_id: Mapped[int] = mapped_column(Integer, ForeignKey("dep_concepts.id"), nullable=False)
+    concept_id: Mapped[int] = mapped_column(Integer, ForeignKey("dep_concepts.id"), nullable=False)
+    reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    confidence: Mapped[float] = mapped_column(Float, nullable=False, default=0.5)
 
 
 class ReadingState(Base):
@@ -302,6 +342,10 @@ class TopicStat(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     topic: Mapped[str] = mapped_column(String(256), nullable=False)
+    # Dependency-engine link for exact mastery rollup (null = unlinked).
+    concept_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("dep_concepts.id"), nullable=True
+    )
     correct: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     total: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     last_attempt: Mapped[datetime | None] = mapped_column(
@@ -321,9 +365,37 @@ class LearningPackage(Base):
     title: Mapped[str] = mapped_column(String(256), nullable=False)  # the topic
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     depth: Mapped[str] = mapped_column(String(16), nullable=False, default="standard")  # quick|standard|deep
+    # Dependency-engine link for exact mastery rollup (null = unlinked).
+    concept_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("dep_concepts.id"), nullable=True
+    )
     overview: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)  # {markdown, grounded}
     artifacts: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)  # {notes, flashcards, quiz, mindmap, diagram, difference}
     sources: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class LearningPath(Base):
+    """A saved Learning Path roadmap — a dependency-ordered set of stages and
+    concepts inferred from the student's material, stored as one JSON snapshot.
+    Per-concept ``status`` lives inside the ``stages`` JSON.
+    """
+
+    __tablename__ = "learning_paths"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)  # the topic
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    document: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    overview: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    stages: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    sources: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    grounded: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -454,3 +526,41 @@ class ChunkFeedback(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+
+class CodeExample(Base):
+    """Automatically extracted programming example."""
+
+    __tablename__ = "code_examples"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    document_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    title: Mapped[str] = mapped_column(String(256), nullable=False, default="Untitled Example")
+    language: Mapped[str] = mapped_column(String(64), nullable=False, default="Unknown")
+    topic: Mapped[str] = mapped_column(String(256), nullable=False, default="General")
+    difficulty: Mapped[str] = mapped_column(String(32), nullable=False, default="Intermediate")
+    example_type: Mapped[str] = mapped_column(String(64), nullable=False, default="code")
+    page_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    
+    code: Mapped[str] = mapped_column(Text, nullable=False)
+    explanation: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    purpose: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    inputs: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    outputs: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    time_complexity: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    space_complexity: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    common_mistakes: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    important_notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    
+    related_concepts: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    used_in_quiz: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    used_in_pyq: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    
+    document: Mapped["Document"] = relationship(backref="code_examples")

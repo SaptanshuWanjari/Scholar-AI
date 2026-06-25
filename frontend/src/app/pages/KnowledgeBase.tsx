@@ -52,6 +52,7 @@ import {
   SheetTitle,
 } from "../components/ui/sheet";
 import { ConceptNode } from "../components/ConceptNode";
+import { DependencyInspector } from "../components/DependencyInspector";
 import {
   savedViews,
   type ConceptData,
@@ -254,7 +255,11 @@ export function KnowledgeBase() {
     setBuilding(true);
     toast.info("Building knowledge graph — this runs the LLM over your documents and may take a while…");
     try {
-      const { concepts, edges } = await api.buildKnowledgeGraph(course);
+      // Build the knowledge graph and the prerequisite dependency graph together.
+      const [{ concepts, edges }] = await Promise.all([
+        api.buildKnowledgeGraph(course),
+        api.buildDependencies(course).catch(() => null), // dependency graph is best-effort
+      ]);
       toast.success(`Knowledge graph built — ${concepts} concepts, ${edges} relationships.`);
       await Promise.all([loadGraph(course), loadSidebar(course)]);
     } catch (err) {
@@ -774,6 +779,9 @@ function InspectorContent({
           </div>
         </div>
       </div>
+
+      {/* Prerequisite dependency graph + mastery */}
+      <DependencyInspector conceptName={concept.name} />
 
       {/* Related concepts */}
       <div className="p-4">

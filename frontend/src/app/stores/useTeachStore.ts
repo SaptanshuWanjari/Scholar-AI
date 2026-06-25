@@ -8,6 +8,7 @@ import {
   type GeneratedMindmap,
   type GeneratedRevision,
   type ConsistencyReport,
+  type ArtifactRecommendation,
 } from "../lib/api";
 import type { GeneratedDifference, Source, Course, DocumentItem } from "../lib/types";
 
@@ -80,6 +81,10 @@ interface TeachState {
   consistency: ConsistencyReport | null;
   consistencyStatus: SlotStatus;
 
+  // Artifact recommendations from AI.
+  recommendations: Record<ArtifactKey, ArtifactRecommendation> | null;
+  recommendationsLoading: boolean;
+
   // Live progress for the "what's generating now" UI.
   generating: boolean;
   currentTask: ViewKey | null;
@@ -88,6 +93,10 @@ interface TeachState {
 
   setField: <K extends keyof TeachState>(key: K, value: TeachState[K]) => void;
   toggleArtifact: (key: ArtifactKey) => void;
+  fetchRecommendations: (topic: string) => Promise<void>;
+  applyRecommendations: () => void;
+  selectAll: () => void;
+  clearSelection: () => void;
   startGenerate: () => Promise<void>;
   retryArtifact: (key: ArtifactKey) => Promise<void>;
   runConsistency: () => Promise<void>;
@@ -131,6 +140,9 @@ export const useTeachStore = create<TeachState>((set, get) => ({
   consistency: null,
   consistencyStatus: "idle",
 
+  recommendations: null,
+  recommendationsLoading: false,
+
   generating: false,
   currentTask: null,
 
@@ -150,6 +162,42 @@ export const useTeachStore = create<TeachState>((set, get) => ({
 
   toggleArtifact: (key) =>
     set((s) => ({ selected: { ...s.selected, [key]: !s.selected[key] } })),
+
+  fetchRecommendations: async (topic: string) => {
+    set({ recommendationsLoading: true });
+    try {
+      const recs = await api.recommendArtifacts(topic);
+      const map = {} as Record<ArtifactKey, ArtifactRecommendation>;
+      for (const r of recs) {
+        map[r.artifact as ArtifactKey] = r;
+      }
+      set({ recommendations: map, recommendationsLoading: false });
+    } catch {
+      set({ recommendationsLoading: false });
+    }
+  },
+
+  applyRecommendations: () => {
+    const { recommendations } = get();
+    if (!recommendations) return;
+    const selected = {} as Record<ArtifactKey, boolean>;
+    for (const key of ARTIFACT_KEYS) {
+      selected[key] = (recommendations[key]?.stars ?? 3) >= 4;
+    }
+    set({ selected });
+  },
+
+  selectAll: () => {
+    const selected = {} as Record<ArtifactKey, boolean>;
+    for (const key of ARTIFACT_KEYS) selected[key] = true;
+    set({ selected });
+  },
+
+  clearSelection: () => {
+    const selected = {} as Record<ArtifactKey, boolean>;
+    for (const key of ARTIFACT_KEYS) selected[key] = false;
+    set({ selected });
+  },
 
   startGenerate: async () => {
     const { topic, depth, selected } = get();
@@ -319,6 +367,8 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       artifacts: freshArtifacts(),
       consistency: null,
       consistencyStatus: "idle",
+      recommendations: null,
+      recommendationsLoading: false,
       generating: false,
       currentTask: null,
     }),

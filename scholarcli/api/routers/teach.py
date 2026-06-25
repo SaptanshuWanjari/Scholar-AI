@@ -12,6 +12,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
 
+from scholarcli.api import dependency_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import run_ask
 from scholarcli.api.schemas import (
@@ -130,6 +131,7 @@ def save_package(payload: PackageIn) -> PackageOut:
             title=title,
             course=payload.course or "",
             depth=payload.depth,
+            concept_id=dependency_service.resolve_concept(title, payload.course),
             overview=payload.overview,
             artifacts=payload.artifacts,
             sources=payload.sources,

@@ -16,6 +16,7 @@ import { QuizPage } from "./pages/Quiz";
 import { Diagrams } from "./pages/Diagrams";
 import { MindMaps } from "./pages/MindMaps";
 import { Teach } from "./pages/Teach";
+import { LearningPath } from "./pages/LearningPath";
 import { SearchPage } from "./pages/Search";
 import { SettingsPage } from "./pages/Settings";
 import { Trace } from "./pages/Trace";
@@ -23,6 +24,7 @@ import { Courses } from "./pages/Courses";
 import { Differences } from "./pages/Differences";
 import { Consistency } from "./pages/Consistency";
 import { PromptLibrary } from "./pages/PromptLibrary";
+import { CodeLibrary } from "./pages/CodeLibrary";
 import { OnboardingHero } from "./pages/onboarding/OnboardingHero";
 import { OnboardingImport } from "./pages/onboarding/OnboardingImport";
 import { OnboardingAnalyzing } from "./pages/onboarding/OnboardingAnalyzing";
@@ -58,6 +60,7 @@ export default function App() {
           <Route element={<FirstLaunchGuard><AppLayout /></FirstLaunchGuard>}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/teach" element={<Teach />} />
+            <Route path="/learning-path" element={<LearningPath />} />
             <Route path="/knowledge" element={<KnowledgeBase />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/ask" element={<AskAI />} />
@@ -77,6 +80,7 @@ export default function App() {
             <Route path="/differences" element={<Differences />} />
             <Route path="/consistency" element={<Consistency />} />
             <Route path="/prompts" element={<PromptLibrary />} />
+            <Route path="/code-library" element={<CodeLibrary />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

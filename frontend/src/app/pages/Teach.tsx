@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   GraduationCap,
   BookOpen,
@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   XCircle,
   ShieldCheck,
+  Star,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -40,7 +41,15 @@ import { SourcePanel } from "../components/SourcePanel";
 import { MindMapTree, countNodes, parseMindmapText } from "../components/MindMapTree";
 import { ConsistencyReport } from "../components/ConsistencyReport";
 import { cn } from "../components/ui/utils";
-import { api, type PackageMeta, type FlashcardSet, type GeneratedQuiz, type GeneratedDiagram, type GeneratedMindmap, type GeneratedRevision } from "../lib/api";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from "../components/ui/alert-dialog";
+import { api, type PackageMeta, type FlashcardSet, type GeneratedQuiz, type GeneratedDiagram, type GeneratedMindmap, type GeneratedRevision, type ReadinessMissing } from "../lib/api";
 import type { GeneratedDifference, Flashcard, QuizQuestion } from "../lib/types";
 import {
   useTeachStore,
@@ -50,6 +59,22 @@ import {
   type ViewKey,
   type SlotStatus,
 } from "../stores/useTeachStore";
+
+function StarRating({ stars }: { stars: number }) {
+  return (
+    <span className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }, (_, i) => (
+        <Star
+          key={i}
+          className={cn(
+            "size-2.5",
+            i < stars ? "fill-amber-400 text-amber-400" : "fill-muted text-muted-foreground/30",
+          )}
+        />
+      ))}
+    </span>
+  );
+}
 
 const EXAMPLES = ["CAP Theorem", "RAG", "Deadlocks", "Service Discovery", "OS Scheduling", "LangGraph"];
 
@@ -85,10 +110,53 @@ const NAV: { id: ViewKey; label: string; icon: typeof BookOpen }[] = [
 // ---------------------------------------------------------------------------
 
 function InputPhase() {
-  const { topic, depth, course, document, courses, documents, selected, setField, setCourse, setDocument, toggleArtifact, startGenerate, loadPackage, fetchCoursesAndDocs } =
-    useTeachStore();
+  const {
+    topic, depth, course, document, courses, documents, selected,
+    recommendations, recommendationsLoading,
+    setField, setCourse, setDocument, toggleArtifact,
+    fetchRecommendations, applyRecommendations, selectAll, clearSelection,
+    startGenerate, loadPackage, fetchCoursesAndDocs,
+  } = useTeachStore();
   const [packages, setPackages] = useState<PackageMeta[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>(EXAMPLES);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Dependency readiness gate — surfaced before generating if prerequisites
+  // for the chosen topic aren't mastered yet.
+  const [gate, setGate] = useState<ReadinessMissing[] | null>(null);
+  const [checking, setChecking] = useState(false);
+
+  // Check prerequisite mastery before generating. If unmet, open the gate
+  // modal; otherwise generate immediately. Failures fall through to generate.
+  const handleGenerate = async () => {
+    if (!topic.trim()) return startGenerate();
+    setChecking(true);
+    try {
+      const r = await api.checkReadiness(topic.trim(), course === "none" ? null : course);
+      if (!r.ready && r.missing.length) {
+        setGate(r.missing);
+        return;
+      }
+    } catch {
+      /* readiness is best-effort — never block generation on it */
+    } finally {
+      setChecking(false);
+    }
+    startGenerate();
+  };
+
+  const generateAnyway = () => {
+    setGate(null);
+    startGenerate();
+  };
+
+  const studyPrerequisiteFirst = () => {
+    const first = gate?.[0];
+    setGate(null);
+    if (first) {
+      setField("topic", first.name);
+      startGenerate();
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -98,7 +166,6 @@ function InputPhase() {
       if (!cancelled) {
         const generated = [...(a.topics || []), ...(a.concepts || [])];
         if (generated.length > 0) {
-          // Get unique suggestions up to 6
           const unique = Array.from(new Set(generated)).slice(0, 6);
           setSuggestions(unique);
         }
@@ -106,6 +173,16 @@ function InputPhase() {
     }).catch(() => { });
     return () => { cancelled = true; };
   }, []);
+
+  const handleTopicChange = (value: string) => {
+    setField("topic", value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (value.trim().length >= 3) {
+      debounceRef.current = setTimeout(() => {
+        void fetchRecommendations(value.trim());
+      }, 800);
+    }
+  };
 
     const removePackage = async (id: string) => {
       try {
@@ -134,8 +211,8 @@ function InputPhase() {
           <div className="mt-8 rounded-2xl border border-border bg-card p-5">
             <Input
               value={topic}
-              onChange={(e) => setField("topic", e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") startGenerate(); }}
+              onChange={(e) => handleTopicChange(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") void handleGenerate(); }}
               placeholder="What would you like to learn?"
               className="h-11 bg-input-background text-base"
               autoFocus
@@ -214,30 +291,97 @@ function InputPhase() {
 
             {/* Artifacts */}
             <div className="mt-5">
-              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Artifacts</div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {ARTIFACT_KEYS.map((key) => (
+              <div className="mb-2 flex items-center justify-between">
+                <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Artifacts
+                  {recommendationsLoading && (
+                    <Loader2 className="ml-1.5 inline size-3 animate-spin text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex gap-1">
+                  {recommendations && (
+                    <button
+                      onClick={applyRecommendations}
+                      className="rounded px-2 py-0.5 text-xs text-primary transition-colors hover:bg-violet-soft/60"
+                    >
+                      Use Recommended
+                    </button>
+                  )}
                   <button
-                    key={key}
-                    onClick={() => toggleArtifact(key)}
-                    className={cn(
-                      "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
-                      selected[key] ? "border-primary/50 bg-violet-soft/60" : "border-border bg-background text-muted-foreground hover:border-ring/40",
-                    )}
+                    onClick={selectAll}
+                    className="rounded px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    <span className={cn("flex size-4 items-center justify-center rounded border", selected[key] ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40")}>
-                      {selected[key] && <CheckCircle2 className="size-3" />}
-                    </span>
-                    {ARTIFACT_LABELS[key]}
+                    All
                   </button>
-                ))}
+                  <button
+                    onClick={clearSelection}
+                    className="rounded px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    None
+                  </button>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {ARTIFACT_KEYS.map((key) => {
+                  const rec = recommendations?.[key];
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => toggleArtifact(key)}
+                      className={cn(
+                        "flex flex-col gap-1 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+                        selected[key] ? "border-primary/50 bg-violet-soft/60" : "border-border bg-background text-muted-foreground hover:border-ring/40",
+                      )}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className={cn("flex size-4 shrink-0 items-center justify-center rounded border", selected[key] ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40")}>
+                          {selected[key] && <CheckCircle2 className="size-3" />}
+                        </span>
+                        {ARTIFACT_LABELS[key]}
+                      </span>
+                      {rec && (
+                        <span className="flex flex-col gap-0.5 pl-6">
+                          <StarRating stars={rec.stars} />
+                          <span className="line-clamp-2 text-[10px] leading-tight text-muted-foreground">{rec.reason}</span>
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <Button onClick={startGenerate} className="mt-6 w-full gap-2">
-              <Sparkles className="size-4" /> Generate learning package
+            <Button onClick={handleGenerate} disabled={checking} className="mt-6 w-full gap-2">
+              {checking ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+              {checking ? "Checking prerequisites…" : "Generate learning package"}
             </Button>
           </div>
+
+          {/* Dependency readiness gate */}
+          <AlertDialog open={!!gate} onOpenChange={(o) => !o && setGate(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>This topic depends on concepts you haven't mastered</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Studying these prerequisites first will make <span className="font-medium text-foreground">{topic}</span> easier to understand.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="space-y-1.5">
+                {(gate ?? []).map((m) => (
+                  <div key={m.id} className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2">
+                    <span className="text-sm">{m.name}</span>
+                    <Badge variant="outline" className="text-[10px]">{m.masteryStatus}</Badge>
+                  </div>
+                ))}
+              </div>
+              <AlertDialogFooter>
+                <Button variant="outline" onClick={generateAnyway}>Generate anyway</Button>
+                <Button onClick={studyPrerequisiteFirst} className="gap-1.5">
+                  <GraduationCap className="size-4" /> Study {gate?.[0]?.name ?? "prerequisite"} first
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
           {/* Library */}
           {packages.length > 0 && (

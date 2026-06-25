@@ -38,6 +38,12 @@ export interface GeneratedRevision {
   quality?: QualityScore;
 }
 
+export interface ArtifactRecommendation {
+  artifact: "notes" | "flashcards" | "quiz" | "mindmap" | "diagram" | "difference";
+  stars: number;
+  reason: string;
+}
+
 export interface SavedRevision {
   id: string;
   title: string;
@@ -318,6 +324,42 @@ export interface ConceptInspector {
   citations: { source: string; detail: string }[];
 }
 
+// ---- Concept Dependency Engine ----
+export interface DepLink {
+  id: string;
+  name: string;
+  difficulty: string;
+  masteryStatus: string;
+}
+
+export interface DepConceptInspector {
+  id: string;
+  name: string;
+  definition: string;
+  difficulty: string;
+  importance: number;
+  estStudyTimeMin: number;
+  depth: number;
+  pyqFrequency: number;
+  masteryStatus: string;
+  masteryScore: number;
+  prerequisites: DepLink[];
+  dependents: DepLink[];
+}
+
+export interface ReadinessMissing {
+  id: string;
+  name: string;
+  masteryStatus: string;
+  reason: string;
+}
+
+export interface Readiness {
+  concept: string | null;
+  ready: boolean;
+  missing: ReadinessMissing[];
+}
+
 // ---- Cross-artifact consistency ----
 export interface ArtifactCoverage {
   artifact: string;
@@ -449,6 +491,84 @@ export interface ModelsList {
   reasoningModels: string[];
   embeddingModels: string[];
   visionModels: string[];
+}
+
+// ---- Learning Path ----
+export type ConceptStatus =
+  | "not_started"
+  | "in_progress"
+  | "completed"
+  | "needs_revision"
+  | "weak_area";
+
+export interface LearningPathConcept {
+  title: string;
+  summary: string;
+  difficulty: string;
+  estimatedMinutes: number;
+  prerequisites: string[];
+  unlocks: string[];
+  status: ConceptStatus;
+}
+
+export interface LearningPathStage {
+  title: string;
+  summary: string;
+  concepts: LearningPathConcept[];
+}
+
+export interface LearningPathOverview {
+  difficulty: string;
+  conceptCount: number;
+  estimatedHours: number;
+  studySessions: number;
+  recommendedPace: string;
+}
+
+export interface NextRecommendation {
+  conceptTitle: string;
+  reason: string;
+  estimatedMinutes: number;
+}
+
+export interface LearningProgress {
+  conceptsDone: number;
+  conceptsTotal: number;
+  studyHoursDone: number;
+  studyHoursTotal: number;
+  percent: number;
+}
+
+export interface LearningAnalytics {
+  strongestStage: string | null;
+  weakestStage: string | null;
+  mostRevisedTopic: string | null;
+  highestMistakeTopic: string | null;
+  conceptsSkipped: number;
+  avgCompletionMinutes: number;
+}
+
+export interface LearningPath {
+  id: string;
+  title: string;
+  course: string;
+  document: string;
+  overview: LearningPathOverview;
+  stages: LearningPathStage[];
+  sources: Source[];
+  grounded: boolean;
+  nextRecommendation: NextRecommendation | null;
+  progress: LearningProgress;
+  analytics: LearningAnalytics;
+  createdAt: string;
+}
+
+export interface LearningPathMeta {
+  id: string;
+  title: string;
+  course: string;
+  conceptCount: number;
+  createdAt: string;
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -815,6 +935,24 @@ export const api = {
     return request<void>(`/api/concepts/${id}`, { method: "DELETE" });
   },
 
+  // ---- Concept Dependency Engine ----
+  buildDependencies(course?: string | null, maxDocuments = 8): Promise<{ concepts: number; edges: number }> {
+    return request<{ concepts: number; edges: number }>("/api/dependencies/build", json({ course, max_documents: maxDocuments }));
+  },
+  getConceptDependencies(id: string): Promise<DepConceptInspector> {
+    return request<DepConceptInspector>(`/api/dependencies/concept/${id}`);
+  },
+  resolveConceptDependencies(name: string, course?: string | null): Promise<DepConceptInspector> {
+    const p = new URLSearchParams({ name });
+    if (course) p.set("course", course);
+    return request<DepConceptInspector>(`/api/dependencies/resolve?${p.toString()}`);
+  },
+  checkReadiness(topic: string, course?: string | null): Promise<Readiness> {
+    const p = new URLSearchParams({ topic });
+    if (course) p.set("course", course);
+    return request<Readiness>(`/api/dependencies/readiness?${p.toString()}`);
+  },
+
   // ---- Dashboard ----
   getDashboard(): Promise<DashboardData> {
     return request<DashboardData>("/api/dashboard");
@@ -888,6 +1026,12 @@ export const api = {
     return request<void>(`/api/differences/${id}`, { method: "DELETE" });
   },
 
+  // ---- Artifact Recommendations ----
+  recommendArtifacts(topic: string): Promise<ArtifactRecommendation[]> {
+    return request<{ recommendations: ArtifactRecommendation[] }>("/api/artifacts/recommend", json({ topic }))
+      .then((r) => r.recommendations);
+  },
+
   // ---- Teach Me ----
   generateOverview(topic: string, depth: "quick" | "standard" | "deep" = "standard"): Promise<TeachOverview> {
     return request<TeachOverview>("/api/teach/overview", json({ topic, depth }));
@@ -954,5 +1098,47 @@ export const api = {
     return request<void>("/api/trace/feedback", json({ source, chunkId, query, similarity }));
   },
 
+  // ---- Code Examples ----
+  listCodeExamples(filters?: { course?: string; language?: string; topic?: string; difficulty?: string; example_type?: string; sort_by?: string; skip?: number; limit?: number }): Promise<{ items: import('./types').CodeExample[], total: number }> {
+    const p = new URLSearchParams();
+    if (filters?.course) p.set("course", filters.course);
+    if (filters?.language) p.set("language", filters.language);
+    if (filters?.topic) p.set("topic", filters.topic);
+    if (filters?.difficulty) p.set("difficulty", filters.difficulty);
+    if (filters?.example_type) p.set("example_type", filters.example_type);
+    if (filters?.sort_by) p.set("sort_by", filters.sort_by);
+    if (filters?.skip !== undefined) p.set("skip", String(filters.skip));
+    if (filters?.limit !== undefined) p.set("limit", String(filters.limit));
+    const qs = p.toString();
+    return request<{ items: import('./types').CodeExample[], total: number }>(`/api/code-examples${qs ? `?${qs}` : ""}`);
+  },
+  getCodeExample(id: number): Promise<import('./types').CodeExample> {
+    return request<import('./types').CodeExample>(`/api/code-examples/${id}`);
+  },
 
+  // ---- Learning Path ----
+  generateLearningPath(opts: { topic: string; course?: string | null; document?: string | null; ragMode?: string }): Promise<LearningPath> {
+    return request<LearningPath>("/api/learning-paths/generate", json({
+      topic: opts.topic,
+      course: opts.course ?? null,
+      document: opts.document ?? null,
+      rag_mode: opts.ragMode ?? "fallback",
+    }));
+  },
+  listLearningPaths(): Promise<LearningPathMeta[]> {
+    return request<LearningPathMeta[]>("/api/learning-paths");
+  },
+  getLearningPath(id: string): Promise<LearningPath> {
+    return request<LearningPath>(`/api/learning-paths/${id}`);
+  },
+  updateConceptStatus(id: string, conceptTitle: string, status: ConceptStatus): Promise<LearningPath> {
+    return request<LearningPath>(`/api/learning-paths/${id}/concepts/${encodeURIComponent(conceptTitle)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+  },
+  deleteLearningPath(id: string): Promise<void> {
+    return request<void>(`/api/learning-paths/${id}`, { method: "DELETE" });
+  },
 };

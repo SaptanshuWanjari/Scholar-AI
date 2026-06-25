@@ -18,7 +18,7 @@ from pathlib import Path
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from scholarcli.api import parsers
+from scholarcli.api import dependency_service, parsers
 from scholarcli.config import get_settings
 from scholarcli.ingest.loaders import load_document
 from scholarcli.llm import get_llm
@@ -167,6 +167,9 @@ def record_topic_results(course: str, by_topic: dict[str, list[int]]) -> None:
             if stat is None:
                 stat = TopicStat(course=course, topic=topic, correct=0, total=0)
                 session.add(stat)
+            # Link to a dependency concept for exact mastery rollup (best-effort).
+            if stat.concept_id is None:
+                stat.concept_id = dependency_service.resolve_concept(topic, course)
             stat.correct += int(correct)
             stat.total += int(total)
             stat.last_attempt = now

@@ -140,6 +140,61 @@ def ingest_file(
                 doc_row.topics = meta["topics"] or None
                 session.commit()
 
+    if getattr(cfg, "code_extraction_enabled", False) and chunks:
+        from scholarcli.ingest.code_extractor import extract_code_examples
+        from scholarcli.storage.models import CodeExample
+        
+        extracted_rows = []
+        for ch in chunks:
+            examples = extract_code_examples(ch["text"], course_name)
+            for ex in examples:
+                if not ex.get("code"):
+                    continue
+                new_example = CodeExample(
+                    document_id=doc_id,
+                    course=course_name,
+                    title=ex.get("title", "Untitled Example"),
+                    language=ex.get("language", "Unknown"),
+                    topic=ex.get("topic", "General"),
+                    difficulty=ex.get("difficulty", "Intermediate"),
+                    example_type=ex.get("example_type", "code"),
+                    page_number=ch["page"],
+                    code=ex.get("code", ""),
+                    explanation=ex.get("explanation", ""),
+                    purpose=ex.get("purpose", ""),
+                    inputs=ex.get("inputs", ""),
+                    outputs=ex.get("outputs", ""),
+                    time_complexity=ex.get("time_complexity", ""),
+                    space_complexity=ex.get("space_complexity", ""),
+                    common_mistakes=ex.get("common_mistakes", ""),
+                    important_notes=ex.get("important_notes", "")
+                )
+                session.add(new_example)
+                
+                # Prepare vector chunk
+                chunk_text = f"Title: {ex.get('title', '')}\nCode:\n{ex.get('code', '')}\nExplanation: {ex.get('explanation', '')}"
+                extracted_rows.append({
+                    "id": str(uuid.uuid4()),
+                    "document_id": doc_id,
+                    "course": course_name,
+                    "title": ex.get("title", "Code Example"),
+                    "page": ch["page"],
+                    "heading": ex.get("topic", "Code Example"),
+                    "chunk_index": ch["chunk_index"],
+                    "text": chunk_text,
+                    "source_type": "code_example",
+                    "image_url": "",
+                })
+        
+        if extracted_rows:
+            session.commit()
+            # Embed all code examples in a single batch
+            code_texts = [r["text"] for r in extracted_rows]
+            code_vecs = embeddings.embed_documents(code_texts)
+            for r, vec in zip(extracted_rows, code_vecs):
+                r["vector"] = vec
+            add_chunks(extracted_rows)
+
     # Clear any previous error on successful re-index.
     doc_row = session.get(Document, doc_id)
     if doc_row and doc_row.error is not None:

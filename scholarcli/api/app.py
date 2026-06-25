@@ -47,11 +47,13 @@ def create_app() -> FastAPI:
         consistency,
         courses,
         dashboard,
+        dependency,
         differences,
         documents,
         exam,
         jobs,
         knowledge,
+        learning_path,
         library,
         notebooks,
         onboarding,
@@ -63,6 +65,7 @@ def create_app() -> FastAPI:
         study,
         teach,
         trace,
+        code_examples,
     )
 
     for module in (
@@ -70,11 +73,13 @@ def create_app() -> FastAPI:
         consistency,
         courses,
         dashboard,
+        dependency,
         differences,
         documents,
         exam,
         jobs,
         knowledge,
+        learning_path,
         library,
         notebooks,
         onboarding,
@@ -86,6 +91,7 @@ def create_app() -> FastAPI:
         study,
         teach,
         trace,
+        code_examples,
     ):
         app.include_router(module.router)
 
