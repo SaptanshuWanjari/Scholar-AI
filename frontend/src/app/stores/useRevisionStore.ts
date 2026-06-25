@@ -1,19 +1,9 @@
 import { create } from "zustand";
 import { toast } from "sonner";
-import { api } from "../lib/api";
+import { api, type SavedRevision } from "../lib/api";
 import type { QualityScore } from "../lib/types";
 
 export type RevisionFormat = "notes" | "concepts" | "formulas" | "summary";
-
-export interface SavedRevision {
-  id: string;
-  title: string;
-  topic: string;
-  course: string;
-  format: RevisionFormat;
-  content: string;
-  timestamp: number;
-}
 
 /** Heuristic: detect a backend "this topic isn't in your documents" message. */
 function looksNotCovered(markdown: string): boolean {
@@ -47,7 +37,9 @@ interface RevisionState {
   setField: <K extends keyof RevisionState>(key: K, value: RevisionState[K]) => void;
   generate: () => Promise<void>;
   stop: () => void;
-  saveRevision: (auto?: boolean) => void;
+  fetchRevisions: () => Promise<void>;
+  saveRevision: (auto?: boolean) => Promise<void>;
+  deleteRevision: (id: string) => Promise<void>;
   loadRevision: (id: string) => void;
 }
 
@@ -71,8 +63,16 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
     controller = null;
     set({ loading: false });
   },
-  saveRevision: (auto = false) => {
-    const { output, title, topic, course, format, savedRevisions } = get();
+  fetchRevisions: async () => {
+    try {
+      const revs = await api.listRevisions();
+      set({ savedRevisions: revs as SavedRevision[] });
+    } catch (err) {
+      console.error("Failed to load revisions", err);
+    }
+  },
+  saveRevision: async (auto = false) => {
+    const { output, title, topic, course, format, quality, savedRevisions } = get();
     if (!output) return;
     
     // Prevent duplicate saves if we just auto-saved this output
@@ -80,18 +80,33 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       return;
     }
 
-    const newRev: SavedRevision = {
-      id: Date.now().toString(),
-      title: title || "Untitled Revision",
-      topic,
-      course,
-      format,
-      content: output,
-      timestamp: Date.now(),
-    };
-    set({ savedRevisions: [newRev, ...savedRevisions] });
-    if (!auto) {
-      toast.success("Revision saved");
+    try {
+      const newRev = await api.saveRevision({
+        title: title || "Untitled Revision",
+        topic,
+        course: course === "none" ? null : course,
+        format,
+        content: output,
+        quality,
+      });
+      // @ts-ignore
+      set({ savedRevisions: [newRev, ...get().savedRevisions] });
+      if (!auto) {
+        toast.success("Revision saved");
+      }
+    } catch (err) {
+      toast.error("Failed to save revision");
+    }
+  },
+  deleteRevision: async (id: string) => {
+    try {
+      await api.deleteRevision(id);
+      set((state) => ({
+        savedRevisions: state.savedRevisions.filter((r) => r.id !== id),
+      }));
+      toast.success("Revision deleted");
+    } catch (err) {
+      toast.error("Failed to delete revision");
     }
   },
   loadRevision: (id: string) => {

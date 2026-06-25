@@ -38,6 +38,18 @@ export interface GeneratedRevision {
   quality?: QualityScore;
 }
 
+export interface SavedRevision {
+  id: string;
+  title: string;
+  topic: string;
+  course: string;
+  format: "notes" | "concepts" | "formulas" | "summary";
+  content: string;
+  quality?: QualityScore;
+  timestamp: number;
+}
+
+
 // ---- Teach Me ----
 export interface TeachOverview {
   title: string;
@@ -641,6 +653,17 @@ export const api = {
   search(q: string, filter = "all"): Promise<SearchResult[]> {
     const p = new URLSearchParams({ q, filter });
     return request<SearchResult[]>(`/api/search?${p.toString()}`);
+  },
+
+  // ---- Revisions persistence ----
+  listRevisions(): Promise<SavedRevision[]> {
+    return request<SavedRevision[]>("/api/revisions");
+  },
+  saveRevision(rev: { title: string; topic: string; course?: string | null; format: string; content: string; quality?: QualityScore }): Promise<SavedRevision> {
+    return request<SavedRevision>("/api/revisions", json(rev));
+  },
+  deleteRevision(id: string): Promise<void> {
+    return request<void>(`/api/revisions/${id}`, { method: "DELETE" });
   },
 
   // ---- Decks / flashcard persistence ----

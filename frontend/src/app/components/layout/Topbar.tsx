@@ -16,6 +16,10 @@ const titles: Record<string, { title: string; subtitle: string }> = {
     title: "Documents",
     subtitle: "Upload and manage source material",
   },
+  "/courses": {
+    title: "Courses",
+    subtitle: "Manage your courses and subjects",
+  },
   "/ask": {
     title: "Ask AI",
     subtitle: "Source-grounded answers from your materials",
@@ -29,6 +33,14 @@ const titles: Record<string, { title: string; subtitle: string }> = {
     title: "Exam",
     subtitle: "Simulate real exams from your materials",
   },
+  "/exam-analysis": {
+    title: "PYQ Analysis",
+    subtitle: "Analyze previous year questions",
+  },
+  "/teach": {
+    title: "Teach Me",
+    subtitle: "Learn concepts interactively",
+  },
   "/revision": {
     title: "Revision Mode",
     subtitle: "Generate exam-ready study sheets",
@@ -37,7 +49,19 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   "/quiz": { title: "Quizzes", subtitle: "Test your understanding" },
   "/diagrams": { title: "Diagrams", subtitle: "Generated visual explanations" },
   "/mindmaps": { title: "Mind Maps", subtitle: "Explore knowledge as a graph" },
+  "/differences": {
+    title: "Difference Tables",
+    subtitle: "Compare concepts, architectures, algorithms and more",
+  },
+  "/consistency": {
+    title: "Consistency",
+    subtitle: "Track your learning habits",
+  },
   "/search": { title: "Search", subtitle: "Semantic search across everything" },
+  "/prompts": {
+    title: "Prompts",
+    subtitle: "Manage your system prompts",
+  },
   "/settings": {
     title: "Settings",
     subtitle: "Configure models and preferences",
@@ -47,8 +71,8 @@ const titles: Record<string, { title: string; subtitle: string }> = {
 export function Topbar() {
   const { pathname } = useLocation();
   const setCommandOpen = useUIStore((s) => s.setCommandOpen);
-  const meta = titles[pathname] ?? { title: "ScholarAI", subtitle: "" };
   const current = navItems.find((n) => n.to === pathname);
+  const meta = titles[pathname] ?? { title: current?.label ?? "ScholarAI", subtitle: "" };
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border bg-background/70 px-6 backdrop-blur-xl">
