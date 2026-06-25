@@ -2,7 +2,7 @@
 // In dev, requests go to `/api/*` which Vite proxies to the backend
 // (see vite.config.ts). Override with VITE_API_BASE_URL for production.
 
-import type { Course, DiagramItem, DifferenceTableItem, DocumentItem, Flashcard, GeneratedDifference, QualityScore, Quiz, Source, PromptItem } from "./types";
+import type { ArtifactItem, Course, CourseStats, DiagramItem, DifferenceTableItem, DocumentItem, Flashcard, GeneratedDifference, QualityScore, Quiz, Source, PromptItem } from "./types";
 
 const BASE: string = (import.meta as any).env?.VITE_API_BASE_URL ?? "";
 
@@ -664,6 +664,15 @@ export const api = {
   },
   deleteCourse(id: string): Promise<void> {
     return request<void>(`/api/courses/${id}`, undefined, { method: "DELETE" });
+  },
+  getCourseStats(id: string): Promise<CourseStats> {
+    return request<CourseStats>(`/api/courses/${id}/stats`);
+  },
+  getCourseArtifacts(id: string, type?: string): Promise<ArtifactItem[]> {
+    const p = new URLSearchParams();
+    if (type) p.set("type", type);
+    const qs = p.toString();
+    return request<ArtifactItem[]>(`/api/courses/${id}/artifacts${qs ? `?${qs}` : ""}`);
   },
 
   // ---- Documents ----

@@ -18,7 +18,7 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   },
   "/courses": {
     title: "Courses",
-    subtitle: "Manage your courses and subjects",
+    subtitle: "Your course workspaces",
   },
   "/ask": {
     title: "Ask AI",

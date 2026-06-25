@@ -416,6 +416,7 @@ class LearningPath(Base):
     stages: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     sources: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     grounded: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    archived: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
