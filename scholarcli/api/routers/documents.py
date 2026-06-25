@@ -78,12 +78,8 @@ async def upload_document(
     # Create a stub Document row immediately so the frontend can show status.
     session = get_session()
     try:
-        course_obj = session.query(Course).filter(Course.name == course_name).first()
-        if course_obj is None:
-            course_obj = Course(name=course_name)
-            session.add(course_obj)
-            session.commit()
-            session.refresh(course_obj)
+        from scholarcli.storage.models import get_or_create_course
+        course_obj = get_or_create_course(session, course_name)
 
         existing = (
             session.query(Document)
@@ -178,11 +174,8 @@ def update_document_endpoint(document_id: int, patch: DocumentPatch) -> Document
         if patch.course is not None:
             course_name = patch.course.strip()
             if course_name and course_name != doc.course.name:
-                course = session.query(Course).filter(Course.name == course_name).first()
-                if not course:
-                    course = Course(name=course_name)
-                    session.add(course)
-                    session.flush()
+                from scholarcli.storage.models import get_or_create_course
+                course = get_or_create_course(session, course_name)
                 
                 doc.course_id = course.id
                 from scholarcli.storage.vectors import update_document_course

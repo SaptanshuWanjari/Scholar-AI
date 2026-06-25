@@ -30,12 +30,8 @@ def _hash_file(path: Path) -> str:
 
 def _ensure_course(name: str, session: Session) -> Course:
     """Get or create a ``Course`` by name within *session*."""
-    course = session.query(Course).filter(Course.name == name).first()
-    if course is None:
-        course = Course(name=name)
-        session.add(course)
-        session.commit()
-    return course
+    from scholarcli.storage.models import get_or_create_course
+    return get_or_create_course(session, name)
 
 
 def ingest_file(

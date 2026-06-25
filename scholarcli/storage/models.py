@@ -20,8 +20,28 @@ from sqlalchemy import (
     Text,
     func,
 )
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+import re
 
+def get_or_create_course(session: Session, name: str) -> "Course":
+    def is_similar(n1: str, n2: str) -> bool:
+        n1, n2 = n1.lower().strip(), n2.lower().strip()
+        if n1 == n2: return True
+        a1 = "".join(w[0] for w in re.split(r'\W+', n1) if w)
+        a2 = "".join(w[0] for w in re.split(r'\W+', n2) if w)
+        if (len(a1) > 1 and a1 == n2.replace(" ", "")) or (len(a2) > 1 and a2 == n1.replace(" ", "")):
+            return True
+        return False
+
+    for existing in session.query(Course).all():
+        if is_similar(name, existing.name):
+            return existing
+    
+    course = Course(name=name)
+    session.add(course)
+    session.commit()
+    session.refresh(course)
+    return course
 
 class Base(DeclarativeBase):
     pass
