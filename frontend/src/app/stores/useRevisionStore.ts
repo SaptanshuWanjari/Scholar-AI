@@ -128,8 +128,9 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
 
     let streamed = "";
     try {
+      const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
       await api.revisionStream(
-        { topic: t || undefined, course: selectedCourse, document, format },
+        { topic: t || undefined, course: selectedCourse, document, format, ragMode },
         {
           signal: ctrl.signal,
           onToken: (chunk) => {

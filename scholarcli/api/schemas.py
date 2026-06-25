@@ -55,6 +55,8 @@ class AskRequest(BaseModel):
     document: str | None = None
     route: str | None = None  # force a study mode; None = let the router decide
     sessionId: str | None = None  # persist this turn into a chat session
+    rag_mode: str = "fallback"  # "strict" = only ingested docs; "fallback" = AI fills gaps
+    socratic: bool = False  # guide user step-by-step instead of direct answer
 
 
 # ---------------------------------------------------------------------------
@@ -215,6 +217,7 @@ class SettingsOut(BaseModel):
     goals: str = ""
     interests: str = ""
     learningPreferences: str = ""
+    ragMode: str = "fallback"  # "strict" | "fallback"
 
 
 class SettingsPatch(BaseModel):
@@ -234,6 +237,7 @@ class SettingsPatch(BaseModel):
     goals: str | None = None
     interests: str | None = None
     learningPreferences: str | None = None
+    ragMode: str | None = None
 
 
 class ModelsList(BaseModel):
@@ -252,6 +256,7 @@ class GenerateFlashcardsRequest(BaseModel):
     course: str | None = None
     document: str | None = None
     count: int = 8
+    rag_mode: str = "fallback"  # "strict" | "fallback"
 
 
 class FlashcardOut(BaseModel):
@@ -277,6 +282,7 @@ class GenerateQuizRequest(BaseModel):
     course: str | None = None
     document: str | None = None
     difficulty: Literal["Easy", "Medium", "Hard"] = "Medium"
+    rag_mode: str = "fallback"
 
 
 class QuizQuestionOut(BaseModel):
@@ -306,6 +312,7 @@ class GenerateDiagramRequest(BaseModel):
     course: str | None = None
     document: str | None = None
     type: str | None = None  # flowchart | decision_tree | concept_map
+    rag_mode: str = "fallback"
 
 
 class DiagramOut(BaseModel):
@@ -322,6 +329,7 @@ class GenerateMindmapRequest(BaseModel):
     topic: str
     course: str | None = None
     document: str | None = None
+    rag_mode: str = "fallback"
 
 
 class MindmapOut(BaseModel):
@@ -338,6 +346,7 @@ class GenerateRevisionRequest(BaseModel):
     course: str | None = None
     document: str | None = None
     format: Literal["notes", "concepts", "formulas", "summary"] = "notes"
+    rag_mode: str = "fallback"
 
 
 class RevisionOut(BaseModel):

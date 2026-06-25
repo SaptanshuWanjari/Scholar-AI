@@ -56,7 +56,8 @@ export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
     if (!value || generating) return;
     set({ generating: true, ungrounded: false });
     try {
-      const result = await api.generateFlashcards(value, course, document);
+      const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
+      const result = await api.generateFlashcards(value, course, document, 8, ragMode);
       if (!result.grounded || result.cards.length === 0) {
         set({
           cards: [],

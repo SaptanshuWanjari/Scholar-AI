@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Cpu, Boxes, Filter, Keyboard, User } from "lucide-react";
+import { Cpu, Boxes, Filter, Keyboard, User, ShieldCheck } from "lucide-react";
 import { Page } from "../components/Page";
 import {
   Tabs,
@@ -241,6 +241,18 @@ export function SettingsPage() {
                 max={0.95}
                 step={0.01}
               />
+            </Row>
+            <Row
+              title="Strict RAG Mode"
+              desc={s.ragMode === "strict" ? "Only answers from ingested documents — no AI knowledge" : "AI fills gaps when documents lack context"}
+            >
+              <div className="flex items-center gap-2">
+                <ShieldCheck className={`size-4 ${s.ragMode === "strict" ? "text-amber-500" : "text-muted-foreground"}`} />
+                <Switch
+                  checked={s.ragMode === "strict"}
+                  onCheckedChange={(v) => s.set("ragMode", v ? "strict" : "fallback")}
+                />
+              </div>
             </Row>
             <Row
               title="Inline citations"

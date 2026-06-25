@@ -44,7 +44,7 @@ async def generate_flashcards(req: GenerateFlashcardsRequest) -> FlashcardSet:
     if not topic:
         raise HTTPException(status_code=400, detail="topic is required")
     query = f"Generate {req.count} flashcards covering: {topic}"
-    result = await run_in_threadpool(run_ask, query, req.course, req.document, "flashcards", topic)
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "flashcards", topic, req.rag_mode)
     cards = parsers.parse_flashcards(result["content"], deck=topic)
     quality = score_artifact("flashcards", cards, result["retrieved"], result["grounded"])
     record_activity("flashcard", f"Generated flashcards: {topic}", req.course or "")
@@ -63,7 +63,7 @@ async def generate_quiz(req: GenerateQuizRequest) -> QuizOut:
     if not topic:
         raise HTTPException(status_code=400, detail="topic is required")
     query = f"Generate a {req.difficulty} difficulty quiz about: {topic}"
-    result = await run_in_threadpool(run_ask, query, req.course, req.document, "quiz", topic)
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "quiz", topic, req.rag_mode)
     questions = parsers.parse_quiz(result["content"])
     quality = score_artifact("quiz", questions, result["retrieved"], result["grounded"])
     record_activity("quiz", f"Generated quiz: {topic}", req.course or "")
@@ -85,7 +85,7 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
         raise HTTPException(status_code=400, detail="topic is required")
     kind = (req.type or "flowchart").replace("_", " ")
     query = f"Generate a {kind} diagram about: {topic}"
-    result = await run_in_threadpool(run_ask, query, req.course, req.document, "mermaid", topic)
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "mermaid", topic, req.rag_mode)
     mermaid = parsers.strip_mermaid_fences(result["content"])
     quality = score_artifact("mermaid", mermaid, result["retrieved"], result["grounded"])
     course_name = req.course or "All courses"
@@ -128,7 +128,7 @@ async def generate_mindmap(req: GenerateMindmapRequest) -> MindmapOut:
     if not topic:
         raise HTTPException(status_code=400, detail="topic is required")
     query = f"Generate a mind map about: {topic}"
-    result = await run_in_threadpool(run_ask, query, req.course, req.document, "mindmap", topic)
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "mindmap", topic, req.rag_mode)
     quality = score_artifact("mindmap", result["content"], result["retrieved"], result["grounded"])
     course_name = req.course or "All courses"
     mindmap_id = _stable_id("mm", topic)
@@ -172,7 +172,7 @@ async def generate_revision(req: GenerateRevisionRequest) -> RevisionOut:
         "summary": "a high-level summary",
     }[req.format]
     query = f"Create {format_hint} for: {subject}"
-    result = await run_in_threadpool(run_ask, query, req.course, req.document, "study_notes", subject)
+    result = await run_in_threadpool(run_ask, query, req.course, req.document, "study_notes", subject, req.rag_mode)
     quality = score_artifact("study_notes", result["content"], result["retrieved"], result["grounded"])
     return RevisionOut(
         title=subject,
@@ -199,7 +199,7 @@ async def generate_revision_stream(req: GenerateRevisionRequest) -> StreamingRes
     def event_stream():
         text_parts: list[str] = []
         try:
-            for event in stream_ask(query, req.course, req.document, "study_notes", subject):
+            for event in stream_ask(query, req.course, req.document, "study_notes", subject, req.rag_mode):
                 if event.get("type") == "token":
                     text_parts.append(event.get("value", ""))
                 elif event.get("type") == "done":

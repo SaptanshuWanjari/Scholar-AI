@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { ArrowUp, Gauge, Paperclip, Sparkles, Trash2, BookOpen, MessageSquare, Plus } from "lucide-react";
+import { ArrowUp, Gauge, Paperclip, Sparkles, Trash2, BookOpen, MessageSquare, Plus, GraduationCap, ShieldCheck } from "lucide-react";
 import { motion } from "motion/react";
 import { useChatStore } from "../stores/useChatStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
@@ -18,8 +18,9 @@ import { api } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 
 export function AskAI() {
-  const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument, sessions, activeSessionId, loadSessions, loadSession, deleteSession } = useChatStore();
+  const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument, sessions, activeSessionId, loadSessions, loadSession, deleteSession, socratic, setSocratic } = useChatStore();
   const streaming = useSettingsStore((s) => s.streaming);
+  const ragMode = useSettingsStore((s) => s.ragMode);
   const [input, setInput] = useState("");
   const [activeSource, setActiveSource] = useState<string | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -60,7 +61,7 @@ export function AskAI() {
   const submit = (q?: string) => {
     const value = (q ?? input).trim();
     if (!value || isStreaming) return;
-    ask(value, { stream: streaming }).then(() => loadSessions());
+    ask(value, { stream: streaming, ragMode }).then(() => loadSessions());
     setInput("");
   };
 
@@ -246,13 +247,37 @@ export function AskAI() {
               </Button>
             </div>
             <div className="mt-2 flex items-center justify-between px-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-2">
                 <Sparkles className="size-3 text-primary" />
                 Grounded in {courses.length} courses · {streaming ? "Streaming on" : "Streaming off"}
+                {ragMode === "strict" ? (
+                  <span className="flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600">
+                    <ShieldCheck className="size-3" /> Strict RAG
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                    <Sparkles className="size-3" /> AI Fallback
+                  </span>
+                )}
               </span>
-              <span>
-                <kbd className="rounded border border-border bg-muted px-1 font-mono">Enter</kbd> to send ·{" "}
-                <kbd className="rounded border border-border bg-muted px-1 font-mono">Shift+Enter</kbd> newline
+              <span className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSocratic(!socratic)}
+                  className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                    socratic
+                      ? "border-violet/60 bg-violet/10 text-violet"
+                      : "border-border text-muted-foreground hover:border-border hover:text-foreground"
+                  }`}
+                  title={socratic ? "Socratic Mode ON — AI guides, does not answer directly" : "Enable Socratic Mode"}
+                >
+                  <GraduationCap className="size-3" />
+                  Socratic
+                </button>
+                <span>
+                  <kbd className="rounded border border-border bg-muted px-1 font-mono">Enter</kbd> to send ·{" "}
+                  <kbd className="rounded border border-border bg-muted px-1 font-mono">Shift+Enter</kbd> newline
+                </span>
               </span>
             </div>
           </div>
