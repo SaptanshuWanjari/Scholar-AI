@@ -110,11 +110,8 @@ def library_analysis(background_tasks: BackgroundTasks) -> dict:
                     if not doc_ids:
                         continue
                         
-                    course_obj = session.query(Course).filter(Course.name == cname).first()
-                    if not course_obj:
-                        course_obj = Course(name=cname)
-                        session.add(course_obj)
-                        session.commit()
+                    from scholarcli.storage.models import get_or_create_course
+                    course_obj = get_or_create_course(session, cname)
                     
                     docs_to_update = [d for d in docs if d.id in doc_ids]
                     for d in docs_to_update:

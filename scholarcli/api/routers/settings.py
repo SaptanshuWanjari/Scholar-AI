@@ -16,7 +16,7 @@ from fastapi import APIRouter
 
 from scholarcli.api.schemas import ModelsList, SettingsOut, SettingsPatch
 from scholarcli.config import get_settings
-from scholarcli.storage.database import engine
+from scholarcli.storage import get_engine
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +119,7 @@ def nuke_data():
     data_dir = s.paths.resolved_data_dir()
     
     # Close any open DB connections to release file locks
-    engine.dispose()
+    get_engine().dispose()
     
     try:
         if data_dir.exists():

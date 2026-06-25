@@ -41,13 +41,8 @@ def create_course(payload: CourseCreate) -> CourseOut:
         raise HTTPException(status_code=400, detail="Course name is required")
     session = get_session()
     try:
-        existing = session.query(Course).filter(Course.name == name).first()
-        if existing:
-            return _serialize(existing)
-        course = Course(name=name)
-        session.add(course)
-        session.commit()
-        session.refresh(course)
+        from scholarcli.storage.models import get_or_create_course
+        course = get_or_create_course(session, name)
         return _serialize(course)
     finally:
         session.close()

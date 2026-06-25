@@ -5,6 +5,16 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { api } from "../lib/api";
 import type { Course } from "../lib/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
 
 export function Courses() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -13,6 +23,7 @@ export function Courses() {
   const [editName, setEditName] = useState("");
   const [newCourseName, setNewCourseName] = useState("");
   const [creating, setCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const loadCourses = () => api.listCourses().then(setCourses).catch(() => {});
   useEffect(() => { loadCourses(); }, []);
@@ -36,12 +47,17 @@ export function Courses() {
     } catch {}
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this course?")) return;
+  const handleDelete = (id: string) => {
+    setDeletingId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingId) return;
     try {
-      await api.deleteCourse(id);
+      await api.deleteCourse(deletingId);
       loadCourses();
     } catch {}
+    setDeletingId(null);
   };
 
   const filtered = courses.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
@@ -152,6 +168,21 @@ export function Courses() {
           </Button>
         </div>
       )}
+
+      <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this course?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your course and all its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Page>
   );
 }

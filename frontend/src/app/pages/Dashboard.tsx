@@ -8,7 +8,7 @@ import {
   TrendingUp,
   Sparkles,
   ArrowRight,
-  Flame,
+  Lightbulb,
 } from "lucide-react";
 import { motion } from "motion/react";
 import {
@@ -81,10 +81,10 @@ export function Dashboard() {
           </Button>
           <Button
             variant="outline"
-            onClick={() => navigate("/flashcards")}
+            onClick={() => navigate("/teach")}
             className="gap-2"
           >
-            <Layers className="size-4" /> Review cards
+            <Lightbulb size={4} /> Teach Me
           </Button>
         </div>
       </motion.div>

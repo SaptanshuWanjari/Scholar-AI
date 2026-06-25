@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
-import { GraduationCap, PanelLeftClose, PanelLeft, Sparkles } from "lucide-react";
+import {
+  GraduationCap,
+  PanelLeftClose,
+  PanelLeft,
+  Sparkles,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { navItems } from "../../lib/nav";
 // Removed mock courses import
@@ -8,11 +13,7 @@ import { useUIStore } from "../../stores/useUIStore";
 import { cn } from "../ui/utils";
 import { api } from "../../lib/api";
 import type { Course } from "../../lib/types";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const groupLabels: Record<string, string> = {
   main: "Library",
@@ -34,7 +35,9 @@ export function AppSidebar() {
         if (!cancelled) setCourses(cs);
       })
       .catch(() => { });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const groups = ["main", "workspace", "study", "system"] as const;
@@ -101,10 +104,14 @@ export function AppSidebar() {
                           <item.icon
                             className={cn(
                               "size-[18px] shrink-0",
-                              isActive ? "text-violet" : "text-muted-foreground group-hover:text-foreground",
+                              isActive
+                                ? "text-violet"
+                                : "text-muted-foreground group-hover:text-foreground",
                             )}
                           />
-                          {!collapsed && <span className="truncate">{item.label}</span>}
+                          {!collapsed && (
+                            <span className="truncate">{item.label}</span>
+                          )}
                           {!collapsed && item.shortcut && (
                             <kbd className="ml-auto hidden rounded border border-border bg-muted px-1.5 font-mono text-[10px] text-muted-foreground group-hover:inline-block">
                               {item.shortcut}
@@ -126,7 +133,6 @@ export function AppSidebar() {
             </div>
           </div>
         ))}
-
       </nav>
 
       {/* Footer */}
@@ -137,8 +143,11 @@ export function AppSidebar() {
               <Sparkles className="size-3.5 text-violet" /> Quick tip
             </div>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Press <kbd className="rounded border border-border bg-card px-1 font-mono">⌘K</kbd> to
-              search anything instantly.
+              Press{" "}
+              <kbd className="rounded border border-border bg-card px-1 font-mono">
+                ⌘K
+              </kbd>{" "}
+              to search anything instantly.
             </p>
           </div>
         )}
@@ -149,7 +158,11 @@ export function AppSidebar() {
             collapsed && "justify-center px-0",
           )}
         >
-          {collapsed ? <PanelLeft className="size-[18px]" /> : <PanelLeftClose className="size-[18px]" />}
+          {collapsed ? (
+            <PanelLeft className="size-[18px]" />
+          ) : (
+            <PanelLeftClose className="size-[18px]" />
+          )}
           {!collapsed && <span>Collapse</span>}
         </button>
       </div>
