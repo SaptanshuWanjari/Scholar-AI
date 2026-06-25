@@ -122,7 +122,7 @@ function CourseRow({ course, isSelected, onSelect, onRename, onDelete }: CourseR
       </div>
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
         <button
-          onClick={(e) => { e.stopPropagation(); onRename(); }}
+          onClick={(e) => { e.stopPropagation(); onSelect(); onRename(); }}
           className="size-6 flex items-center justify-center rounded-md hover:bg-accent text-muted-foreground"
         >
           <Pencil className="size-3" />
@@ -138,23 +138,6 @@ function CourseRow({ course, isSelected, onSelect, onRename, onDelete }: CourseR
   );
 }
 
-// ── Stats grid ────────────────────────────────────────────────────────────────
-
-interface StatCardProps { label: string; value: number; icon: typeof FileText; color: string; }
-
-function StatCard({ label, value, icon: Icon, color }: StatCardProps) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{label}</span>
-        <div className="size-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${color}15` }}>
-          <Icon className="size-3.5" style={{ color }} />
-        </div>
-      </div>
-      <span className="text-2xl font-display leading-none">{value}</span>
-    </div>
-  );
-}
 
 // ── Overview tab ──────────────────────────────────────────────────────────────
 
@@ -450,12 +433,27 @@ function ArtifactsTab({ artifacts, typeFilter, setTypeFilter, navigate, courseNa
 
 interface CourseWorkspaceProps {
   course: Course;
-  onRename: () => void;
+  isRenaming: boolean;
+  editName: string;
+  setEditName: (v: string) => void;
+  onRenameSubmit: () => void;
+  onRenameCancel: () => void;
+  onRenameStart: () => void;
   onDelete: () => void;
   navigate: ReturnType<typeof useNavigate>;
 }
 
-function CourseWorkspace({ course, onRename, onDelete, navigate }: CourseWorkspaceProps) {
+function CourseWorkspace({
+  course,
+  isRenaming,
+  editName,
+  setEditName,
+  onRenameSubmit,
+  onRenameCancel,
+  onRenameStart,
+  onDelete,
+  navigate,
+}: CourseWorkspaceProps) {
   const { activeTab, setActiveTab, artifactTypeFilter, setArtifactTypeFilter } = useCourseWorkspaceStore();
   const [stats, setStats] = useState<CourseStats | null>(null);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -511,7 +509,25 @@ function CourseWorkspace({ course, onRename, onDelete, navigate }: CourseWorkspa
               {course.code.split(" ")[0].slice(0, 2)}
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">{course.name}</h1>
+              {isRenaming ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") onRenameSubmit();
+                      if (e.key === "Escape") onRenameCancel();
+                    }}
+                    onBlur={onRenameSubmit}
+                    autoFocus
+                    spellCheck={false}
+                    className="text-2xl font-bold tracking-tight bg-transparent border-0 border-b-2 border-primary/30 focus:border-primary focus:ring-0 outline-none px-0 py-0 min-w-[200px] transition-colors"
+                    style={{ width: `${Math.max(editName.length, 5)}ch` }}
+                  />
+                </div>
+              ) : (
+                <h1 className="text-2xl font-bold tracking-tight">{course.name}</h1>
+              )}
               <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
                 <span className="uppercase tracking-wider text-[11px]">{course.code}</span>
                 {stats && (
@@ -532,9 +548,11 @@ function CourseWorkspace({ course, onRename, onDelete, navigate }: CourseWorkspa
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Button size="sm" variant="ghost" onClick={onRename}>
-              <Pencil className="size-3.5 mr-1.5" /> Rename
-            </Button>
+            {!isRenaming && (
+              <Button size="sm" variant="ghost" onClick={onRenameStart}>
+                <Pencil className="size-3.5 mr-1.5" /> Rename
+              </Button>
+            )}
             <Button size="sm" variant="outline" disabled title="Coming soon">
               <RefreshCw className="size-3.5 mr-1.5" /> Rebuild Index
             </Button>
@@ -552,12 +570,19 @@ function CourseWorkspace({ course, onRename, onDelete, navigate }: CourseWorkspa
           </div>
         </div>
 
-        {/* Stats grid */}
+        {/* Stats row */}
         {stats && (
-          <div className="mt-6 grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-9">
-            {STAT_CARDS.map((sc) => (
-              <StatCard key={sc.label} {...sc} />
-            ))}
+          <div className="mt-8 border-y border-border py-5">
+            <div className="flex flex-wrap items-center justify-between gap-y-6 gap-x-4 px-2 lg:gap-x-8">
+              {STAT_CARDS.map((sc) => (
+                <div key={sc.label} className="flex flex-col items-center gap-2 flex-1 min-w-[80px]">
+                  <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground font-medium flex items-center gap-1.5 whitespace-nowrap">
+                    <sc.icon className="size-3" style={{ color: sc.color }} /> {sc.label}
+                  </span>
+                  <span className="text-2xl font-display leading-none text-foreground">{sc.value}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
         {loadingStats && !stats && (
@@ -750,37 +775,17 @@ export function Courses() {
               <p className="text-xs text-muted-foreground">No courses found</p>
             </div>
           )}
-          {filtered.map((c) =>
-            editingId === c.id ? (
-              <div key={c.id} className="px-2 py-2 rounded-xl border border-violet/30 bg-violet-soft/10 space-y-2">
-                <Input
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") handleUpdate(c.id); }}
-                  autoFocus
-                  className="h-8 text-sm bg-card border-border"
-                />
-                <div className="flex gap-1">
-                  <Button size="sm" className="flex-1 h-7" onClick={() => handleUpdate(c.id)}>
-                    <Check className="size-3 mr-1" /> Save
-                  </Button>
-                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setEditingId(null)}>
-                    <X className="size-3" />
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div key={c.id} className="relative">
-                <CourseRow
-                  course={c}
-                  isSelected={selectedCourseId === c.id}
-                  onSelect={() => selectCourse(c.id)}
-                  onRename={() => { setEditingId(c.id); setEditName(c.name); }}
-                  onDelete={() => setDeletingId(c.id)}
-                />
-              </div>
-            )
-          )}
+          {filtered.map((c) => (
+            <div key={c.id} className="relative">
+              <CourseRow
+                course={c}
+                isSelected={selectedCourseId === c.id}
+                onSelect={() => selectCourse(c.id)}
+                onRename={() => { setEditingId(c.id); setEditName(c.name); }}
+                onDelete={() => setDeletingId(c.id)}
+              />
+            </div>
+          ))}
         </div>
       </div>
 
@@ -800,7 +805,12 @@ export function Courses() {
           <CourseWorkspace
             key={selectedCourse.id}
             course={selectedCourse}
-            onRename={() => { setEditingId(selectedCourse.id); setEditName(selectedCourse.name); }}
+            isRenaming={editingId === selectedCourse.id}
+            editName={editName}
+            setEditName={setEditName}
+            onRenameSubmit={() => handleUpdate(selectedCourse.id)}
+            onRenameCancel={() => setEditingId(null)}
+            onRenameStart={() => { setEditingId(selectedCourse.id); setEditName(selectedCourse.name); }}
             onDelete={() => setDeletingId(selectedCourse.id)}
             navigate={navigate}
           />

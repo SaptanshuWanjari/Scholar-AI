@@ -1,21 +1,14 @@
 import { useNavigate } from "react-router";
-import {
-  GraduationCap,
-  Upload,
-  Cpu,
-  Lock,
-  WifiOff,
-  BookMarked,
-} from "lucide-react";
+import { GraduationCap, Cpu, Lock, WifiOff, BookMarked } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 
-const formats = ["PDF", "DOCX", "Markdown", "Text"];
+const formats = ["PDF", "DOCX", "PPTX", "Markdown", "Text"];
 
 const traits = [
   { icon: Cpu, label: "Powered by local AI" },
-  { icon: Lock, label: "Private" },
+  { icon: Lock, label: "Private by design" },
   { icon: WifiOff, label: "Offline-first" },
   { icon: BookMarked, label: "Source-grounded" },
 ];
@@ -24,21 +17,21 @@ export function OnboardingHero() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16">
+    <div className="flex h-screen items-center justify-center bg-background px-6">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex w-full max-w-2xl flex-col items-center text-center"
+        className="flex w-full max-w-4xl flex-col items-center text-center mt-8"
       >
         {/* Logo */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
-          className="flex size-23 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg"
+          className="flex size-20 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg"
         >
-          <GraduationCap className="size-15" />
+          <GraduationCap className="size-12" />
         </motion.div>
 
         {/* Brand */}
@@ -46,7 +39,7 @@ export function OnboardingHero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.4 }}
-          className="mt-6 font-display text-6xl font-semibold tracking-tight text-foreground"
+          className="mt-6 font-display text-5xl font-semibold tracking-tight text-foreground sm:text-6xl"
         >
           ScholarAI
         </motion.h1>
@@ -55,7 +48,7 @@ export function OnboardingHero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.4 }}
-          className="mt-2 max-w-2xl text-lg text-muted-foreground text-balance"
+          className="mt-4 max-w-2xl text-xl text-foreground font-medium text-balance"
         >
           Turn your study materials into a personalized AI learning workspace.
         </motion.p>
@@ -65,10 +58,15 @@ export function OnboardingHero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.4 }}
-          className="mt-5 max-w-xl leading-7 text-muted-foreground text-balance"
+          className="mt-4 max-w-2xl leading-relaxed text-muted-foreground text-balance"
         >
-          Import your notes, textbooks, lectures and research papers. ScholarAI
-          organizes them, builds a knowledge base, and helps you learn with AI.
+          Import textbooks, lecture notes, research papers and documentation.
+          ScholarAI organizes everything using local AI and helps you study
+          through learning paths, flashcards, AI tutoring, revision tools and
+          semantic search.
+          <br />
+          <br />
+          Everything stays on your machine.
         </motion.p>
 
         {/* CTA */}
@@ -76,26 +74,14 @@ export function OnboardingHero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.4 }}
-          className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center w-full max-w-xs sm:max-w-none"
+          className="mt-8 flex flex-col items-center w-full"
         >
           <Button
             size="lg"
-            className="w-full gap-2 bg-primary px-8 text-primary-foreground hover:bg-primary/90 sm:w-auto"
+            className="w-full max-w-sm gap-2 bg-primary px-8 text-lg font-medium text-primary-foreground hover:bg-primary/90"
             onClick={() => navigate("/onboarding/import")}
           >
-            <Upload className="size-4" />
-            Import Documents
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="w-full gap-2 px-8 text-muted-foreground hover:text-foreground sm:w-auto"
-            onClick={() => {
-              localStorage.setItem("scholar_onboarding_done", "1");
-              navigate("/");
-            }}
-          >
-            Explore on my own
+            Get Started
           </Button>
         </motion.div>
 
@@ -122,14 +108,14 @@ export function OnboardingHero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.4 }}
-          className="mt-6 flex flex-wrap justify-center gap-4"
+          className="mt-6 flex flex-wrap justify-center gap-5"
         >
           {traits.map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground"
+              className="flex items-center gap-2 text-sm font-medium text-muted-foreground"
             >
-              <Icon className="size-3.5" />
+              <Icon className="size-4" />
               <span>{label}</span>
             </div>
           ))}

@@ -190,6 +190,7 @@ def _out(row: LearningPath) -> LearningPathOut:
         stages=[LearningPathStage(**st) for st in stages],
         sources=[SourceOut(**s) for s in (row.sources or [])],
         grounded=row.grounded,
+        archived=row.archived,
         nextRecommendation=_recommend_next(stages),
         progress=_progress(stages),
         analytics=_analytics(stages, row.course),
@@ -203,6 +204,7 @@ def _meta(row: LearningPath) -> LearningPathMeta:
         title=row.title,
         course=row.course,
         conceptCount=len(_concepts(row.stages or [])),
+        archived=row.archived,
         createdAt=row.created_at.isoformat(),
     )
 
@@ -318,5 +320,20 @@ def delete_path(path_id: int) -> None:
             raise HTTPException(status_code=404, detail="Learning path not found")
         session.delete(row)
         session.commit()
+    finally:
+        session.close()
+
+
+@router.patch("/{path_id}/archive", response_model=LearningPathOut)
+def archive_path(path_id: int, archived: bool = True) -> LearningPathOut:
+    session = get_session()
+    try:
+        row = session.get(LearningPath, path_id)
+        if not row:
+            raise HTTPException(status_code=404, detail="Learning path not found")
+        row.archived = archived
+        session.commit()
+        session.refresh(row)
+        return _out(row)
     finally:
         session.close()

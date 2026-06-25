@@ -99,7 +99,7 @@ export function SettingsPage() {
     } catch (e) {
       console.error(e);
     }
-    window.location.reload();
+    window.location.href = "/onboarding";
   };
 
   useEffect(() => {

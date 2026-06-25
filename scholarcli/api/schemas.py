@@ -833,6 +833,7 @@ class LearningPathOut(BaseModel):
     stages: list[LearningPathStage] = []
     sources: list[SourceOut] = []
     grounded: bool = True
+    archived: bool = False
     nextRecommendation: NextRecommendation | None = None
     progress: LearningProgress
     analytics: LearningAnalytics
@@ -844,6 +845,7 @@ class LearningPathMeta(BaseModel):
     title: str
     course: str
     conceptCount: int
+    archived: bool = False
     createdAt: str
 
 

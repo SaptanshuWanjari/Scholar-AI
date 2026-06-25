@@ -60,7 +60,13 @@ def _build_sections(document_id: int, fallback_title: str) -> list[ReadingSectio
         # chunk, so skip the standalone description here to avoid duplicates.
         if ch.get("source_type") in ("image", "diagram"):
             continue
-        heading = (ch.get("heading") or "").strip()
+        
+        raw_heading = (ch.get("heading") or "").strip()
+        if not raw_heading.strip(" •\t\n\r-*."):
+            heading = current_heading if current_heading is not None else ""
+        else:
+            heading = raw_heading
+
         if current_heading is None:
             current_heading = heading
         if heading != current_heading:
