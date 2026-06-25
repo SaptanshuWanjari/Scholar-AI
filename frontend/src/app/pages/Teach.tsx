@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 import {
   GraduationCap,
   BookOpen,
@@ -20,6 +21,8 @@ import {
   XCircle,
   ShieldCheck,
   Star,
+  FolderOpen,
+  ChevronLeft,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -120,6 +123,7 @@ function InputPhase() {
   const [packages, setPackages] = useState<PackageMeta[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>(EXAMPLES);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   // Dependency readiness gate — surfaced before generating if prerequisites
   // for the chosen topic aren't mastered yet.
   const [gate, setGate] = useState<ReadinessMissing[] | null>(null);
@@ -171,8 +175,17 @@ function InputPhase() {
         }
       }
     }).catch(() => { });
+
+    // Auto-load a package passed via ?package=<id> (e.g. from Courses page)
+    const autoId = searchParams.get("package");
+    if (autoId && !cancelled) {
+      void loadPackage(autoId).then(() => {
+        if (!cancelled) setSearchParams({}, { replace: true });
+      });
+    }
+
     return () => { cancelled = true; };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTopicChange = (value: string) => {
     setField("topic", value);
@@ -610,9 +623,10 @@ function ConsistencyView() {
 
 function WorkspacePhase() {
       const {
-        topic, activeView, overview, overviewStatus, sources, packageId, saving,
+        topic, activeView, overview, overviewStatus, sources, packageId, pkgCourse, saving,
         artifacts, selected, generating, currentTask, consistencyStatus, openView, savePackage, reset,
       } = useTeachStore();
+      const navigate = useNavigate();
 
       const grounded = overview?.grounded;
 
@@ -700,6 +714,18 @@ function WorkspacePhase() {
               <Button onClick={reset} variant="outline" className="w-full gap-2" size="sm">
                 <Plus className="size-3.5" /> New topic
               </Button>
+              {pkgCourse && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full gap-2 text-muted-foreground"
+                  onClick={() => navigate(`/courses?name=${encodeURIComponent(pkgCourse)}`)}
+                >
+                  <FolderOpen className="size-3.5" />
+                  <ChevronLeft className="size-3 -mr-1" />
+                  <span className="truncate">{pkgCourse}</span>
+                </Button>
+              )}
             </div>
           </div>
 
