@@ -557,6 +557,7 @@ export interface LearningPath {
   stages: LearningPathStage[];
   sources: Source[];
   grounded: boolean;
+  archived: boolean;
   nextRecommendation: NextRecommendation | null;
   progress: LearningProgress;
   analytics: LearningAnalytics;
@@ -568,6 +569,7 @@ export interface LearningPathMeta {
   title: string;
   course: string;
   conceptCount: number;
+  archived: boolean;
   createdAt: string;
 }
 
@@ -660,10 +662,10 @@ export const api = {
     return request<Course>("/api/courses", json({ name }));
   },
   updateCourse(id: string, name: string): Promise<Course> {
-    return request<Course>(`/api/courses/${id}`, json({ name }), { method: "PUT" });
+    return request<Course>(`/api/courses/${id}`, { ...json({ name }), method: "PUT" });
   },
   deleteCourse(id: string): Promise<void> {
-    return request<void>(`/api/courses/${id}`, undefined, { method: "DELETE" });
+    return request<void>(`/api/courses/${id}`, { method: "DELETE" });
   },
   getCourseStats(id: string): Promise<CourseStats> {
     return request<CourseStats>(`/api/courses/${id}/stats`);
@@ -1147,7 +1149,15 @@ export const api = {
       body: JSON.stringify({ status }),
     });
   },
+  archiveLearningPath(id: string, archived: boolean): Promise<LearningPath> {
+    return request<LearningPath>(`/api/learning-paths/${id}/archive?archived=${archived}`, { method: "PATCH" });
+  },
   deleteLearningPath(id: string): Promise<void> {
     return request<void>(`/api/learning-paths/${id}`, { method: "DELETE" });
+  },
+
+  // ---- System ----
+  checkSystemHealth(): Promise<{ reasoning: string, vision: string, embedding: string, ocr: string }> {
+    return request<{ reasoning: string, vision: string, embedding: string, ocr: string }>("/api/system/health");
   },
 };

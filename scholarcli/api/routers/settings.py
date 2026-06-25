@@ -112,6 +112,7 @@ def list_models() -> ModelsList:
         embeddingModels=embed_models,
         visionModels=ordered,
     )
+from scholarcli.storage import reset_engine
 
 @router.delete("/settings/nuke")
 def nuke_data():
@@ -119,7 +120,7 @@ def nuke_data():
     data_dir = s.paths.resolved_data_dir()
     
     # Close any open DB connections to release file locks
-    get_engine().dispose()
+    reset_engine()
     
     try:
         if data_dir.exists():
@@ -129,3 +130,30 @@ def nuke_data():
     except Exception as e:
         logger.error(f"Failed to nuke data: {e}")
         return {"status": "error", "message": str(e)}
+
+@router.get("/system/health")
+def system_health() -> dict:
+    s = get_settings()
+    ui_s = _load()
+    
+    res = {
+        "reasoning": "Missing",
+        "vision": "Missing",
+        "embedding": "Missing",
+        "ocr": "Ready" if s.ingest.ocr_enabled else "Disabled"
+    }
+    
+    try:
+        resp = httpx.get(f"{s.ollama.base_url}/api/tags", timeout=3.0)
+        if resp.status_code == 200:
+            installed = [m["name"] for m in resp.json().get("models", [])]
+            if ui_s.get("reasoningModel") in installed:
+                res["reasoning"] = "Ready"
+            if ui_s.get("visionModel") in installed:
+                res["vision"] = "Ready"
+            if ui_s.get("embeddingModel") in installed:
+                res["embedding"] = "Ready"
+    except Exception:
+        pass
+        
+    return res

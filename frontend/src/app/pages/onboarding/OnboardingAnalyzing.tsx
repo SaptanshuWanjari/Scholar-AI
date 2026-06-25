@@ -61,49 +61,69 @@ export function OnboardingAnalyzing() {
     PIPELINE_STEPS.map((_, i) => (i === 0 ? "active" : "pending")),
   );
   const [analysis, setLocalAnalysis] = useState<OnboardingAnalysis | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const completedRef = useRef(false);
-
-  // Advance pipeline steps on a timer, gated by file completion
-  useEffect(() => {
-    const totalFiles = files.length || 1;
-    const msPerStep = Math.max(800, (totalFiles * 3000) / PIPELINE_STEPS.length);
-
-    let current = 0;
-    const advance = () => {
-      current += 1;
-      if (current >= PIPELINE_STEPS.length) {
-        setStepStates(PIPELINE_STEPS.map(() => "done"));
-        return;
-      }
-      setStepStates((prev) =>
-        prev.map((s, i) => {
-          if (i < current) return "done";
-          if (i === current) return "active";
-          return "pending";
-        }),
-      );
-      timerId = setTimeout(advance, msPerStep);
-    };
-
-    let timerId = setTimeout(advance, msPerStep);
-    return () => clearTimeout(timerId);
-  }, [files.length]);
 
   // Poll for all files completed, then fetch analysis
   useEffect(() => {
     const check = async () => {
       const allDone = files.length > 0 && files.every((f) => f.status === "completed" || f.status === "failed");
-      if (!allDone || completedRef.current) return;
+      
+      // Update UI steps based on upload progress
+      if (!allDone) {
+        setStepStates((prev) => prev.map((s, i) => (i === 0 ? "done" : i === 1 ? "active" : "pending")));
+        return;
+      }
+      
+      if (completedRef.current) return;
       completedRef.current = true;
+
+      const allFailed = files.every((f) => f.status === "failed");
+      if (allFailed) {
+        setErrorMsg("Ingestion failed for all files. Please check your documents and try again.");
+        setStepStates(PIPELINE_STEPS.map(() => "pending"));
+        return;
+      }
+
+      setStepStates((prev) => prev.map((s, i) => (i <= 1 ? "done" : i === 2 ? "active" : "pending")));
+
+      // Simulate step 2, 3, 4 animating while waiting for analysis
+      let simStep = 2;
+      const simTimer = setInterval(() => {
+        if (simStep < 4) {
+          simStep++;
+          setStepStates((prev) => prev.map((s, i) => (i < simStep ? "done" : i === simStep ? "active" : "pending")));
+        }
+      }, 1500);
 
       try {
         const result = await api.onboardingAnalysis();
+        clearInterval(simTimer);
         setLocalAnalysis(result);
         setAnalysis(result);
+
+        if (result.documents === 0) {
+            throw new Error("Analysis completed but no documents were indexed.");
+        }
+
+        setStepStates((prev) => prev.map((s, i) => (i <= 4 ? "done" : i === 5 ? "active" : "pending")));
+
+        const topTopic = result.topics.length > 0 ? result.topics[0] : "Comprehensive Roadmap";
+        const topCourse = result.courses.length > 0 ? result.courses[0] : null;
+
+        const path = await api.generateLearningPath({
+          topic: topTopic,
+          course: topCourse,
+          ragMode: "fallback",
+        });
+
         setStepStates(PIPELINE_STEPS.map(() => "done"));
-        setTimeout(() => navigate("/onboarding/ready"), 1800);
-      } catch {
-        setTimeout(() => navigate("/onboarding/ready"), 2000);
+        setTimeout(() => navigate(`/onboarding/ready?pathId=${path.id}`), 1500);
+      } catch (e) {
+        clearInterval(simTimer);
+        console.error(e);
+        setErrorMsg(e instanceof Error ? e.message : "Failed to analyze library. The AI might be unavailable.");
+        setStepStates(PIPELINE_STEPS.map((s, i) => (i <= 4 ? "done" : "pending")));
       }
     };
 
@@ -125,6 +145,15 @@ export function OnboardingAnalyzing() {
             ScholarAI is processing your documents and building your knowledge workspace.
           </p>
         </div>
+
+        {errorMsg && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 rounded-xl border border-danger/40 bg-danger-soft p-4 text-center">
+            <p className="text-sm font-medium text-danger">{errorMsg}</p>
+            <button onClick={() => navigate("/onboarding")} className="mt-3 text-xs font-semibold text-danger underline underline-offset-2">
+              Go Back
+            </button>
+          </motion.div>
+        )}
 
         <div className="grid gap-6 md:grid-cols-[1fr_280px]">
           {/* Pipeline steps */}
