@@ -366,14 +366,6 @@ export interface JobItem {
 }
 
 // ---- Prompt A/B experiments ----
-export interface PromptExperiment {
-  id: number;
-  category: string;
-  active: boolean;
-  variantA: { id: number; name: string; uses: number; score: number };
-  variantB: { id: number; name: string; uses: number; score: number };
-}
-
 // ---- Trace analytics ----
 export interface TraceSourceStat {
   source: string;
@@ -930,19 +922,6 @@ export const api = {
     return request<JobItem>(`/api/jobs/${id}`);
   },
 
-  // ---- Prompt A/B experiments ----
-  listPromptExperiments(): Promise<PromptExperiment[]> {
-    return request<PromptExperiment[]>("/api/prompts/experiments");
-  },
-  startPromptExperiment(category: string, variantAId: number, variantBId: number): Promise<PromptExperiment> {
-    return request<PromptExperiment>("/api/prompts/experiments", json({ category, variantAId, variantBId }));
-  },
-  scorePromptExperiment(category: string, variant: "A" | "B", score: number): Promise<void> {
-    return request<void>("/api/prompts/experiments/score", json({ category, variant, score }));
-  },
-  stopPromptExperiment(id: number): Promise<void> {
-    return request<void>(`/api/prompts/experiments/${id}`, { method: "DELETE" });
-  },
 
   // ---- Trace analytics ----
   getTraceAnalytics(): Promise<TraceAnalytics> {

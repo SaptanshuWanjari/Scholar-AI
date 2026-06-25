@@ -419,30 +419,7 @@ class BackgroundJob(Base):
     )
 
 
-# ---------------------------------------------------------------------------
-# Prompt A/B testing — pit two prompt variants against each other and tally
-# uses + (optional) quality scores so a user can pick the winner.
-# ---------------------------------------------------------------------------
 
-class PromptExperiment(Base):
-    __tablename__ = "prompt_experiments"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    category: Mapped[str] = mapped_column(String(32), nullable=False)
-    variant_a_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("prompts.id"), nullable=False
-    )
-    variant_b_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("prompts.id"), nullable=False
-    )
-    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    a_uses: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    b_uses: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    a_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
-    b_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
 
 
 # ---------------------------------------------------------------------------

@@ -34,17 +34,6 @@ class PromptCreate(BaseModel):
     body: str
 
 
-class ExperimentCreate(BaseModel):
-    category: str
-    variantAId: int
-    variantBId: int
-
-
-class ExperimentScore(BaseModel):
-    category: str
-    variant: str  # "A" | "B"
-    score: float
-
 
 # ── endpoints ──────────────────────────────────────────────────────────────────
 
@@ -115,29 +104,3 @@ def delete_prompt(prompt_id: int):
         session.commit()
     finally:
         session.close()
-
-
-# ── A/B testing experiments ──────────────────────────────────────────────────
-
-@router.get("/experiments")
-def list_experiments():
-    return prompt_service.list_experiments()
-
-
-@router.post("/experiments", status_code=201)
-def create_experiment(body: ExperimentCreate):
-    try:
-        return prompt_service.start_experiment(body.category, body.variantAId, body.variantBId)
-    except ValueError as exc:
-        raise HTTPException(400, str(exc))
-
-
-@router.post("/experiments/score", status_code=204)
-def score_experiment(body: ExperimentScore):
-    prompt_service.record_score(body.category, body.variant, body.score)
-
-
-@router.delete("/experiments/{experiment_id}", status_code=204)
-def delete_experiment(experiment_id: int):
-    if not prompt_service.stop_experiment(experiment_id):
-        raise HTTPException(404, "Experiment not found")
