@@ -437,6 +437,7 @@ export interface BackendSettings {
   goals: string;
   interests: string;
   learningPreferences: string;
+  ragMode: string;
 }
 
 export interface ModelsList {
@@ -472,8 +473,8 @@ function json(body: unknown): RequestInit {
 
 export const api = {
   // ---- Ask / chat ----
-  ask(question: string, course?: string | null, document?: string | null, sessionId?: string | null): Promise<AskResponse> {
-    return request<AskResponse>("/api/ask", json({ question, course: course ?? null, document: document ?? null, sessionId: sessionId ?? null }));
+  ask(question: string, course?: string | null, document?: string | null, sessionId?: string | null, ragMode?: string, socratic?: boolean): Promise<AskResponse> {
+    return request<AskResponse>("/api/ask", json({ question, course: course ?? null, document: document ?? null, sessionId: sessionId ?? null, rag_mode: ragMode ?? "fallback", socratic: socratic ?? false }));
   },
 
   /** Stream an answer token-by-token over SSE. Returns the final metadata. */
@@ -488,9 +489,11 @@ export const api = {
       signal?: AbortSignal;
     },
     sessionId?: string | null,
+    ragMode?: string,
+    socratic?: boolean,
   ): Promise<void> {
     const res = await fetch(`${BASE}/api/ask/stream`, {
-      ...json({ question, course: course ?? null, document: document ?? null, sessionId: sessionId ?? null }),
+      ...json({ question, course: course ?? null, document: document ?? null, sessionId: sessionId ?? null, rag_mode: ragMode ?? "fallback", socratic: socratic ?? false }),
       signal: handlers.signal,
     });
     if (!res.ok || !res.body) {
@@ -568,19 +571,20 @@ export const api = {
   },
 
   // ---- Generative study features ----
-  generateFlashcards(topic: string, course?: string | null, document?: string | null, count = 8): Promise<FlashcardSet> {
-    return request<FlashcardSet>("/api/flashcards/generate", json({ topic, course: course ?? null, document: document ?? null, count }));
+  generateFlashcards(topic: string, course?: string | null, document?: string | null, count = 8, ragMode = "fallback"): Promise<FlashcardSet> {
+    return request<FlashcardSet>("/api/flashcards/generate", json({ topic, course: course ?? null, document: document ?? null, count, rag_mode: ragMode }));
   },
   generateQuiz(
     topic: string,
     course?: string | null,
     document?: string | null,
     difficulty: "Easy" | "Medium" | "Hard" = "Medium",
+    ragMode = "fallback",
   ): Promise<GeneratedQuiz> {
-    return request<GeneratedQuiz>("/api/quizzes/generate", json({ topic, course: course ?? null, document: document ?? null, difficulty }));
+    return request<GeneratedQuiz>("/api/quizzes/generate", json({ topic, course: course ?? null, document: document ?? null, difficulty, rag_mode: ragMode }));
   },
-  generateDiagram(topic: string, course?: string | null, document?: string | null, type?: string): Promise<GeneratedDiagram> {
-    return request<GeneratedDiagram>("/api/diagrams/generate", json({ topic, course: course ?? null, document: document ?? null, type }));
+  generateDiagram(topic: string, course?: string | null, document?: string | null, type?: string, ragMode = "fallback"): Promise<GeneratedDiagram> {
+    return request<GeneratedDiagram>("/api/diagrams/generate", json({ topic, course: course ?? null, document: document ?? null, type, rag_mode: ragMode }));
   },
   listDiagrams(): Promise<DiagramItem[]> {
     return request<DiagramItem[]>("/api/diagrams");
@@ -588,8 +592,8 @@ export const api = {
   deleteDiagram(id: string): Promise<void> {
     return request<void>(`/api/diagrams/${id}`, { method: "DELETE" });
   },
-  generateMindmap(topic: string, course?: string | null, document?: string | null): Promise<GeneratedMindmap> {
-    return request<GeneratedMindmap>("/api/mindmaps/generate", json({ topic, course: course ?? null, document: document ?? null }));
+  generateMindmap(topic: string, course?: string | null, document?: string | null, ragMode = "fallback"): Promise<GeneratedMindmap> {
+    return request<GeneratedMindmap>("/api/mindmaps/generate", json({ topic, course: course ?? null, document: document ?? null, rag_mode: ragMode }));
   },
   listMindmaps(): Promise<GeneratedMindmap[]> {
     return request<GeneratedMindmap[]>("/api/mindmaps");
@@ -598,12 +602,13 @@ export const api = {
     return request<void>(`/api/mindmaps/${id}`, { method: "DELETE" });
   },
   generateRevision(
-    opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
+    opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary"; ragMode?: string },
   ): Promise<GeneratedRevision> {
-    return request<GeneratedRevision>("/api/revision/generate", json(opts));
+    const { ragMode, ...rest } = opts;
+    return request<GeneratedRevision>("/api/revision/generate", json({ ...rest, rag_mode: ragMode ?? "fallback" }));
   },
   async revisionStream(
-    opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
+    opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary"; ragMode?: string },
     handlers: {
       onToken: (chunk: string) => void;
       onDone?: (meta: { grounded: boolean; title: string; quality?: QualityScore }) => void;
@@ -611,8 +616,9 @@ export const api = {
       signal?: AbortSignal;
     },
   ): Promise<void> {
+    const { ragMode, ...restOpts } = opts;
     const res = await fetch(`${BASE}/api/revision/generate/stream`, {
-      ...json(opts),
+      ...json({ ...restOpts, rag_mode: ragMode ?? "fallback" }),
       signal: handlers.signal,
     });
     if (!res.ok || !res.body) {

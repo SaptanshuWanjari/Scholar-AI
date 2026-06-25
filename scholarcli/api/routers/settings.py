@@ -42,6 +42,7 @@ def _defaults() -> dict:
         "goals": "",
         "interests": "",
         "learningPreferences": "",
+        "ragMode": "fallback",
     }
 
 

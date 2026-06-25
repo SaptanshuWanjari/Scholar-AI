@@ -33,7 +33,8 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
     }
     set({ loading: true });
     try {
-      const result = await api.generateMindmap(trimmed, course === ALL_COURSES ? null : course, document);
+      const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
+      const result = await api.generateMindmap(trimmed, course === ALL_COURSES ? null : course, document, ragMode);
       if (!result.grounded || !result.text?.trim()) {
         toast.error("No grounded mind map could be generated for this topic");
         set({ mindmap: null });

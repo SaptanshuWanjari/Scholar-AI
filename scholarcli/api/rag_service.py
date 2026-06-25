@@ -116,7 +116,28 @@ def get_last_trace() -> dict[str, Any]:
     return dict(_last_trace)
 
 
-def run_ask(question: str, course: str | None = None, document: str | None = None, route: str | None = None, search_query: str | None = None) -> dict:
+_STRICT_NOT_FOUND = (
+    "I couldn't find sufficient information in your ingested documents to answer this question. "
+    "Try switching to AI Fallback mode if you want the model to use its own knowledge."
+)
+
+_SOCRATIC_PREFIX = (
+    "You are a Socratic tutor. Do NOT give the direct answer. "
+    "Instead, guide the student step-by-step using probing questions and short hints. "
+    "Only reveal the answer if the user explicitly says they are stuck or asks you to. "
+    "Acknowledge what the student says before asking the next guiding question.\n\n"
+)
+
+
+def run_ask(
+    question: str,
+    course: str | None = None,
+    document: str | None = None,
+    route: str | None = None,
+    search_query: str | None = None,
+    rag_mode: str = "fallback",
+    socratic: bool = False,
+) -> dict:
     """One-shot RAG answer. Returns answer, sources, confidence, grounded, route."""
     state: GraphState = {"query": question, "course": course, "document": document}
     if search_query:
@@ -133,6 +154,17 @@ def run_ask(question: str, course: str | None = None, document: str | None = Non
     from scholarcli.api import trace_service
     trace_service.log_weak_generation(question, retrieved, grounded, confidence)
 
+    # Strict mode: refuse to answer if not grounded in documents.
+    if rag_mode == "strict" and not grounded:
+        return {
+            "content": _STRICT_NOT_FOUND,
+            "sources": [],
+            "retrieved": [],
+            "confidence": None,
+            "grounded": False,
+            "route": used_route,
+        }
+
     return {
         "content": result.get("answer", "(no answer)"),
         "sources": serialize_chunks(retrieved),
@@ -143,7 +175,7 @@ def run_ask(question: str, course: str | None = None, document: str | None = Non
     }
 
 
-def _build_generation_prompt(state: GraphState) -> tuple[str, str]:
+def _build_generation_prompt(state: GraphState, socratic: bool = False) -> tuple[str, str]:
     """Mirror generator.generate's prompt assembly. Returns (system, user)."""
     route = state.get("route", "quick_qa")
     chunks = state["retrieved"]
@@ -164,11 +196,19 @@ def _build_generation_prompt(state: GraphState) -> tuple[str, str]:
     user = QA_PROMPT_TEMPLATE.format(context=context, query=state["query"])
     user = f"Available sources: {', '.join(citations)}\n\n{user}"
     system = active_body(route) or _ROUTE_PROMPTS.get(route, GENERATOR_SYSTEM)
+    if socratic:
+        system = _SOCRATIC_PREFIX + system
     return system, user
 
 
 def stream_ask(
-    question: str, course: str | None = None, document: str | None = None, route: str | None = None, search_query: str | None = None
+    question: str,
+    course: str | None = None,
+    document: str | None = None,
+    route: str | None = None,
+    search_query: str | None = None,
+    rag_mode: str = "fallback",
+    socratic: bool = False,
 ) -> Iterator[dict]:
     """Yield streaming events for the Ask endpoint.
 
@@ -199,7 +239,9 @@ def stream_ask(
     trace_service.log_weak_generation(question, retrieved, grounded, confidence)
 
     if not grounded:
-        yield {"type": "token", "value": NOT_GROUNDED}
+        # Strict mode: refuse to answer from AI knowledge.
+        not_found_msg = _STRICT_NOT_FOUND if rag_mode == "strict" else NOT_GROUNDED
+        yield {"type": "token", "value": not_found_msg}
         yield {
             "type": "done",
             "sources": [],
@@ -210,7 +252,7 @@ def stream_ask(
         }
         return
 
-    system, user = _build_generation_prompt(state)
+    system, user = _build_generation_prompt(state, socratic=socratic)
     llm = get_llm(used_route or "quick_qa")
     for chunk in llm.stream(
         [SystemMessage(content=system), HumanMessage(content=user)]

@@ -37,7 +37,8 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
     }
     set({ generating: true });
     try {
-      const result = await api.generateDiagram(t, course === "none" ? null : course, document, type);
+      const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
+      const result = await api.generateDiagram(t, course === "none" ? null : course, document, type, ragMode);
       if (!result.grounded || !result.mermaid?.trim()) {
         toast.error(
           !result.grounded ? "Couldn't ground a diagram for that topic" : "The generated diagram was empty",

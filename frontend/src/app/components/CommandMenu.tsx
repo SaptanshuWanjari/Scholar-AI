@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   CommandDialog,
@@ -10,14 +10,17 @@ import {
   CommandSeparator,
 } from "./ui/command";
 import { navItems } from "../lib/nav";
-import { courses, documents } from "../lib/mock-data";
 import { useUIStore } from "../stores/useUIStore";
+import { api } from "../lib/api";
+import type { Course, DocumentItem } from "../lib/types";
 import { FileText, GraduationCap } from "lucide-react";
 
 export function CommandMenu() {
   const open = useUIStore((s) => s.commandOpen);
   const setOpen = useUIStore((s) => s.setCommandOpen);
   const navigate = useNavigate();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -29,6 +32,13 @@ export function CommandMenu() {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open, setOpen]);
+
+  // Fetch real data whenever the menu opens.
+  useEffect(() => {
+    if (!open) return;
+    api.listCourses().then(setCourses).catch(() => setCourses([]));
+    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
+  }, [open]);
 
   const go = (to: string) => {
     navigate(to);
@@ -76,3 +86,4 @@ export function CommandMenu() {
     </CommandDialog>
   );
 }
+

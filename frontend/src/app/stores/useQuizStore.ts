@@ -65,11 +65,13 @@ export const useQuizStore = create<QuizState>((set, get) => ({
 
     set({ generating: true });
     try {
+      const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
       const quiz = await api.generateQuiz(
         value,
         course === "all" ? null : course,
         document,
         difficulty,
+        ragMode,
       );
       if (!quiz.grounded || quiz.questions.length === 0) {
         toast.error(GROUNDED_ERROR);

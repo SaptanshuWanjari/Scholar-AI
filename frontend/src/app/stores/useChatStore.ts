@@ -11,9 +11,11 @@ interface ChatState {
   document: string | null;
   sessions: ChatSessionMeta[];
   activeSessionId: string | null;
+  socratic: boolean;
   setCourse: (course: string | null) => void;
   setDocument: (document: string | null) => void;
-  ask: (question: string, opts?: { stream?: boolean }) => Promise<void>;
+  setSocratic: (v: boolean) => void;
+  ask: (question: string, opts?: { stream?: boolean; ragMode?: string }) => Promise<void>;
   reset: () => void;
   loadSessions: () => Promise<void>;
   loadSession: (id: string) => Promise<void>;
@@ -29,8 +31,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
   document: null,
   sessions: [],
   activeSessionId: null,
+  socratic: false,
   setCourse: (course) => set({ course }),
   setDocument: (document) => set({ document }),
+  setSocratic: (v) => set({ socratic: v }),
   reset: () => {
     controller?.abort();
     controller = null;
@@ -73,11 +77,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
       toast.error("Delete failed", { description: msg });
     }
   },
-  ask: async (question: string, opts?: { stream?: boolean }) => {
+  ask: async (question: string, opts?: { stream?: boolean; ragMode?: string }) => {
     if (get().isStreaming) return;
     const stream = opts?.stream ?? true;
+    const ragMode = opts?.ragMode ?? "fallback";
     const course = get().course;
     const document = get().document;
+    const socratic = get().socratic;
+
+    // Auto-create a session on first message of a new conversation.
+    let sessionId = get().activeSessionId;
+    if (!sessionId) {
+      try {
+        const sess = await api.createChatSession(course ?? undefined);
+        sessionId = sess.id;
+        set({ activeSessionId: sessionId });
+        const sessions = await api.listChatSessions();
+        set({ sessions });
+      } catch {
+        sessionId = null;
+      }
+    }
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
@@ -124,9 +144,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
             patch({ content: acc || `⚠️ ${msg}`, streaming: false });
             toast.error("Answer failed", { description: msg });
           },
-        });
+        }, sessionId, ragMode, socratic);
       } else {
-        const res = await api.ask(question, course, document);
+        const res = await api.ask(question, course, document, sessionId, ragMode, socratic);
         patch({
           content: res.content,
           streaming: false,
@@ -141,6 +161,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } finally {
       controller = null;
       set({ isStreaming: false });
+      try {
+        const sessions = await api.listChatSessions();
+        set({ sessions });
+      } catch { /* ignore */ }
     }
   },
 }));
+
