@@ -8,12 +8,17 @@ falling back to the configured tags.
 from __future__ import annotations
 
 import json
+import shutil
+import logging
 
 import httpx
 from fastapi import APIRouter
 
 from scholarcli.api.schemas import ModelsList, SettingsOut, SettingsPatch
 from scholarcli.config import get_settings
+from scholarcli.storage.database import engine
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["settings"])
 
@@ -107,3 +112,20 @@ def list_models() -> ModelsList:
         embeddingModels=embed_models,
         visionModels=ordered,
     )
+
+@router.delete("/settings/nuke")
+def nuke_data():
+    s = get_settings()
+    data_dir = s.paths.resolved_data_dir()
+    
+    # Close any open DB connections to release file locks
+    engine.dispose()
+    
+    try:
+        if data_dir.exists():
+            shutil.rmtree(data_dir.as_posix(), ignore_errors=True)
+            data_dir.mkdir(parents=True, exist_ok=True)
+        return {"status": "nuked"}
+    except Exception as e:
+        logger.error(f"Failed to nuke data: {e}")
+        return {"status": "error", "message": str(e)}

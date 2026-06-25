@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
   Network,
@@ -12,22 +12,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "../../components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../../components/ui/dialog";
 import { useOnboarding } from "../../context/OnboardingContext";
-
-const STARTING_POINTS = [
-  { icon: Network, label: "Explore Knowledge Graph", to: "/knowledge" },
-  { icon: BookOpen, label: "Open Reading Mode", to: "/reading" },
-  { icon: Sparkles, label: "Ask Your Library", to: "/ask" },
-  { icon: Notebook, label: "Create Notebook", to: "/notebooks" },
-  { icon: Layers, label: "Generate Flashcards", to: "/flashcards" },
-];
 
 function completeOnboarding(navigate: ReturnType<typeof useNavigate>, to = "/") {
   localStorage.setItem("scholar_onboarding_done", "1");
@@ -37,16 +22,9 @@ function completeOnboarding(navigate: ReturnType<typeof useNavigate>, to = "/") 
 export function OnboardingReady() {
   const navigate = useNavigate();
   const { analysis } = useOnboarding();
-  const [modalOpen, setModalOpen] = useState(true);
-
-  const docs = analysis?.documents ?? 0;
-  const topics = analysis?.topics ?? [];
-  const concepts = analysis?.concepts ?? [];
-  const collections = topics.slice(0, 5);
 
   useEffect(() => {
     if (!analysis) {
-      // Arrived directly (e.g. refresh) — send to hero
       navigate("/onboarding", { replace: true });
     }
   }, [analysis, navigate]);
@@ -55,67 +33,13 @@ export function OnboardingReady() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16">
-      {/* Welcome modal */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <div className="mb-2 flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <GraduationCap className="size-5" />
-            </div>
-            <DialogTitle className="text-xl">Library Ready</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
-              ScholarAI analyzed your documents and created an initial knowledge workspace.
-            </DialogDescription>
-          </DialogHeader>
 
-          <div className="mt-2 space-y-4">
-            {topics.length > 0 && (
-              <div>
-                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Detected Topics
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {topics.map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-full border border-primary/30 bg-violet-soft px-2.5 py-0.5 text-xs text-primary"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div>
-              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Generated
-              </p>
-              <div className="space-y-1">
-                {["Knowledge Graph", "Source Index", "Collections", "Notebook Structure"].map((item) => (
-                  <div key={item} className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="size-3.5 text-success" />
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <Button
-            className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={() => setModalOpen(false)}
-          >
-            Continue
-          </Button>
-        </DialogContent>
-      </Dialog>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-2xl"
+        className="w-full max-w-3xl"
       >
         <div className="mb-8 text-center">
           <motion.div
@@ -132,12 +56,14 @@ export function OnboardingReady() {
         {/* Summary card */}
         <div className="rounded-2xl border border-border bg-card p-6">
           <p className="mb-4 text-sm font-medium text-muted-foreground">Library Summary</p>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
             {[
-              { label: "Documents Imported", value: docs },
-              { label: "Detected Topics", value: topics.length },
-              { label: "Detected Concepts", value: concepts.length },
-              { label: "Collections", value: collections.length },
+              { label: "Documents", value: analysis.documents },
+              { label: "Courses", value: analysis.courses?.length || 0 },
+              { label: "Concepts", value: analysis.concepts?.length || 0 },
+              { label: "Algorithms", value: analysis.stats?.algorithms || 0 },
+              { label: "Tables", value: analysis.stats?.tables || 0 },
+              { label: "Diagrams", value: analysis.stats?.diagrams || 0 },
             ].map(({ label, value }) => (
               <div key={label} className="text-center">
                 <div className="text-2xl font-semibold tabular-nums text-foreground">{value}</div>
@@ -146,14 +72,50 @@ export function OnboardingReady() {
             ))}
           </div>
 
+
+          {/* Detailed Analysis (Focus Areas and Concepts) */}
+          {(analysis?.courses?.length > 0 || analysis?.concepts?.length > 0) && (
+            <div className="mt-6 border-t border-border pt-6 grid gap-6 sm:grid-cols-2">
+              {analysis?.courses?.length > 0 && (
+                <div>
+                  <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Detected Focus Areas
+                  </p>
+                  <ul className="space-y-1.5 text-sm list-inside list-disc text-foreground">
+                    {analysis.courses.map((c) => (
+                      <li key={c}>{c}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {analysis?.concepts?.length > 0 && (
+                <div>
+                  <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Core Concepts
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {analysis.concepts.slice(0, 10).map((t) => (
+                      <span
+                        key={t}
+                        className="rounded-full border border-primary/30 bg-violet-soft px-2.5 py-1 text-[11px] font-medium text-primary"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Collections */}
-          {collections.length > 0 && (
+          {analysis?.collections?.length > 0 && (
             <div className="mt-5 border-t border-border pt-5">
               <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Auto-generated Collections
+                Suggested Collections
               </p>
               <div className="flex flex-wrap gap-2">
-                {collections.map((c) => (
+                {analysis.collections.map((c) => (
                   <span
                     key={c}
                     className="rounded-lg border border-border bg-muted px-3 py-1 text-sm text-foreground"
@@ -169,23 +131,26 @@ export function OnboardingReady() {
         {/* Suggested starting points */}
         <div className="mt-6">
           <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Suggested Starting Points
+            Recommended First Steps
           </p>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {STARTING_POINTS.map(({ icon: Icon, label, to }, i) => (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {analysis?.actions?.map(({ type, label }, i) => (
               <motion.button
-                key={label}
+                key={`${type}-${label}`}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + i * 0.06 }}
-                onClick={() => completeOnboarding(navigate, to)}
+                onClick={() => completeOnboarding(navigate, "/")}
                 className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-accent/40"
               >
                 <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                  <Icon className="size-4" />
+                  {type === "Read" ? <BookOpen className="size-4" /> : type === "Teach Me" ? <GraduationCap className="size-4" /> : type === "Review" ? <CheckCircle2 className="size-4" /> : <Network className="size-4" />}
                 </div>
-                <span className="flex-1 text-sm text-foreground">{label}</span>
-                <ArrowRight className="size-3.5 text-muted-foreground" />
+                <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground uppercase">{type}</p>
+                    <span className="block truncate text-sm font-medium text-foreground">{label}</span>
+                </div>
+                <ArrowRight className="size-3.5 text-muted-foreground shrink-0" />
               </motion.button>
             ))}
           </div>

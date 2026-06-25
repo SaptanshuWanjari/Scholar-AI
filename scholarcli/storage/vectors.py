@@ -58,6 +58,17 @@ def has_document_chunks(document_id: int) -> bool:
     return count > 0
 
 
+def count_source_type(source_type: str) -> int:
+    """Return the total number of chunks with the given source_type."""
+    if not _has_table():
+        return 0
+    tbl = _open_table()
+    try:
+        return tbl.count_rows(f"source_type = '{source_type}'")
+    except Exception:
+        return 0
+
+
 def _schema_is_current(tbl) -> bool:
     """True if the table already has the multimodal columns."""
     try:

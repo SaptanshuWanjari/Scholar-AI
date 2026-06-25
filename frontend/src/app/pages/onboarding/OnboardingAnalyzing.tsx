@@ -20,9 +20,9 @@ const PIPELINE_STEPS = [
   { label: "Extracting Text", icon: FileText },
   { label: "Analyzing Structure", icon: Layers },
   { label: "Detecting Topics", icon: Tag },
-  { label: "Building Knowledge Graph", icon: Network },
-  { label: "Generating Embeddings", icon: Cpu },
-  { label: "Indexing Sources", icon: Database },
+  { label: "Clustering Courses", icon: Network },
+  { label: "Extracting Concepts", icon: Cpu },
+  { label: "Generating Recommendations", icon: Database },
   { label: "Preparing Workspace", icon: Sparkles },
 ];
 
@@ -236,9 +236,9 @@ export function OnboardingAnalyzing() {
                 className="grid grid-cols-2 gap-4 rounded-2xl border border-border bg-card p-5"
               >
                 <StatCounter label="Documents" value={analysis.documents} />
-                <StatCounter label="Pages" value={analysis.pages} />
+                <StatCounter label="Courses" value={analysis.courses.length} />
                 <StatCounter label="Concepts" value={analysis.concepts.length} />
-                <StatCounter label="Sources" value={analysis.sources} />
+                <StatCounter label="Topics" value={analysis.topics.length} />
               </motion.div>
             )}
           </div>
