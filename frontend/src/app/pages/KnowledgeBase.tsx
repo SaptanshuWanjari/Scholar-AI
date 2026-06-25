@@ -36,6 +36,7 @@ import {
   ExternalLink,
   Loader2,
   RefreshCw,
+  GitMerge,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
@@ -506,7 +507,12 @@ export function KnowledgeBase() {
       <Sheet open={!!drawerConceptId} onOpenChange={(o) => !o && setDrawerConceptId(null)}>
         <SheetContent side="right" className="w-[540px] max-w-full overflow-y-auto p-0 sm:max-w-[540px]">
           {drawerConceptId && (
-            <ConceptDrawerContent key={drawerConceptId} conceptId={drawerConceptId} onClose={() => setDrawerConceptId(null)} />
+            <ConceptDrawerContent
+              key={drawerConceptId}
+              conceptId={drawerConceptId}
+              onClose={() => setDrawerConceptId(null)}
+              onRefresh={() => Promise.all([loadGraph(course), loadSidebar(course)])}
+            />
           )}
         </SheetContent>
       </Sheet>
@@ -963,10 +969,61 @@ function EmptyInspector() {
 
 // ─── concept drawer ───────────────────────────────────────────────────────────
 
-function ConceptDrawerContent({ conceptId, onClose }: { conceptId: string; onClose: () => void }) {
+function ConceptDrawerContent({
+  conceptId,
+  onClose,
+  onRefresh,
+}: {
+  conceptId: string;
+  onClose: () => void;
+  onRefresh?: () => void;
+}) {
   const { concept, loading } = useConcept(conceptId);
   const navigate = useNavigate();
   const [adding, setAdding] = useState(false);
+
+  // ── merge state ──────────────────────────────────────────────────────────
+  const [mergeQuery, setMergeQuery] = useState("");
+  const [allConcepts, setAllConcepts] = useState<{ id: string; name: string }[]>([]);
+  const [conceptsLoaded, setConceptsLoaded] = useState(false);
+  const [selectedMerge, setSelectedMerge] = useState<{ id: string; name: string } | null>(null);
+  const [merging, setMerging] = useState(false);
+
+  // Lazy-load the full concept list when the user first interacts with the merge input
+  const ensureConceptsLoaded = async () => {
+    if (conceptsLoaded) return;
+    try {
+      const g = await api.getKnowledgeGraph(null);
+      setAllConcepts(g.nodes.map((n) => ({ id: n.id, name: n.label })));
+      setConceptsLoaded(true);
+    } catch {
+      // non-critical — user can try again
+    }
+  };
+
+  // Debounced filter: derive candidates from allConcepts when mergeQuery changes
+  const mergeCandidates = mergeQuery.trim().length < 1
+    ? []
+    : allConcepts.filter(
+        (c) =>
+          c.id !== conceptId &&
+          c.name.toLowerCase().includes(mergeQuery.toLowerCase()),
+      ).slice(0, 8);
+
+  const handleMerge = async () => {
+    if (!selectedMerge || merging) return;
+    setMerging(true);
+    try {
+      await api.mergeConcepts(Number(conceptId), Number(selectedMerge.id));
+      toast.success(`Merged "${selectedMerge.name}" into "${concept?.name ?? conceptId}"`);
+      onRefresh?.();
+      onClose();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to merge concepts");
+    } finally {
+      setMerging(false);
+    }
+  };
 
   const addToNotebook = async () => {
     if (!concept || adding) return;
@@ -1125,6 +1182,77 @@ function ConceptDrawerContent({ conceptId, onClose }: { conceptId: string; onClo
               <div className="flex justify-between py-1">
                 <span>Added to Notebook</span><span>3d ago</span>
               </div>
+            </div>
+          </DrawerBlock>
+
+          {/* Merge Concept */}
+          <DrawerBlock title="Merge Concept">
+            <p className="mb-3 text-xs text-muted-foreground">
+              Merge another concept into this one. The other concept is deleted and its connections are transferred here.
+            </p>
+            <div className="space-y-3">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={mergeQuery}
+                  onChange={(e) => {
+                    setMergeQuery(e.target.value);
+                    if (selectedMerge) setSelectedMerge(null);
+                  }}
+                  onFocus={ensureConceptsLoaded}
+                  placeholder="Search concept to merge in…"
+                  className="h-8 bg-input-background pl-8 text-xs"
+                />
+              </div>
+
+              {/* Candidates list */}
+              {mergeCandidates.length > 0 && !selectedMerge && (
+                <div className="flex flex-wrap gap-1.5">
+                  {mergeCandidates.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => {
+                        setSelectedMerge(c);
+                        setMergeQuery(c.name);
+                      }}
+                      className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground/80 transition-colors hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Selected badge */}
+              {selectedMerge && (
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full border border-destructive/40 bg-destructive/10 px-3 py-1 text-xs text-destructive">
+                    {selectedMerge.name}
+                  </span>
+                  <button
+                    onClick={() => { setSelectedMerge(null); setMergeQuery(""); }}
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label="Clear selection"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+              )}
+
+              <Button
+                size="sm"
+                variant="destructive"
+                disabled={!selectedMerge || merging}
+                onClick={handleMerge}
+                className="gap-1.5"
+              >
+                {merging ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <GitMerge className="size-3.5" />
+                )}
+                {merging ? "Merging…" : "Merge (keep current)"}
+              </Button>
             </div>
           </DrawerBlock>
         </div>

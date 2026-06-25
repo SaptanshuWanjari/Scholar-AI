@@ -24,6 +24,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
@@ -576,11 +577,12 @@ function AnswerArea({
     );
   if (q.type === "short")
     return (
-      <Input
+      <Textarea
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
+        rows={4}
         placeholder="Type a short answer…"
-        className="bg-input-background"
+        className="resize-none bg-input-background font-reading"
       />
     );
   return (
@@ -879,13 +881,12 @@ function Results() {
             Recommended Revision for weak topics
           </h3>
         </div>
-        <div className="mt-3 space-y-2">
+        <div className="mt-3">
           {recommendedRevisions.length > 0 ? (
-            <ul className="list-inside list-disc text-sm text-muted-foreground space-y-1">
-              {recommendedRevisions.map((rev, i) => (
-                <li key={i}>{rev}</li>
-              ))}
-            </ul>
+            <MarkdownRenderer
+              content={recommendedRevisions.map((rev) => `- ${rev}`).join("\n")}
+              className="font-sans text-sm text-muted-foreground"
+            />
           ) : (
             <p className="text-sm text-muted-foreground">
               {weak.length > 0

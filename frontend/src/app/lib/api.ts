@@ -946,16 +946,5 @@ export const api = {
     return request<void>("/api/trace/feedback", json({ source, chunkId, query, similarity }));
   },
 
-  // ---- Anki import/export ----
-  /** Returns the .apkg URL for a deck (browser navigates / downloads it). */
-  deckExportUrl(deckId: string): string {
-    return `${BASE}/api/decks/${deckId}/export`;
-  },
-  importAnkiDeck(file: File, course?: string | null, name?: string | null): Promise<DeckOut> {
-    const fd = new FormData();
-    fd.append("file", file);
-    if (course) fd.append("course", course);
-    if (name) fd.append("name", name);
-    return request<DeckOut>("/api/decks/import", { method: "POST", body: fd });
-  },
+
 };

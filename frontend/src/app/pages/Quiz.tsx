@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ListChecks,
   Play,
@@ -11,6 +11,7 @@ import {
   Loader2,
   Save,
   Trash2,
+  Clock,
 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
@@ -21,6 +22,7 @@ import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Progress } from "../components/ui/progress";
 import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -191,6 +193,7 @@ function Builder({
   const course = useQuizStore((s) => s.course);
   const document = useQuizStore((s) => s.document);
   const difficulty = useQuizStore((s) => s.difficulty);
+  const timeLimit = useQuizStore((s) => s.timeLimit);
   const loading = useQuizStore((s) => s.generating);
   const setField = useQuizStore((s) => s.setField);
   const generate = useQuizStore((s) => s.generate);
@@ -280,6 +283,26 @@ function Builder({
                   )}
                 >
                   {d}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-muted-foreground">Time limit</label>
+            <div className="flex gap-2">
+              {([null, 15, 20, 30, 60] as (number | null)[]).map((t) => (
+                <Badge
+                  key={t ?? "none"}
+                  variant="outline"
+                  onClick={() => setField("timeLimit", t)}
+                  className={cn(
+                    "cursor-pointer py-1.5",
+                    timeLimit === t
+                      ? "border-primary/40 bg-violet-soft text-primary"
+                      : "border-border text-muted-foreground hover:border-ring/40",
+                  )}
+                >
+                  {t === null ? "No limit" : `${t}m`}
                 </Badge>
               ))}
             </div>
@@ -374,7 +397,31 @@ function Player({
   const answers = useQuizStore((s) => s.answers);
   const goTo = useQuizStore((s) => s.goTo);
   const answer = useQuizStore((s) => s.answer);
+  const deadline = useQuizStore((s) => s.deadline);
   const q = quiz.questions[idx];
+
+  // Timer — mirrors the Exam session countdown pattern.
+  const secsFromDeadline = () =>
+    deadline ? Math.max(0, Math.ceil((deadline - Date.now()) / 1000)) : 0;
+  const [secsLeft, setSecsLeft] = useState(secsFromDeadline);
+  const autoSubmittedRef = useRef(false);
+
+  useEffect(() => {
+    if (!deadline) return;
+    const tick = () => {
+      const left = secsFromDeadline();
+      setSecsLeft(left);
+      if (left <= 0 && !autoSubmittedRef.current) {
+        autoSubmittedRef.current = true;
+        toast.warning("Time's up — submitting quiz");
+        onFinish(useQuizStore.getState().answers);
+      }
+    };
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deadline]);
   const progress = ((idx + 1) / quiz.questions.length) * 100;
   const selected = answers[q.id];
 
@@ -391,6 +438,10 @@ function Player({
   const canAdvance =
     q.type === "short" ? (selected ?? "").trim().length > 0 : !!selected;
 
+  const mm = String(Math.floor(secsLeft / 60)).padStart(2, "0");
+  const ss = String(secsLeft % 60).padStart(2, "0");
+  const low = secsLeft < 60;
+
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-5 flex items-center gap-3">
@@ -399,6 +450,18 @@ function Player({
           {idx + 1} / {quiz.questions.length}
         </span>
         <QualityBadge score={quiz.quality} />
+        {deadline && (
+          <div
+            className={cn(
+              "flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-sm tabular-nums",
+              low
+                ? "border-danger/40 bg-danger-soft text-danger"
+                : "border-border bg-card",
+            )}
+          >
+            <Clock className="size-4" /> {mm}:{ss}
+          </div>
+        )}
         <Button
           variant="outline"
           size="sm"
@@ -426,11 +489,12 @@ function Player({
 
           <div className="mt-5 space-y-2">
             {q.type === "short" ? (
-              <Input
+              <Textarea
                 value={selected ?? ""}
                 onChange={(e) => answer(q.id, e.target.value)}
                 placeholder="Type your answer…"
-                className="bg-input-background"
+                rows={4}
+                className="resize-none bg-input-background font-reading"
               />
             ) : (
               q.options?.map((opt) => (

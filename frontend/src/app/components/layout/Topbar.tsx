@@ -1,9 +1,10 @@
 import { useLocation } from "react-router";
-import { Bell, Command, Plus } from "lucide-react";
+import { Command, Plus } from "lucide-react";
 import { navItems } from "../../lib/nav";
 import { useUIStore } from "../../stores/useUIStore";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import { JobsIndicator } from "../JobsIndicator";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   "/": { title: "Dashboard", subtitle: "Your learning at a glance" },
@@ -76,10 +77,7 @@ export function Topbar() {
         </kbd>
       </button>
 
-      <Button variant="ghost" size="icon" className="relative shrink-0">
-        <Bell className="size-[18px]" />
-        <span className="absolute right-2 top-2 size-1.5 rounded-full bg-primary" />
-      </Button>
+      <JobsIndicator />
 
       <Button
         onClick={() => toast.success("New item created")}

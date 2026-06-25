@@ -2,16 +2,22 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import type { ChatMessage } from "../lib/types";
 import { api } from "../lib/api";
+import type { ChatSessionMeta } from "../lib/api";
 
 interface ChatState {
   messages: ChatMessage[];
   isStreaming: boolean;
   course: string | null;
   document: string | null;
+  sessions: ChatSessionMeta[];
+  activeSessionId: string | null;
   setCourse: (course: string | null) => void;
   setDocument: (document: string | null) => void;
   ask: (question: string, opts?: { stream?: boolean }) => Promise<void>;
   reset: () => void;
+  loadSessions: () => Promise<void>;
+  loadSession: (id: string) => Promise<void>;
+  deleteSession: (id: string) => Promise<void>;
 }
 
 let controller: AbortController | null = null;
@@ -21,12 +27,51 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isStreaming: false,
   course: null,
   document: null,
+  sessions: [],
+  activeSessionId: null,
   setCourse: (course) => set({ course }),
   setDocument: (document) => set({ document }),
   reset: () => {
     controller?.abort();
     controller = null;
-    set({ messages: [], isStreaming: false });
+    set({ messages: [], isStreaming: false, activeSessionId: null });
+  },
+  loadSessions: async () => {
+    try {
+      const sessions = await api.listChatSessions();
+      set({ sessions });
+    } catch {
+      // silently ignore — sidebar is optional
+    }
+  },
+  loadSession: async (id: string) => {
+    try {
+      const full = await api.getChatSession(id);
+      const messages: ChatMessage[] = full.messages.map((row) => ({
+        id: row.id,
+        role: row.role,
+        content: row.content,
+        sources: row.sources,
+        streaming: false,
+      }));
+      set({ messages, activeSessionId: id });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to load session";
+      toast.error("Load failed", { description: msg });
+    }
+  },
+  deleteSession: async (id: string) => {
+    try {
+      await api.deleteChatSession(id);
+      set((s) => ({
+        sessions: s.sessions.filter((sess) => sess.id !== id),
+        activeSessionId: s.activeSessionId === id ? null : s.activeSessionId,
+        messages: s.activeSessionId === id ? [] : s.messages,
+      }));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to delete session";
+      toast.error("Delete failed", { description: msg });
+    }
   },
   ask: async (question: string, opts?: { stream?: boolean }) => {
     if (get().isStreaming) return;

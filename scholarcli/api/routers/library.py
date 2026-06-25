@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 
-from scholarcli.api import anki_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.schemas import (
     CardReview,
@@ -94,44 +93,6 @@ def delete_deck(deck_id: int) -> None:
             raise HTTPException(status_code=404, detail="Deck not found")
         session.delete(deck)
         session.commit()
-    finally:
-        session.close()
-
-
-@router.get("/decks/{deck_id}/export")
-def export_deck(deck_id: int) -> Response:
-    """Download a deck as a real Anki .apkg package."""
-    try:
-        filename, data = anki_service.export_deck(deck_id)
-    except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
-    except ImportError:
-        raise HTTPException(status_code=500, detail="genanki is not installed on the server")
-    return Response(
-        content=data,
-        media_type="application/octet-stream",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )
-
-
-@router.post("/decks/import", response_model=DeckOut, status_code=201)
-async def import_deck(
-    file: UploadFile = File(...),
-    course: str | None = Form(None),
-    name: str | None = Form(None),
-) -> DeckOut:
-    """Import an Anki .apkg, creating a new deck from its notes."""
-    data = await file.read()
-    deck_name = name or (file.filename or "Imported deck").rsplit(".", 1)[0]
-    try:
-        result = anki_service.import_apkg(data, course=course, deck_name=deck_name)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-    record_activity("flashcard", f"Imported Anki deck {result['name']}", course or "", cards=result["cards"])
-    session = get_session()
-    try:
-        deck = session.get(Deck, int(result["deckId"]))
-        return _deck_out(deck)
     finally:
         session.close()
 

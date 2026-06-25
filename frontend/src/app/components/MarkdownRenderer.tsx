@@ -1,6 +1,7 @@
 import { Children, isValidElement, type ReactNode, cloneElement } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import katex from "katex";
 import { CitationBadge } from "./CitationBadge";
 import { DiagramViewer } from "./DiagramViewer";
 import { cn } from "./ui/utils";
@@ -11,19 +12,48 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
+function MathRenderer({ formula, displayMode }: { formula: string; displayMode: boolean }) {
+  try {
+    const html = katex.renderToString(formula, {
+      displayMode,
+      throwOnError: false,
+    });
+    return <span dangerouslySetInnerHTML={{ __html: html }} />;
+  } catch (err) {
+    return <code>{formula}</code>;
+  }
+}
+
 /** 
- * Recursive function to replace [n] tokens inside a React tree with citation badges.
- * This handles nested structures like **text [1]** or *text [2]*.
+ * Recursive function to replace [n] tokens and LaTeX math formulas inside a React tree.
+ * This handles nested structures like **text [1]** or *text [2]*, and renders LaTeX equations.
  */
-function withCitations(
+function withMathAndCitations(
   children: ReactNode,
   onCitationClick?: (index: number) => void,
 ): ReactNode {
   return Children.map(children, (child) => {
-    // If it's a string, we perform the regex replacement
+    // If it's a string, we perform the regex replacement for citations and math
     if (typeof child === "string") {
-      const parts = child.split(/(\[\d+\])/g);
+      const regex = /(\$\$[\s\S]+?\$\$|\$[^\s$\n](?:[^$\n]*?[^\s$\n])?\$|\\\(.+?\\\)|\\\[[\s\S]+?\\\]|\[\d+\])/g;
+      const parts = child.split(regex);
       return parts.map((part, i) => {
+        if (part.startsWith("$$") && part.endsWith("$$")) {
+          const formula = part.slice(2, -2);
+          return <MathRenderer key={i} formula={formula} displayMode={true} />;
+        }
+        if (part.startsWith("$") && part.endsWith("$")) {
+          const formula = part.slice(1, -1);
+          return <MathRenderer key={i} formula={formula} displayMode={false} />;
+        }
+        if (part.startsWith("\\(") && part.endsWith("\\)")) {
+          const formula = part.slice(2, -2);
+          return <MathRenderer key={i} formula={formula} displayMode={false} />;
+        }
+        if (part.startsWith("\\[") && part.endsWith("\\]")) {
+          const formula = part.slice(2, -2);
+          return <MathRenderer key={i} formula={formula} displayMode={true} />;
+        }
         const m = part.match(/^\[(\d+)\]$/);
         if (m) {
           return (
@@ -44,7 +74,7 @@ function withCitations(
       if (elementChildren) {
         return cloneElement(child, {
           ...child.props,
-          children: withCitations(elementChildren, onCitationClick),
+          children: withMathAndCitations(elementChildren, onCitationClick),
         } as any);
       }
       return child;
@@ -53,6 +83,7 @@ function withCitations(
     return child;
   });
 }
+
 
 export function MarkdownRenderer({
   content,
@@ -80,7 +111,7 @@ export function MarkdownRenderer({
           ),
           p: ({ children }) => (
             <p className="mb-4 leading-7">
-              {withCitations(children, onCitationClick)}
+              {withMathAndCitations(children, onCitationClick)}
             </p>
           ),
           ul: ({ children }) => (
@@ -96,7 +127,7 @@ export function MarkdownRenderer({
               <li className="relative flex gap-3 pl-1 mb-2">
                 <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-primary/60" />
                 <span className="flex-1">
-                  {withCitations(children, onCitationClick)}
+                  {withMathAndCitations(children, onCitationClick)}
                 </span>
               </li>
             );
@@ -181,7 +212,7 @@ export function MarkdownRenderer({
           ),
           td: ({ children }) => (
             <td className="border-b border-border/60 px-4 py-2.5 text-foreground/80">
-              {withCitations(children, onCitationClick)}
+              {withMathAndCitations(children, onCitationClick)}
             </td>
           ),
           hr: () => <hr className="my-6 border-border" />,

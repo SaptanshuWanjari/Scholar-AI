@@ -26,6 +26,10 @@ interface QuizState {
   course: string; // "all" or a course name
   document: string | null;
   difficulty: Difficulty;
+  // Time limit selected in builder (minutes); null = untimed.
+  timeLimit: number | null;
+  // Absolute deadline timestamp (ms). Set at quiz start, cleared on submit/back.
+  deadline: number | null;
 
   setField: <K extends keyof QuizState>(key: K, value: QuizState[K]) => void;
   generate: () => Promise<void>;
@@ -48,6 +52,8 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   course: "all",
   document: null,
   difficulty: "Medium",
+  timeLimit: null,
+  deadline: null,
 
   setField: (key, value) => set({ [key]: value } as Partial<QuizState>),
 
@@ -69,7 +75,14 @@ export const useQuizStore = create<QuizState>((set, get) => ({
         toast.error(GROUNDED_ERROR);
         return;
       }
-      set({ active: quiz, answers: {}, idx: 0, stage: "player" });
+      const { timeLimit } = get();
+      set({
+        active: quiz,
+        answers: {},
+        idx: 0,
+        stage: "player",
+        deadline: timeLimit ? Date.now() + timeLimit * 60 * 1000 : null,
+      });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to generate quiz");
     } finally {
@@ -77,7 +90,16 @@ export const useQuizStore = create<QuizState>((set, get) => ({
     }
   },
 
-  start: (quiz) => set({ active: quiz, answers: {}, idx: 0, stage: "player" }),
+  start: (quiz) => {
+    const { timeLimit } = get();
+    set({
+      active: quiz,
+      answers: {},
+      idx: 0,
+      stage: "player",
+      deadline: timeLimit ? Date.now() + timeLimit * 60 * 1000 : null,
+    });
+  },
 
   answer: (qid, value) => {
     set((s) => ({ answers: { ...s.answers, [qid]: value } }));
@@ -117,12 +139,12 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       if (_sessionTimer) clearTimeout(_sessionTimer);
       api.clearQuizSession(active.id).catch(() => {});
     }
-    set({ answers, stage: "results" });
+    set({ answers, stage: "results", deadline: null });
   },
 
-  backToBuilder: () => set({ stage: "builder" }),
+  backToBuilder: () => set({ stage: "builder", deadline: null }),
 
-  reset: () => set({ stage: "builder", active: null, answers: {}, idx: 0 }),
+  reset: () => set({ stage: "builder", active: null, answers: {}, idx: 0, deadline: null }),
 
   restoreSession: (quiz) => {
     set({
@@ -130,6 +152,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       answers: (quiz.session_answers as Record<string, string>) ?? {},
       idx: quiz.session_current_question ?? 0,
       stage: "player",
+      deadline: null, // don't restore a timer for resumed sessions
     });
   },
 }));

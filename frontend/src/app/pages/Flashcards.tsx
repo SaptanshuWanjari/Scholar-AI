@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutGrid,
   List,
@@ -12,8 +12,6 @@ import {
   Loader2,
   Save,
   Trash2,
-  Upload,
-  Download,
 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
@@ -167,29 +165,7 @@ export function Flashcards() {
     }
   };
 
-  // Anki .apkg export (download) + import (upload).
-  const importInputRef = useRef<HTMLInputElement>(null);
-  const [importing, setImporting] = useState(false);
 
-  const exportDeck = (deck: DeckOut) => {
-    window.open(api.deckExportUrl(deck.id), "_blank");
-  };
-
-  const onImportFile = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = ""; // allow re-selecting the same file
-    if (!file) return;
-    setImporting(true);
-    try {
-      const deck = await api.importAnkiDeck(file, course || null);
-      toast.success(`Imported "${deck.name}" (${deck.cards} cards)`);
-      await loadDecks();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to import deck");
-    } finally {
-      setImporting(false);
-    }
-  };
 
   const deleteCard = async (card: Flashcard) => {
     const prev = cards;
@@ -300,23 +276,7 @@ export function Flashcards() {
       <div>
         <div className="flex items-center justify-between">
           <SectionTitle title="Decks" />
-          <input
-            ref={importInputRef}
-            type="file"
-            accept=".apkg"
-            className="hidden"
-            onChange={onImportFile}
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5"
-            disabled={importing}
-            onClick={() => importInputRef.current?.click()}
-          >
-            {importing ? <Loader2 className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
-            Import Anki
-          </Button>
+
         </div>
         {loadingDecks ? (
           <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/40 px-4 py-8 text-sm text-muted-foreground">
@@ -358,17 +318,7 @@ export function Flashcards() {
                 </div>
                 <Progress value={d.cards ? (d.mastered / d.cards) * 100 : 0} className="mt-3 h-1.5" />
                 <div className="mt-1.5 text-xs text-muted-foreground">{d.mastered} mastered</div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    exportDeck(d);
-                  }}
-                  aria-label={`Export ${d.name} to Anki`}
-                  title="Export to Anki (.apkg)"
-                  className="absolute right-9 top-2 flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover:opacity-100"
-                >
-                  <Download className="size-3.5" />
-                </button>
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
