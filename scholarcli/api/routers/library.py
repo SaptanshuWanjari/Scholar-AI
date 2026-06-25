@@ -20,9 +20,11 @@ from scholarcli.api.schemas import (
     QuizSessionPatch,
     SaveDeckRequest,
     SaveQuizRequest,
+    SaveRevisionRequest,
+    SavedRevisionOut,
 )
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Card, Deck, Diagram, Mindmap, SavedQuiz
+from scholarcli.storage.models import Card, Deck, Diagram, Mindmap, SavedQuiz, SavedRevision
 
 router = APIRouter(prefix="/api", tags=["library"])
 
@@ -322,6 +324,76 @@ def delete_mindmap(mindmap_id: int) -> None:
         if not m:
             raise HTTPException(status_code=404, detail="Mind map not found")
         session.delete(m)
+        session.commit()
+    finally:
+        session.close()
+
+
+# ---------------------------------------------------------------------------
+# Saved revisions
+# ---------------------------------------------------------------------------
+
+@router.get("/revisions", response_model=list[SavedRevisionOut])
+def list_revisions() -> list[SavedRevisionOut]:
+    session = get_session()
+    try:
+        return [
+            SavedRevisionOut(
+                id=str(r.id),
+                title=r.title,
+                topic=r.topic,
+                course=r.course,
+                format=r.format,
+                content=r.content,
+                quality=_quality(r.quality_score),
+                timestamp=r.created_at.timestamp() * 1000,
+            )
+            for r in session.query(SavedRevision).order_by(SavedRevision.created_at.desc()).all()
+        ]
+    finally:
+        session.close()
+
+
+@router.post("/revisions", response_model=SavedRevisionOut, status_code=201)
+def save_revision(payload: SaveRevisionRequest) -> SavedRevisionOut:
+    title = payload.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Title is required")
+    session = get_session()
+    try:
+        rev = SavedRevision(
+            title=title,
+            topic=payload.topic,
+            course=payload.course or "",
+            format=payload.format,
+            content=payload.content,
+            quality_score=payload.quality.model_dump() if payload.quality else None,
+        )
+        session.add(rev)
+        session.commit()
+        session.refresh(rev)
+        return SavedRevisionOut(
+            id=str(rev.id),
+            title=rev.title,
+            topic=rev.topic,
+            course=rev.course,
+            format=rev.format,
+            content=rev.content,
+            quality=_quality(rev.quality_score),
+            timestamp=rev.created_at.timestamp() * 1000,
+        )
+    finally:
+        session.close()
+
+
+@router.delete("/revisions/{revision_id}", status_code=204)
+def delete_revision(revision_id: int) -> None:
+    session = get_session()
+    try:
+        rev = session.get(SavedRevision, revision_id)
+        if not rev:
+            raise HTTPException(status_code=404, detail="Revision not found")
+        session.delete(rev)
         session.commit()
     finally:
         session.close()

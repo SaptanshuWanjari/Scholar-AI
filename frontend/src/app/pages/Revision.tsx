@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   Clock,
   Bookmark,
+  Trash2,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -59,6 +60,8 @@ export function Revision() {
     generate,
     stop,
     loadRevision,
+    fetchRevisions,
+    deleteRevision,
   } = useRevisionStore();
   const setFormat = (f: RevisionFormat) => setField("format", f);
   const setTopic = (v: string) => setField("topic", v);
@@ -68,6 +71,10 @@ export function Revision() {
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
+
+  useEffect(() => {
+    fetchRevisions();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -243,21 +250,31 @@ export function Revision() {
               </div>
               <div className="space-y-2">
                 {savedRevisions.map((r) => (
-                  <button
-                    key={r.id}
-                    onClick={() => loadRevision(r.id)}
-                    className="flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
-                  >
-                    <span className="text-sm font-medium truncate w-full">
-                      {r.title}
-                    </span>
-                    <span className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                      {r.content.replace(/[#*]/g, "").trim()}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground/60 mt-1">
-                      {new Date(r.timestamp).toLocaleDateString()}
-                    </span>
-                  </button>
+                  <div key={r.id} className="group relative flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40">
+                    <button
+                      onClick={() => loadRevision(r.id)}
+                      className="w-full text-left"
+                    >
+                      <span className="text-sm font-medium truncate w-full pr-8 block">
+                        {r.title}
+                      </span>
+                      <span className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                        {r.content.replace(/[#*]/g, "").trim()}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground/60 mt-1 block">
+                        {new Date(r.timestamp).toLocaleDateString()}
+                      </span>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteRevision(r.id);
+                      }}
+                      className="absolute right-3 top-3 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>

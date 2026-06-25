@@ -356,6 +356,26 @@ class RevisionOut(BaseModel):
     quality: QualityScore | None = None
 
 
+class SaveRevisionRequest(BaseModel):
+    title: str
+    topic: str
+    course: str | None = None
+    format: Literal["notes", "concepts", "formulas", "summary"] = "notes"
+    content: str
+    quality: QualityScore | None = None
+
+
+class SavedRevisionOut(BaseModel):
+    id: str
+    title: str
+    topic: str
+    course: str
+    format: str
+    content: str
+    quality: QualityScore | None = None
+    timestamp: float
+
+
 class SearchResultOut(BaseModel):
     id: str
     group: str

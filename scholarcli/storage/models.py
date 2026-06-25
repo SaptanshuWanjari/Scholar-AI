@@ -179,6 +179,21 @@ class DifferenceTable(Base):
     )
 
 
+class SavedRevision(Base):
+    __tablename__ = "revisions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    topic: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    format: Mapped[str] = mapped_column(String(64), nullable=False, default="notes")
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class Prompt(Base):
     """A user-customizable system prompt for a generation category.
 
