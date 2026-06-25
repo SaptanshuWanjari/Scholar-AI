@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   Upload,
@@ -51,6 +51,7 @@ export function OnboardingImport() {
   const navigate = useNavigate();
   const fileInput = useRef<HTMLInputElement>(null);
   const { files, addFiles, removeFile, startImport } = useOnboarding();
+  const [autoAnalyze, setAutoAnalyze] = useState(true);
 
   const importing = files.some((f) => f.status === "processing");
   const canStart = files.length > 0 && !importing && files.some((f) => f.status === "queued");
@@ -67,8 +68,14 @@ export function OnboardingImport() {
   };
 
   const handleStart = async () => {
-    navigate("/onboarding/analyzing");
-    await startImport();
+    if (autoAnalyze) {
+      navigate("/onboarding/analyzing");
+      await startImport();
+    } else {
+      localStorage.setItem("scholar_onboarding_done", "1");
+      navigate("/");
+      await startImport();
+    }
   };
 
   return (
@@ -190,7 +197,16 @@ export function OnboardingImport() {
         </AnimatePresence>
 
         {/* Actions */}
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-border pt-4">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer mb-4 sm:mb-0 hover:text-foreground transition-colors">
+            <input
+              type="checkbox"
+              className="size-4 rounded border-border bg-card text-primary focus:ring-primary focus:ring-offset-background"
+              checked={autoAnalyze}
+              onChange={(e) => setAutoAnalyze(e.target.checked)}
+            />
+            Auto-analyze workspace (AI generation)
+          </label>
           <Button
             disabled={!canStart}
             className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"

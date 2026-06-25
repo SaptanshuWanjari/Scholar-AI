@@ -69,15 +69,26 @@ export function OnboardingHero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.4 }}
-          className="mt-8"
+          className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center w-full max-w-xs sm:max-w-none"
         >
           <Button
             size="lg"
-            className="gap-2 bg-primary px-8 text-primary-foreground hover:bg-primary/90"
+            className="w-full gap-2 bg-primary px-8 text-primary-foreground hover:bg-primary/90 sm:w-auto"
             onClick={() => navigate("/onboarding/import")}
           >
             <Upload className="size-4" />
             Import Documents
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full gap-2 px-8 text-muted-foreground hover:text-foreground sm:w-auto"
+            onClick={() => {
+              localStorage.setItem("scholar_onboarding_done", "1");
+              navigate("/");
+            }}
+          >
+            Explore on my own
           </Button>
         </motion.div>
 

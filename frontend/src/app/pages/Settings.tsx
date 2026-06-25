@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Cpu, Boxes, Filter, Keyboard, User, ShieldCheck } from "lucide-react";
+import { Cpu, Boxes, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2 } from "lucide-react";
 import { Page } from "../components/Page";
 import {
   Tabs,
@@ -10,6 +10,15 @@ import {
 import { Slider } from "../components/ui/slider";
 import { Switch } from "../components/ui/switch";
 import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -69,6 +78,30 @@ export function SettingsPage() {
     visionModels: [],
   });
 
+  const [nukeModalOpen, setNukeModalOpen] = useState(false);
+  const [nukeStep, setNukeStep] = useState<1 | 2>(1);
+  const [isNuking, setIsNuking] = useState(false);
+
+  const handleNuke = async () => {
+    setIsNuking(true);
+    try {
+      await fetch("/api/settings/nuke", { method: "DELETE" });
+    } catch (e) {
+      console.error(e);
+    }
+    localStorage.clear();
+    sessionStorage.clear();
+    try {
+      const dbs = await window.indexedDB.databases();
+      for (const db of dbs) {
+        if (db.name) window.indexedDB.deleteDatabase(db.name);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    window.location.reload();
+  };
+
   useEffect(() => {
     s.hydrate();
     api
@@ -96,6 +129,9 @@ export function SettingsPage() {
           </TabsTrigger>
           <TabsTrigger value="shortcuts" className="gap-1.5">
             <Keyboard className="size-4" /> Shortcuts
+          </TabsTrigger>
+          <TabsTrigger value="data" className="gap-1.5">
+            <Database className="size-4" /> Data
           </TabsTrigger>
         </TabsList>
 
@@ -360,7 +396,63 @@ export function SettingsPage() {
             </Row>
           </div>
         </TabsContent>
+
+        <TabsContent value="data">
+          <div className="rounded-2xl border border-border bg-card px-5">
+            <Row
+              title="Danger Zone"
+              desc="Permanently delete all workspaces, documents, local cache, and settings."
+            >
+              <Button
+                variant="destructive"
+                className="gap-2"
+                onClick={() => {
+                  setNukeStep(1);
+                  setNukeModalOpen(true);
+                }}
+              >
+                <Trash2 className="size-4" />
+                Nuke Data
+              </Button>
+            </Row>
+          </div>
+        </TabsContent>
       </Tabs>
+
+      <Dialog open={nukeModalOpen} onOpenChange={setNukeModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <div className="mb-2 flex size-10 items-center justify-center rounded-xl bg-danger-soft text-danger">
+              <TriangleAlert className="size-5" />
+            </div>
+            <DialogTitle className="text-xl text-danger">Are you absolutely sure?</DialogTitle>
+            <DialogDescription className="text-foreground mt-2">
+              This action cannot be undone. This will permanently delete:
+              <ul className="list-disc list-inside mt-2 space-y-1 text-muted-foreground text-sm">
+                <li>All your imported documents and notes</li>
+                <li>The local vector database</li>
+                <li>Your browser cache and IndexedDB</li>
+                <li>All application settings</li>
+              </ul>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <DialogFooter className="mt-6 sm:justify-between">
+            <Button variant="outline" onClick={() => setNukeModalOpen(false)} disabled={isNuking}>
+              Cancel
+            </Button>
+            {nukeStep === 1 ? (
+              <Button variant="destructive" onClick={() => setNukeStep(2)}>
+                Yes, delete everything
+              </Button>
+            ) : (
+              <Button variant="destructive" onClick={handleNuke} disabled={isNuking} className="gap-2">
+                {isNuking ? "Nuking..." : "Confirm Nuke"}
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Page>
   );
 }

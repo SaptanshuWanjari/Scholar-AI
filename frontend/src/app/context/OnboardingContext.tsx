@@ -12,10 +12,16 @@ export interface ImportFile {
 
 export interface OnboardingAnalysis {
   documents: number;
-  pages: number;
+  courses: string[];
   topics: string[];
   concepts: string[];
-  sources: number;
+  collections: string[];
+  actions: { type: string; label: string }[];
+  stats: {
+    algorithms: number;
+    tables: number;
+    diagrams: number;
+  };
 }
 
 interface OnboardingState {
