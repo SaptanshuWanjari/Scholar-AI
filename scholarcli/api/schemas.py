@@ -995,3 +995,29 @@ class ArtifactRecommendation(BaseModel):
 
 class ArtifactRecommendResponse(BaseModel):
     recommendations: list[ArtifactRecommendation]
+
+
+# ---------------------------------------------------------------------------
+# Course Workspace
+# ---------------------------------------------------------------------------
+
+class CourseStats(BaseModel):
+    documents: int = 0
+    flashcards: int = 0
+    quizzes: int = 0
+    notebooks: int = 0
+    diagrams: int = 0
+    mindmaps: int = 0
+    difference_tables: int = 0
+    revisions: int = 0
+    concepts: int = 0
+    total_artifacts: int = 0
+    last_updated: str | None = None
+
+
+class ArtifactItem(BaseModel):
+    id: str
+    title: str
+    type: str  # deck | quiz | notebook | diagram | mindmap | difference_table | revision
+    created_at: str
+    source_doc_title: str | None = None

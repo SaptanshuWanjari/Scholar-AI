@@ -1,10 +1,33 @@
-import { useEffect, useState } from "react";
-import { FolderOpen, Plus, Search, Trash2, Pencil, Check, X } from "lucide-react";
-import { Page } from "../components/Page";
+import { useEffect, useState, useCallback } from "react";
+import { useSearchParams, useNavigate } from "react-router";
+import {
+  FolderOpen,
+  Plus,
+  Search,
+  Trash2,
+  Pencil,
+  Check,
+  X,
+  FileText,
+  Layers,
+  ListChecks,
+  Notebook,
+  Workflow,
+  Network,
+  Columns2,
+  NotebookPen,
+  Brain,
+  BookOpen,
+  ArrowRight,
+  RefreshCw,
+  Package,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { api } from "../lib/api";
-import type { Course } from "../lib/types";
+import type { Course, CourseStats, ArtifactItem, DocumentItem } from "../lib/types";
+import { useCourseWorkspaceStore } from "../stores/useCourseWorkspaceStore";
+import { cn } from "../components/ui/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,25 +39,642 @@ import {
   AlertDialogTitle,
 } from "../components/ui/alert-dialog";
 
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+function fmtDate(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  const now = new Date();
+  const diffDays = Math.floor((now.getTime() - d.getTime()) / 86_400_000);
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+const ARTIFACT_LABEL: Record<string, string> = {
+  deck: "Flashcard Deck",
+  quiz: "Quiz",
+  notebook: "Notebook",
+  diagram: "Diagram",
+  mindmap: "Mind Map",
+  difference_table: "Difference Table",
+  revision: "Revision Sheet",
+};
+
+const ARTIFACT_ROUTE: Record<string, string> = {
+  deck: "/flashcards",
+  quiz: "/quiz",
+  notebook: "/notebooks",
+  diagram: "/diagrams",
+  mindmap: "/mindmaps",
+  difference_table: "/differences",
+  revision: "/revision",
+};
+
+const ARTIFACT_ICON: Record<string, typeof FileText> = {
+  deck: Layers,
+  quiz: ListChecks,
+  notebook: Notebook,
+  diagram: Workflow,
+  mindmap: Network,
+  difference_table: Columns2,
+  revision: NotebookPen,
+};
+
+// ── Left Panel ────────────────────────────────────────────────────────────────
+
+interface CourseRowProps {
+  course: Course;
+  isSelected: boolean;
+  onSelect: () => void;
+  onRename: () => void;
+  onDelete: () => void;
+}
+
+function CourseRow({ course, isSelected, onSelect, onRename, onDelete }: CourseRowProps) {
+  return (
+    <button
+      onClick={onSelect}
+      className={cn(
+        "group w-full text-left px-3 py-3 rounded-xl transition-colors flex items-center gap-3",
+        isSelected
+          ? "bg-sidebar-accent text-foreground"
+          : "hover:bg-sidebar-accent/60 text-sidebar-foreground",
+      )}
+    >
+      {isSelected && (
+        <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-violet" />
+      )}
+      <div
+        className="size-9 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold"
+        style={{ backgroundColor: `${course.color}20`, color: course.color }}
+      >
+        {course.code.split(" ")[0].slice(0, 2)}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium leading-snug">{course.name}</div>
+        <div className="flex gap-2 text-[11px] text-muted-foreground mt-0.5">
+          <span>{course.documents} docs</span>
+          <span className="opacity-40">·</span>
+          <span>{course.flashcards} cards</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <button
+          onClick={(e) => { e.stopPropagation(); onRename(); }}
+          className="size-6 flex items-center justify-center rounded-md hover:bg-accent text-muted-foreground"
+        >
+          <Pencil className="size-3" />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          className="size-6 flex items-center justify-center rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+        >
+          <Trash2 className="size-3" />
+        </button>
+      </div>
+    </button>
+  );
+}
+
+// ── Stats grid ────────────────────────────────────────────────────────────────
+
+interface StatCardProps { label: string; value: number; icon: typeof FileText; color: string; }
+
+function StatCard({ label, value, icon: Icon, color }: StatCardProps) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{label}</span>
+        <div className="size-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${color}15` }}>
+          <Icon className="size-3.5" style={{ color }} />
+        </div>
+      </div>
+      <span className="text-2xl font-display leading-none">{value}</span>
+    </div>
+  );
+}
+
+// ── Overview tab ──────────────────────────────────────────────────────────────
+
+interface OverviewTabProps {
+  course: Course;
+  documents: DocumentItem[];
+  artifacts: ArtifactItem[];
+  navigate: ReturnType<typeof useNavigate>;
+  setActiveTab: (t: "overview" | "documents" | "artifacts") => void;
+}
+
+function OverviewTab({ course, documents, artifacts, navigate, setActiveTab }: OverviewTabProps) {
+  const recentDocs = documents.slice(0, 5);
+  const recentArtifacts = artifacts.slice(0, 5);
+
+  if (documents.length === 0 && artifacts.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="size-16 rounded-full bg-accent flex items-center justify-center mb-4">
+          <FolderOpen className="size-8 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-medium">No content yet</h3>
+        <p className="text-muted-foreground text-sm mt-1 max-w-sm">
+          Upload documents to this course, then generate study artifacts from them.
+        </p>
+        <Button className="mt-6" onClick={() => navigate("/documents")}>
+          <Plus className="size-4 mr-2" /> Upload Documents
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground">Recent Documents</h3>
+          <button
+            onClick={() => setActiveTab("documents")}
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+          >
+            View all <ArrowRight className="size-3" />
+          </button>
+        </div>
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          {recentDocs.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">No documents</p>
+          ) : recentDocs.map((d, i) => (
+            <div key={d.id} className={cn("flex items-center gap-3 px-4 py-3 hover:bg-accent/40", i > 0 && "border-t border-border")}>
+              <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
+                <FileText className="size-4 text-muted-foreground" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm">{d.title}</div>
+                <div className="text-xs text-muted-foreground">{d.pages} pages</div>
+              </div>
+              <span className="text-xs text-muted-foreground shrink-0">{fmtDate(d.addedAt)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground">Recent Artifacts</h3>
+          <button
+            onClick={() => setActiveTab("artifacts")}
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+          >
+            View all <ArrowRight className="size-3" />
+          </button>
+        </div>
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          {recentArtifacts.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">No artifacts yet</p>
+          ) : recentArtifacts.map((a, i) => {
+            const Icon = ARTIFACT_ICON[a.type] ?? FileText;
+            return (
+              <div key={`${a.type}-${a.id}`} className={cn("flex items-center gap-3 px-4 py-3 hover:bg-accent/40", i > 0 && "border-t border-border")}>
+                <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
+                  <Icon className="size-4 text-muted-foreground" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm">{a.title}</div>
+                  <div className="text-xs text-muted-foreground">{ARTIFACT_LABEL[a.type] ?? a.type}</div>
+                </div>
+                <span className="text-xs text-muted-foreground shrink-0">{fmtDate(a.created_at)}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Documents tab ─────────────────────────────────────────────────────────────
+
+interface DocumentsTabProps {
+  documents: DocumentItem[];
+  onDelete: (id: string) => void;
+  navigate: ReturnType<typeof useNavigate>;
+}
+
+function DocumentsTab({ documents, onDelete, navigate }: DocumentsTabProps) {
+  if (documents.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="size-14 rounded-full bg-accent flex items-center justify-center mb-4">
+          <FileText className="size-7 text-muted-foreground" />
+        </div>
+        <h3 className="font-medium">No documents in this course</h3>
+        <p className="text-sm text-muted-foreground mt-1">Upload documents to start generating study materials.</p>
+        <Button className="mt-5" onClick={() => navigate("/documents")}>
+          <Plus className="size-4 mr-2" /> Upload Documents
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-border overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-muted/40">
+            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Document</th>
+            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium w-20">Pages</th>
+            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium w-24">Status</th>
+            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium w-28">Indexed</th>
+            <th className="px-4 py-3 w-24"></th>
+          </tr>
+        </thead>
+        <tbody className="bg-card divide-y divide-border">
+          {documents.map((d) => (
+            <tr key={d.id} className="hover:bg-accent/30">
+              <td className="px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                    <FileText className="size-4 text-muted-foreground" />
+                  </div>
+                  <span className="truncate max-w-xs font-medium">{d.title}</span>
+                </div>
+              </td>
+              <td className="px-4 py-3 text-muted-foreground">{d.pages}</td>
+              <td className="px-4 py-3">
+                <span className={cn(
+                  "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
+                  d.status === "indexed" ? "bg-green-500/10 text-green-600" :
+                  d.status === "processing" ? "bg-yellow-500/10 text-yellow-600" :
+                  "bg-red-500/10 text-red-600"
+                )}>
+                  {d.status}
+                </span>
+              </td>
+              <td className="px-4 py-3 text-muted-foreground text-xs">{fmtDate(d.addedAt)}</td>
+              <td className="px-4 py-3">
+                <div className="flex items-center gap-1 justify-end">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => navigate("/reading")}
+                  >
+                    <BookOpen className="size-3 mr-1" /> Open
+                  </Button>
+                  <button
+                    onClick={() => onDelete(d.id)}
+                    className="size-7 flex items-center justify-center rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ── Artifacts tab ─────────────────────────────────────────────────────────────
+
+const ARTIFACT_FILTERS = [
+  { label: "All", value: null },
+  { label: "Decks", value: "deck" },
+  { label: "Quizzes", value: "quiz" },
+  { label: "Notebooks", value: "notebook" },
+  { label: "Diagrams", value: "diagram" },
+  { label: "Mind Maps", value: "mindmap" },
+  { label: "Differences", value: "difference_table" },
+  { label: "Revisions", value: "revision" },
+];
+
+interface ArtifactsTabProps {
+  artifacts: ArtifactItem[];
+  typeFilter: string | null;
+  setTypeFilter: (t: string | null) => void;
+  navigate: ReturnType<typeof useNavigate>;
+  courseName: string;
+}
+
+function ArtifactsTab({ artifacts, typeFilter, setTypeFilter, navigate, courseName }: ArtifactsTabProps) {
+  const visible = typeFilter ? artifacts.filter((a) => a.type === typeFilter) : artifacts;
+
+  return (
+    <div className="space-y-4">
+      {/* Filter chips */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {ARTIFACT_FILTERS.map((f) => (
+          <button
+            key={f.label}
+            onClick={() => setTypeFilter(f.value)}
+            className={cn(
+              "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+              typeFilter === f.value
+                ? "bg-violet text-white"
+                : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {visible.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card flex flex-col items-center py-16 text-center">
+          <div className="size-14 rounded-full bg-accent flex items-center justify-center mb-4">
+            <Layers className="size-7 text-muted-foreground" />
+          </div>
+          <h3 className="font-medium">No {typeFilter ? ARTIFACT_LABEL[typeFilter] : "artifacts"} yet</h3>
+          <p className="text-sm text-muted-foreground mt-1 mb-5">Generate from any document in this course.</p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {["/flashcards", "/quiz", "/diagrams", "/mindmaps", "/differences"].map((route) => (
+              <Button key={route} size="sm" variant="outline" onClick={() => navigate(route)}>
+                {route.replace("/", "").replace("-", " ")}
+              </Button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-border overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/40">
+                <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Title</th>
+                <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium w-36">Type</th>
+                <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium w-28">Created</th>
+                <th className="px-4 py-3 w-20"></th>
+              </tr>
+            </thead>
+            <tbody className="bg-card divide-y divide-border">
+              {visible.map((a) => {
+                const Icon = ARTIFACT_ICON[a.type] ?? FileText;
+                return (
+                  <tr key={`${a.type}-${a.id}`} className="hover:bg-accent/30">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="size-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                          <Icon className="size-3.5 text-muted-foreground" />
+                        </div>
+                        <span className="truncate max-w-xs">{a.title}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-violet/10 text-violet">
+                        {ARTIFACT_LABEL[a.type] ?? a.type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{fmtDate(a.created_at)}</td>
+                    <td className="px-4 py-3">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => navigate(ARTIFACT_ROUTE[a.type] ?? "/")}
+                      >
+                        View <ArrowRight className="size-3 ml-1" />
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Course Workspace (right panel) ────────────────────────────────────────────
+
+interface CourseWorkspaceProps {
+  course: Course;
+  onRename: () => void;
+  onDelete: () => void;
+  navigate: ReturnType<typeof useNavigate>;
+}
+
+function CourseWorkspace({ course, onRename, onDelete, navigate }: CourseWorkspaceProps) {
+  const { activeTab, setActiveTab, artifactTypeFilter, setArtifactTypeFilter } = useCourseWorkspaceStore();
+  const [stats, setStats] = useState<CourseStats | null>(null);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [artifacts, setArtifacts] = useState<ArtifactItem[]>([]);
+  const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
+  const [loadingStats, setLoadingStats] = useState(false);
+
+  const loadAll = useCallback(async () => {
+    setLoadingStats(true);
+    try {
+      const [s, docs, arts] = await Promise.all([
+        api.getCourseStats(course.id),
+        api.listDocuments(course.name),
+        api.getCourseArtifacts(course.id),
+      ]);
+      setStats(s);
+      setDocuments(docs);
+      setArtifacts(arts);
+    } catch {}
+    setLoadingStats(false);
+  }, [course.id, course.name]);
+
+  useEffect(() => { loadAll(); }, [loadAll]);
+
+  const handleDeleteDoc = async () => {
+    if (!deletingDocId) return;
+    try { await api.deleteDocument(deletingDocId); await loadAll(); } catch {}
+    setDeletingDocId(null);
+  };
+
+  const STAT_CARDS = stats ? [
+    { label: "Documents", value: stats.documents, icon: FileText, color: "#8b5cf6" },
+    { label: "Flashcards", value: stats.flashcards, icon: Layers, color: "#06b6d4" },
+    { label: "Quizzes", value: stats.quizzes, icon: ListChecks, color: "#22c55e" },
+    { label: "Notebooks", value: stats.notebooks, icon: Notebook, color: "#f59e0b" },
+    { label: "Diagrams", value: stats.diagrams, icon: Workflow, color: "#ec4899" },
+    { label: "Mind Maps", value: stats.mindmaps, icon: Network, color: "#14b8a6" },
+    { label: "Differences", value: stats.difference_tables, icon: Columns2, color: "#f97316" },
+    { label: "Revisions", value: stats.revisions, icon: NotebookPen, color: "#a855f7" },
+    { label: "Concepts", value: stats.concepts, icon: Brain, color: "#64748b" },
+  ] : [];
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Header */}
+      <div className="px-8 pt-8 pb-6 border-b border-border shrink-0">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div
+              className="size-12 rounded-2xl flex items-center justify-center text-sm font-bold"
+              style={{ backgroundColor: `${course.color}20`, color: course.color }}
+            >
+              {course.code.split(" ")[0].slice(0, 2)}
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">{course.name}</h1>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+                <span className="uppercase tracking-wider text-[11px]">{course.code}</span>
+                {stats && (
+                  <>
+                    <span className="opacity-40">·</span>
+                    <span>{stats.documents} Documents</span>
+                    <span className="opacity-40">·</span>
+                    <span>{stats.total_artifacts} Artifacts</span>
+                    {stats.last_updated && (
+                      <>
+                        <span className="opacity-40">·</span>
+                        <span>Updated {fmtDate(stats.last_updated)}</span>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button size="sm" variant="ghost" onClick={onRename}>
+              <Pencil className="size-3.5 mr-1.5" /> Rename
+            </Button>
+            <Button size="sm" variant="outline" disabled title="Coming soon">
+              <RefreshCw className="size-3.5 mr-1.5" /> Rebuild Index
+            </Button>
+            <Button size="sm" variant="outline" disabled title="Coming soon">
+              <Package className="size-3.5 mr-1.5" /> Generate Package
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-destructive hover:bg-destructive/10"
+              onClick={onDelete}
+            >
+              <Trash2 className="size-3.5 mr-1.5" /> Delete
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats grid */}
+        {stats && (
+          <div className="mt-6 grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-9">
+            {STAT_CARDS.map((sc) => (
+              <StatCard key={sc.label} {...sc} />
+            ))}
+          </div>
+        )}
+        {loadingStats && !stats && (
+          <div className="mt-6 h-20 rounded-xl bg-muted/40 animate-pulse" />
+        )}
+
+        {/* Tabs */}
+        <div className="flex gap-1 mt-6">
+          {(["overview", "documents", "artifacts"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors",
+                activeTab === tab
+                  ? "bg-sidebar-accent text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/60"
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tab content */}
+      <div className="flex-1 overflow-y-auto px-8 py-6">
+        {activeTab === "overview" && (
+          <OverviewTab
+            course={course}
+            documents={documents}
+            artifacts={artifacts}
+            navigate={navigate}
+            setActiveTab={setActiveTab}
+          />
+        )}
+        {activeTab === "documents" && (
+          <DocumentsTab
+            documents={documents}
+            onDelete={(id) => setDeletingDocId(id)}
+            navigate={navigate}
+          />
+        )}
+        {activeTab === "artifacts" && (
+          <ArtifactsTab
+            artifacts={artifacts}
+            typeFilter={artifactTypeFilter}
+            setTypeFilter={setArtifactTypeFilter}
+            navigate={navigate}
+            courseName={course.name}
+          />
+        )}
+      </div>
+
+      <AlertDialog open={!!deletingDocId} onOpenChange={(open) => !open && setDeletingDocId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this document?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes the document and its indexed data. Previously generated artifacts are not deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteDoc}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
+
 export function Courses() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { selectedCourseId, setSelectedCourse } = useCourseWorkspaceStore();
+
   const [courses, setCourses] = useState<Course[]>([]);
   const [search, setSearch] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [newCourseName, setNewCourseName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
-  const [newCourseName, setNewCourseName] = useState("");
-  const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const loadCourses = () => api.listCourses().then(setCourses).catch(() => {});
-  useEffect(() => { loadCourses(); }, []);
+  const loadCourses = useCallback(() =>
+    api.listCourses().then(setCourses).catch(() => {}), []);
+
+  useEffect(() => { loadCourses(); }, [loadCourses]);
+
+  // Sync URL param → store on mount
+  useEffect(() => {
+    const id = searchParams.get("id");
+    if (id && id !== selectedCourseId) setSelectedCourse(id);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selectCourse = (id: string) => {
+    setSelectedCourse(id);
+    setSearchParams({ id });
+  };
+
+  const selectedCourse = courses.find((c) => c.id === selectedCourseId) ?? null;
+
+  const filtered = courses.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleCreate = async () => {
     if (!newCourseName.trim()) return;
     try {
-      await api.createCourse(newCourseName);
+      const c = await api.createCourse(newCourseName);
       setNewCourseName("");
       setCreating(false);
-      loadCourses();
+      await loadCourses();
+      selectCourse(c.id);
     } catch {}
   };
 
@@ -47,134 +687,134 @@ export function Courses() {
     } catch {}
   };
 
-  const handleDelete = (id: string) => {
-    setDeletingId(id);
-  };
-
   const confirmDelete = async () => {
     if (!deletingId) return;
     try {
       await api.deleteCourse(deletingId);
+      if (selectedCourseId === deletingId) {
+        setSelectedCourse(null);
+        setSearchParams({});
+      }
       loadCourses();
     } catch {}
     setDeletingId(null);
   };
 
-  const filtered = courses.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
-
   return (
-    <Page className="max-w-6xl">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Courses</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage your subjects, modules, and collections.</p>
-        </div>
-        <Button onClick={() => setCreating(true)}><Plus className="size-4 mr-2" /> New Course</Button>
-      </div>
-
-      <div className="flex items-center gap-4 mb-6">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input 
-            placeholder="Search courses..." 
-            value={search} 
-            onChange={e => setSearch(e.target.value)} 
-            className="pl-9 bg-card border-border"
-          />
-        </div>
-      </div>
-
-      {creating && (
-        <div className="mb-6 rounded-2xl border border-violet/30 bg-violet-soft/20 p-5 flex items-center gap-3 shadow-sm">
-          <div className="size-10 rounded-xl bg-violet-soft flex items-center justify-center shrink-0">
-            <FolderOpen className="size-5 text-violet" />
+    <div className="flex h-full overflow-hidden">
+      {/* ── Left panel ── */}
+      <div className="w-72 shrink-0 border-r border-border flex flex-col bg-sidebar overflow-hidden">
+        {/* Search + New */}
+        <div className="px-3 pt-4 pb-2 space-y-2 shrink-0">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search courses…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8 h-8 text-sm bg-card border-border"
+            />
           </div>
-          <Input 
-            placeholder="Course name (e.g. Machine Learning)" 
-            value={newCourseName} 
-            onChange={e => setNewCourseName(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter") handleCreate(); }}
-            autoFocus
-            className="flex-1 bg-card border-border h-10"
-          />
-          <Button onClick={handleCreate} disabled={!newCourseName.trim()}>Create</Button>
-          <Button variant="ghost" onClick={() => setCreating(false)}>Cancel</Button>
+          <Button size="sm" className="w-full gap-1.5" onClick={() => setCreating(true)}>
+            <Plus className="size-3.5" /> New Course
+          </Button>
         </div>
-      )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map(c => (
-          <div key={c.id} className="group flex flex-col rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-sm">
-            {editingId === c.id ? (
-              <div className="flex flex-col gap-3 h-full">
-                <Input 
-                  value={editName} 
-                  onChange={e => setEditName(e.target.value)} 
-                  onKeyDown={e => { if (e.key === "Enter") handleUpdate(c.id); }} 
-                  autoFocus 
-                  className="h-9 bg-input-background" 
+        {/* Create form */}
+        {creating && (
+          <div className="mx-3 mb-2 rounded-xl border border-violet/30 bg-violet-soft/20 p-3 space-y-2 shrink-0">
+            <Input
+              placeholder="Course name…"
+              value={newCourseName}
+              onChange={(e) => setNewCourseName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleCreate(); }}
+              autoFocus
+              className="h-8 text-sm bg-card border-border"
+            />
+            <div className="flex gap-2">
+              <Button size="sm" className="flex-1" onClick={handleCreate} disabled={!newCourseName.trim()}>
+                Create
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setCreating(false)}>
+                <X className="size-3.5" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Course list */}
+        <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-1">
+          {filtered.length === 0 && !creating && (
+            <div className="text-center py-10">
+              <FolderOpen className="size-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-xs text-muted-foreground">No courses found</p>
+            </div>
+          )}
+          {filtered.map((c) =>
+            editingId === c.id ? (
+              <div key={c.id} className="px-2 py-2 rounded-xl border border-violet/30 bg-violet-soft/10 space-y-2">
+                <Input
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleUpdate(c.id); }}
+                  autoFocus
+                  className="h-8 text-sm bg-card border-border"
                 />
-                <div className="flex items-center gap-2 justify-end mt-auto pt-4">
-                  <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}><X className="size-3.5 mr-1" /> Cancel</Button>
-                  <Button size="sm" onClick={() => handleUpdate(c.id)}><Check className="size-3.5 mr-1" /> Save</Button>
+                <div className="flex gap-1">
+                  <Button size="sm" className="flex-1 h-7" onClick={() => handleUpdate(c.id)}>
+                    <Check className="size-3 mr-1" /> Save
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setEditingId(null)}>
+                    <X className="size-3" />
+                  </Button>
                 </div>
               </div>
             ) : (
-              <>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${c.color}20`, color: c.color }}>
-                      <FolderOpen className="size-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-base line-clamp-1" title={c.name}>{c.name}</h3>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider">{c.code}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="icon" variant="ghost" className="size-7 hover:bg-accent" onClick={() => { setEditingId(c.id); setEditName(c.name); }}>
-                      <Pencil className="size-3.5 text-muted-foreground" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="size-7 hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(c.id)}>
-                      <Trash2 className="size-3.5 text-muted-foreground hover:text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-border/50">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-2xl font-display leading-none">{c.documents}</span>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Documents</span>
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-2xl font-display leading-none">{c.flashcards}</span>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Cards</span>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-      {!creating && filtered.length === 0 && (
-        <div className="text-center py-20">
-          <div className="inline-flex size-16 items-center justify-center rounded-full bg-accent mb-4">
-            <FolderOpen className="size-8 text-muted-foreground" />
-          </div>
-          <h3 className="text-lg font-medium text-foreground">No courses found</h3>
-          <p className="text-muted-foreground mt-1 max-w-sm mx-auto">Create a new course to start organizing your documents and study materials.</p>
-          <Button onClick={() => setCreating(true)} className="mt-6">
-            <Plus className="size-4 mr-2" /> Create First Course
-          </Button>
+              <div key={c.id} className="relative">
+                <CourseRow
+                  course={c}
+                  isSelected={selectedCourseId === c.id}
+                  onSelect={() => selectCourse(c.id)}
+                  onRename={() => { setEditingId(c.id); setEditName(c.name); }}
+                  onDelete={() => setDeletingId(c.id)}
+                />
+              </div>
+            )
+          )}
         </div>
-      )}
+      </div>
 
+      {/* ── Right panel ── */}
+      <div className="flex-1 overflow-hidden bg-background">
+        {!selectedCourse ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="size-20 rounded-full bg-accent flex items-center justify-center mb-5">
+              <FolderOpen className="size-10 text-muted-foreground" />
+            </div>
+            <h2 className="text-xl font-semibold">Select a Course</h2>
+            <p className="text-muted-foreground text-sm mt-2 max-w-sm">
+              Choose a course from the left panel to manage its documents and generated artifacts.
+            </p>
+          </div>
+        ) : (
+          <CourseWorkspace
+            key={selectedCourse.id}
+            course={selectedCourse}
+            onRename={() => { setEditingId(selectedCourse.id); setEditName(selectedCourse.name); }}
+            onDelete={() => setDeletingId(selectedCourse.id)}
+            navigate={navigate}
+          />
+        )}
+      </div>
+
+      {/* Delete dialog */}
       <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this course?</AlertDialogTitle>
+            <AlertDialogTitle>Delete this course?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your course and all its data.
+              This permanently deletes the course and all its documents. Generated artifacts stored in their
+              respective pages are not deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -183,6 +823,6 @@ export function Courses() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Page>
+    </div>
   );
 }

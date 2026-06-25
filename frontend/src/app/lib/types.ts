@@ -44,6 +44,28 @@ export interface ChatMessage {
   streaming?: boolean;
 }
 
+export interface CourseStats {
+  documents: number;
+  flashcards: number;
+  quizzes: number;
+  notebooks: number;
+  diagrams: number;
+  mindmaps: number;
+  difference_tables: number;
+  revisions: number;
+  concepts: number;
+  total_artifacts: number;
+  last_updated: string | null;
+}
+
+export interface ArtifactItem {
+  id: string;
+  title: string;
+  type: string;
+  created_at: string;
+  source_doc_title?: string;
+}
+
 // Objective artifact quality estimate (backend api/quality.py). Sub-scores are
 // 0..100; dimensions that don't apply to an artifact are omitted.
 export interface QualityScore {
