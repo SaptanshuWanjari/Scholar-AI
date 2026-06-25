@@ -2,6 +2,7 @@
 
 This file contains all the context for the frontend codebase.
 
+
 ## File: index.html
 ```html
 
@@ -26,7 +27,9 @@ This file contains all the context for the frontend codebase.
     </body>
   </html>
   
+
 ```
+
 
 ## File: README.md
 ```md
@@ -37,10 +40,12 @@ This file contains all the context for the frontend codebase.
 Run `npm i` to install the dependencies.
 
 Run `npm run dev` to start the development server.
+
 ```
 
+
 ## File: postcss.config.mjs
-```javascript
+```mjs
 /**
  * PostCSS Configuration
  *
@@ -56,107 +61,9 @@ Run `npm run dev` to start the development server.
  * Otherwise, you can leave this file empty.
  */
 export default {}
+
 ```
 
-## File: package.json
-```json
-{
-  "name": "@figma/my-make-file",
-  "private": true,
-  "version": "0.0.1",
-  "type": "module",
-  "scripts": {
-    "build": "vite build",
-    "dev": "vite"
-  },
-  "dependencies": {
-    "@emotion/react": "11.14.0",
-    "@emotion/styled": "11.14.1",
-    "@mui/icons-material": "7.3.5",
-    "@mui/material": "7.3.5",
-    "@popperjs/core": "2.11.8",
-    "@radix-ui/react-accordion": "1.2.3",
-    "@radix-ui/react-alert-dialog": "1.1.6",
-    "@radix-ui/react-aspect-ratio": "1.1.2",
-    "@radix-ui/react-avatar": "1.1.3",
-    "@radix-ui/react-checkbox": "1.1.4",
-    "@radix-ui/react-collapsible": "1.1.3",
-    "@radix-ui/react-context-menu": "2.2.6",
-    "@radix-ui/react-dialog": "1.1.6",
-    "@radix-ui/react-dropdown-menu": "2.1.6",
-    "@radix-ui/react-hover-card": "1.1.6",
-    "@radix-ui/react-label": "2.1.2",
-    "@radix-ui/react-menubar": "1.1.6",
-    "@radix-ui/react-navigation-menu": "1.2.5",
-    "@radix-ui/react-popover": "1.1.6",
-    "@radix-ui/react-progress": "1.1.2",
-    "@radix-ui/react-radio-group": "1.2.3",
-    "@radix-ui/react-scroll-area": "1.2.3",
-    "@radix-ui/react-select": "2.1.6",
-    "@radix-ui/react-separator": "1.1.2",
-    "@radix-ui/react-slider": "1.2.3",
-    "@radix-ui/react-slot": "1.1.2",
-    "@radix-ui/react-switch": "1.1.3",
-    "@radix-ui/react-tabs": "1.1.3",
-    "@radix-ui/react-toggle": "1.1.2",
-    "@radix-ui/react-toggle-group": "1.1.2",
-    "@radix-ui/react-tooltip": "1.1.8",
-    "@xyflow/react": "^12.11.1",
-    "canvas-confetti": "1.9.4",
-    "class-variance-authority": "0.7.1",
-    "clsx": "2.1.1",
-    "cmdk": "1.1.1",
-    "date-fns": "3.6.0",
-    "embla-carousel-react": "8.6.0",
-    "input-otp": "1.4.2",
-    "lucide-react": "0.487.0",
-    "mermaid": "^11.15.0",
-    "motion": "12.23.24",
-    "next-themes": "0.4.6",
-    "react-day-picker": "8.10.1",
-    "react-dnd": "16.0.1",
-    "react-dnd-html5-backend": "16.0.1",
-    "react-hook-form": "7.55.0",
-    "react-markdown": "^10.1.0",
-    "react-popper": "2.3.0",
-    "react-resizable-panels": "2.1.7",
-    "react-responsive-masonry": "2.7.1",
-    "react-router": "7.13.0",
-    "react-slick": "0.31.0",
-    "react-zoom-pan-pinch": "^4.0.3",
-    "recharts": "2.15.2",
-    "remark-gfm": "^4.0.1",
-    "sonner": "2.0.3",
-    "tailwind-merge": "3.2.0",
-    "tw-animate-css": "1.3.8",
-    "vaul": "1.1.2",
-    "zustand": "^5.0.14"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "4.1.12",
-    "@vitejs/plugin-react": "4.7.0",
-    "tailwindcss": "4.1.12",
-    "vite": "6.3.5"
-  },
-  "peerDependencies": {
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    },
-    "react-dom": {
-      "optional": true
-    }
-  },
-  "pnpm": {
-    "overrides": {
-      "vite": "6.3.5"
-    }
-  }
-}
-```
 
 ## File: default_shadcn_theme.css
 ```css
@@ -280,24 +187,9 @@ export default {}
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
+
 ```
 
-## File: pnpm-workspace.yaml
-```yaml
-packages:
-  - '.'
-allowBuilds:
-  '@tailwindcss/oxide': set this to true or false
-  esbuild: set this to true or false
-supportedArchitectures:
-  os:
-    - linux
-  cpu:
-    - x64
-    - arm64
-  libc:
-    - glibc
-```
 
 ## File: vite.config.ts
 ```typescript
@@ -349,18 +241,6306 @@ export default defineConfig({
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
 })
+
 ```
+
+
+## File: pnpm-workspace.yaml
+```yaml
+packages:
+  - '.'
+allowBuilds:
+  '@tailwindcss/oxide': set this to true or false
+  core-js: set this to true or false
+  esbuild: set this to true or false
+supportedArchitectures:
+  os:
+    - linux
+  cpu:
+    - x64
+    - arm64
+  libc:
+    - glibc
+
+```
+
+
+## File: pnpm-lock.yaml
+```yaml
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@emotion/react':
+        specifier: 11.14.0
+        version: 11.14.0(@types/react@19.2.17)(react@18.3.1)
+      '@emotion/styled':
+        specifier: 11.14.1
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1)
+      '@mui/icons-material':
+        specifier: 7.3.5
+        version: 7.3.5(@mui/material@7.3.5(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.17)(react@18.3.1)
+      '@mui/material':
+        specifier: 7.3.5
+        version: 7.3.5(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@popperjs/core':
+        specifier: 2.11.8
+        version: 2.11.8
+      '@radix-ui/react-accordion':
+        specifier: 1.2.3
+        version: 1.2.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-alert-dialog':
+        specifier: 1.1.6
+        version: 1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-aspect-ratio':
+        specifier: 1.1.2
+        version: 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-avatar':
+        specifier: 1.1.3
+        version: 1.1.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-checkbox':
+        specifier: 1.1.4
+        version: 1.1.4(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-collapsible':
+        specifier: 1.1.3
+        version: 1.1.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-context-menu':
+        specifier: 2.2.6
+        version: 2.2.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-dialog':
+        specifier: 1.1.6
+        version: 1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-dropdown-menu':
+        specifier: 2.1.6
+        version: 2.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-hover-card':
+        specifier: 1.1.6
+        version: 1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-label':
+        specifier: 2.1.2
+        version: 2.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-menubar':
+        specifier: 1.1.6
+        version: 1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-navigation-menu':
+        specifier: 1.2.5
+        version: 1.2.5(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-popover':
+        specifier: 1.1.6
+        version: 1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-progress':
+        specifier: 1.1.2
+        version: 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-radio-group':
+        specifier: 1.2.3
+        version: 1.2.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-scroll-area':
+        specifier: 1.2.3
+        version: 1.2.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-select':
+        specifier: 2.1.6
+        version: 2.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-separator':
+        specifier: 1.1.2
+        version: 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slider':
+        specifier: 1.2.3
+        version: 1.2.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot':
+        specifier: 1.1.2
+        version: 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-switch':
+        specifier: 1.1.3
+        version: 1.1.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-tabs':
+        specifier: 1.1.3
+        version: 1.1.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-toggle':
+        specifier: 1.1.2
+        version: 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-toggle-group':
+        specifier: 1.1.2
+        version: 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-tooltip':
+        specifier: 1.1.8
+        version: 1.1.8(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@xyflow/react':
+        specifier: ^12.11.1
+        version: 12.11.1(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      canvas-confetti:
+        specifier: 1.9.4
+        version: 1.9.4
+      class-variance-authority:
+        specifier: 0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
+      cmdk:
+        specifier: 1.1.1
+        version: 1.1.1(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      date-fns:
+        specifier: 3.6.0
+        version: 3.6.0
+      embla-carousel-react:
+        specifier: 8.6.0
+        version: 8.6.0(react@18.3.1)
+      html-to-image:
+        specifier: ^1.11.13
+        version: 1.11.13
+      input-otp:
+        specifier: 1.4.2
+        version: 1.4.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      jspdf:
+        specifier: ^2.5.2
+        version: 2.5.2
+      katex:
+        specifier: ^0.17.0
+        version: 0.17.0
+      lucide-react:
+        specifier: 0.487.0
+        version: 0.487.0(react@18.3.1)
+      mermaid:
+        specifier: ^11.15.0
+        version: 11.15.0
+      motion:
+        specifier: 12.23.24
+        version: 12.23.24(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next-themes:
+        specifier: 0.4.6
+        version: 0.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-day-picker:
+        specifier: 8.10.1
+        version: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+      react-dnd:
+        specifier: 16.0.1
+        version: 16.0.1(@types/react@19.2.17)(react@18.3.1)
+      react-dnd-html5-backend:
+        specifier: 16.0.1
+        version: 16.0.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-hook-form:
+        specifier: 7.55.0
+        version: 7.55.0(react@18.3.1)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.2.17)(react@18.3.1)
+      react-popper:
+        specifier: 2.3.0
+        version: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-resizable-panels:
+        specifier: 2.1.7
+        version: 2.1.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-responsive-masonry:
+        specifier: 2.7.1
+        version: 2.7.1
+      react-router:
+        specifier: 7.13.0
+        version: 7.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-slick:
+        specifier: 0.31.0
+        version: 0.31.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-zoom-pan-pinch:
+        specifier: ^4.0.3
+        version: 4.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      recharts:
+        specifier: 2.15.2
+        version: 2.15.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
+      sonner:
+        specifier: 2.0.3
+        version: 2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tailwind-merge:
+        specifier: 3.2.0
+        version: 3.2.0
+      tw-animate-css:
+        specifier: 1.3.8
+        version: 1.3.8
+      vaul:
+        specifier: 1.1.2
+        version: 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      zustand:
+        specifier: ^5.0.14
+        version: 5.0.14(@types/react@19.2.17)(react@18.3.1)(use-sync-external-store@1.6.0(react@18.3.1))
+    devDependencies:
+      '@tailwindcss/vite':
+        specifier: 4.1.12
+        version: 4.1.12(vite@6.3.5(jiti@2.7.0)(lightningcss@1.30.1))
+      '@vitejs/plugin-react':
+        specifier: 4.7.0
+        version: 4.7.0(vite@6.3.5(jiti@2.7.0)(lightningcss@1.30.1))
+      tailwindcss:
+        specifier: 4.1.12
+        version: 4.1.12
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vite:
+        specifier: 6.3.5
+        version: 6.3.5(jiti@2.7.0)(lightningcss@1.30.1)
+
+packages:
+
+  '@antfu/install-pkg@1.1.0':
+    resolution: {integrity: sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ==}
+
+  '@babel/code-frame@7.29.7':
+    resolution: {integrity: sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/compat-data@7.29.7':
+    resolution: {integrity: sha512-locTkQyKvwIEgBzVrn8693ebc97F2U8ZHjbXwDXJ5Fn2TCpNwTlKcaKLkdHop5c/icOFE7qt7Q9JC5hnKNa6Gg==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/core@7.29.7':
+    resolution: {integrity: sha512-RgHBCvtjbOK2gXSNBNIkNoEc9qoVEtau3hj8gEqKQuL3HZAibKarWFEI3Lfm6EYKkLalOh8eSrj9b+ch9H/VBA==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/generator@7.29.7':
+    resolution: {integrity: sha512-DkXD5OJQaAQIdZ1bt3UZdEnHAn9Imd3IVBdX03UFe+ony9Ojw5pzr9YVKGDY1jt+Gcn/FnGkNf8r+Vj5NOJWtQ==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-compilation-targets@7.29.7':
+    resolution: {integrity: sha512-wem6WaBj4NaVYVdNhLPPVacES6ZJ+KBBfSkTMD3YZxbP3rm3Di85tJU5ljaUNhaOynt+Aj0xruhYuzQBt8n71g==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-globals@7.29.7':
+    resolution: {integrity: sha512-3nQVUAtvkKH9zahfWgw96Jc/uFOmjACE1kQz82E2lqWmHBgjzbNlsC22nuQTfahmWeQtTq5nQ/4Nnd2A1wj4zA==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-module-imports@7.29.7':
+    resolution: {integrity: sha512-ejHwrQQYcm9xnTivShn2IDOlIzInN34AXskvq9QicvCtEzq1Vzclu/tKF8Jq1Cg8JG2GL6/EmjgsCT7lXepE3g==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-module-transforms@7.29.7':
+    resolution: {integrity: sha512-UPUVSyXbOh627KiCIGQSgwWzGeBKLkaJ9PJEdrngIwMSzxLR4jS4+f1f1jb7VzBbg8nFLaYotvVPFCTqdrmTAg==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+
+  '@babel/helper-plugin-utils@7.29.7':
+    resolution: {integrity: sha512-G7sHYigPY17oO5SYWnfD/0MTBwVR781S/JI643e/JhUYgVgWE/61SoW3NH9KWUKyKq5LVh3npif99Wkt6j86Jw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-string-parser@7.29.7':
+    resolution: {integrity: sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-validator-identifier@7.29.7':
+    resolution: {integrity: sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-validator-option@7.29.7':
+    resolution: {integrity: sha512-N9ZErrD+yW5geCDtBqnOoxmR8+tNKiGuxKlDpuJxfsqpa2dFcexaziGAE/qoHLiDDreVNMupxGmSoNlyvsA3gw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helpers@7.29.7':
+    resolution: {integrity: sha512-1k2lAGRMfHTcwuNYcCNUmaUffmQv8KWMfh2iJUUeRlwlwH4FdNG7mfPI10NPfLHJFThE4Tyr4mv7kTNZOiPuBg==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/parser@7.29.7':
+    resolution: {integrity: sha512-hnORnjP/1P/zFEndoeX+n+t1RwWRJiJpM/jO7FW32Kn9r5+sJB2JWOdYo4L6k78j15eCwY3Gm/7364B1EMwtNg==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  '@babel/plugin-transform-react-jsx-self@7.29.7':
+    resolution: {integrity: sha512-TL0hMc9xzy86VD31nUiwzd5otRAcyEPcsegCxolO0PvcXuH1v0kECe/UIznYFihpkvU5wg/jk4v0TTEFfm53fw==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+
+  '@babel/plugin-transform-react-jsx-source@7.29.7':
+    resolution: {integrity: sha512-06IyK09H3wi4cGbhDBwp5gUGo0IKtnYa8tyTiephirPCK6fbobVGiXMMI5zLQ4aKEYP3wZ3ArU44o+8KMrSG/Q==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+
+  '@babel/runtime@7.29.7':
+    resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/template@7.29.7':
+    resolution: {integrity: sha512-puq+Gf35oI24FeN11LkoUQFqv9uwNeWpxXZi/Ji3rRIoKAzKnxRaZ+Gkj0vKS9ZCiTESfng1N9LyOyXvo+m+Gg==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/traverse@7.29.7':
+    resolution: {integrity: sha512-EhlfNQtZ+NK22w5BM61ciuiq1m58ed33Wr1Xan//ZRTy6hgjnwyCffRYwzsGXdASJSUJ1guZILsErh1eQcl+zw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/types@7.29.7':
+    resolution: {integrity: sha512-4zBIxpPzowiZpusoFkyGVwakdRJUyuH5PxQ/PrqghfdFWWasvnCdPfQXHrenDai+gyLARulZjZowCOj6fjT4pA==}
+    engines: {node: '>=6.9.0'}
+
+  '@braintree/sanitize-url@7.1.2':
+    resolution: {integrity: sha512-jigsZK+sMF/cuiB7sERuo9V7N9jx+dhmHHnQyDSVdpZwVutaBu7WvNYqMDLSgFgfB30n452TP3vjDAvFC973mA==}
+
+  '@chevrotain/types@11.1.2':
+    resolution: {integrity: sha512-U+HFai5+zmJCkK86QsaJtoITlboZHBqrVketcO2ROv865xfCMSFpELQoz1GkX5GzME8pTa+3kbKrZHQtI0gdbw==}
+
+  '@emotion/babel-plugin@11.13.5':
+    resolution: {integrity: sha512-pxHCpT2ex+0q+HH91/zsdHkw/lXd468DIN2zvfvLtPKLLMo6gQj7oLObq8PhkrxOZb/gGCq03S3Z7PDhS8pduQ==}
+
+  '@emotion/cache@11.14.0':
+    resolution: {integrity: sha512-L/B1lc/TViYk4DcpGxtAVbx0ZyiKM5ktoIyafGkH6zg/tj+mA+NE//aPYKG0k8kCHSHVJrpLpcAlOBEXQ3SavA==}
+
+  '@emotion/hash@0.9.2':
+    resolution: {integrity: sha512-MyqliTZGuOm3+5ZRSaaBGP3USLw6+EGykkwZns2EPC5g8jJ4z9OrdZY9apkl3+UP9+sdz76YYkwCKP5gh8iY3g==}
+
+  '@emotion/is-prop-valid@1.4.0':
+    resolution: {integrity: sha512-QgD4fyscGcbbKwJmqNvUMSE02OsHUa+lAWKdEUIJKgqe5IwRSKd7+KhibEWdaKwgjLj0DRSHA9biAIqGBk05lw==}
+
+  '@emotion/memoize@0.9.0':
+    resolution: {integrity: sha512-30FAj7/EoJ5mwVPOWhAyCX+FPfMDrVecJAM+Iw9NRoSl4BBAQeqj4cApHHUXOVvIPgLVDsCFoz/hGD+5QQD1GQ==}
+
+  '@emotion/react@11.14.0':
+    resolution: {integrity: sha512-O000MLDBDdk/EohJPFUqvnp4qnHeYkVP5B0xEG0D/L7cOKP9kefu2DXn8dj74cQfsEzUqh+sr1RzFqiL1o+PpA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@emotion/serialize@1.3.3':
+    resolution: {integrity: sha512-EISGqt7sSNWHGI76hC7x1CksiXPahbxEOrC5RjmFRJTqLyEK9/9hZvBbiYn70dw4wuwMKiEMCUlR6ZXTSWQqxA==}
+
+  '@emotion/sheet@1.4.0':
+    resolution: {integrity: sha512-fTBW9/8r2w3dXWYM4HCB1Rdp8NLibOw2+XELH5m5+AkWiL/KqYX6dc0kKYlaYyKjrQ6ds33MCdMPEwgs2z1rqg==}
+
+  '@emotion/styled@11.14.1':
+    resolution: {integrity: sha512-qEEJt42DuToa3gurlH4Qqc1kVpNq8wO8cJtDzU46TjlzWjDlsVyevtYCRijVq3SrHsROS+gVQ8Fnea108GnKzw==}
+    peerDependencies:
+      '@emotion/react': ^11.0.0-rc.0
+      '@types/react': '*'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@emotion/unitless@0.10.0':
+    resolution: {integrity: sha512-dFoMUuQA20zvtVTuxZww6OHoJYgrzfKM1t52mVySDJnMSEa08ruEvdYQbhvyu6soU+NeLVd3yKfTfT0NeV6qGg==}
+
+  '@emotion/use-insertion-effect-with-fallbacks@1.2.0':
+    resolution: {integrity: sha512-yJMtVdH59sxi/aVJBpk9FQq+OR8ll5GT8oWd57UpeaKEVGab41JWaCFA7FRLoMLloOZF/c/wsPoe+bfGmRKgDg==}
+    peerDependencies:
+      react: '>=16.8.0'
+
+  '@emotion/utils@1.4.2':
+    resolution: {integrity: sha512-3vLclRofFziIa3J2wDh9jjbkUz9qk5Vi3IZ/FSTKViB0k+ef0fPV7dYrUIugbgupYDx7v9ud/SjrtEP8Y4xLoA==}
+
+  '@emotion/weak-memoize@0.4.0':
+    resolution: {integrity: sha512-snKqtPW01tN0ui7yu9rGv69aJXr/a/Ywvl11sUjNtEcRc+ng/mQriFL0wLXMef74iHa/EkftbDzU9F8iFbH+zg==}
+
+  '@esbuild/aix-ppc64@0.25.12':
+    resolution: {integrity: sha512-Hhmwd6CInZ3dwpuGTF8fJG6yoWmsToE+vYgD4nytZVxcu1ulHpUQRAB1UJ8+N1Am3Mz4+xOByoQoSZf4D+CpkA==}
+    engines: {node: '>=18'}
+    cpu: [ppc64]
+    os: [aix]
+
+  '@esbuild/android-arm64@0.25.12':
+    resolution: {integrity: sha512-6AAmLG7zwD1Z159jCKPvAxZd4y/VTO0VkprYy+3N2FtJ8+BQWFXU+OxARIwA46c5tdD9SsKGZ/1ocqBS/gAKHg==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [android]
+
+  '@esbuild/android-arm@0.25.12':
+    resolution: {integrity: sha512-VJ+sKvNA/GE7Ccacc9Cha7bpS8nyzVv0jdVgwNDaR4gDMC/2TTRc33Ip8qrNYUcpkOHUT5OZ0bUcNNVZQ9RLlg==}
+    engines: {node: '>=18'}
+    cpu: [arm]
+    os: [android]
+
+  '@esbuild/android-x64@0.25.12':
+    resolution: {integrity: sha512-5jbb+2hhDHx5phYR2By8GTWEzn6I9UqR11Kwf22iKbNpYrsmRB18aX/9ivc5cabcUiAT/wM+YIZ6SG9QO6a8kg==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [android]
+
+  '@esbuild/darwin-arm64@0.25.12':
+    resolution: {integrity: sha512-N3zl+lxHCifgIlcMUP5016ESkeQjLj/959RxxNYIthIg+CQHInujFuXeWbWMgnTo4cp5XVHqFPmpyu9J65C1Yg==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@esbuild/darwin-x64@0.25.12':
+    resolution: {integrity: sha512-HQ9ka4Kx21qHXwtlTUVbKJOAnmG1ipXhdWTmNXiPzPfWKpXqASVcWdnf2bnL73wgjNrFXAa3yYvBSd9pzfEIpA==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@esbuild/freebsd-arm64@0.25.12':
+    resolution: {integrity: sha512-gA0Bx759+7Jve03K1S0vkOu5Lg/85dou3EseOGUes8flVOGxbhDDh/iZaoek11Y8mtyKPGF3vP8XhnkDEAmzeg==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [freebsd]
+
+  '@esbuild/freebsd-x64@0.25.12':
+    resolution: {integrity: sha512-TGbO26Yw2xsHzxtbVFGEXBFH0FRAP7gtcPE7P5yP7wGy7cXK2oO7RyOhL5NLiqTlBh47XhmIUXuGciXEqYFfBQ==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [freebsd]
+
+  '@esbuild/linux-arm64@0.25.12':
+    resolution: {integrity: sha512-8bwX7a8FghIgrupcxb4aUmYDLp8pX06rGh5HqDT7bB+8Rdells6mHvrFHHW2JAOPZUbnjUpKTLg6ECyzvas2AQ==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@esbuild/linux-arm@0.25.12':
+    resolution: {integrity: sha512-lPDGyC1JPDou8kGcywY0YILzWlhhnRjdof3UlcoqYmS9El818LLfJJc3PXXgZHrHCAKs/Z2SeZtDJr5MrkxtOw==}
+    engines: {node: '>=18'}
+    cpu: [arm]
+    os: [linux]
+
+  '@esbuild/linux-ia32@0.25.12':
+    resolution: {integrity: sha512-0y9KrdVnbMM2/vG8KfU0byhUN+EFCny9+8g202gYqSSVMonbsCfLjUO+rCci7pM0WBEtz+oK/PIwHkzxkyharA==}
+    engines: {node: '>=18'}
+    cpu: [ia32]
+    os: [linux]
+
+  '@esbuild/linux-loong64@0.25.12':
+    resolution: {integrity: sha512-h///Lr5a9rib/v1GGqXVGzjL4TMvVTv+s1DPoxQdz7l/AYv6LDSxdIwzxkrPW438oUXiDtwM10o9PmwS/6Z0Ng==}
+    engines: {node: '>=18'}
+    cpu: [loong64]
+    os: [linux]
+
+  '@esbuild/linux-mips64el@0.25.12':
+    resolution: {integrity: sha512-iyRrM1Pzy9GFMDLsXn1iHUm18nhKnNMWscjmp4+hpafcZjrr2WbT//d20xaGljXDBYHqRcl8HnxbX6uaA/eGVw==}
+    engines: {node: '>=18'}
+    cpu: [mips64el]
+    os: [linux]
+
+  '@esbuild/linux-ppc64@0.25.12':
+    resolution: {integrity: sha512-9meM/lRXxMi5PSUqEXRCtVjEZBGwB7P/D4yT8UG/mwIdze2aV4Vo6U5gD3+RsoHXKkHCfSxZKzmDssVlRj1QQA==}
+    engines: {node: '>=18'}
+    cpu: [ppc64]
+    os: [linux]
+
+  '@esbuild/linux-riscv64@0.25.12':
+    resolution: {integrity: sha512-Zr7KR4hgKUpWAwb1f3o5ygT04MzqVrGEGXGLnj15YQDJErYu/BGg+wmFlIDOdJp0PmB0lLvxFIOXZgFRrdjR0w==}
+    engines: {node: '>=18'}
+    cpu: [riscv64]
+    os: [linux]
+
+  '@esbuild/linux-s390x@0.25.12':
+    resolution: {integrity: sha512-MsKncOcgTNvdtiISc/jZs/Zf8d0cl/t3gYWX8J9ubBnVOwlk65UIEEvgBORTiljloIWnBzLs4qhzPkJcitIzIg==}
+    engines: {node: '>=18'}
+    cpu: [s390x]
+    os: [linux]
+
+  '@esbuild/linux-x64@0.25.12':
+    resolution: {integrity: sha512-uqZMTLr/zR/ed4jIGnwSLkaHmPjOjJvnm6TVVitAa08SLS9Z0VM8wIRx7gWbJB5/J54YuIMInDquWyYvQLZkgw==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [linux]
+
+  '@esbuild/netbsd-arm64@0.25.12':
+    resolution: {integrity: sha512-xXwcTq4GhRM7J9A8Gv5boanHhRa/Q9KLVmcyXHCTaM4wKfIpWkdXiMog/KsnxzJ0A1+nD+zoecuzqPmCRyBGjg==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [netbsd]
+
+  '@esbuild/netbsd-x64@0.25.12':
+    resolution: {integrity: sha512-Ld5pTlzPy3YwGec4OuHh1aCVCRvOXdH8DgRjfDy/oumVovmuSzWfnSJg+VtakB9Cm0gxNO9BzWkj6mtO1FMXkQ==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [netbsd]
+
+  '@esbuild/openbsd-arm64@0.25.12':
+    resolution: {integrity: sha512-fF96T6KsBo/pkQI950FARU9apGNTSlZGsv1jZBAlcLL1MLjLNIWPBkj5NlSz8aAzYKg+eNqknrUJ24QBybeR5A==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [openbsd]
+
+  '@esbuild/openbsd-x64@0.25.12':
+    resolution: {integrity: sha512-MZyXUkZHjQxUvzK7rN8DJ3SRmrVrke8ZyRusHlP+kuwqTcfWLyqMOE3sScPPyeIXN/mDJIfGXvcMqCgYKekoQw==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [openbsd]
+
+  '@esbuild/openharmony-arm64@0.25.12':
+    resolution: {integrity: sha512-rm0YWsqUSRrjncSXGA7Zv78Nbnw4XL6/dzr20cyrQf7ZmRcsovpcRBdhD43Nuk3y7XIoW2OxMVvwuRvk9XdASg==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [openharmony]
+
+  '@esbuild/sunos-x64@0.25.12':
+    resolution: {integrity: sha512-3wGSCDyuTHQUzt0nV7bocDy72r2lI33QL3gkDNGkod22EsYl04sMf0qLb8luNKTOmgF/eDEDP5BFNwoBKH441w==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [sunos]
+
+  '@esbuild/win32-arm64@0.25.12':
+    resolution: {integrity: sha512-rMmLrur64A7+DKlnSuwqUdRKyd3UE7oPJZmnljqEptesKM8wx9J8gx5u0+9Pq0fQQW8vqeKebwNXdfOyP+8Bsg==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@esbuild/win32-ia32@0.25.12':
+    resolution: {integrity: sha512-HkqnmmBoCbCwxUKKNPBixiWDGCpQGVsrQfJoVGYLPT41XWF8lHuE5N6WhVia2n4o5QK5M4tYr21827fNhi4byQ==}
+    engines: {node: '>=18'}
+    cpu: [ia32]
+    os: [win32]
+
+  '@esbuild/win32-x64@0.25.12':
+    resolution: {integrity: sha512-alJC0uCZpTFrSL0CCDjcgleBXPnCrEAhTBILpeAp7M/OFgoqtAetfBzX0xM00MUsVVPpVjlPuMbREqnZCXaTnA==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [win32]
+
+  '@floating-ui/core@1.7.5':
+    resolution: {integrity: sha512-1Ih4WTWyw0+lKyFMcBHGbb5U5FtuHJuujoyyr5zTaWS5EYMeT6Jb2AuDeftsCsEuchO+mM2ij5+q9crhydzLhQ==}
+
+  '@floating-ui/dom@1.7.6':
+    resolution: {integrity: sha512-9gZSAI5XM36880PPMm//9dfiEngYoC6Am2izES1FF406YFsjvyBMmeJ2g4SAju3xWwtuynNRFL2s9hgxpLI5SQ==}
+
+  '@floating-ui/react-dom@2.1.8':
+    resolution: {integrity: sha512-cC52bHwM/n/CxS87FH0yWdngEZrjdtLW/qVruo68qg+prK7ZQ4YGdut2GyDVpoGeAYe/h899rVeOVm6Oi40k2A==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+
+  '@floating-ui/utils@0.2.11':
+    resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+
+  '@iconify/types@2.0.0':
+    resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
+
+  '@iconify/utils@3.1.3':
+    resolution: {integrity: sha512-LPKOXPn/zV+zis1oOfGWogaXVpqUybF3ZS6SCZIsz8vg0ivVp9+fVqyYB7xq0aiST/VhUQYGO1qo6uoYSiEJqw==}
+
+  '@isaacs/fs-minipass@4.0.1':
+    resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
+    engines: {node: '>=18.0.0'}
+
+  '@jridgewell/gen-mapping@0.3.13':
+    resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
+
+  '@jridgewell/remapping@2.3.5':
+    resolution: {integrity: sha512-LI9u/+laYG4Ds1TDKSJW2YPrIlcVYOwi2fUC6xB43lueCjgxV4lffOCZCtYFiH6TNOX+tQKXx97T4IKHbhyHEQ==}
+
+  '@jridgewell/resolve-uri@3.1.2':
+    resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
+    engines: {node: '>=6.0.0'}
+
+  '@jridgewell/sourcemap-codec@1.5.5':
+    resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
+
+  '@jridgewell/trace-mapping@0.3.31':
+    resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@mermaid-js/parser@1.1.1':
+    resolution: {integrity: sha512-VuHdsYMK1bT6X2JbcAaWAhugTRvRBRyuZgd+c22swUeI9g/ntaxF7CY7dYarhZovofCbUNO0G7JesfmNtjYOCw==}
+
+  '@mui/core-downloads-tracker@7.3.11':
+    resolution: {integrity: sha512-a7I/b/nBTdXYz2cOSlEmkQ9WWE1x8FHpqMhFPp+Y1VPFxcOw91G5ELOHARQAGSPy5V+UCgJua6K/1x70bAtQPw==}
+
+  '@mui/icons-material@7.3.5':
+    resolution: {integrity: sha512-LciL1GLMZ+VlzyHAALSVAR22t8IST4LCXmljcUSx2NOutgO2XnxdIp8ilFbeNf9wpo0iUFbAuoQcB7h+HHIf3A==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@mui/material': ^7.3.5
+      '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@mui/material@7.3.5':
+    resolution: {integrity: sha512-8VVxFmp1GIm9PpmnQoCoYo0UWHoOrdA57tDL62vkpzEgvb/d71Wsbv4FRg7r1Gyx7PuSo0tflH34cdl/NvfHNQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@emotion/react': ^11.5.0
+      '@emotion/styled': ^11.3.0
+      '@mui/material-pigment-css': ^7.3.5
+      '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/react':
+        optional: true
+      '@emotion/styled':
+        optional: true
+      '@mui/material-pigment-css':
+        optional: true
+      '@types/react':
+        optional: true
+
+  '@mui/private-theming@7.3.11':
+    resolution: {integrity: sha512-9B+YKms0fRHbNrqp9tOT/DNbNnU5gyvJ1o3qAGXfq8GmZcbJnE3At9x07Zr/o0pkhzg4aDdwXVqe4+AcgtOCPA==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@mui/styled-engine@7.3.10':
+    resolution: {integrity: sha512-WxE9SiF8xskAQqGjsp0poXCkCqsoXFEsSr0HBXfApmGHR+DBnXRp+z46Vsltg4gpPM4Z96DeAQRpeAOnhNg7Ng==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@emotion/react': ^11.4.1
+      '@emotion/styled': ^11.3.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/react':
+        optional: true
+      '@emotion/styled':
+        optional: true
+
+  '@mui/system@7.3.11':
+    resolution: {integrity: sha512-7izwGWdNawAKpBKcRlx7f2gFnAAjmASBWvMcyX4YYEeLOFsbfGRbUYGInvnAcUeql3rPxI7F9Ft4oY2OLRz44g==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@emotion/react': ^11.5.0
+      '@emotion/styled': ^11.3.0
+      '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/react':
+        optional: true
+      '@emotion/styled':
+        optional: true
+      '@types/react':
+        optional: true
+
+  '@mui/types@7.4.12':
+    resolution: {integrity: sha512-iKNAF2u9PzSIj40CjvKJWxFXJo122jXVdrmdh0hMYd+FR+NuJMkr/L88XwWLCRiJ5P1j+uyac25+Kp6YC4hu6w==}
+    peerDependencies:
+      '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@mui/utils@7.3.11':
+    resolution: {integrity: sha512-XTjGnifwteg71/ij+0e7Y7d+hwyntMYP5wPoA/g2drdGH+Flkvjwy0OfrVpKBbaOvofq4zU/LIyUZyKgmWu18g==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@popperjs/core@2.11.8':
+    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
+
+  '@radix-ui/number@1.1.0':
+    resolution: {integrity: sha512-V3gRzhVNU1ldS5XhAPTom1fOIo4ccrjjJgmE+LI2h/WaFpHmx0MQApT+KZHnx8abG6Avtfcz4WoEciMnpFT3HQ==}
+
+  '@radix-ui/primitive@1.1.1':
+    resolution: {integrity: sha512-SJ31y+Q/zAyShtXJc8x83i9TYdbAfHZ++tUZnvjJJqFjzsdUnKsxPL6IEtBlxKkU7yzer//GQtZSV4GbldL3YA==}
+
+  '@radix-ui/react-accordion@1.2.3':
+    resolution: {integrity: sha512-RIQ15mrcvqIkDARJeERSuXSry2N8uYnxkdDetpfmalT/+0ntOXLkFOsh9iwlAsCv+qcmhZjbdJogIm6WBa6c4A==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-alert-dialog@1.1.6':
+    resolution: {integrity: sha512-p4XnPqgej8sZAAReCAKgz1REYZEBLR8hU9Pg27wFnCWIMc8g1ccCs0FjBcy05V15VTu8pAePw/VDYeOm/uZ6yQ==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-arrow@1.1.2':
+    resolution: {integrity: sha512-G+KcpzXHq24iH0uGG/pF8LyzpFJYGD4RfLjCIBfGdSLXvjLHST31RUiRVrupIBMvIppMgSzQ6l66iAxl03tdlg==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-aspect-ratio@1.1.2':
+    resolution: {integrity: sha512-TaJxYoCpxJ7vfEkv2PTNox/6zzmpKXT6ewvCuf2tTOIVN45/Jahhlld29Yw4pciOXS2Xq91/rSGEdmEnUWZCqA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-avatar@1.1.3':
+    resolution: {integrity: sha512-Paen00T4P8L8gd9bNsRMw7Cbaz85oxiv+hzomsRZgFm2byltPFDtfcoqlWJ8GyZlIBWgLssJlzLCnKU0G0302g==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-checkbox@1.1.4':
+    resolution: {integrity: sha512-wP0CPAHq+P5I4INKe3hJrIa1WoNqqrejzW+zoU0rOvo1b9gDEJJFl2rYfO1PYJUQCc2H1WZxIJmyv9BS8i5fLw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-collapsible@1.1.3':
+    resolution: {integrity: sha512-jFSerheto1X03MUC0g6R7LedNW9EEGWdg9W1+MlpkMLwGkgkbUXLPBH/KIuWKXUoeYRVY11llqbTBDzuLg7qrw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-collection@1.1.2':
+    resolution: {integrity: sha512-9z54IEKRxIa9VityapoEYMuByaG42iSy1ZXlY2KcuLSEtq8x4987/N6m15ppoMffgZX72gER2uHe1D9Y6Unlcw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-compose-refs@1.1.1':
+    resolution: {integrity: sha512-Y9VzoRDSJtgFMUCoiZBDVo084VQ5hfpXxVE+NgkdNsjiDBByiImMZKKhxMwCbdHvhlENG6a833CbFkOQvTricw==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-compose-refs@1.1.3':
+    resolution: {integrity: sha512-rYOP8OMnuuPMQF1uhPVlGNcCDlkokKqGFE3JcxFViIkAXP7EvFWUliJAstrapypaBLJNHbZL6jGhbVDGTwmVhA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-context-menu@2.2.6':
+    resolution: {integrity: sha512-aUP99QZ3VU84NPsHeaFt4cQUNgJqFsLLOt/RbbWXszZ6MP0DpDyjkFZORr4RpAEx3sUBk+Kc8h13yGtC5Qw8dg==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-context@1.1.1':
+    resolution: {integrity: sha512-UASk9zi+crv9WteK/NU4PLvOoL3OuE6BWVKNF6hPRBtYBDXQ2u5iu3O59zUlJiTVvkyuycnqrztsHVJwcK9K+Q==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-dialog@1.1.6':
+    resolution: {integrity: sha512-/IVhJV5AceX620DUJ4uYVMymzsipdKBzo3edo+omeskCKGm9FRHM0ebIdbPnlQVJqyuHbuBltQUOG2mOTq2IYw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-direction@1.1.0':
+    resolution: {integrity: sha512-BUuBvgThEiAXh2DWu93XsT+a3aWrGqolGlqqw5VU1kG7p/ZH2cuDlM1sRLNnY3QcBS69UIz2mcKhMxDsdewhjg==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-dismissable-layer@1.1.5':
+    resolution: {integrity: sha512-E4TywXY6UsXNRhFrECa5HAvE5/4BFcGyfTyK36gP+pAW1ed7UTK4vKwdr53gAJYwqbfCWC6ATvJa3J3R/9+Qrg==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-dropdown-menu@2.1.6':
+    resolution: {integrity: sha512-no3X7V5fD487wab/ZYSHXq3H37u4NVeLDKI/Ks724X/eEFSSEFYZxWgsIlr1UBeEyDaM29HM5x9p1Nv8DuTYPA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-focus-guards@1.1.1':
+    resolution: {integrity: sha512-pSIwfrT1a6sIoDASCSpFwOasEwKTZWDw/iBdtnqKO7v6FeOzYJ7U53cPzYFVR3geGGXgVHaH+CdngrrAzqUGxg==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-focus-scope@1.1.2':
+    resolution: {integrity: sha512-zxwE80FCU7lcXUGWkdt6XpTTCKPitG1XKOwViTxHVKIJhZl9MvIl2dVHeZENCWD9+EdWv05wlaEkRXUykU27RA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-hover-card@1.1.6':
+    resolution: {integrity: sha512-E4ozl35jq0VRlrdc4dhHrNSV0JqBb4Jy73WAhBEK7JoYnQ83ED5r0Rb/XdVKw89ReAJN38N492BAPBZQ57VmqQ==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-id@1.1.0':
+    resolution: {integrity: sha512-EJUrI8yYh7WOjNOqpoJaf1jlFIH2LvtgAl+YcFqNCa+4hj64ZXmPkAKOFs/ukjz3byN6bdb/AVUqHkI8/uWWMA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-id@1.1.2':
+    resolution: {integrity: sha512-orBC88futVpqCmhX1p4cvquNHsELQ+w+vBJnuj3ftETI5bJb0bZn3Tqu3SWN2IOcPycTnMGnhwoermvISt72sA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-label@2.1.2':
+    resolution: {integrity: sha512-zo1uGMTaNlHehDyFQcDZXRJhUPDuukcnHz0/jnrup0JA6qL+AFpAnty+7VKa9esuU5xTblAZzTGYJKSKaBxBhw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-menu@2.1.6':
+    resolution: {integrity: sha512-tBBb5CXDJW3t2mo9WlO7r6GTmWV0F0uzHZVFmlRmYpiSK1CDU5IKojP1pm7oknpBOrFZx/YgBRW9oorPO2S/Lg==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-menubar@1.1.6':
+    resolution: {integrity: sha512-FHq7+3DlXwh/7FOM4i0G4bC4vPjiq89VEEvNF4VMLchGnaUuUbE5uKXMUCjdKaOghEEMeiKa5XCa2Pk4kteWmg==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-navigation-menu@1.2.5':
+    resolution: {integrity: sha512-myMHHQUZ3ZLTi8W381/Vu43Ia0NqakkQZ2vzynMmTUtQQ9kNkjzhOwkZC9TAM5R07OZUVIQyHC06f/9JZJpvvA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-popover@1.1.6':
+    resolution: {integrity: sha512-NQouW0x4/GnkFJ/pRqsIS3rM/k97VzKnVb2jB7Gq7VEGPy5g7uNV1ykySFt7eWSp3i2uSGFwaJcvIRJBAHmmFg==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-popper@1.2.2':
+    resolution: {integrity: sha512-Rvqc3nOpwseCyj/rgjlJDYAgyfw7OC1tTkKn2ivhaMGcYt8FSBlahHOZak2i3QwkRXUXgGgzeEe2RuqeEHuHgA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-portal@1.1.4':
+    resolution: {integrity: sha512-sn2O9k1rPFYVyKd5LAJfo96JlSGVFpa1fS6UuBJfrZadudiw5tAmru+n1x7aMRQ84qDM71Zh1+SzK5QwU0tJfA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-presence@1.1.2':
+    resolution: {integrity: sha512-18TFr80t5EVgL9x1SwF/YGtfG+l0BS0PRAlCWBDoBEiDQjeKgnNZRVJp/oVBl24sr3Gbfwc/Qpj4OcWTQMsAEg==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-primitive@2.0.2':
+    resolution: {integrity: sha512-Ec/0d38EIuvDF+GZjcMU/Ze6MxntVJYO/fRlCPhCaVUyPY9WTalHJw54tp9sXeJo3tlShWpy41vQRgLRGOuz+w==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-primitive@2.1.6':
+    resolution: {integrity: sha512-wetd0QI77DbvrPpTAvH1SqOxsYF2wZe5TNxqwOd5Ty4XDpV3dpV0s8K/1MGMJBeY5o7lg8ub5VIt1Ub+yVen6g==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-progress@1.1.2':
+    resolution: {integrity: sha512-u1IgJFQ4zNAUTjGdDL5dcl/U8ntOR6jsnhxKb5RKp5Ozwl88xKR9EqRZOe/Mk8tnx0x5tNUe2F+MzsyjqMg0MA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-radio-group@1.2.3':
+    resolution: {integrity: sha512-xtCsqt8Rp09FK50ItqEqTJ7Sxanz8EM8dnkVIhJrc/wkMMomSmXHvYbhv3E7Zx4oXh98aaLt9W679SUYXg4IDA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-roving-focus@1.1.2':
+    resolution: {integrity: sha512-zgMQWkNO169GtGqRvYrzb0Zf8NhMHS2DuEB/TiEmVnpr5OqPU3i8lfbxaAmC2J/KYuIQxyoQQ6DxepyXp61/xw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-scroll-area@1.2.3':
+    resolution: {integrity: sha512-l7+NNBfBYYJa9tNqVcP2AGvxdE3lmE6kFTBXdvHgUaZuy+4wGCL1Cl2AfaR7RKyimj7lZURGLwFO59k4eBnDJQ==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-select@2.1.6':
+    resolution: {integrity: sha512-T6ajELxRvTuAMWH0YmRJ1qez+x4/7Nq7QIx7zJ0VK3qaEWdnWpNbEDnmWldG1zBDwqrLy5aLMUWcoGirVj5kMg==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-separator@1.1.2':
+    resolution: {integrity: sha512-oZfHcaAp2Y6KFBX6I5P1u7CQoy4lheCGiYj+pGFrHy8E/VNRb5E39TkTr3JrV520csPBTZjkuKFdEsjS5EUNKQ==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-slider@1.2.3':
+    resolution: {integrity: sha512-nNrLAWLjGESnhqBqcCNW4w2nn7LxudyMzeB6VgdyAnFLC6kfQgnAjSL2v6UkQTnDctJBlxrmxfplWS4iYjdUTw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-slot@1.1.2':
+    resolution: {integrity: sha512-YAKxaiGsSQJ38VzKH86/BPRC4rh+b1Jpa+JneA5LRE7skmLPNAyeG8kPJj/oo4STLvlrs8vkf/iYyc3A5stYCQ==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-slot@1.3.0':
+    resolution: {integrity: sha512-MojKku4U/miO8Av4Dkb+ctMAQx7JmY96LmtDQlAarCRtd7rN52QCSzBF+XAvr5S6coSVj9HEPBgHAHKEJVk/WA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-switch@1.1.3':
+    resolution: {integrity: sha512-1nc+vjEOQkJVsJtWPSiISGT6OKm4SiOdjMo+/icLxo2G4vxz1GntC5MzfL4v8ey9OEfw787QCD1y3mUv0NiFEQ==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-tabs@1.1.3':
+    resolution: {integrity: sha512-9mFyI30cuRDImbmFF6O2KUJdgEOsGh9Vmx9x/Dh9tOhL7BngmQPQfwW4aejKm5OHpfWIdmeV6ySyuxoOGjtNng==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-toggle-group@1.1.2':
+    resolution: {integrity: sha512-JBm6s6aVG/nwuY5eadhU2zDi/IwYS0sDM5ZWb4nymv/hn3hZdkw+gENn0LP4iY1yCd7+bgJaCwueMYJIU3vk4A==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-toggle@1.1.2':
+    resolution: {integrity: sha512-lntKchNWx3aCHuWKiDY+8WudiegQvBpDRAYL8dKLRvKEH8VOpl0XX6SSU/bUBqIRJbcTy4+MW06Wv8vgp10rzQ==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-tooltip@1.1.8':
+    resolution: {integrity: sha512-YAA2cu48EkJZdAMHC0dqo9kialOcRStbtiY4nJPaht7Ptrhcvpo+eDChaM6BIs8kL6a8Z5l5poiqLnXcNduOkA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-use-callback-ref@1.1.0':
+    resolution: {integrity: sha512-CasTfvsy+frcFkbXtSJ2Zu9JHpN8TYKxkgJGWbjiZhFivxaeW7rMeZt7QELGVLaYVfFMsKHjb7Ak0nMEe+2Vfw==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-use-controllable-state@1.1.0':
+    resolution: {integrity: sha512-MtfMVJiSr2NjzS0Aa90NPTnvTSg6C/JLCV7ma0W6+OMV78vd8OyRpID+Ng9LxzsPbLeuBnWBA1Nq30AtBIDChw==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-use-escape-keydown@1.1.0':
+    resolution: {integrity: sha512-L7vwWlR1kTTQ3oh7g1O0CBF3YCyyTj8NmhLR+phShpyA50HCfBFKVJTpshm9PzLiKmehsrQzTYTpX9HvmC9rhw==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-use-layout-effect@1.1.0':
+    resolution: {integrity: sha512-+FPE0rOdziWSrH9athwI1R0HDVbWlEhd+FR+aSDk4uWGmSJ9Z54sdZVDQPZAinJhJXwfT+qnj969mCsT2gfm5w==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-use-layout-effect@1.1.2':
+    resolution: {integrity: sha512-jrBWOxZITuGcnjRCM2t2U5ZPkCLxD+Ym6DjfssS5haTj2iiak/DOb64JeN6OdLfLgptb6/e2kKR+ZuTrGoZTPA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-use-previous@1.1.0':
+    resolution: {integrity: sha512-Z/e78qg2YFnnXcW88A4JmTtm4ADckLno6F7OXotmkQfeuCVaKuYzqAATPhVzl3delXE7CxIV8shofPn3jPc5Og==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-use-rect@1.1.0':
+    resolution: {integrity: sha512-0Fmkebhr6PiseyZlYAOtLS+nb7jLmpqTrJyv61Pe68MKYW6OWdRE2kI70TaYY27u7H0lajqM3hSMMLFq18Z7nQ==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-use-size@1.1.0':
+    resolution: {integrity: sha512-XW3/vWuIXHa+2Uwcc2ABSfcCledmXhhQPlGbfcRXbiUQI5Icjcg19BGCZVKKInYbvUCut/ufbbLLPFC5cbb1hw==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@radix-ui/react-visually-hidden@1.1.2':
+    resolution: {integrity: sha512-1SzA4ns2M1aRlvxErqhLHsBHoS5eI5UUcI2awAMgGUp4LoaoWOKYmvqDY2s/tltuPkh3Yk77YF/r3IRj+Amx4Q==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/rect@1.1.0':
+    resolution: {integrity: sha512-A9+lCBZoaMJlVKcRBz2YByCG+Cp2t6nAnMnNba+XiWxnj6r4JUFqfsgwocMBZU9LPtdxC6wB56ySYpc7LQIoJg==}
+
+  '@react-dnd/asap@5.0.2':
+    resolution: {integrity: sha512-WLyfoHvxhs0V9U+GTsGilGgf2QsPl6ZZ44fnv0/b8T3nQyvzxidxsg/ZltbWssbsRDlYW8UKSQMTGotuTotZ6A==}
+
+  '@react-dnd/invariant@4.0.2':
+    resolution: {integrity: sha512-xKCTqAK/FFauOM9Ta2pswIyT3D8AQlfrYdOi/toTPEhqCuAs1v5tcJ3Y08Izh1cJ5Jchwy9SeAXmMg6zrKs2iw==}
+
+  '@react-dnd/shallowequal@4.0.2':
+    resolution: {integrity: sha512-/RVXdLvJxLg4QKvMoM5WlwNR9ViO9z8B/qPcc+C0Sa/teJY7QG7kJ441DwzOjMYEY7GmU4dj5EcGHIkKZiQZCA==}
+
+  '@rolldown/pluginutils@1.0.0-beta.27':
+    resolution: {integrity: sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA==}
+
+  '@rollup/rollup-android-arm-eabi@4.62.2':
+    resolution: {integrity: sha512-6o7ZLZK+BeenkZCFNDXqpbjw9bD6nuWonvS/lwQJp7NoVVxm6p3qE7qQ5jGuBjiFsgvqjD8mZAU5oWxTmbOeOg==}
+    cpu: [arm]
+    os: [android]
+
+  '@rollup/rollup-android-arm64@4.62.2':
+    resolution: {integrity: sha512-BaH7BllCACHoH1LguOU56UItGfUWjujlO65kS9LAodViaN4bwIKd7oeW/ZHJ/4ljr/7MIiENnNy3HJ0zXv8Zkw==}
+    cpu: [arm64]
+    os: [android]
+
+  '@rollup/rollup-darwin-arm64@4.62.2':
+    resolution: {integrity: sha512-v39RCCvj4He82I9sFmk+M1VZ0PLM9sfsLVikjfx2hYBNALhrrOR2D3JjQA6AhlaSOgcR+RzrKY7e1+bT6SUO/A==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@rollup/rollup-darwin-x64@4.62.2':
+    resolution: {integrity: sha512-yl0y2vq3S3lHeuXhEdss6TWfKW8vkujImO12tn4ZkG/4oghr09LvdYm2RElVjokTQiUvDUGXLGsYeLqUMCKpGA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@rollup/rollup-freebsd-arm64@4.62.2':
+    resolution: {integrity: sha512-tT4pvt4qXD+vEoezupCWi+a1F0vvDiksiHc+PxRlYTOH1I6/X4id9jPxTP+Fg+545euaFT1jJVs4CEdHZAU1vw==}
+    cpu: [arm64]
+    os: [freebsd]
+
+  '@rollup/rollup-freebsd-x64@4.62.2':
+    resolution: {integrity: sha512-6nU5F2wCW+qvCBhTn1pdIU3bzsIoF7EUwsCDRxilWGprQR6yd508YnH9+OKFCwpfS8pjZqDUmnCAr7exax0XCg==}
+    cpu: [x64]
+    os: [freebsd]
+
+  '@rollup/rollup-linux-arm-gnueabihf@4.62.2':
+    resolution: {integrity: sha512-n1GJHPOvpIfhi3TmrCeh6S6URt9BFCt0KQE3qvexyGCTAKpR4Lg+eWvNZEqu7epxwus/8ElT3hacYEucm49SZg==}
+    cpu: [arm]
+    os: [linux]
+    libc: [glibc]
+
+  '@rollup/rollup-linux-arm-musleabihf@4.62.2':
+    resolution: {integrity: sha512-JqgflS8wEB+UXV/vS1RpRbifGBeN4D5lz8D8oOFbFZw4vedvdOgCFAjfBmIMdW3yL10XpQQ0Ambepw6MXrhOnA==}
+    cpu: [arm]
+    os: [linux]
+    libc: [musl]
+
+  '@rollup/rollup-linux-arm64-gnu@4.62.2':
+    resolution: {integrity: sha512-wnFJkogWvN4jm/hQRF2UBaeUmk20j5+DmHvoyWii2b8HJDyvz1MF2OU/6ynXt2KR63rbZLWkFpoytpdc/yBuSA==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@rollup/rollup-linux-arm64-musl@4.62.2':
+    resolution: {integrity: sha512-HVu2bp0zhvJ8xHEV9+UUs7S90VadmBSY3LcIMvozbPo4AuMGDWlz3ymHLHZPX4hR67TKTt8Qp5PJ5RBg/i+RMQ==}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  '@rollup/rollup-linux-loong64-gnu@4.62.2':
+    resolution: {integrity: sha512-mQqqAV8QaoSgr9I2fKDLY2BAVvmKjWoGiu/cSYQonsLvtqwEn1E4QYfnCOcp5zoEqNhsDYin1s6jx/VJmrxlZg==}
+    cpu: [loong64]
+    os: [linux]
+    libc: [glibc]
+
+  '@rollup/rollup-linux-loong64-musl@4.62.2':
+    resolution: {integrity: sha512-IxKLoxCQ2IWi6bT2akyDUBGsOImDKB+sPp4EsTmwFQ/fMwpCKm8uLSSgP/Kx/QYUgKis6SEZ5/Nlhup0DIA0PQ==}
+    cpu: [loong64]
+    os: [linux]
+    libc: [musl]
+
+  '@rollup/rollup-linux-ppc64-gnu@4.62.2':
+    resolution: {integrity: sha512-Mk5ha2RQSgyFfmYYLkBpPnUk8D8FriBxesO1u9O75X0mHgXL1UQcH5Itl2lurWL2tj0RxV9b9tJgipac0hRY9A==}
+    cpu: [ppc64]
+    os: [linux]
+    libc: [glibc]
+
+  '@rollup/rollup-linux-ppc64-musl@4.62.2':
+    resolution: {integrity: sha512-CjvEnqJL/0/TQ3TXX3OPIJ/kmBellrWd4heXUmHeJlTnmwjKpSJzoehLaL6Xk0ZnMHBu9dZuFADNOrtjF4v+2w==}
+    cpu: [ppc64]
+    os: [linux]
+    libc: [musl]
+
+  '@rollup/rollup-linux-riscv64-gnu@4.62.2':
+    resolution: {integrity: sha512-1SiZbzwdkaDURsew/tSOrooKiYy7EQGT6m8ufavAi9NEyQb/6VuIxFXAL1fqa4iZe3g4NbNk4P7J32z2tw5Mgg==}
+    cpu: [riscv64]
+    os: [linux]
+    libc: [glibc]
+
+  '@rollup/rollup-linux-riscv64-musl@4.62.2':
+    resolution: {integrity: sha512-nQts12zJ3NQRoE6uYljOH89v7szzLDvG2JD/vsX+vGXU8w/At1GowTZ5/7qeFQ8m7L55rpR8Okugnuo5bgjy2Q==}
+    cpu: [riscv64]
+    os: [linux]
+    libc: [musl]
+
+  '@rollup/rollup-linux-s390x-gnu@4.62.2':
+    resolution: {integrity: sha512-E9/ll019jhPIJgpzfZoIkBGhcz+kKNgVWYRY0zr9srBdPPFVpvOKW8VaJKUbeK+eZXyQF9ltME+Kk6affeaPgg==}
+    cpu: [s390x]
+    os: [linux]
+    libc: [glibc]
+
+  '@rollup/rollup-linux-x64-gnu@4.62.2':
+    resolution: {integrity: sha512-5BqxR/pshjey51iliyzTD5Xi3EN0aLmQ2lZ3lvefVV9c82BvrLo2/6OT55iifpWBufs6kdwWbuOKS841DrmK9A==}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@rollup/rollup-linux-x64-musl@4.62.2':
+    resolution: {integrity: sha512-uNN83XxQrRAh/w0/pmAfibcwyb6YWt4gP+dpnQKPVJshAloQ785ii8CT8ZCIxkGg9opVsvAlGhFitSm6D1Jjpg==}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@rollup/rollup-openbsd-x64@4.62.2':
+    resolution: {integrity: sha512-srjEIxSH3LRnJN6THczDHWQplqEMFiAJrTab0msUryh9kwNpkICf3Ea6q6MN/2cZwRFUNx5w+h6Hpi4QuHS6Zg==}
+    cpu: [x64]
+    os: [openbsd]
+
+  '@rollup/rollup-openharmony-arm64@4.62.2':
+    resolution: {integrity: sha512-8hOJnxgbyObnCm5AlRA3A931xX19xq80RjVTKgJOvEKWqJruP/Uf12IbAOaDjjEXYRewwHLfmF0YRIdK3OwKWA==}
+    cpu: [arm64]
+    os: [openharmony]
+
+  '@rollup/rollup-win32-arm64-msvc@4.62.2':
+    resolution: {integrity: sha512-mmF4AY1i0hG/bLWUctUq59gtmgaSIRa3cu/A3JFRp/sCNEme2bgDEiDS22P9FbnJB8NJNF4jPJiSP5RHQpUTDg==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@rollup/rollup-win32-ia32-msvc@4.62.2':
+    resolution: {integrity: sha512-DZgkknc6jhHrk46V25vbAM0zZkyP0nSDkJB8/dRkLTxv470dOmWDqGoEJl/9A0dFfS7yE3REOwNDxpHwSLSt0Q==}
+    cpu: [ia32]
+    os: [win32]
+
+  '@rollup/rollup-win32-x64-gnu@4.62.2':
+    resolution: {integrity: sha512-T6xr6ucWSFto+VGajA8YH26LdpHRuP4YLHEKAtCWvJDOlnmWcDZVCI2Jmjr+IFHDlt2zRaTAKE4tfjTaWLgJBg==}
+    cpu: [x64]
+    os: [win32]
+
+  '@rollup/rollup-win32-x64-msvc@4.62.2':
+    resolution: {integrity: sha512-BfzEnDJOt9T8M989/lA37EcJgat01wLRnoi5dQf3QzOH7jzpqTAzdDbVfRljVr5r+jzKqpbHeyOfAaXxAd0PAA==}
+    cpu: [x64]
+    os: [win32]
+
+  '@tailwindcss/node@4.1.12':
+    resolution: {integrity: sha512-3hm9brwvQkZFe++SBt+oLjo4OLDtkvlE8q2WalaD/7QWaeM7KEJbAiY/LJZUaCs7Xa8aUu4xy3uoyX4q54UVdQ==}
+
+  '@tailwindcss/oxide-android-arm64@4.1.12':
+    resolution: {integrity: sha512-oNY5pq+1gc4T6QVTsZKwZaGpBb2N1H1fsc1GD4o7yinFySqIuRZ2E4NvGasWc6PhYJwGK2+5YT1f9Tp80zUQZQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [android]
+
+  '@tailwindcss/oxide-darwin-arm64@4.1.12':
+    resolution: {integrity: sha512-cq1qmq2HEtDV9HvZlTtrj671mCdGB93bVY6J29mwCyaMYCP/JaUBXxrQQQm7Qn33AXXASPUb2HFZlWiiHWFytw==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@tailwindcss/oxide-darwin-x64@4.1.12':
+    resolution: {integrity: sha512-6UCsIeFUcBfpangqlXay9Ffty9XhFH1QuUFn0WV83W8lGdX8cD5/+2ONLluALJD5+yJ7k8mVtwy3zMZmzEfbLg==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@tailwindcss/oxide-freebsd-x64@4.1.12':
+    resolution: {integrity: sha512-JOH/f7j6+nYXIrHobRYCtoArJdMJh5zy5lr0FV0Qu47MID/vqJAY3r/OElPzx1C/wdT1uS7cPq+xdYYelny1ww==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [freebsd]
+
+  '@tailwindcss/oxide-linux-arm-gnueabihf@4.1.12':
+    resolution: {integrity: sha512-v4Ghvi9AU1SYgGr3/j38PD8PEe6bRfTnNSUE3YCMIRrrNigCFtHZ2TCm8142X8fcSqHBZBceDx+JlFJEfNg5zQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [linux]
+
+  '@tailwindcss/oxide-linux-arm64-gnu@4.1.12':
+    resolution: {integrity: sha512-YP5s1LmetL9UsvVAKusHSyPlzSRqYyRB0f+Kl/xcYQSPLEw/BvGfxzbH+ihUciePDjiXwHh+p+qbSP3SlJw+6g==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@tailwindcss/oxide-linux-arm64-musl@4.1.12':
+    resolution: {integrity: sha512-V8pAM3s8gsrXcCv6kCHSuwyb/gPsd863iT+v1PGXC4fSL/OJqsKhfK//v8P+w9ThKIoqNbEnsZqNy+WDnwQqCA==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  '@tailwindcss/oxide-linux-x64-gnu@4.1.12':
+    resolution: {integrity: sha512-xYfqYLjvm2UQ3TZggTGrwxjYaLB62b1Wiysw/YE3Yqbh86sOMoTn0feF98PonP7LtjsWOWcXEbGqDL7zv0uW8Q==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@tailwindcss/oxide-linux-x64-musl@4.1.12':
+    resolution: {integrity: sha512-ha0pHPamN+fWZY7GCzz5rKunlv9L5R8kdh+YNvP5awe3LtuXb5nRi/H27GeL2U+TdhDOptU7T6Is7mdwh5Ar3A==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@tailwindcss/oxide-wasm32-wasi@4.1.12':
+    resolution: {integrity: sha512-4tSyu3dW+ktzdEpuk6g49KdEangu3eCYoqPhWNsZgUhyegEda3M9rG0/j1GV/JjVVsj+lG7jWAyrTlLzd/WEBg==}
+    engines: {node: '>=14.0.0'}
+    cpu: [wasm32]
+    bundledDependencies:
+      - '@napi-rs/wasm-runtime'
+      - '@emnapi/core'
+      - '@emnapi/runtime'
+      - '@tybys/wasm-util'
+      - '@emnapi/wasi-threads'
+      - tslib
+
+  '@tailwindcss/oxide-win32-arm64-msvc@4.1.12':
+    resolution: {integrity: sha512-iGLyD/cVP724+FGtMWslhcFyg4xyYyM+5F4hGvKA7eifPkXHRAUDFaimu53fpNg9X8dfP75pXx/zFt/jlNF+lg==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@tailwindcss/oxide-win32-x64-msvc@4.1.12':
+    resolution: {integrity: sha512-NKIh5rzw6CpEodv/++r0hGLlfgT/gFN+5WNdZtvh6wpU2BpGNgdjvj6H2oFc8nCM839QM1YOhjpgbAONUb4IxA==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+
+  '@tailwindcss/oxide@4.1.12':
+    resolution: {integrity: sha512-gM5EoKHW/ukmlEtphNwaGx45fGoEmP10v51t9unv55voWh6WrOL19hfuIdo2FjxIaZzw776/BUQg7Pck++cIVw==}
+    engines: {node: '>= 10'}
+
+  '@tailwindcss/vite@4.1.12':
+    resolution: {integrity: sha512-4pt0AMFDx7gzIrAOIYgYP0KCBuKWqyW8ayrdiLEjoJTT4pKTjrzG/e4uzWtTLDziC+66R9wbUqZBccJalSE5vQ==}
+    peerDependencies:
+      vite: ^5.2.0 || ^6 || ^7
+
+  '@types/babel__core@7.20.5':
+    resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
+
+  '@types/babel__generator@7.27.0':
+    resolution: {integrity: sha512-ufFd2Xi92OAVPYsy+P4n7/U7e68fex0+Ee8gSG9KX7eo084CWiQ4sdxktvdl0bOPupXtVJPY19zk6EwWqUQ8lg==}
+
+  '@types/babel__template@7.4.4':
+    resolution: {integrity: sha512-h/NUaSyG5EyxBIp8YRxo4RMe2/qQgvyowRwVMzhYhBCONbW8PUsg4lkFMrhgZhUe5z3L3MiLDuvyJ/CaPa2A8A==}
+
+  '@types/babel__traverse@7.28.0':
+    resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
+
+  '@types/d3-array@3.2.2':
+    resolution: {integrity: sha512-hOLWVbm7uRza0BYXpIIW5pxfrKe0W+D5lrFiAEYR+pb6w3N2SwSMaJbXdUfSEv+dT4MfHBLtn5js0LAWaO6otw==}
+
+  '@types/d3-axis@3.0.6':
+    resolution: {integrity: sha512-pYeijfZuBd87T0hGn0FO1vQ/cgLk6E1ALJjfkC0oJ8cbwkZl3TpgS8bVBLZN+2jjGgg38epgxb2zmoGtSfvgMw==}
+
+  '@types/d3-brush@3.0.6':
+    resolution: {integrity: sha512-nH60IZNNxEcrh6L1ZSMNA28rj27ut/2ZmI3r96Zd+1jrZD++zD3LsMIjWlvg4AYrHn/Pqz4CF3veCxGjtbqt7A==}
+
+  '@types/d3-chord@3.0.6':
+    resolution: {integrity: sha512-LFYWWd8nwfwEmTZG9PfQxd17HbNPksHBiJHaKuY1XeqscXacsS2tyoo6OdRsjf+NQYeB6XrNL3a25E3gH69lcg==}
+
+  '@types/d3-color@3.1.3':
+    resolution: {integrity: sha512-iO90scth9WAbmgv7ogoq57O9YpKmFBbmoEoCHDB2xMBY0+/KVrqAaCDyCE16dUspeOvIxFFRI+0sEtqDqy2b4A==}
+
+  '@types/d3-contour@3.0.6':
+    resolution: {integrity: sha512-BjzLgXGnCWjUSYGfH1cpdo41/hgdWETu4YxpezoztawmqsvCeep+8QGfiY6YbDvfgHz/DkjeIkkZVJavB4a3rg==}
+
+  '@types/d3-delaunay@6.0.4':
+    resolution: {integrity: sha512-ZMaSKu4THYCU6sV64Lhg6qjf1orxBthaC161plr5KuPHo3CNm8DTHiLw/5Eq2b6TsNP0W0iJrUOFscY6Q450Hw==}
+
+  '@types/d3-dispatch@3.0.7':
+    resolution: {integrity: sha512-5o9OIAdKkhN1QItV2oqaE5KMIiXAvDWBDPrD85e58Qlz1c1kI/J0NcqbEG88CoTwJrYe7ntUCVfeUl2UJKbWgA==}
+
+  '@types/d3-drag@3.0.7':
+    resolution: {integrity: sha512-HE3jVKlzU9AaMazNufooRJ5ZpWmLIoc90A37WU2JMmeq28w1FQqCZswHZ3xR+SuxYftzHq6WU6KJHvqxKzTxxQ==}
+
+  '@types/d3-dsv@3.0.7':
+    resolution: {integrity: sha512-n6QBF9/+XASqcKK6waudgL0pf/S5XHPPI8APyMLLUHd8NqouBGLsU8MgtO7NINGtPBtk9Kko/W4ea0oAspwh9g==}
+
+  '@types/d3-ease@3.0.2':
+    resolution: {integrity: sha512-NcV1JjO5oDzoK26oMzbILE6HW7uVXOHLQvHshBUW4UMdZGfiY6v5BeQwh9a9tCzv+CeefZQHJt5SRgK154RtiA==}
+
+  '@types/d3-fetch@3.0.7':
+    resolution: {integrity: sha512-fTAfNmxSb9SOWNB9IoG5c8Hg6R+AzUHDRlsXsDZsNp6sxAEOP0tkP3gKkNSO/qmHPoBFTxNrjDprVHDQDvo5aA==}
+
+  '@types/d3-force@3.0.10':
+    resolution: {integrity: sha512-ZYeSaCF3p73RdOKcjj+swRlZfnYpK1EbaDiYICEEp5Q6sUiqFaFQ9qgoshp5CzIyyb/yD09kD9o2zEltCexlgw==}
+
+  '@types/d3-format@3.0.4':
+    resolution: {integrity: sha512-fALi2aI6shfg7vM5KiR1wNJnZ7r6UuggVqtDA+xiEdPZQwy/trcQaHnwShLuLdta2rTymCNpxYTiMZX/e09F4g==}
+
+  '@types/d3-geo@3.1.0':
+    resolution: {integrity: sha512-856sckF0oP/diXtS4jNsiQw/UuK5fQG8l/a9VVLeSouf1/PPbBE1i1W852zVwKwYCBkFJJB7nCFTbk6UMEXBOQ==}
+
+  '@types/d3-hierarchy@3.1.7':
+    resolution: {integrity: sha512-tJFtNoYBtRtkNysX1Xq4sxtjK8YgoWUNpIiUee0/jHGRwqvzYxkq0hGVbbOGSz+JgFxxRu4K8nb3YpG3CMARtg==}
+
+  '@types/d3-interpolate@3.0.4':
+    resolution: {integrity: sha512-mgLPETlrpVV1YRJIglr4Ez47g7Yxjl1lj7YKsiMCb27VJH9W8NVM6Bb9d8kkpG/uAQS5AmbA48q2IAolKKo1MA==}
+
+  '@types/d3-path@3.1.1':
+    resolution: {integrity: sha512-VMZBYyQvbGmWyWVea0EHs/BwLgxc+MKi1zLDCONksozI4YJMcTt8ZEuIR4Sb1MMTE8MMW49v0IwI5+b7RmfWlg==}
+
+  '@types/d3-polygon@3.0.2':
+    resolution: {integrity: sha512-ZuWOtMaHCkN9xoeEMr1ubW2nGWsp4nIql+OPQRstu4ypeZ+zk3YKqQT0CXVe/PYqrKpZAi+J9mTs05TKwjXSRA==}
+
+  '@types/d3-quadtree@3.0.6':
+    resolution: {integrity: sha512-oUzyO1/Zm6rsxKRHA1vH0NEDG58HrT5icx/azi9MF1TWdtttWl0UIUsjEQBBh+SIkrpd21ZjEv7ptxWys1ncsg==}
+
+  '@types/d3-random@3.0.3':
+    resolution: {integrity: sha512-Imagg1vJ3y76Y2ea0871wpabqp613+8/r0mCLEBfdtqC7xMSfj9idOnmBYyMoULfHePJyxMAw3nWhJxzc+LFwQ==}
+
+  '@types/d3-scale-chromatic@3.1.0':
+    resolution: {integrity: sha512-iWMJgwkK7yTRmWqRB5plb1kadXyQ5Sj8V/zYlFGMUBbIPKQScw+Dku9cAAMgJG+z5GYDoMjWGLVOvjghDEFnKQ==}
+
+  '@types/d3-scale@4.0.9':
+    resolution: {integrity: sha512-dLmtwB8zkAeO/juAMfnV+sItKjlsw2lKdZVVy6LRr0cBmegxSABiLEpGVmSJJ8O08i4+sGR6qQtb6WtuwJdvVw==}
+
+  '@types/d3-selection@3.0.11':
+    resolution: {integrity: sha512-bhAXu23DJWsrI45xafYpkQ4NtcKMwWnAC/vKrd2l+nxMFuvOT3XMYTIj2opv8vq8AO5Yh7Qac/nSeP/3zjTK0w==}
+
+  '@types/d3-shape@3.1.8':
+    resolution: {integrity: sha512-lae0iWfcDeR7qt7rA88BNiqdvPS5pFVPpo5OfjElwNaT2yyekbM0C9vK+yqBqEmHr6lDkRnYNoTBYlAgJa7a4w==}
+
+  '@types/d3-time-format@4.0.3':
+    resolution: {integrity: sha512-5xg9rC+wWL8kdDj153qZcsJ0FWiFt0J5RB6LYUNZjwSnesfblqrI/bJ1wBdJ8OQfncgbJG5+2F+qfqnqyzYxyg==}
+
+  '@types/d3-time@3.0.4':
+    resolution: {integrity: sha512-yuzZug1nkAAaBlBBikKZTgzCeA+k1uy4ZFwWANOfKw5z5LRhV0gNA7gNkKm7HoK+HRN0wX3EkxGk0fpbWhmB7g==}
+
+  '@types/d3-timer@3.0.2':
+    resolution: {integrity: sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==}
+
+  '@types/d3-transition@3.0.9':
+    resolution: {integrity: sha512-uZS5shfxzO3rGlu0cC3bjmMFKsXv+SmZZcgp0KD22ts4uGXp5EVYGzu/0YdwZeKmddhcAccYtREJKkPfXkZuCg==}
+
+  '@types/d3-zoom@3.0.8':
+    resolution: {integrity: sha512-iqMC4/YlFCSlO8+2Ii1GGGliCAY4XdeG748w5vQUbevlbDu0zSjH/+jojorQVBK/se0j6DUFNPBGSqD3YWYnDw==}
+
+  '@types/d3@7.4.3':
+    resolution: {integrity: sha512-lZXZ9ckh5R8uiFVt8ogUNf+pIrK4EsWrx2Np75WvF/eTpJ0FMHNhjXk8CKEx/+gpHbNQyJWehbFaTvqmHWB3ww==}
+
+  '@types/debug@4.1.13':
+    resolution: {integrity: sha512-KSVgmQmzMwPlmtljOomayoR89W4FynCAi3E8PPs7vmDVPe84hT+vGPKkJfThkmXs0x0jAaa9U8uW8bbfyS2fWw==}
+
+  '@types/estree-jsx@1.0.5':
+    resolution: {integrity: sha512-52CcUVNFyfb1A2ALocQw/Dd1BQFNmSdkuC3BkZ6iqhdMfQz7JWOFRuJFloOzjk+6WijU56m9oKXFAXc7o3Towg==}
+
+  '@types/estree@1.0.9':
+    resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
+
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
+
+  '@types/hast@3.0.4':
+    resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
+
+  '@types/mdast@4.0.4':
+    resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
+
+  '@types/ms@2.1.0':
+    resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
+
+  '@types/parse-json@4.0.2':
+    resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
+
+  '@types/prop-types@15.7.15':
+    resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
+
+  '@types/raf@3.4.3':
+    resolution: {integrity: sha512-c4YAvMedbPZ5tEyxzQdMoOhhJ4RD3rngZIdwC2/qDN3d7JpEhB6fiBRKVY1lg5B7Wk+uPBjn5f39j1/2MY1oOw==}
+
+  '@types/react-transition-group@4.4.12':
+    resolution: {integrity: sha512-8TV6R3h2j7a91c+1DXdJi3Syo69zzIZbz7Lg5tORM5LEJG7X/E6a1V3drRyBRZq7/utz7A+c4OgYLiLcYGHG6w==}
+    peerDependencies:
+      '@types/react': '*'
+
+  '@types/react@19.2.17':
+    resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
+
+  '@types/trusted-types@2.0.7':
+    resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
+
+  '@types/unist@2.0.11':
+    resolution: {integrity: sha512-CmBKiL6NNo/OqgmMn95Fk9Whlp2mtvIv+KNpQKN2F4SjvrEesubTRWGYSg+BnWZOnlCaSTU1sMpsBOzgbYhnsA==}
+
+  '@types/unist@3.0.3':
+    resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
+
+  '@ungap/structured-clone@1.3.1':
+    resolution: {integrity: sha512-mUFwbeTqrVgDQxFveS+df2yfap6iuP20NAKAsBt5jDEoOTDew+zwLAOilHCeQJOVSvmgCX4ogqIrA0mnyr08yQ==}
+
+  '@upsetjs/venn.js@2.0.0':
+    resolution: {integrity: sha512-WbBhLrooyePuQ1VZxrJjtLvTc4NVfpOyKx0sKqioq9bX1C1m7Jgykkn8gLrtwumBioXIqam8DLxp88Adbue6Hw==}
+
+  '@vitejs/plugin-react@4.7.0':
+    resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    peerDependencies:
+      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+
+  '@xyflow/react@12.11.1':
+    resolution: {integrity: sha512-L+zBoLGSXham0MnlY8QqjfR7/C5JNw0zxkaey5aZ5XmCgJBAdH4+WRIu8CR40d3l/BdU635V6YbhBK1jMo8/6Q==}
+    peerDependencies:
+      '@types/react': '>=17'
+      '@types/react-dom': '>=17'
+      react: '>=17'
+      react-dom: '>=17'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@xyflow/system@0.0.78':
+    resolution: {integrity: sha512-lY0z2qP33fUhTva9Vaxrk0lqZta2pkbxB1trHAx1omnJqRtPvDlAQYV2r5fhS6AdpkulYmbNW0svy+A4/t4B/g==}
+
+  aria-hidden@1.2.6:
+    resolution: {integrity: sha512-ik3ZgC9dY/lYVVM++OISsaYDeg1tb0VtP5uL3ouh1koGOaUMDPpbFIei4JkFimWUFPn90sbMNMXQAIVOlnYKJA==}
+    engines: {node: '>=10'}
+
+  atob@2.1.2:
+    resolution: {integrity: sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==}
+    engines: {node: '>= 4.5.0'}
+    hasBin: true
+
+  babel-plugin-macros@3.1.0:
+    resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
+    engines: {node: '>=10', npm: '>=6'}
+
+  bail@2.0.2:
+    resolution: {integrity: sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw==}
+
+  base64-arraybuffer@1.0.2:
+    resolution: {integrity: sha512-I3yl4r9QB5ZRY3XuJVEPfc2XhZO6YweFPI+UovAzn+8/hb3oJ6lnysaFcjVpkCPfVWFUDvoZ8kmVDP7WyRtYtQ==}
+    engines: {node: '>= 0.6.0'}
+
+  baseline-browser-mapping@2.10.38:
+    resolution: {integrity: sha512-31/02mVB4yuQU6adKk5SlY6m+mxDwUq5KZkyYgnLrrKl7TEm1+3PyDtDBz2kOv/wxZz41GHsvV1A/u6RmiyBvw==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  browserslist@4.28.4:
+    resolution: {integrity: sha512-MTc8i/x9jBQd1iMw2CFGS+rwMa07eYjLR0CCTLDACl9xhxy+nIs3KeML/biicXtk9JrZ6dnnTatmc7ErPXIxqw==}
+    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
+    hasBin: true
+
+  btoa@1.2.1:
+    resolution: {integrity: sha512-SB4/MIGlsiVkMcHmT+pSmIPoNDoHg+7cMzmt3Uxt628MTz2487DKSqK/fuhFBrkuqrYv5UCEnACpF4dTFNKc/g==}
+    engines: {node: '>= 0.4.0'}
+    hasBin: true
+
+  callsites@3.1.0:
+    resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
+    engines: {node: '>=6'}
+
+  caniuse-lite@1.0.30001799:
+    resolution: {integrity: sha512-hG1bReV+OUU+MOqK4t/ZWI0tZOyz3rqS9XuhOUz1cIcbwBKjOyJEJuw9ER5JuNyqxNk8u/JUVbGibBOL1yrjFw==}
+
+  canvas-confetti@1.9.4:
+    resolution: {integrity: sha512-yxQbJkAVrFXWNbTUjPqjF7G+g6pDotOUHGbkZq2NELZUMDpiJ85rIEazVb8GTaAptNW2miJAXbs1BtioA251Pw==}
+
+  canvg@3.0.11:
+    resolution: {integrity: sha512-5ON+q7jCTgMp9cjpu4Jo6XbvfYwSB2Ow3kzHKfIyJfaCAOHLbdKPQqGKgfED/R5B+3TFFfe8pegYA+b423SRyA==}
+    engines: {node: '>=10.0.0'}
+
+  ccount@2.0.1:
+    resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
+
+  character-entities-html4@2.1.0:
+    resolution: {integrity: sha512-1v7fgQRj6hnSwFpq1Eu0ynr/CDEw0rXo2B61qXrLNdHZmPKgb7fqS1a2JwF0rISo9q77jDI8VMEHoApn8qDoZA==}
+
+  character-entities-legacy@3.0.0:
+    resolution: {integrity: sha512-RpPp0asT/6ufRm//AJVwpViZbGM/MkjQFxJccQRHmISF/22NBtsHqAWmL+/pmkPWoIUJdWyeVleTl1wydHATVQ==}
+
+  character-entities@2.0.2:
+    resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}
+
+  character-reference-invalid@2.0.1:
+    resolution: {integrity: sha512-iBZ4F4wRbyORVsu0jPV7gXkOsGYjGHPmAyv+HiHG8gi5PtC9KI2j1+v8/tlibRvjoWX027ypmG/n0HtO5t7unw==}
+
+  chownr@3.0.0:
+    resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
+    engines: {node: '>=18'}
+
+  class-variance-authority@0.7.1:
+    resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
+
+  classcat@5.0.5:
+    resolution: {integrity: sha512-JhZUT7JFcQy/EzW605k/ktHtncoo9vnyW/2GspNYwFlN1C/WmjuV/xtS04e9SOkL2sTdw0VAZ2UGCcQ9lR6p6w==}
+
+  classnames@2.5.1:
+    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
+
+  clsx@2.1.1:
+    resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
+    engines: {node: '>=6'}
+
+  cmdk@1.1.1:
+    resolution: {integrity: sha512-Vsv7kFaXm+ptHDMZ7izaRsP70GgrW9NBNGswt9OZaVBLlE0SNpDq8eu/VGXyF9r7M0azK3Wy7OlYXsuyYLFzHg==}
+    peerDependencies:
+      react: ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^18 || ^19 || ^19.0.0-rc
+
+  comma-separated-tokens@2.0.3:
+    resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
+
+  commander@7.2.0:
+    resolution: {integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==}
+    engines: {node: '>= 10'}
+
+  commander@8.3.0:
+    resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
+    engines: {node: '>= 12'}
+
+  convert-source-map@1.9.0:
+    resolution: {integrity: sha512-ASFBup0Mz1uyiIjANan1jzLQami9z1PoYSZCiiYW2FczPbenXc45FZdBZLzOT+r6+iciuEModtmCti+hjaAk0A==}
+
+  convert-source-map@2.0.0:
+    resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
+
+  cookie@1.1.1:
+    resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
+    engines: {node: '>=18'}
+
+  core-js@3.49.0:
+    resolution: {integrity: sha512-es1U2+YTtzpwkxVLwAFdSpaIMyQaq0PBgm3YD1W3Qpsn1NAmO3KSgZfu+oGSWVu6NvLHoHCV/aYcsE5wiB7ALg==}
+
+  cose-base@1.0.3:
+    resolution: {integrity: sha512-s9whTXInMSgAp/NVXVNuVxVKzGH2qck3aQlVHxDCdAEPgtMKwc4Wq6/QKhgdEdgbLSi9rBTAcPoRa6JpiG4ksg==}
+
+  cose-base@2.2.0:
+    resolution: {integrity: sha512-AzlgcsCbUMymkADOJtQm3wO9S3ltPfYOFD5033keQn9NJzIbtnZj+UdBJe7DYml/8TdbtHJW3j58SOnKhWY/5g==}
+
+  cosmiconfig@7.1.0:
+    resolution: {integrity: sha512-AdmX6xUzdNASswsFtmwSt7Vj8po9IuqXm0UXz7QKPuEUmPB4XyjGfaAr2PSuELMwkRMVH1EpIkX5bTZGRB3eCA==}
+    engines: {node: '>=10'}
+
+  css-line-break@2.1.0:
+    resolution: {integrity: sha512-FHcKFCZcAha3LwfVBhCQbW2nCNbkZXn7KVUJcsT5/P8YmfsVja0FMPJr0B903j/E69HUphKiV9iQArX8SDYA4w==}
+
+  csstype@3.2.3:
+    resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
+  cytoscape-cose-bilkent@4.1.0:
+    resolution: {integrity: sha512-wgQlVIUJF13Quxiv5e1gstZ08rnZj2XaLHGoFMYXz7SkNfCDOOteKBE6SYRfA9WxxI/iBc3ajfDoc6hb/MRAHQ==}
+    peerDependencies:
+      cytoscape: ^3.2.0
+
+  cytoscape-fcose@2.2.0:
+    resolution: {integrity: sha512-ki1/VuRIHFCzxWNrsshHYPs6L7TvLu3DL+TyIGEsRcvVERmxokbf5Gdk7mFxZnTdiGtnA4cfSmjZJMviqSuZrQ==}
+    peerDependencies:
+      cytoscape: ^3.2.0
+
+  cytoscape@3.34.0:
+    resolution: {integrity: sha512-62rNSrioXw93uliKFBwjukeQyeWwH2PqDrTac31r2P6464u3AUvTk0xS4LVvT251g7IgkFunrI48ZEZGjywSOg==}
+    engines: {node: '>=0.10'}
+
+  d3-array@2.12.1:
+    resolution: {integrity: sha512-B0ErZK/66mHtEsR1TkPEEkwdy+WDesimkM5gpZr5Dsg54BiTA5RXtYW5qTLIAcekaS9xfZrzBLF/OAkB3Qn1YQ==}
+
+  d3-array@3.2.4:
+    resolution: {integrity: sha512-tdQAmyA18i4J7wprpYq8ClcxZy3SC31QMeByyCFyRt7BVHdREQZ5lpzoe5mFEYZUWe+oq8HBvk9JjpibyEV4Jg==}
+    engines: {node: '>=12'}
+
+  d3-axis@3.0.0:
+    resolution: {integrity: sha512-IH5tgjV4jE/GhHkRV0HiVYPDtvfjHQlQfJHs0usq7M30XcSBvOotpmH1IgkcXsO/5gEQZD43B//fc7SRT5S+xw==}
+    engines: {node: '>=12'}
+
+  d3-brush@3.0.0:
+    resolution: {integrity: sha512-ALnjWlVYkXsVIGlOsuWH1+3udkYFI48Ljihfnh8FZPF2QS9o+PzGLBslO0PjzVoHLZ2KCVgAM8NVkXPJB2aNnQ==}
+    engines: {node: '>=12'}
+
+  d3-chord@3.0.1:
+    resolution: {integrity: sha512-VE5S6TNa+j8msksl7HwjxMHDM2yNK3XCkusIlpX5kwauBfXuyLAtNg9jCp/iHH61tgI4sb6R/EIMWCqEIdjT/g==}
+    engines: {node: '>=12'}
+
+  d3-color@3.1.0:
+    resolution: {integrity: sha512-zg/chbXyeBtMQ1LbD/WSoW2DpC3I0mpmPdW+ynRTj/x2DAWYrIY7qeZIHidozwV24m4iavr15lNwIwLxRmOxhA==}
+    engines: {node: '>=12'}
+
+  d3-contour@4.0.2:
+    resolution: {integrity: sha512-4EzFTRIikzs47RGmdxbeUvLWtGedDUNkTcmzoeyg4sP/dvCexO47AaQL7VKy/gul85TOxw+IBgA8US2xwbToNA==}
+    engines: {node: '>=12'}
+
+  d3-delaunay@6.0.4:
+    resolution: {integrity: sha512-mdjtIZ1XLAM8bm/hx3WwjfHt6Sggek7qH043O8KEjDXN40xi3vx/6pYSVTwLjEgiXQTbvaouWKynLBiUZ6SK6A==}
+    engines: {node: '>=12'}
+
+  d3-dispatch@3.0.1:
+    resolution: {integrity: sha512-rzUyPU/S7rwUflMyLc1ETDeBj0NRuHKKAcvukozwhshr6g6c5d8zh4c2gQjY2bZ0dXeGLWc1PF174P2tVvKhfg==}
+    engines: {node: '>=12'}
+
+  d3-drag@3.0.0:
+    resolution: {integrity: sha512-pWbUJLdETVA8lQNJecMxoXfH6x+mO2UQo8rSmZ+QqxcbyA3hfeprFgIT//HW2nlHChWeIIMwS2Fq+gEARkhTkg==}
+    engines: {node: '>=12'}
+
+  d3-dsv@3.0.1:
+    resolution: {integrity: sha512-UG6OvdI5afDIFP9w4G0mNq50dSOsXHJaRE8arAS5o9ApWnIElp8GZw1Dun8vP8OyHOZ/QJUKUJwxiiCCnUwm+Q==}
+    engines: {node: '>=12'}
+    hasBin: true
+
+  d3-ease@3.0.1:
+    resolution: {integrity: sha512-wR/XK3D3XcLIZwpbvQwQ5fK+8Ykds1ip7A2Txe0yxncXSdq1L9skcG7blcedkOX+ZcgxGAmLX1FrRGbADwzi0w==}
+    engines: {node: '>=12'}
+
+  d3-fetch@3.0.1:
+    resolution: {integrity: sha512-kpkQIM20n3oLVBKGg6oHrUchHM3xODkTzjMoj7aWQFq5QEM+R6E4WkzT5+tojDY7yjez8KgCBRoj4aEr99Fdqw==}
+    engines: {node: '>=12'}
+
+  d3-force@3.0.0:
+    resolution: {integrity: sha512-zxV/SsA+U4yte8051P4ECydjD/S+qeYtnaIyAs9tgHCqfguma/aAQDjo85A9Z6EKhBirHRJHXIgJUlffT4wdLg==}
+    engines: {node: '>=12'}
+
+  d3-format@3.1.2:
+    resolution: {integrity: sha512-AJDdYOdnyRDV5b6ArilzCPPwc1ejkHcoyFarqlPqT7zRYjhavcT3uSrqcMvsgh2CgoPbK3RCwyHaVyxYcP2Arg==}
+    engines: {node: '>=12'}
+
+  d3-geo@3.1.1:
+    resolution: {integrity: sha512-637ln3gXKXOwhalDzinUgY83KzNWZRKbYubaG+fGVuc/dxO64RRljtCTnf5ecMyE1RIdtqpkVcq0IbtU2S8j2Q==}
+    engines: {node: '>=12'}
+
+  d3-hierarchy@3.1.2:
+    resolution: {integrity: sha512-FX/9frcub54beBdugHjDCdikxThEqjnR93Qt7PvQTOHxyiNCAlvMrHhclk3cD5VeAaq9fxmfRp+CnWw9rEMBuA==}
+    engines: {node: '>=12'}
+
+  d3-interpolate@3.0.1:
+    resolution: {integrity: sha512-3bYs1rOD33uo8aqJfKP3JWPAibgw8Zm2+L9vBKEHJ2Rg+viTR7o5Mmv5mZcieN+FRYaAOWX5SJATX6k1PWz72g==}
+    engines: {node: '>=12'}
+
+  d3-path@1.0.9:
+    resolution: {integrity: sha512-VLaYcn81dtHVTjEHd8B+pbe9yHWpXKZUC87PzoFmsFrJqgFwDe/qxfp5MlfsfM1V5E/iVt0MmEbWQ7FVIXh/bg==}
+
+  d3-path@3.1.0:
+    resolution: {integrity: sha512-p3KP5HCf/bvjBSSKuXid6Zqijx7wIfNW+J/maPs+iwR35at5JCbLUT0LzF1cnjbCHWhqzQTIN2Jpe8pRebIEFQ==}
+    engines: {node: '>=12'}
+
+  d3-polygon@3.0.1:
+    resolution: {integrity: sha512-3vbA7vXYwfe1SYhED++fPUQlWSYTTGmFmQiany/gdbiWgU/iEyQzyymwL9SkJjFFuCS4902BSzewVGsHHmHtXg==}
+    engines: {node: '>=12'}
+
+  d3-quadtree@3.0.1:
+    resolution: {integrity: sha512-04xDrxQTDTCFwP5H6hRhsRcb9xxv2RzkcsygFzmkSIOJy3PeRJP7sNk3VRIbKXcog561P9oU0/rVH6vDROAgUw==}
+    engines: {node: '>=12'}
+
+  d3-random@3.0.1:
+    resolution: {integrity: sha512-FXMe9GfxTxqd5D6jFsQ+DJ8BJS4E/fT5mqqdjovykEB2oFbTMDVdg1MGFxfQW+FBOGoB++k8swBrgwSHT1cUXQ==}
+    engines: {node: '>=12'}
+
+  d3-sankey@0.12.3:
+    resolution: {integrity: sha512-nQhsBRmM19Ax5xEIPLMY9ZmJ/cDvd1BG3UVvt5h3WRxKg5zGRbvnteTyWAbzeSvlh3tW7ZEmq4VwR5mB3tutmQ==}
+
+  d3-scale-chromatic@3.1.0:
+    resolution: {integrity: sha512-A3s5PWiZ9YCXFye1o246KoscMWqf8BsD9eRiJ3He7C9OBaxKhAd5TFCdEx/7VbKtxxTsu//1mMJFrEt572cEyQ==}
+    engines: {node: '>=12'}
+
+  d3-scale@4.0.2:
+    resolution: {integrity: sha512-GZW464g1SH7ag3Y7hXjf8RoUuAFIqklOAq3MRl4OaWabTFJY9PN/E1YklhXLh+OQ3fM9yS2nOkCoS+WLZ6kvxQ==}
+    engines: {node: '>=12'}
+
+  d3-selection@3.0.0:
+    resolution: {integrity: sha512-fmTRWbNMmsmWq6xJV8D19U/gw/bwrHfNXxrIN+HfZgnzqTHp9jOmKMhsTUjXOJnZOdZY9Q28y4yebKzqDKlxlQ==}
+    engines: {node: '>=12'}
+
+  d3-shape@1.3.7:
+    resolution: {integrity: sha512-EUkvKjqPFUAZyOlhY5gzCxCeI0Aep04LwIRpsZ/mLFelJiUfnK56jo5JMDSE7yyP2kLSb6LtF+S5chMk7uqPqw==}
+
+  d3-shape@3.2.0:
+    resolution: {integrity: sha512-SaLBuwGm3MOViRq2ABk3eLoxwZELpH6zhl3FbAoJ7Vm1gofKx6El1Ib5z23NUEhF9AsGl7y+dzLe5Cw2AArGTA==}
+    engines: {node: '>=12'}
+
+  d3-time-format@4.1.0:
+    resolution: {integrity: sha512-dJxPBlzC7NugB2PDLwo9Q8JiTR3M3e4/XANkreKSUxF8vvXKqm1Yfq4Q5dl8budlunRVlUUaDUgFt7eA8D6NLg==}
+    engines: {node: '>=12'}
+
+  d3-time@3.1.0:
+    resolution: {integrity: sha512-VqKjzBLejbSMT4IgbmVgDjpkYrNWUYJnbCGo874u7MMKIWsILRX+OpX/gTk8MqjpT1A/c6HY2dCA77ZN0lkQ2Q==}
+    engines: {node: '>=12'}
+
+  d3-timer@3.0.1:
+    resolution: {integrity: sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA==}
+    engines: {node: '>=12'}
+
+  d3-transition@3.0.1:
+    resolution: {integrity: sha512-ApKvfjsSR6tg06xrL434C0WydLr7JewBB3V+/39RMHsaXTOG0zmt/OAXeng5M5LBm0ojmxJrpomQVZ1aPvBL4w==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      d3-selection: 2 - 3
+
+  d3-zoom@3.0.0:
+    resolution: {integrity: sha512-b8AmV3kfQaqWAuacbPuNbL6vahnOJflOhexLzMMNLga62+/nh0JzvJ0aO/5a5MVgUFGS7Hu1P9P03o3fJkDCyw==}
+    engines: {node: '>=12'}
+
+  d3@7.9.0:
+    resolution: {integrity: sha512-e1U46jVP+w7Iut8Jt8ri1YsPOvFpg46k+K8TpCb0P+zjCkjkPnV7WzfDJzMHy1LnA+wj5pLT1wjO901gLXeEhA==}
+    engines: {node: '>=12'}
+
+  dagre-d3-es@7.0.14:
+    resolution: {integrity: sha512-P4rFMVq9ESWqmOgK+dlXvOtLwYg0i7u0HBGJER0LZDJT2VHIPAMZ/riPxqJceWMStH5+E61QxFra9kIS3AqdMg==}
+
+  date-fns@3.6.0:
+    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
+
+  dayjs@1.11.21:
+    resolution: {integrity: sha512-98IT+HOahAisibz/yjKbzuOBwYcjJ7BCLPzARyHiyEBmRz4fatF+KPJszEHXsGYjUG234aH/cOjW1wwTbKUZlA==}
+
+  debug@4.4.3:
+    resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
+  decimal.js-light@2.5.1:
+    resolution: {integrity: sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg==}
+
+  decode-named-character-reference@1.3.0:
+    resolution: {integrity: sha512-GtpQYB283KrPp6nRw50q3U9/VfOutZOe103qlN7BPP6Ad27xYnOIWv4lPzo8HCAL+mMZofJ9KEy30fq6MfaK6Q==}
+
+  delaunator@5.1.0:
+    resolution: {integrity: sha512-AGrQ4QSgssa1NGmWmLPqN5NY2KajF5MqxetNEO+o0n3ZwZZeTmt7bBnvzHWrmkZFxGgr4HdyFgelzgi06otLuQ==}
+
+  dequal@2.0.3:
+    resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
+    engines: {node: '>=6'}
+
+  detect-libc@2.1.2:
+    resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
+    engines: {node: '>=8'}
+
+  detect-node-es@1.1.0:
+    resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
+
+  devlop@1.1.0:
+    resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
+
+  dnd-core@16.0.1:
+    resolution: {integrity: sha512-HK294sl7tbw6F6IeuK16YSBUoorvHpY8RHO+9yFfaJyCDVb6n7PRcezrOEOa2SBCqiYpemh5Jx20ZcjKdFAVng==}
+
+  dom-helpers@5.2.1:
+    resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
+
+  dompurify@2.5.9:
+    resolution: {integrity: sha512-i6mvVmWN4xo9LrhCOZrDgSs9noW6nOahbrmzjRbPF36YPyj5Ue5lgok0MHDWkG7xzpWFO2OYttXdzM7rJxHvNA==}
+
+  dompurify@3.4.11:
+    resolution: {integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==}
+
+  electron-to-chromium@1.5.376:
+    resolution: {integrity: sha512-cUVA7/RvbFTEuw/i3obUwDTRIXojaxkResf+ibByPFxjc6XK3VNtcQXV0NSbAlJ0FMjcJGgftVVB4Qo184EXvA==}
+
+  embla-carousel-react@8.6.0:
+    resolution: {integrity: sha512-0/PjqU7geVmo6F734pmPqpyHqiM99olvyecY7zdweCw+6tKEXnrE90pBiBbMMU8s5tICemzpQ3hi5EpxzGW+JA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.1 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+
+  embla-carousel-reactive-utils@8.6.0:
+    resolution: {integrity: sha512-fMVUDUEx0/uIEDM0Mz3dHznDhfX+znCCDCeIophYb1QGVM7YThSWX+wz11zlYwWFOr74b4QLGg0hrGPJeG2s4A==}
+    peerDependencies:
+      embla-carousel: 8.6.0
+
+  embla-carousel@8.6.0:
+    resolution: {integrity: sha512-SjWyZBHJPbqxHOzckOfo8lHisEaJWmwd23XppYFYVh10bU66/Pn5tkVkbkCMZVdbUE5eTCI2nD8OyIP4Z+uwkA==}
+
+  enhanced-resolve@5.24.0:
+    resolution: {integrity: sha512-SkE2t82KlkkxQRVMVLAGKxLfORGQfrkx5dkj+vlgXRVNEdPc4eZcR+J/Fvj8C+yKSFH5L0q3NFlyufOVQnCcYQ==}
+    engines: {node: '>=10.13.0'}
+
+  error-ex@1.3.4:
+    resolution: {integrity: sha512-sqQamAnR14VgCr1A618A3sGrygcpK+HEbenA/HiEAkkUwcZIIB/tgWqHFxWgOyDh4nB4JCRimh79dR5Ywc9MDQ==}
+
+  es-errors@1.3.0:
+    resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
+    engines: {node: '>= 0.4'}
+
+  es-toolkit@1.48.1:
+    resolution: {integrity: sha512-wfnXlwd5I75eXRtdD2vuEs50xHHESECDsGD7yiQnfFVNoa5522NwXEbmgo98LfiukSQHs+mBM7/YG3qKJB9/mQ==}
+
+  esbuild@0.25.12:
+    resolution: {integrity: sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  escalade@3.2.0:
+    resolution: {integrity: sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==}
+    engines: {node: '>=6'}
+
+  escape-string-regexp@4.0.0:
+    resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
+    engines: {node: '>=10'}
+
+  escape-string-regexp@5.0.0:
+    resolution: {integrity: sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==}
+    engines: {node: '>=12'}
+
+  estree-util-is-identifier-name@3.0.0:
+    resolution: {integrity: sha512-hFtqIDZTIUZ9BXLb8y4pYGyk6+wekIivNVTcmvk8NoOh+VeRn5y6cEHzbURrWbfp1fIqdVipilzj+lfaadNZmg==}
+
+  eventemitter3@4.0.7:
+    resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
+
+  extend@3.0.2:
+    resolution: {integrity: sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==}
+
+  fast-deep-equal@3.1.3:
+    resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
+
+  fast-equals@5.4.0:
+    resolution: {integrity: sha512-jt2DW/aNFNwke7AUd+Z+e6pz39KO5rzdbbFCg2sGafS4mk13MI7Z8O5z9cADNn5lhGODIgLwug6TZO2ctf7kcw==}
+    engines: {node: '>=6.0.0'}
+
+  fdir@6.5.0:
+    resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      picomatch: ^3 || ^4
+    peerDependenciesMeta:
+      picomatch:
+        optional: true
+
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
+
+  find-root@1.1.0:
+    resolution: {integrity: sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==}
+
+  framer-motion@12.40.0:
+    resolution: {integrity: sha512-uaBd3qC1v3KQqBEjwTUd183K6PbS+j0yR9w9VmEOLWA/tnUcSn8Xa3uck7t4dgpDoUss8xQTcj8W2L07lrnLFg==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
+  fsevents@2.3.3:
+    resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
+  function-bind@1.1.2:
+    resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
+
+  gensync@1.0.0-beta.2:
+    resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
+    engines: {node: '>=6.9.0'}
+
+  get-nonce@1.0.1:
+    resolution: {integrity: sha512-FJhYRoDaiatfEkUK8HKlicmu/3SGFD51q3itKDGoSTysQJBnfOcxU5GxnhE1E6soB76MbT0MBtnKJuXyAx+96Q==}
+    engines: {node: '>=6'}
+
+  graceful-fs@4.2.11:
+    resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  hachure-fill@0.5.2:
+    resolution: {integrity: sha512-3GKBOn+m2LX9iq+JC1064cSFprJY4jL1jCXTcpnfER5HYE2l/4EfWSGzkPa/ZDBmYI0ZOEj5VHV/eKnPGkHuOg==}
+
+  hasown@2.0.4:
+    resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
+    engines: {node: '>= 0.4'}
+
+  hast-util-to-jsx-runtime@2.3.6:
+    resolution: {integrity: sha512-zl6s8LwNyo1P9uw+XJGvZtdFF1GdAkOg8ujOw+4Pyb76874fLps4ueHXDhXWdk6YHQ6OgUtinliG7RsYvCbbBg==}
+
+  hast-util-whitespace@3.0.0:
+    resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
+
+  hoist-non-react-statics@3.3.2:
+    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
+
+  html-to-image@1.11.13:
+    resolution: {integrity: sha512-cuOPoI7WApyhBElTTb9oqsawRvZ0rHhaHwghRLlTuffoD1B2aDemlCruLeZrUIIdvG7gs9xeELEPm6PhuASqrg==}
+
+  html-url-attributes@3.0.1:
+    resolution: {integrity: sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==}
+
+  html2canvas@1.4.1:
+    resolution: {integrity: sha512-fPU6BHNpsyIhr8yyMpTLLxAbkaK8ArIBcmZIRiBLiDhjeqvXolaEmDGmELFuX9I4xDcaKKcJl+TKZLqruBbmWA==}
+    engines: {node: '>=8.0.0'}
+
+  iconv-lite@0.6.3:
+    resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
+    engines: {node: '>=0.10.0'}
+
+  import-fresh@3.3.1:
+    resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
+    engines: {node: '>=6'}
+
+  import-meta-resolve@4.2.0:
+    resolution: {integrity: sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg==}
+
+  inline-style-parser@0.2.7:
+    resolution: {integrity: sha512-Nb2ctOyNR8DqQoR0OwRG95uNWIC0C1lCgf5Naz5H6Ji72KZ8OcFZLz2P5sNgwlyoJ8Yif11oMuYs5pBQa86csA==}
+
+  input-otp@1.4.2:
+    resolution: {integrity: sha512-l3jWwYNvrEa6NTCt7BECfCm48GvwuZzkoeG3gBL2w4CHeOXW3eKFmf9UNYkNfYc3mxMrthMnxjIE07MT0zLBQA==}
+    peerDependencies:
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
+
+  internmap@1.0.1:
+    resolution: {integrity: sha512-lDB5YccMydFBtasVtxnZ3MRBHuaoE8GKsppq+EchKL2U4nK/DmEpPHNH8MZe5HkMtpSiTSOZwfN0tzYjO/lJEw==}
+
+  internmap@2.0.3:
+    resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
+    engines: {node: '>=12'}
+
+  is-alphabetical@2.0.1:
+    resolution: {integrity: sha512-FWyyY60MeTNyeSRpkM2Iry0G9hpr7/9kD40mD/cGQEuilcZYS4okz8SN2Q6rLCJ8gbCt6fN+rC+6tMGS99LaxQ==}
+
+  is-alphanumerical@2.0.1:
+    resolution: {integrity: sha512-hmbYhX/9MUMF5uh7tOXyK/n0ZvWpad5caBA17GsC6vyuCqaWliRG5K1qS9inmUhEMaOBIW7/whAnSwveW/LtZw==}
+
+  is-arrayish@0.2.1:
+    resolution: {integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==}
+
+  is-core-module@2.16.2:
+    resolution: {integrity: sha512-evOr8xfXKxE6qSR0hSXL2r3sd7ALj8+7jQEUvPYcm5sgZFdJ+AYzT6yNmJenvIYQBgIGwfwz08sL8zoL7yq2BA==}
+    engines: {node: '>= 0.4'}
+
+  is-decimal@2.0.1:
+    resolution: {integrity: sha512-AAB9hiomQs5DXWcRB1rqsxGUstbRroFOPPVAomNk/3XHR5JyEZChOyTWe2oayKnsSsr/kcGqF+z6yuH6HHpN0A==}
+
+  is-hexadecimal@2.0.1:
+    resolution: {integrity: sha512-DgZQp241c8oO6cA1SbTEWiXeoxV42vlcJxgH+B3hi1AiqqKruZR3ZGF8In3fj4+/y/7rHvlOZLZtgJ/4ttYGZg==}
+
+  is-plain-obj@4.1.0:
+    resolution: {integrity: sha512-+Pgi+vMuUNkJyExiMBt5IlFoMyKnr5zhJ4Uspz58WOhBF5QoIZkFyNHIbBAtHwzVAgk5RtndVNsDRN61/mmDqg==}
+    engines: {node: '>=12'}
+
+  jiti@2.7.0:
+    resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
+    hasBin: true
+
+  js-tokens@4.0.0:
+    resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
+
+  jsesc@3.1.0:
+    resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
+    engines: {node: '>=6'}
+    hasBin: true
+
+  json-parse-even-better-errors@2.3.1:
+    resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
+
+  json2mq@0.2.0:
+    resolution: {integrity: sha512-SzoRg7ux5DWTII9J2qkrZrqV1gt+rTaoufMxEzXbS26Uid0NwaJd123HcoB80TgubEppxxIGdNxCx50fEoEWQA==}
+
+  json5@2.2.3:
+    resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
+    engines: {node: '>=6'}
+    hasBin: true
+
+  jspdf@2.5.2:
+    resolution: {integrity: sha512-myeX9c+p7znDWPk0eTrujCzNjT+CXdXyk7YmJq5nD5V7uLLKmSXnlQ/Jn/kuo3X09Op70Apm0rQSnFWyGK8uEQ==}
+
+  katex@0.16.47:
+    resolution: {integrity: sha512-Eeo8Ys1doU1z+x8AZsPpQu+p/QcZBI5PeOo7QGQdy2x2m0MU/hYagBbGOmXwr5KVbEfVuWv9LpnQWeehogurjg==}
+    hasBin: true
+
+  katex@0.17.0:
+    resolution: {integrity: sha512-Vdw0ATsQ9V+LuegM/BTwQqV/6cTl5lbGcIrU+BCgLxyf6bo38ybOr372tuSIxir3CN720flu1meYR6XzNMwQnw==}
+    hasBin: true
+
+  khroma@2.1.0:
+    resolution: {integrity: sha512-Ls993zuzfayK269Svk9hzpeGUKob/sIgZzyHYdjQoAdQetRKpOLj+k/QQQ/6Qi0Yz65mlROrfd+Ev+1+7dz9Kw==}
+
+  layout-base@1.0.2:
+    resolution: {integrity: sha512-8h2oVEZNktL4BH2JCOI90iD1yXwL6iNW7KcCKT2QZgQJR2vbqDsldCTPRU9NifTCqHZci57XvQQ15YTu+sTYPg==}
+
+  layout-base@2.0.1:
+    resolution: {integrity: sha512-dp3s92+uNI1hWIpPGH3jK2kxE2lMjdXdr+DH8ynZHpd6PUlH6x6cbuXnoMmiNumznqaNO31xu9e79F0uuZ0JFg==}
+
+  lightningcss-darwin-arm64@1.30.1:
+    resolution: {integrity: sha512-c8JK7hyE65X1MHMN+Viq9n11RRC7hgin3HhYKhrMyaXflk5GVplZ60IxyoVtzILeKr+xAJwg6zK6sjTBJ0FKYQ==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [arm64]
+    os: [darwin]
+
+  lightningcss-darwin-x64@1.30.1:
+    resolution: {integrity: sha512-k1EvjakfumAQoTfcXUcHQZhSpLlkAuEkdMBsI/ivWw9hL+7FtilQc0Cy3hrx0AAQrVtQAbMI7YjCgYgvn37PzA==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [darwin]
+
+  lightningcss-freebsd-x64@1.30.1:
+    resolution: {integrity: sha512-kmW6UGCGg2PcyUE59K5r0kWfKPAVy4SltVeut+umLCFoJ53RdCUWxcRDzO1eTaxf/7Q2H7LTquFHPL5R+Gjyig==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [freebsd]
+
+  lightningcss-linux-arm-gnueabihf@1.30.1:
+    resolution: {integrity: sha512-MjxUShl1v8pit+6D/zSPq9S9dQ2NPFSQwGvxBCYaBYLPlCWuPh9/t1MRS8iUaR8i+a6w7aps+B4N0S1TYP/R+Q==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [arm]
+    os: [linux]
+
+  lightningcss-linux-arm64-gnu@1.30.1:
+    resolution: {integrity: sha512-gB72maP8rmrKsnKYy8XUuXi/4OctJiuQjcuqWNlJQ6jZiWqtPvqFziskH3hnajfvKB27ynbVCucKSm2rkQp4Bw==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  lightningcss-linux-arm64-musl@1.30.1:
+    resolution: {integrity: sha512-jmUQVx4331m6LIX+0wUhBbmMX7TCfjF5FoOH6SD1CttzuYlGNVpA7QnrmLxrsub43ClTINfGSYyHe2HWeLl5CQ==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  lightningcss-linux-x64-gnu@1.30.1:
+    resolution: {integrity: sha512-piWx3z4wN8J8z3+O5kO74+yr6ze/dKmPnI7vLqfSqI8bccaTGY5xiSGVIJBDd5K5BHlvVLpUB3S2YCfelyJ1bw==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  lightningcss-linux-x64-musl@1.30.1:
+    resolution: {integrity: sha512-rRomAK7eIkL+tHY0YPxbc5Dra2gXlI63HL+v1Pdi1a3sC+tJTcFrHX+E86sulgAXeI7rSzDYhPSeHHjqFhqfeQ==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  lightningcss-win32-arm64-msvc@1.30.1:
+    resolution: {integrity: sha512-mSL4rqPi4iXq5YVqzSsJgMVFENoa4nGTT/GjO2c0Yl9OuQfPsIfncvLrEW6RbbB24WtZ3xP/2CCmI3tNkNV4oA==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [arm64]
+    os: [win32]
+
+  lightningcss-win32-x64-msvc@1.30.1:
+    resolution: {integrity: sha512-PVqXh48wh4T53F/1CCu8PIPCxLzWyCnn/9T5W1Jpmdy5h9Cwd+0YQS6/LwhHXSafuc61/xg9Lv5OrCby6a++jg==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [win32]
+
+  lightningcss@1.30.1:
+    resolution: {integrity: sha512-xi6IyHML+c9+Q3W0S4fCQJOym42pyurFiJUHEcEyHS0CeKzia4yZDEsLlqOFykxOdHpNy0NmvVO31vcSqAxJCg==}
+    engines: {node: '>= 12.0.0'}
+
+  lines-and-columns@1.2.4:
+    resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
+
+  lodash-es@4.18.1:
+    resolution: {integrity: sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==}
+
+  lodash.debounce@4.0.8:
+    resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
+
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
+
+  longest-streak@3.1.0:
+    resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
+
+  loose-envify@1.4.0:
+    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
+    hasBin: true
+
+  lru-cache@5.1.1:
+    resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
+
+  lucide-react@0.487.0:
+    resolution: {integrity: sha512-aKqhOQ+YmFnwq8dWgGjOuLc8V1R9/c/yOd+zDY4+ohsR2Jo05lSGc3WsstYPIzcTpeosN7LoCkLReUUITvaIvw==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  magic-string@0.30.21:
+    resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
+
+  markdown-table@3.0.4:
+    resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
+
+  marked@16.4.2:
+    resolution: {integrity: sha512-TI3V8YYWvkVf3KJe1dRkpnjs68JUPyEa5vjKrp1XEEJUAOaQc+Qj+L1qWbPd0SJuAdQkFU0h73sXXqwDYxsiDA==}
+    engines: {node: '>= 20'}
+    hasBin: true
+
+  mdast-util-find-and-replace@3.0.2:
+    resolution: {integrity: sha512-Tmd1Vg/m3Xz43afeNxDIhWRtFZgM2VLyaf4vSTYwudTyeuTneoL3qtWMA5jeLyz/O1vDJmmV4QuScFCA2tBPwg==}
+
+  mdast-util-from-markdown@2.0.3:
+    resolution: {integrity: sha512-W4mAWTvSlKvf8L6J+VN9yLSqQ9AOAAvHuoDAmPkz4dHf553m5gVj2ejadHJhoJmcmxEnOv6Pa8XJhpxE93kb8Q==}
+
+  mdast-util-gfm-autolink-literal@2.0.1:
+    resolution: {integrity: sha512-5HVP2MKaP6L+G6YaxPNjuL0BPrq9orG3TsrZ9YXbA3vDw/ACI4MEsnoDpn6ZNm7GnZgtAcONJyPhOP8tNJQavQ==}
+
+  mdast-util-gfm-footnote@2.1.0:
+    resolution: {integrity: sha512-sqpDWlsHn7Ac9GNZQMeUzPQSMzR6Wv0WKRNvQRg0KqHh02fpTz69Qc1QSseNX29bhz1ROIyNyxExfawVKTm1GQ==}
+
+  mdast-util-gfm-strikethrough@2.0.0:
+    resolution: {integrity: sha512-mKKb915TF+OC5ptj5bJ7WFRPdYtuHv0yTRxK2tJvi+BDqbkiG7h7u/9SI89nRAYcmap2xHQL9D+QG/6wSrTtXg==}
+
+  mdast-util-gfm-table@2.0.0:
+    resolution: {integrity: sha512-78UEvebzz/rJIxLvE7ZtDd/vIQ0RHv+3Mh5DR96p7cS7HsBhYIICDBCu8csTNWNO6tBWfqXPWekRuj2FNOGOZg==}
+
+  mdast-util-gfm-task-list-item@2.0.0:
+    resolution: {integrity: sha512-IrtvNvjxC1o06taBAVJznEnkiHxLFTzgonUdy8hzFVeDun0uTjxxrRGVaNFqkU1wJR3RBPEfsxmU6jDWPofrTQ==}
+
+  mdast-util-gfm@3.1.0:
+    resolution: {integrity: sha512-0ulfdQOM3ysHhCJ1p06l0b0VKlhU0wuQs3thxZQagjcjPrlFRqY215uZGHHJan9GEAXd9MbfPjFJz+qMkVR6zQ==}
+
+  mdast-util-mdx-expression@2.0.1:
+    resolution: {integrity: sha512-J6f+9hUp+ldTZqKRSg7Vw5V6MqjATc+3E4gf3CFNcuZNWD8XdyI6zQ8GqH7f8169MM6P7hMBRDVGnn7oHB9kXQ==}
+
+  mdast-util-mdx-jsx@3.2.0:
+    resolution: {integrity: sha512-lj/z8v0r6ZtsN/cGNNtemmmfoLAFZnjMbNyLzBafjzikOM+glrjNHPlf6lQDOTccj9n5b0PPihEBbhneMyGs1Q==}
+
+  mdast-util-mdxjs-esm@2.0.1:
+    resolution: {integrity: sha512-EcmOpxsZ96CvlP03NghtH1EsLtr0n9Tm4lPUJUBccV9RwUOneqSycg19n5HGzCf+10LozMRSObtVr3ee1WoHtg==}
+
+  mdast-util-phrasing@4.1.0:
+    resolution: {integrity: sha512-TqICwyvJJpBwvGAMZjj4J2n0X8QWp21b9l0o7eXyVJ25YNWYbJDVIyD1bZXE6WtV6RmKJVYmQAKWa0zWOABz2w==}
+
+  mdast-util-to-hast@13.2.1:
+    resolution: {integrity: sha512-cctsq2wp5vTsLIcaymblUriiTcZd0CwWtCbLvrOzYCDZoWyMNV8sZ7krj09FSnsiJi3WVsHLM4k6Dq/yaPyCXA==}
+
+  mdast-util-to-markdown@2.1.2:
+    resolution: {integrity: sha512-xj68wMTvGXVOKonmog6LwyJKrYXZPvlwabaryTjLh9LuvovB/KAH+kvi8Gjj+7rJjsFi23nkUxRQv1KqSroMqA==}
+
+  mdast-util-to-string@4.0.0:
+    resolution: {integrity: sha512-0H44vDimn51F0YwvxSJSm0eCDOJTRlmN0R1yBh4HLj9wiV1Dn0QoXGbvFAWj2hSItVTlCmBF1hqKlIyUBVFLPg==}
+
+  mermaid@11.15.0:
+    resolution: {integrity: sha512-pTMbcf3rWdtLiYGpmoTjHEpeY8seiy6sR+9nD7LOs8KfUbHE4lOUAprTRqRAcWSQ6MQpdX+YEsxShtGsINtPtw==}
+
+  micromark-core-commonmark@2.0.3:
+    resolution: {integrity: sha512-RDBrHEMSxVFLg6xvnXmb1Ayr2WzLAWjeSATAoxwKYJV94TeNavgoIdA0a9ytzDSVzBy2YKFK+emCPOEibLeCrg==}
+
+  micromark-extension-gfm-autolink-literal@2.1.0:
+    resolution: {integrity: sha512-oOg7knzhicgQ3t4QCjCWgTmfNhvQbDDnJeVu9v81r7NltNCVmhPy1fJRX27pISafdjL+SVc4d3l48Gb6pbRypw==}
+
+  micromark-extension-gfm-footnote@2.1.0:
+    resolution: {integrity: sha512-/yPhxI1ntnDNsiHtzLKYnE3vf9JZ6cAisqVDauhp4CEHxlb4uoOTxOCJ+9s51bIB8U1N1FJ1RXOKTIlD5B/gqw==}
+
+  micromark-extension-gfm-strikethrough@2.1.0:
+    resolution: {integrity: sha512-ADVjpOOkjz1hhkZLlBiYA9cR2Anf8F4HqZUO6e5eDcPQd0Txw5fxLzzxnEkSkfnD0wziSGiv7sYhk/ktvbf1uw==}
+
+  micromark-extension-gfm-table@2.1.1:
+    resolution: {integrity: sha512-t2OU/dXXioARrC6yWfJ4hqB7rct14e8f7m0cbI5hUmDyyIlwv5vEtooptH8INkbLzOatzKuVbQmAYcbWoyz6Dg==}
+
+  micromark-extension-gfm-tagfilter@2.0.0:
+    resolution: {integrity: sha512-xHlTOmuCSotIA8TW1mDIM6X2O1SiX5P9IuDtqGonFhEK0qgRI4yeC6vMxEV2dgyr2TiD+2PQ10o+cOhdVAcwfg==}
+
+  micromark-extension-gfm-task-list-item@2.1.0:
+    resolution: {integrity: sha512-qIBZhqxqI6fjLDYFTBIa4eivDMnP+OZqsNwmQ3xNLE4Cxwc+zfQEfbs6tzAo2Hjq+bh6q5F+Z8/cksrLFYWQQw==}
+
+  micromark-extension-gfm@3.0.0:
+    resolution: {integrity: sha512-vsKArQsicm7t0z2GugkCKtZehqUm31oeGBV/KVSorWSy8ZlNAv7ytjFhvaryUiCUJYqs+NoE6AFhpQvBTM6Q4w==}
+
+  micromark-factory-destination@2.0.1:
+    resolution: {integrity: sha512-Xe6rDdJlkmbFRExpTOmRj9N3MaWmbAgdpSrBQvCFqhezUn4AHqJHbaEnfbVYYiexVSs//tqOdY/DxhjdCiJnIA==}
+
+  micromark-factory-label@2.0.1:
+    resolution: {integrity: sha512-VFMekyQExqIW7xIChcXn4ok29YE3rnuyveW3wZQWWqF4Nv9Wk5rgJ99KzPvHjkmPXF93FXIbBp6YdW3t71/7Vg==}
+
+  micromark-factory-space@2.0.1:
+    resolution: {integrity: sha512-zRkxjtBxxLd2Sc0d+fbnEunsTj46SWXgXciZmHq0kDYGnck/ZSGj9/wULTV95uoeYiK5hRXP2mJ98Uo4cq/LQg==}
+
+  micromark-factory-title@2.0.1:
+    resolution: {integrity: sha512-5bZ+3CjhAd9eChYTHsjy6TGxpOFSKgKKJPJxr293jTbfry2KDoWkhBb6TcPVB4NmzaPhMs1Frm9AZH7OD4Cjzw==}
+
+  micromark-factory-whitespace@2.0.1:
+    resolution: {integrity: sha512-Ob0nuZ3PKt/n0hORHyvoD9uZhr+Za8sFoP+OnMcnWK5lngSzALgQYKMr9RJVOWLqQYuyn6ulqGWSXdwf6F80lQ==}
+
+  micromark-util-character@2.1.1:
+    resolution: {integrity: sha512-wv8tdUTJ3thSFFFJKtpYKOYiGP2+v96Hvk4Tu8KpCAsTMs6yi+nVmGh1syvSCsaxz45J6Jbw+9DD6g97+NV67Q==}
+
+  micromark-util-chunked@2.0.1:
+    resolution: {integrity: sha512-QUNFEOPELfmvv+4xiNg2sRYeS/P84pTW0TCgP5zc9FpXetHY0ab7SxKyAQCNCc1eK0459uoLI1y5oO5Vc1dbhA==}
+
+  micromark-util-classify-character@2.0.1:
+    resolution: {integrity: sha512-K0kHzM6afW/MbeWYWLjoHQv1sgg2Q9EccHEDzSkxiP/EaagNzCm7T/WMKZ3rjMbvIpvBiZgwR3dKMygtA4mG1Q==}
+
+  micromark-util-combine-extensions@2.0.1:
+    resolution: {integrity: sha512-OnAnH8Ujmy59JcyZw8JSbK9cGpdVY44NKgSM7E9Eh7DiLS2E9RNQf0dONaGDzEG9yjEl5hcqeIsj4hfRkLH/Bg==}
+
+  micromark-util-decode-numeric-character-reference@2.0.2:
+    resolution: {integrity: sha512-ccUbYk6CwVdkmCQMyr64dXz42EfHGkPQlBj5p7YVGzq8I7CtjXZJrubAYezf7Rp+bjPseiROqe7G6foFd+lEuw==}
+
+  micromark-util-decode-string@2.0.1:
+    resolution: {integrity: sha512-nDV/77Fj6eH1ynwscYTOsbK7rR//Uj0bZXBwJZRfaLEJ1iGBR6kIfNmlNqaqJf649EP0F3NWNdeJi03elllNUQ==}
+
+  micromark-util-encode@2.0.1:
+    resolution: {integrity: sha512-c3cVx2y4KqUnwopcO9b/SCdo2O67LwJJ/UyqGfbigahfegL9myoEFoDYZgkT7f36T0bLrM9hZTAaAyH+PCAXjw==}
+
+  micromark-util-html-tag-name@2.0.1:
+    resolution: {integrity: sha512-2cNEiYDhCWKI+Gs9T0Tiysk136SnR13hhO8yW6BGNyhOC4qYFnwF1nKfD3HFAIXA5c45RrIG1ub11GiXeYd1xA==}
+
+  micromark-util-normalize-identifier@2.0.1:
+    resolution: {integrity: sha512-sxPqmo70LyARJs0w2UclACPUUEqltCkJ6PhKdMIDuJ3gSf/Q+/GIe3WKl0Ijb/GyH9lOpUkRAO2wp0GVkLvS9Q==}
+
+  micromark-util-resolve-all@2.0.1:
+    resolution: {integrity: sha512-VdQyxFWFT2/FGJgwQnJYbe1jjQoNTS4RjglmSjTUlpUMa95Htx9NHeYW4rGDJzbjvCsl9eLjMQwGeElsqmzcHg==}
+
+  micromark-util-sanitize-uri@2.0.1:
+    resolution: {integrity: sha512-9N9IomZ/YuGGZZmQec1MbgxtlgougxTodVwDzzEouPKo3qFWvymFHWcnDi2vzV1ff6kas9ucW+o3yzJK9YB1AQ==}
+
+  micromark-util-subtokenize@2.1.0:
+    resolution: {integrity: sha512-XQLu552iSctvnEcgXw6+Sx75GflAPNED1qx7eBJ+wydBb2KCbRZe+NwvIEEMM83uml1+2WSXpBAcp9IUCgCYWA==}
+
+  micromark-util-symbol@2.0.1:
+    resolution: {integrity: sha512-vs5t8Apaud9N28kgCrRUdEed4UJ+wWNvicHLPxCa9ENlYuAY31M0ETy5y1vA33YoNPDFTghEbnh6efaE8h4x0Q==}
+
+  micromark-util-types@2.0.2:
+    resolution: {integrity: sha512-Yw0ECSpJoViF1qTU4DC6NwtC4aWGt1EkzaQB8KPPyCRR8z9TWeV0HbEFGTO+ZY1wB22zmxnJqhPyTpOVCpeHTA==}
+
+  micromark@4.0.2:
+    resolution: {integrity: sha512-zpe98Q6kvavpCr1NPVSCMebCKfD7CA2NqZ+rykeNhONIJBpc1tFKt9hucLGwha3jNTNI8lHpctWJWoimVF4PfA==}
+
+  minipass@7.1.3:
+    resolution: {integrity: sha512-tEBHqDnIoM/1rXME1zgka9g6Q2lcoCkxHLuc7ODJ5BxbP5d4c2Z5cGgtXAku59200Cx7diuHTOYfSBD8n6mm8A==}
+    engines: {node: '>=16 || 14 >=14.17'}
+
+  minizlib@3.1.0:
+    resolution: {integrity: sha512-KZxYo1BUkWD2TVFLr0MQoM8vUUigWD3LlD83a/75BqC+4qE0Hb1Vo5v1FgcfaNXvfXzr+5EhQ6ing/CaBijTlw==}
+    engines: {node: '>= 18'}
+
+  motion-dom@12.40.0:
+    resolution: {integrity: sha512-HxU3ZaBwNPVQUBQf1xxgq+7JrPNZvjLVxgbpEZL7RrWJnsxOf0/OM+yrHG9ogLQ31Do/r57Oz2gQWPK+6q62mg==}
+
+  motion-utils@12.39.0:
+    resolution: {integrity: sha512-8nadJAJjTtqRkmRF36FoJTrywK9nnFmnPwnSMyxaOCU7GDjN9RTMJIxx9De8ErM+vpPhMccr/6fo5WciyQLnMQ==}
+
+  motion@12.23.24:
+    resolution: {integrity: sha512-Rc5E7oe2YZ72N//S3QXGzbnXgqNrTESv8KKxABR20q2FLch9gHLo0JLyYo2hZ238bZ9Gx6cWhj9VO0IgwbMjCw==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
+  ms@2.1.3:
+    resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
+
+  nanoid@3.3.15:
+    resolution: {integrity: sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+
+  next-themes@0.4.6:
+    resolution: {integrity: sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==}
+    peerDependencies:
+      react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+
+  node-releases@2.0.48:
+    resolution: {integrity: sha512-1uz8041X6LoI6ZSdZacM9lVY28vuzDlSKitnpbSNK0RfKoIJkX29NBPVEFXhnuSuEOA9Ww0xnPJ+ILWbGAv8DA==}
+    engines: {node: '>=18'}
+
+  object-assign@4.1.1:
+    resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
+    engines: {node: '>=0.10.0'}
+
+  package-manager-detector@1.6.0:
+    resolution: {integrity: sha512-61A5ThoTiDG/C8s8UMZwSorAGwMJ0ERVGj2OjoW5pAalsNOg15+iQiPzrLJ4jhZ1HJzmC2PIHT2oEiH3R5fzNA==}
+
+  parent-module@1.0.1:
+    resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
+    engines: {node: '>=6'}
+
+  parse-entities@4.0.2:
+    resolution: {integrity: sha512-GG2AQYWoLgL877gQIKeRPGO1xF9+eG1ujIb5soS5gPvLQ1y2o8FL90w2QWNdf9I361Mpp7726c+lj3U0qK1uGw==}
+
+  parse-json@5.2.0:
+    resolution: {integrity: sha512-ayCKvm/phCGxOkYRSCM82iDwct8/EonSEgCSxWxD7ve6jHggsFl4fZVQBPRNgQoKiuV/odhFrGzQXZwbifC8Rg==}
+    engines: {node: '>=8'}
+
+  path-data-parser@0.1.0:
+    resolution: {integrity: sha512-NOnmBpt5Y2RWbuv0LMzsayp3lVylAHLPUTut412ZA3l+C4uw4ZVkQbjShYCQ8TCpUMdPapr4YjUqLYD6v68j+w==}
+
+  path-parse@1.0.7:
+    resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
+
+  path-type@4.0.0:
+    resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
+    engines: {node: '>=8'}
+
+  performance-now@2.1.0:
+    resolution: {integrity: sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==}
+
+  picocolors@1.1.1:
+    resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
+
+  picomatch@4.0.4:
+    resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
+    engines: {node: '>=12'}
+
+  points-on-curve@0.2.0:
+    resolution: {integrity: sha512-0mYKnYYe9ZcqMCWhUjItv/oHjvgEsfKvnUTg8sAtnHr3GVy7rGkXCb6d5cSyqrWqL4k81b9CPg3urd+T7aop3A==}
+
+  points-on-path@0.2.1:
+    resolution: {integrity: sha512-25ClnWWuw7JbWZcgqY/gJ4FQWadKxGWk+3kR/7kD0tCaDtPPMj7oHu2ToLaVhfpnHrZzYby2w6tUA0eOIuUg8g==}
+
+  postcss@8.5.15:
+    resolution: {integrity: sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==}
+    engines: {node: ^10 || ^12 || >=14}
+
+  prop-types@15.8.1:
+    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
+
+  property-information@7.2.0:
+    resolution: {integrity: sha512-IAtzIB6sUiWaJYrX9smp3V46pBGbBeLFRGdh25kg1334VcBlD8HzhPeNIWQH9zhGmo2itIe25EHt9dQP7G5hmg==}
+
+  raf@3.4.1:
+    resolution: {integrity: sha512-Sq4CW4QhwOHE8ucn6J34MqtZCeWFP2aQSmrlroYgqAV1PjStIhJXxYuTgUIfkEk7zTLjmIjLmU5q+fbD1NnOJA==}
+
+  react-day-picker@8.10.1:
+    resolution: {integrity: sha512-TMx7fNbhLk15eqcMt+7Z7S2KF7mfTId/XJDjKE8f+IUcFn0l08/kI4FiYTL/0yuOLmEcbR4Fwe3GJf/NiiMnPA==}
+    peerDependencies:
+      date-fns: ^2.28.0 || ^3.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+
+  react-dnd-html5-backend@16.0.1:
+    resolution: {integrity: sha512-Wu3dw5aDJmOGw8WjH1I1/yTH+vlXEL4vmjk5p+MHxP8HuHJS1lAGeIdG/hze1AvNeXWo/JgULV87LyQOr+r5jw==}
+
+  react-dnd@16.0.1:
+    resolution: {integrity: sha512-QeoM/i73HHu2XF9aKksIUuamHPDvRglEwdHL4jsp784BgUuWcg6mzfxT0QDdQz8Wj0qyRKx2eMg8iZtWvU4E2Q==}
+    peerDependencies:
+      '@types/hoist-non-react-statics': '>= 3.3.1'
+      '@types/node': '>= 12'
+      '@types/react': '>= 16'
+      react: '>= 16.14'
+    peerDependenciesMeta:
+      '@types/hoist-non-react-statics':
+        optional: true
+      '@types/node':
+        optional: true
+      '@types/react':
+        optional: true
+
+  react-dom@18.3.1:
+    resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
+    peerDependencies:
+      react: ^18.3.1
+
+  react-fast-compare@3.2.2:
+    resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
+
+  react-hook-form@7.55.0:
+    resolution: {integrity: sha512-XRnjsH3GVMQz1moZTW53MxfoWN7aDpUg/GpVNc4A3eXRVNdGXfbzJ4vM4aLQ8g6XCUh1nIbx70aaNCl7kxnjog==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
+
+  react-is@16.13.1:
+    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
+
+  react-is@18.3.1:
+    resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
+
+  react-is@19.2.7:
+    resolution: {integrity: sha512-kZFnouyVv7eP/Phmrlo9FK+zcAdriZJvzxXHF1Sl1P377WSGe2G/JxVolhTrB/jeV47lKImhNUsijjHAAbcl/A==}
+
+  react-markdown@10.1.0:
+    resolution: {integrity: sha512-qKxVopLT/TyA6BX3Ue5NwabOsAzm0Q7kAPwq6L+wWDwisYs7R8vZ0nRXqq6rkueboxpkjvLGU9fWifiX/ZZFxQ==}
+    peerDependencies:
+      '@types/react': '>=18'
+      react: '>=18'
+
+  react-popper@2.3.0:
+    resolution: {integrity: sha512-e1hj8lL3uM+sgSR4Lxzn5h1GxBlpa4CQz0XLF8kx4MDrDRWY0Ena4c97PUeSX9i5W3UAfDP0z0FXCTQkoXUl3Q==}
+    peerDependencies:
+      '@popperjs/core': ^2.0.0
+      react: ^16.8.0 || ^17 || ^18
+      react-dom: ^16.8.0 || ^17 || ^18
+
+  react-refresh@0.17.0:
+    resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
+    engines: {node: '>=0.10.0'}
+
+  react-remove-scroll-bar@2.3.8:
+    resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  react-remove-scroll@2.7.2:
+    resolution: {integrity: sha512-Iqb9NjCCTt6Hf+vOdNIZGdTiH1QSqr27H/Ek9sv/a97gfueI/5h1s3yRi1nngzMUaOOToin5dI1dXKdXiF+u0Q==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  react-resizable-panels@2.1.7:
+    resolution: {integrity: sha512-JtT6gI+nURzhMYQYsx8DKkx6bSoOGFp7A3CwMrOb8y5jFHFyqwo9m68UhmXRw57fRVJksFn1TSlm3ywEQ9vMgA==}
+    peerDependencies:
+      react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+
+  react-responsive-masonry@2.7.1:
+    resolution: {integrity: sha512-Q+u+nOH87PzjqGFd2PgTcmLpHPZnCmUPREHYoNBc8dwJv6fi51p9U6hqwG8g/T8MN86HrFjrU+uQU6yvETU7cA==}
+
+  react-router@7.13.0:
+    resolution: {integrity: sha512-PZgus8ETambRT17BUm/LL8lX3Of+oiLaPuVTRH3l1eLvSPpKO3AvhAEb5N7ihAFZQrYDqkvvWfFh9p0z9VsjLw==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+
+  react-slick@0.31.0:
+    resolution: {integrity: sha512-zo6VLT8wuSBJffg/TFPbzrw2dEnfZ/cUKmYsKByh3AgatRv29m2LoFbq5vRMa3R3A4wp4d8gwbJKO2fWZFaI3g==}
+    peerDependencies:
+      react: ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  react-smooth@4.0.4:
+    resolution: {integrity: sha512-gnGKTpYwqL0Iii09gHobNolvX4Kiq4PKx6eWBCYYix+8cdw+cGo3do906l1NBPKkSWx1DghC1dlWG9L2uGd61Q==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  react-style-singleton@2.2.3:
+    resolution: {integrity: sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  react-transition-group@4.4.5:
+    resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
+    peerDependencies:
+      react: '>=16.6.0'
+      react-dom: '>=16.6.0'
+
+  react-zoom-pan-pinch@4.0.3:
+    resolution: {integrity: sha512-N2Hi6L78fFmhRra+ORpFSW7WST5x6kxpOPplIvtB0b7b+U2anpo1z1wLgaWRPS2kUSqcraRG+JgBCIlDJnqqAg==}
+    engines: {node: '>=8', npm: '>=5'}
+    peerDependencies:
+      react: '*'
+      react-dom: '*'
+
+  react@18.3.1:
+    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
+    engines: {node: '>=0.10.0'}
+
+  recharts-scale@0.4.5:
+    resolution: {integrity: sha512-kivNFO+0OcUNu7jQquLXAxz1FIwZj8nrj+YkOKc5694NbjCvcT6aSZiIzNzd2Kul4o4rTto8QVR9lMNtxD4G1w==}
+
+  recharts@2.15.2:
+    resolution: {integrity: sha512-xv9lVztv3ingk7V3Jf05wfAZbM9Q2umJzu5t/cfnAK7LUslNrGT7LPBr74G+ok8kSCeFMaePmWMg0rcYOnczTw==}
+    engines: {node: '>=14'}
+    deprecated: 1.x and 2.x branches are no longer active. Bump to Recharts v3 to receive latest features and bugfixes. See https://github.com/recharts/recharts/wiki/3.0-migration-guide
+    peerDependencies:
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  redux@4.2.1:
+    resolution: {integrity: sha512-LAUYz4lc+Do8/g7aeRa8JkyDErK6ekstQaqWQrNRW//MY1TvCEpMtpTWvlQ+FPbWCx+Xixu/6SHt5N0HR+SB4w==}
+
+  regenerator-runtime@0.13.11:
+    resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
+
+  remark-gfm@4.0.1:
+    resolution: {integrity: sha512-1quofZ2RQ9EWdeN34S79+KExV1764+wCUGop5CPL1WGdD0ocPpu91lzPGbwWMECpEpd42kJGQwzRfyov9j4yNg==}
+
+  remark-parse@11.0.0:
+    resolution: {integrity: sha512-FCxlKLNGknS5ba/1lmpYijMUzX2esxW5xQqjWxw2eHFfS2MSdaHVINFmhjo+qN1WhZhNimq0dZATN9pH0IDrpA==}
+
+  remark-rehype@11.1.2:
+    resolution: {integrity: sha512-Dh7l57ianaEoIpzbp0PC9UKAdCSVklD8E5Rpw7ETfbTl3FqcOOgq5q2LVDhgGCkaBv7p24JXikPdvhhmHvKMsw==}
+
+  remark-stringify@11.0.0:
+    resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
+
+  resize-observer-polyfill@1.5.1:
+    resolution: {integrity: sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==}
+
+  resolve-from@4.0.0:
+    resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
+    engines: {node: '>=4'}
+
+  resolve@1.22.12:
+    resolution: {integrity: sha512-TyeJ1zif53BPfHootBGwPRYT1RUt6oGWsaQr8UyZW/eAm9bKoijtvruSDEmZHm92CwS9nj7/fWttqPCgzep8CA==}
+    engines: {node: '>= 0.4'}
+    hasBin: true
+
+  rgbcolor@1.0.1:
+    resolution: {integrity: sha512-9aZLIrhRaD97sgVhtJOW6ckOEh6/GnvQtdVNfdZ6s67+3/XwLS9lBcQYzEEhYVeUowN7pRzMLsyGhK2i/xvWbw==}
+    engines: {node: '>= 0.8.15'}
+
+  robust-predicates@3.0.3:
+    resolution: {integrity: sha512-NS3levdsRIUOmiJ8FZWCP7LG3QpJyrs/TE0Zpf1yvZu8cAJJ6QMW92H1c7kWpdIHo8RvmLxN/o2JXTKHp74lUA==}
+
+  rollup@4.62.2:
+    resolution: {integrity: sha512-RFnrW4lhXA3s3eqHDZvN654g8OTjzRfqpIRJYczCGB6HzphckVAi/Qh4tbPUbRuDi7s1Llv8g/NspLkttY3gTA==}
+    engines: {node: '>=18.0.0', npm: '>=8.0.0'}
+    hasBin: true
+
+  roughjs@4.6.6:
+    resolution: {integrity: sha512-ZUz/69+SYpFN/g/lUlo2FXcIjRkSu3nDarreVdGGndHEBJ6cXPdKguS8JGxwj5HA5xIbVKSmLgr5b3AWxtRfvQ==}
+
+  rw@1.3.3:
+    resolution: {integrity: sha512-PdhdWy89SiZogBLaw42zdeqtRJ//zFd2PgQavcICDUgJT5oW10QCRKbJ6bg4r0/UY2M6BWd5tkxuGFRvCkgfHQ==}
+
+  safer-buffer@2.1.2:
+    resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
+
+  scheduler@0.23.2:
+    resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
+
+  semver@6.3.1:
+    resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
+    hasBin: true
+
+  set-cookie-parser@2.7.2:
+    resolution: {integrity: sha512-oeM1lpU/UvhTxw+g3cIfxXHyJRc/uidd3yK1P242gzHds0udQBYzs3y8j4gCCW+ZJ7ad0yctld8RYO+bdurlvw==}
+
+  sonner@2.0.3:
+    resolution: {integrity: sha512-njQ4Hht92m0sMqqHVDL32V2Oun9W1+PHO9NDv9FHfJjT3JT22IG4Jpo3FPQy+mouRKCXFWO+r67v6MrHX2zeIA==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+
+  source-map-js@1.2.1:
+    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
+    engines: {node: '>=0.10.0'}
+
+  source-map@0.5.7:
+    resolution: {integrity: sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==}
+    engines: {node: '>=0.10.0'}
+
+  space-separated-tokens@2.0.2:
+    resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
+
+  stackblur-canvas@2.7.0:
+    resolution: {integrity: sha512-yf7OENo23AGJhBriGx0QivY5JP6Y1HbrrDI6WLt6C5auYZXlQrheoY8hD4ibekFKz1HOfE48Ww8kMWMnJD/zcQ==}
+    engines: {node: '>=0.1.14'}
+
+  string-convert@0.2.1:
+    resolution: {integrity: sha512-u/1tdPl4yQnPBjnVrmdLo9gtuLvELKsAoRapekWggdiQNvvvum+jYF329d84NAa660KQw7pB2n36KrIKVoXa3A==}
+
+  stringify-entities@4.0.4:
+    resolution: {integrity: sha512-IwfBptatlO+QCJUo19AqvrPNqlVMpW9YEL2LIVY+Rpv2qsjCGxaDLNRgeGsQWJhfItebuJhsGSLjaBbNSQ+ieg==}
+
+  style-to-js@1.1.21:
+    resolution: {integrity: sha512-RjQetxJrrUJLQPHbLku6U/ocGtzyjbJMP9lCNK7Ag0CNh690nSH8woqWH9u16nMjYBAok+i7JO1NP2pOy8IsPQ==}
+
+  style-to-object@1.0.14:
+    resolution: {integrity: sha512-LIN7rULI0jBscWQYaSswptyderlarFkjQ+t79nzty8tcIAceVomEVlLzH5VP4Cmsv6MtKhs7qaAiwlcp+Mgaxw==}
+
+  stylis@4.2.0:
+    resolution: {integrity: sha512-Orov6g6BB1sDfYgzWfTHDOxamtX1bE/zo104Dh9e6fqJ3PooipYyfJ0pUmrZO2wAvO8YbEyeFrkV91XTsGMSrw==}
+
+  stylis@4.4.0:
+    resolution: {integrity: sha512-5Z9ZpRzfuH6l/UAvCPAPUo3665Nk2wLaZU3x+TLHKVzIz33+sbJqbtrYoC3KD4/uVOr2Zp+L0LySezP9OHV9yA==}
+
+  supports-preserve-symlinks-flag@1.0.0:
+    resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
+    engines: {node: '>= 0.4'}
+
+  svg-pathdata@6.0.3:
+    resolution: {integrity: sha512-qsjeeq5YjBZ5eMdFuUa4ZosMLxgr5RZ+F+Y1OrDhuOCEInRMA3x74XdBtggJcj9kOeInz0WE+LgCPDkZFlBYJw==}
+    engines: {node: '>=12.0.0'}
+
+  tailwind-merge@3.2.0:
+    resolution: {integrity: sha512-FQT/OVqCD+7edmmJpsgCsY820RTD5AkBryuG5IUqR5YQZSdj5xlH5nLgH7YPths7WsLPSpSBNneJdM8aS8aeFA==}
+
+  tailwindcss@4.1.12:
+    resolution: {integrity: sha512-DzFtxOi+7NsFf7DBtI3BJsynR+0Yp6etH+nRPTbpWnS2pZBaSksv/JGctNwSWzbFjp0vxSqknaUylseZqMDGrA==}
+
+  tapable@2.3.3:
+    resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
+    engines: {node: '>=6'}
+
+  tar@7.5.16:
+    resolution: {integrity: sha512-56adEpPMouktRlBLXiaYFFzZ/3+JXa8P9n7WbR+ibIjtviN55mEaOkiysCnPnWm+7kkui1Dn8J9l+g6zV8731w==}
+    engines: {node: '>=18'}
+
+  text-segmentation@1.0.3:
+    resolution: {integrity: sha512-iOiPUo/BGnZ6+54OsWxZidGCsdU8YbE4PSpdPinp7DeMtUJNJBoJ/ouUSTJjHkh1KntHaltHl/gDs2FC4i5+Nw==}
+
+  tiny-invariant@1.3.3:
+    resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
+
+  tinyexec@1.2.4:
+    resolution: {integrity: sha512-SHf/r48b7vOrjve9PxJo3MN5v5yuyjHvdUcrQffT3WXMUfnGmHDVbC4k3sHJaJTgZCwpUplIaAo5ANtMyp3YHg==}
+    engines: {node: '>=18'}
+
+  tinyglobby@0.2.17:
+    resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
+    engines: {node: '>=12.0.0'}
+
+  trim-lines@3.0.1:
+    resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
+
+  trough@2.2.0:
+    resolution: {integrity: sha512-tmMpK00BjZiUyVyvrBK7knerNgmgvcV/KLVyuma/SC+TQN167GrMRciANTz09+k3zW8L8t60jWO1GpfkZdjTaw==}
+
+  ts-dedent@2.3.0:
+    resolution: {integrity: sha512-JfJeIHke7y2egdGGgRAvpCwYFUsHlM2gPcrVOxFkznt/4uzQ7HFmvE63iFHVLBJNDuyDOQgijDK/tXH/f6Msjg==}
+    engines: {node: '>=6.10'}
+
+  tslib@2.8.1:
+    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+  tw-animate-css@1.3.8:
+    resolution: {integrity: sha512-Qrk3PZ7l7wUcGYhwZloqfkWCmaXZAoqjkdbIDvzfGshwGtexa/DAs9koXxIkrpEasyevandomzCBAV1Yyop5rw==}
+
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+  unified@11.0.5:
+    resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
+
+  unist-util-is@6.0.1:
+    resolution: {integrity: sha512-LsiILbtBETkDz8I9p1dQ0uyRUWuaQzd/cuEeS1hoRSyW5E5XGmTzlwY1OrNzzakGowI9Dr/I8HVaw4hTtnxy8g==}
+
+  unist-util-position@5.0.0:
+    resolution: {integrity: sha512-fucsC7HjXvkB5R3kTCO7kUjRdrS0BJt3M/FPxmHMBOm8JQi2BsHAHFsy27E0EolP8rp0NzXsJ+jNPyDWvOJZPA==}
+
+  unist-util-stringify-position@4.0.0:
+    resolution: {integrity: sha512-0ASV06AAoKCDkS2+xw5RXJywruurpbC4JZSm7nr7MOt1ojAzvyyaO+UxZf18j8FCF6kmzCZKcAgN/yu2gm2XgQ==}
+
+  unist-util-visit-parents@6.0.2:
+    resolution: {integrity: sha512-goh1s1TBrqSqukSc8wrjwWhL0hiJxgA8m4kFxGlQ+8FYQ3C/m11FcTs4YYem7V664AhHVvgoQLk890Ssdsr2IQ==}
+
+  unist-util-visit@5.1.0:
+    resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
+
+  update-browserslist-db@1.2.3:
+    resolution: {integrity: sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==}
+    hasBin: true
+    peerDependencies:
+      browserslist: '>= 4.21.0'
+
+  use-callback-ref@1.3.3:
+    resolution: {integrity: sha512-jQL3lRnocaFtu3V00JToYz/4QkNWswxijDaCVNZRiRTO3HQDLsdu1ZtmIUvV4yPp+rvWm5j0y0TG/S61cuijTg==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  use-sidecar@1.1.3:
+    resolution: {integrity: sha512-Fedw0aZvkhynoPYlA5WXrMCAMm+nSWdZt6lzJQ7Ok8S6Q+VsHmHpRWndVRJ8Be0ZbkfPc5LRYH+5XrzXcEeLRQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  use-sync-external-store@1.6.0:
+    resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  utrie@1.0.2:
+    resolution: {integrity: sha512-1MLa5ouZiOmQzUbjbu9VmjLzn1QLXBhwpUa7kdLUQK+KQ5KA9I1vk5U4YHe/X2Ch7PYnJfWuWT+VbuxbGwljhw==}
+
+  uuid@14.0.1:
+    resolution: {integrity: sha512-6ZxzVpzDXDa3bJWaHilVayA+BH/1zmxCJoVgvmqJnid/gPoKHxUrS/aC/T6LGQtNHT+XHG9fXPJB4d+IrU30Ew==}
+    hasBin: true
+
+  vaul@1.1.2:
+    resolution: {integrity: sha512-ZFkClGpWyI2WUQjdLJ/BaGuV6AVQiJ3uELGk3OYtP+B6yCO7Cmn9vPFXVJkRaGkOJu3m8bQMgtyzNHixULceQA==}
+    peerDependencies:
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
+
+  vfile-message@4.0.3:
+    resolution: {integrity: sha512-QTHzsGd1EhbZs4AsQ20JX1rC3cOlt/IWJruk893DfLRr57lcnOeMaWG4K0JrRta4mIJZKth2Au3mM3u03/JWKw==}
+
+  vfile@6.0.3:
+    resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
+
+  victory-vendor@36.9.2:
+    resolution: {integrity: sha512-PnpQQMuxlwYdocC8fIJqVXvkeViHYzotI+NJrCuav0ZYFoq912ZHBk3mCeuj+5/VpodOjPe1z0Fk2ihgzlXqjQ==}
+
+  vite@6.3.5:
+    resolution: {integrity: sha512-cZn6NDFE7wdTpINgs++ZJ4N49W2vRp8LCKrn3Ob1kYNtOo21vfDoaV5GzBfLU4MovSAB8uNRm4jgzVQZ+mBzPQ==}
+    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': ^18.0.0 || ^20.0.0 || >=22.0.0
+      jiti: '>=1.21.0'
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      sass-embedded: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.16.0
+      tsx: ^4.8.1
+      yaml: ^2.4.2
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      jiti:
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      sass-embedded:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+      tsx:
+        optional: true
+      yaml:
+        optional: true
+
+  warning@4.0.3:
+    resolution: {integrity: sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==}
+
+  yallist@3.1.1:
+    resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
+
+  yallist@5.0.0:
+    resolution: {integrity: sha512-YgvUTfwqyc7UXVMrB+SImsVYSmTS8X/tSrtdNZMImM+n7+QTriRXyXim0mBrTXNeqzVF0KWGgHPeiyViFFrNDw==}
+    engines: {node: '>=18'}
+
+  yaml@1.10.3:
+    resolution: {integrity: sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA==}
+    engines: {node: '>= 6'}
+
+  zustand@4.5.7:
+    resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      '@types/react': '>=16.8'
+      immer: '>=9.0.6'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+
+  zustand@5.0.14:
+    resolution: {integrity: sha512-/8tAspM5LMPr28b3fwLYrtdj77ECpfZviaP75CMTnwO8ISyaE4GDIG/9rDDYq/cH9D2Xw2A2RXglLInmVBQB/g==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+
+  zwitch@2.0.4:
+    resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
+
+snapshots:
+
+  '@antfu/install-pkg@1.1.0':
+    dependencies:
+      package-manager-detector: 1.6.0
+      tinyexec: 1.2.4
+
+  '@babel/code-frame@7.29.7':
+    dependencies:
+      '@babel/helper-validator-identifier': 7.29.7
+      js-tokens: 4.0.0
+      picocolors: 1.1.1
+
+  '@babel/compat-data@7.29.7': {}
+
+  '@babel/core@7.29.7':
+    dependencies:
+      '@babel/code-frame': 7.29.7
+      '@babel/generator': 7.29.7
+      '@babel/helper-compilation-targets': 7.29.7
+      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.7)
+      '@babel/helpers': 7.29.7
+      '@babel/parser': 7.29.7
+      '@babel/template': 7.29.7
+      '@babel/traverse': 7.29.7
+      '@babel/types': 7.29.7
+      '@jridgewell/remapping': 2.3.5
+      convert-source-map: 2.0.0
+      debug: 4.4.3
+      gensync: 1.0.0-beta.2
+      json5: 2.2.3
+      semver: 6.3.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/generator@7.29.7':
+    dependencies:
+      '@babel/parser': 7.29.7
+      '@babel/types': 7.29.7
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
+      jsesc: 3.1.0
+
+  '@babel/helper-compilation-targets@7.29.7':
+    dependencies:
+      '@babel/compat-data': 7.29.7
+      '@babel/helper-validator-option': 7.29.7
+      browserslist: 4.28.4
+      lru-cache: 5.1.1
+      semver: 6.3.1
+
+  '@babel/helper-globals@7.29.7': {}
+
+  '@babel/helper-module-imports@7.29.7':
+    dependencies:
+      '@babel/traverse': 7.29.7
+      '@babel/types': 7.29.7
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/helper-module-transforms@7.29.7(@babel/core@7.29.7)':
+    dependencies:
+      '@babel/core': 7.29.7
+      '@babel/helper-module-imports': 7.29.7
+      '@babel/helper-validator-identifier': 7.29.7
+      '@babel/traverse': 7.29.7
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/helper-plugin-utils@7.29.7': {}
+
+  '@babel/helper-string-parser@7.29.7': {}
+
+  '@babel/helper-validator-identifier@7.29.7': {}
+
+  '@babel/helper-validator-option@7.29.7': {}
+
+  '@babel/helpers@7.29.7':
+    dependencies:
+      '@babel/template': 7.29.7
+      '@babel/types': 7.29.7
+
+  '@babel/parser@7.29.7':
+    dependencies:
+      '@babel/types': 7.29.7
+
+  '@babel/plugin-transform-react-jsx-self@7.29.7(@babel/core@7.29.7)':
+    dependencies:
+      '@babel/core': 7.29.7
+      '@babel/helper-plugin-utils': 7.29.7
+
+  '@babel/plugin-transform-react-jsx-source@7.29.7(@babel/core@7.29.7)':
+    dependencies:
+      '@babel/core': 7.29.7
+      '@babel/helper-plugin-utils': 7.29.7
+
+  '@babel/runtime@7.29.7': {}
+
+  '@babel/template@7.29.7':
+    dependencies:
+      '@babel/code-frame': 7.29.7
+      '@babel/parser': 7.29.7
+      '@babel/types': 7.29.7
+
+  '@babel/traverse@7.29.7':
+    dependencies:
+      '@babel/code-frame': 7.29.7
+      '@babel/generator': 7.29.7
+      '@babel/helper-globals': 7.29.7
+      '@babel/parser': 7.29.7
+      '@babel/template': 7.29.7
+      '@babel/types': 7.29.7
+      debug: 4.4.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/types@7.29.7':
+    dependencies:
+      '@babel/helper-string-parser': 7.29.7
+      '@babel/helper-validator-identifier': 7.29.7
+
+  '@braintree/sanitize-url@7.1.2': {}
+
+  '@chevrotain/types@11.1.2': {}
+
+  '@emotion/babel-plugin@11.13.5':
+    dependencies:
+      '@babel/helper-module-imports': 7.29.7
+      '@babel/runtime': 7.29.7
+      '@emotion/hash': 0.9.2
+      '@emotion/memoize': 0.9.0
+      '@emotion/serialize': 1.3.3
+      babel-plugin-macros: 3.1.0
+      convert-source-map: 1.9.0
+      escape-string-regexp: 4.0.0
+      find-root: 1.1.0
+      source-map: 0.5.7
+      stylis: 4.2.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@emotion/cache@11.14.0':
+    dependencies:
+      '@emotion/memoize': 0.9.0
+      '@emotion/sheet': 1.4.0
+      '@emotion/utils': 1.4.2
+      '@emotion/weak-memoize': 0.4.0
+      stylis: 4.2.0
+
+  '@emotion/hash@0.9.2': {}
+
+  '@emotion/is-prop-valid@1.4.0':
+    dependencies:
+      '@emotion/memoize': 0.9.0
+
+  '@emotion/memoize@0.9.0': {}
+
+  '@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@emotion/babel-plugin': 11.13.5
+      '@emotion/cache': 11.14.0
+      '@emotion/serialize': 1.3.3
+      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@18.3.1)
+      '@emotion/utils': 1.4.2
+      '@emotion/weak-memoize': 0.4.0
+      hoist-non-react-statics: 3.3.2
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+    transitivePeerDependencies:
+      - supports-color
+
+  '@emotion/serialize@1.3.3':
+    dependencies:
+      '@emotion/hash': 0.9.2
+      '@emotion/memoize': 0.9.0
+      '@emotion/unitless': 0.10.0
+      '@emotion/utils': 1.4.2
+      csstype: 3.2.3
+
+  '@emotion/sheet@1.4.0': {}
+
+  '@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@emotion/babel-plugin': 11.13.5
+      '@emotion/is-prop-valid': 1.4.0
+      '@emotion/react': 11.14.0(@types/react@19.2.17)(react@18.3.1)
+      '@emotion/serialize': 1.3.3
+      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@18.3.1)
+      '@emotion/utils': 1.4.2
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+    transitivePeerDependencies:
+      - supports-color
+
+  '@emotion/unitless@0.10.0': {}
+
+  '@emotion/use-insertion-effect-with-fallbacks@1.2.0(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+
+  '@emotion/utils@1.4.2': {}
+
+  '@emotion/weak-memoize@0.4.0': {}
+
+  '@esbuild/aix-ppc64@0.25.12':
+    optional: true
+
+  '@esbuild/android-arm64@0.25.12':
+    optional: true
+
+  '@esbuild/android-arm@0.25.12':
+    optional: true
+
+  '@esbuild/android-x64@0.25.12':
+    optional: true
+
+  '@esbuild/darwin-arm64@0.25.12':
+    optional: true
+
+  '@esbuild/darwin-x64@0.25.12':
+    optional: true
+
+  '@esbuild/freebsd-arm64@0.25.12':
+    optional: true
+
+  '@esbuild/freebsd-x64@0.25.12':
+    optional: true
+
+  '@esbuild/linux-arm64@0.25.12':
+    optional: true
+
+  '@esbuild/linux-arm@0.25.12':
+    optional: true
+
+  '@esbuild/linux-ia32@0.25.12':
+    optional: true
+
+  '@esbuild/linux-loong64@0.25.12':
+    optional: true
+
+  '@esbuild/linux-mips64el@0.25.12':
+    optional: true
+
+  '@esbuild/linux-ppc64@0.25.12':
+    optional: true
+
+  '@esbuild/linux-riscv64@0.25.12':
+    optional: true
+
+  '@esbuild/linux-s390x@0.25.12':
+    optional: true
+
+  '@esbuild/linux-x64@0.25.12':
+    optional: true
+
+  '@esbuild/netbsd-arm64@0.25.12':
+    optional: true
+
+  '@esbuild/netbsd-x64@0.25.12':
+    optional: true
+
+  '@esbuild/openbsd-arm64@0.25.12':
+    optional: true
+
+  '@esbuild/openbsd-x64@0.25.12':
+    optional: true
+
+  '@esbuild/openharmony-arm64@0.25.12':
+    optional: true
+
+  '@esbuild/sunos-x64@0.25.12':
+    optional: true
+
+  '@esbuild/win32-arm64@0.25.12':
+    optional: true
+
+  '@esbuild/win32-ia32@0.25.12':
+    optional: true
+
+  '@esbuild/win32-x64@0.25.12':
+    optional: true
+
+  '@floating-ui/core@1.7.5':
+    dependencies:
+      '@floating-ui/utils': 0.2.11
+
+  '@floating-ui/dom@1.7.6':
+    dependencies:
+      '@floating-ui/core': 1.7.5
+      '@floating-ui/utils': 0.2.11
+
+  '@floating-ui/react-dom@2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@floating-ui/dom': 1.7.6
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  '@floating-ui/utils@0.2.11': {}
+
+  '@iconify/types@2.0.0': {}
+
+  '@iconify/utils@3.1.3':
+    dependencies:
+      '@antfu/install-pkg': 1.1.0
+      '@iconify/types': 2.0.0
+      import-meta-resolve: 4.2.0
+
+  '@isaacs/fs-minipass@4.0.1':
+    dependencies:
+      minipass: 7.1.3
+
+  '@jridgewell/gen-mapping@0.3.13':
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
+      '@jridgewell/trace-mapping': 0.3.31
+
+  '@jridgewell/remapping@2.3.5':
+    dependencies:
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
+
+  '@jridgewell/resolve-uri@3.1.2': {}
+
+  '@jridgewell/sourcemap-codec@1.5.5': {}
+
+  '@jridgewell/trace-mapping@0.3.31':
+    dependencies:
+      '@jridgewell/resolve-uri': 3.1.2
+      '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@mermaid-js/parser@1.1.1':
+    dependencies:
+      '@chevrotain/types': 11.1.2
+
+  '@mui/core-downloads-tracker@7.3.11': {}
+
+  '@mui/icons-material@7.3.5(@mui/material@7.3.5(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@mui/material': 7.3.5(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@mui/material@7.3.5(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@mui/core-downloads-tracker': 7.3.11
+      '@mui/system': 7.3.11(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1)
+      '@mui/types': 7.4.12(@types/react@19.2.17)
+      '@mui/utils': 7.3.11(@types/react@19.2.17)(react@18.3.1)
+      '@popperjs/core': 2.11.8
+      '@types/react-transition-group': 4.4.12(@types/react@19.2.17)
+      clsx: 2.1.1
+      csstype: 3.2.3
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-is: 19.2.7
+      react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    optionalDependencies:
+      '@emotion/react': 11.14.0(@types/react@19.2.17)(react@18.3.1)
+      '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1)
+      '@types/react': 19.2.17
+
+  '@mui/private-theming@7.3.11(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@mui/utils': 7.3.11(@types/react@19.2.17)(react@18.3.1)
+      prop-types: 15.8.1
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@mui/styled-engine@7.3.10(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@emotion/cache': 11.14.0
+      '@emotion/serialize': 1.3.3
+      '@emotion/sheet': 1.4.0
+      csstype: 3.2.3
+      prop-types: 15.8.1
+      react: 18.3.1
+    optionalDependencies:
+      '@emotion/react': 11.14.0(@types/react@19.2.17)(react@18.3.1)
+      '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1)
+
+  '@mui/system@7.3.11(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@mui/private-theming': 7.3.11(@types/react@19.2.17)(react@18.3.1)
+      '@mui/styled-engine': 7.3.10(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1))(react@18.3.1)
+      '@mui/types': 7.4.12(@types/react@19.2.17)
+      '@mui/utils': 7.3.11(@types/react@19.2.17)(react@18.3.1)
+      clsx: 2.1.1
+      csstype: 3.2.3
+      prop-types: 15.8.1
+      react: 18.3.1
+    optionalDependencies:
+      '@emotion/react': 11.14.0(@types/react@19.2.17)(react@18.3.1)
+      '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.17)(react@18.3.1))(@types/react@19.2.17)(react@18.3.1)
+      '@types/react': 19.2.17
+
+  '@mui/types@7.4.12(@types/react@19.2.17)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@mui/utils@7.3.11(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@mui/types': 7.4.12(@types/react@19.2.17)
+      '@types/prop-types': 15.7.15
+      clsx: 2.1.1
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-is: 19.2.7
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@popperjs/core@2.11.8': {}
+
+  '@radix-ui/number@1.1.0': {}
+
+  '@radix-ui/primitive@1.1.1': {}
+
+  '@radix-ui/react-accordion@1.2.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-collapsible': 1.1.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-collection': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-alert-dialog@1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-dialog': 1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot': 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-arrow@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-aspect-ratio@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-avatar@1.1.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-checkbox@1.1.4(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-previous': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-size': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-collapsible@1.1.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-collection@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot': 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-compose-refs@1.1.1(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-compose-refs@1.1.3(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-context-menu@2.2.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-menu': 2.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-context@1.1.1(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-dialog@1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-dismissable-layer': 1.1.5(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-focus-guards': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-focus-scope': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-portal': 1.1.4(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot': 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      aria-hidden: 1.2.6
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-remove-scroll: 2.7.2(@types/react@19.2.17)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-direction@1.1.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-dismissable-layer@1.1.5(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-escape-keydown': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-dropdown-menu@2.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-menu': 2.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-focus-guards@1.1.1(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-focus-scope@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-hover-card@1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-dismissable-layer': 1.1.5(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-popper': 1.2.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-portal': 1.1.4(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-id@1.1.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-id@1.1.2(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-use-layout-effect': 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-label@2.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-menu@2.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-collection': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-dismissable-layer': 1.1.5(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-focus-guards': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-focus-scope': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-popper': 1.2.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-portal': 1.1.4(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-roving-focus': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot': 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      aria-hidden: 1.2.6
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-remove-scroll: 2.7.2(@types/react@19.2.17)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-menubar@1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-collection': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-menu': 2.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-roving-focus': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-navigation-menu@1.2.5(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-collection': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-dismissable-layer': 1.1.5(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-previous': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-visually-hidden': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-popover@1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-dismissable-layer': 1.1.5(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-focus-guards': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-focus-scope': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-popper': 1.2.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-portal': 1.1.4(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot': 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      aria-hidden: 1.2.6
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-remove-scroll: 2.7.2(@types/react@19.2.17)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-popper@1.2.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@floating-ui/react-dom': 2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-arrow': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-rect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-size': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/rect': 1.1.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-portal@1.1.4(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-presence@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-primitive@2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-slot': 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-primitive@2.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-slot': 1.3.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-progress@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-radio-group@1.2.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-roving-focus': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-previous': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-size': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-roving-focus@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-collection': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-scroll-area@1.2.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/number': 1.1.0
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-select@2.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/number': 1.1.0
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-collection': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-dismissable-layer': 1.1.5(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-focus-guards': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-focus-scope': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-popper': 1.2.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-portal': 1.1.4(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot': 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-previous': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-visually-hidden': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      aria-hidden: 1.2.6
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-remove-scroll: 2.7.2(@types/react@19.2.17)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-separator@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-slider@1.2.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/number': 1.1.0
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-collection': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-previous': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-size': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-slot@1.1.2(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-slot@1.3.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.3(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-switch@1.1.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-previous': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-size': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-tabs@1.1.3(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-roving-focus': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-toggle-group@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-direction': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-roving-focus': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-toggle': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-toggle@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-tooltip@1.1.8(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.1
+      '@radix-ui/react-compose-refs': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-context': 1.1.1(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-dismissable-layer': 1.1.5(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-id': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-popper': 1.2.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-portal': 1.1.4(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-presence': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot': 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-visually-hidden': 1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-use-callback-ref@1.1.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-use-controllable-state@1.1.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-use-escape-keydown@1.1.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-use-callback-ref': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-use-layout-effect@1.1.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-use-layout-effect@1.1.2(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-use-previous@1.1.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-use-rect@1.1.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@radix-ui/rect': 1.1.0
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-use-size@1.1.0(@types/react@19.2.17)(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-use-layout-effect': 1.1.0(@types/react@19.2.17)(react@18.3.1)
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/react-visually-hidden@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@radix-ui/react-primitive': 2.0.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  '@radix-ui/rect@1.1.0': {}
+
+  '@react-dnd/asap@5.0.2': {}
+
+  '@react-dnd/invariant@4.0.2': {}
+
+  '@react-dnd/shallowequal@4.0.2': {}
+
+  '@rolldown/pluginutils@1.0.0-beta.27': {}
+
+  '@rollup/rollup-android-arm-eabi@4.62.2':
+    optional: true
+
+  '@rollup/rollup-android-arm64@4.62.2':
+    optional: true
+
+  '@rollup/rollup-darwin-arm64@4.62.2':
+    optional: true
+
+  '@rollup/rollup-darwin-x64@4.62.2':
+    optional: true
+
+  '@rollup/rollup-freebsd-arm64@4.62.2':
+    optional: true
+
+  '@rollup/rollup-freebsd-x64@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-arm-gnueabihf@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-arm-musleabihf@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-arm64-gnu@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-arm64-musl@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-loong64-gnu@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-loong64-musl@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-ppc64-gnu@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-ppc64-musl@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-riscv64-gnu@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-riscv64-musl@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-s390x-gnu@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-x64-gnu@4.62.2':
+    optional: true
+
+  '@rollup/rollup-linux-x64-musl@4.62.2':
+    optional: true
+
+  '@rollup/rollup-openbsd-x64@4.62.2':
+    optional: true
+
+  '@rollup/rollup-openharmony-arm64@4.62.2':
+    optional: true
+
+  '@rollup/rollup-win32-arm64-msvc@4.62.2':
+    optional: true
+
+  '@rollup/rollup-win32-ia32-msvc@4.62.2':
+    optional: true
+
+  '@rollup/rollup-win32-x64-gnu@4.62.2':
+    optional: true
+
+  '@rollup/rollup-win32-x64-msvc@4.62.2':
+    optional: true
+
+  '@tailwindcss/node@4.1.12':
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      enhanced-resolve: 5.24.0
+      jiti: 2.7.0
+      lightningcss: 1.30.1
+      magic-string: 0.30.21
+      source-map-js: 1.2.1
+      tailwindcss: 4.1.12
+
+  '@tailwindcss/oxide-android-arm64@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-darwin-arm64@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-darwin-x64@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-freebsd-x64@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-linux-arm-gnueabihf@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-linux-arm64-gnu@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-linux-arm64-musl@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-linux-x64-gnu@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-linux-x64-musl@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-wasm32-wasi@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-win32-arm64-msvc@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide-win32-x64-msvc@4.1.12':
+    optional: true
+
+  '@tailwindcss/oxide@4.1.12':
+    dependencies:
+      detect-libc: 2.1.2
+      tar: 7.5.16
+    optionalDependencies:
+      '@tailwindcss/oxide-android-arm64': 4.1.12
+      '@tailwindcss/oxide-darwin-arm64': 4.1.12
+      '@tailwindcss/oxide-darwin-x64': 4.1.12
+      '@tailwindcss/oxide-freebsd-x64': 4.1.12
+      '@tailwindcss/oxide-linux-arm-gnueabihf': 4.1.12
+      '@tailwindcss/oxide-linux-arm64-gnu': 4.1.12
+      '@tailwindcss/oxide-linux-arm64-musl': 4.1.12
+      '@tailwindcss/oxide-linux-x64-gnu': 4.1.12
+      '@tailwindcss/oxide-linux-x64-musl': 4.1.12
+      '@tailwindcss/oxide-wasm32-wasi': 4.1.12
+      '@tailwindcss/oxide-win32-arm64-msvc': 4.1.12
+      '@tailwindcss/oxide-win32-x64-msvc': 4.1.12
+
+  '@tailwindcss/vite@4.1.12(vite@6.3.5(jiti@2.7.0)(lightningcss@1.30.1))':
+    dependencies:
+      '@tailwindcss/node': 4.1.12
+      '@tailwindcss/oxide': 4.1.12
+      tailwindcss: 4.1.12
+      vite: 6.3.5(jiti@2.7.0)(lightningcss@1.30.1)
+
+  '@types/babel__core@7.20.5':
+    dependencies:
+      '@babel/parser': 7.29.7
+      '@babel/types': 7.29.7
+      '@types/babel__generator': 7.27.0
+      '@types/babel__template': 7.4.4
+      '@types/babel__traverse': 7.28.0
+
+  '@types/babel__generator@7.27.0':
+    dependencies:
+      '@babel/types': 7.29.7
+
+  '@types/babel__template@7.4.4':
+    dependencies:
+      '@babel/parser': 7.29.7
+      '@babel/types': 7.29.7
+
+  '@types/babel__traverse@7.28.0':
+    dependencies:
+      '@babel/types': 7.29.7
+
+  '@types/d3-array@3.2.2': {}
+
+  '@types/d3-axis@3.0.6':
+    dependencies:
+      '@types/d3-selection': 3.0.11
+
+  '@types/d3-brush@3.0.6':
+    dependencies:
+      '@types/d3-selection': 3.0.11
+
+  '@types/d3-chord@3.0.6': {}
+
+  '@types/d3-color@3.1.3': {}
+
+  '@types/d3-contour@3.0.6':
+    dependencies:
+      '@types/d3-array': 3.2.2
+      '@types/geojson': 7946.0.16
+
+  '@types/d3-delaunay@6.0.4': {}
+
+  '@types/d3-dispatch@3.0.7': {}
+
+  '@types/d3-drag@3.0.7':
+    dependencies:
+      '@types/d3-selection': 3.0.11
+
+  '@types/d3-dsv@3.0.7': {}
+
+  '@types/d3-ease@3.0.2': {}
+
+  '@types/d3-fetch@3.0.7':
+    dependencies:
+      '@types/d3-dsv': 3.0.7
+
+  '@types/d3-force@3.0.10': {}
+
+  '@types/d3-format@3.0.4': {}
+
+  '@types/d3-geo@3.1.0':
+    dependencies:
+      '@types/geojson': 7946.0.16
+
+  '@types/d3-hierarchy@3.1.7': {}
+
+  '@types/d3-interpolate@3.0.4':
+    dependencies:
+      '@types/d3-color': 3.1.3
+
+  '@types/d3-path@3.1.1': {}
+
+  '@types/d3-polygon@3.0.2': {}
+
+  '@types/d3-quadtree@3.0.6': {}
+
+  '@types/d3-random@3.0.3': {}
+
+  '@types/d3-scale-chromatic@3.1.0': {}
+
+  '@types/d3-scale@4.0.9':
+    dependencies:
+      '@types/d3-time': 3.0.4
+
+  '@types/d3-selection@3.0.11': {}
+
+  '@types/d3-shape@3.1.8':
+    dependencies:
+      '@types/d3-path': 3.1.1
+
+  '@types/d3-time-format@4.0.3': {}
+
+  '@types/d3-time@3.0.4': {}
+
+  '@types/d3-timer@3.0.2': {}
+
+  '@types/d3-transition@3.0.9':
+    dependencies:
+      '@types/d3-selection': 3.0.11
+
+  '@types/d3-zoom@3.0.8':
+    dependencies:
+      '@types/d3-interpolate': 3.0.4
+      '@types/d3-selection': 3.0.11
+
+  '@types/d3@7.4.3':
+    dependencies:
+      '@types/d3-array': 3.2.2
+      '@types/d3-axis': 3.0.6
+      '@types/d3-brush': 3.0.6
+      '@types/d3-chord': 3.0.6
+      '@types/d3-color': 3.1.3
+      '@types/d3-contour': 3.0.6
+      '@types/d3-delaunay': 6.0.4
+      '@types/d3-dispatch': 3.0.7
+      '@types/d3-drag': 3.0.7
+      '@types/d3-dsv': 3.0.7
+      '@types/d3-ease': 3.0.2
+      '@types/d3-fetch': 3.0.7
+      '@types/d3-force': 3.0.10
+      '@types/d3-format': 3.0.4
+      '@types/d3-geo': 3.1.0
+      '@types/d3-hierarchy': 3.1.7
+      '@types/d3-interpolate': 3.0.4
+      '@types/d3-path': 3.1.1
+      '@types/d3-polygon': 3.0.2
+      '@types/d3-quadtree': 3.0.6
+      '@types/d3-random': 3.0.3
+      '@types/d3-scale': 4.0.9
+      '@types/d3-scale-chromatic': 3.1.0
+      '@types/d3-selection': 3.0.11
+      '@types/d3-shape': 3.1.8
+      '@types/d3-time': 3.0.4
+      '@types/d3-time-format': 4.0.3
+      '@types/d3-timer': 3.0.2
+      '@types/d3-transition': 3.0.9
+      '@types/d3-zoom': 3.0.8
+
+  '@types/debug@4.1.13':
+    dependencies:
+      '@types/ms': 2.1.0
+
+  '@types/estree-jsx@1.0.5':
+    dependencies:
+      '@types/estree': 1.0.9
+
+  '@types/estree@1.0.9': {}
+
+  '@types/geojson@7946.0.16': {}
+
+  '@types/hast@3.0.4':
+    dependencies:
+      '@types/unist': 3.0.3
+
+  '@types/mdast@4.0.4':
+    dependencies:
+      '@types/unist': 3.0.3
+
+  '@types/ms@2.1.0': {}
+
+  '@types/parse-json@4.0.2': {}
+
+  '@types/prop-types@15.7.15': {}
+
+  '@types/raf@3.4.3':
+    optional: true
+
+  '@types/react-transition-group@4.4.12(@types/react@19.2.17)':
+    dependencies:
+      '@types/react': 19.2.17
+
+  '@types/react@19.2.17':
+    dependencies:
+      csstype: 3.2.3
+
+  '@types/trusted-types@2.0.7':
+    optional: true
+
+  '@types/unist@2.0.11': {}
+
+  '@types/unist@3.0.3': {}
+
+  '@ungap/structured-clone@1.3.1': {}
+
+  '@upsetjs/venn.js@2.0.0':
+    optionalDependencies:
+      d3-selection: 3.0.0
+      d3-transition: 3.0.1(d3-selection@3.0.0)
+
+  '@vitejs/plugin-react@4.7.0(vite@6.3.5(jiti@2.7.0)(lightningcss@1.30.1))':
+    dependencies:
+      '@babel/core': 7.29.7
+      '@babel/plugin-transform-react-jsx-self': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-transform-react-jsx-source': 7.29.7(@babel/core@7.29.7)
+      '@rolldown/pluginutils': 1.0.0-beta.27
+      '@types/babel__core': 7.20.5
+      react-refresh: 0.17.0
+      vite: 6.3.5(jiti@2.7.0)(lightningcss@1.30.1)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@xyflow/react@12.11.1(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@xyflow/system': 0.0.78
+      classcat: 5.0.5
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      zustand: 4.5.7(@types/react@19.2.17)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+    transitivePeerDependencies:
+      - immer
+
+  '@xyflow/system@0.0.78':
+    dependencies:
+      '@types/d3-drag': 3.0.7
+      '@types/d3-interpolate': 3.0.4
+      '@types/d3-selection': 3.0.11
+      '@types/d3-transition': 3.0.9
+      '@types/d3-zoom': 3.0.8
+      d3-drag: 3.0.0
+      d3-interpolate: 3.0.1
+      d3-selection: 3.0.0
+      d3-zoom: 3.0.0
+
+  aria-hidden@1.2.6:
+    dependencies:
+      tslib: 2.8.1
+
+  atob@2.1.2: {}
+
+  babel-plugin-macros@3.1.0:
+    dependencies:
+      '@babel/runtime': 7.29.7
+      cosmiconfig: 7.1.0
+      resolve: 1.22.12
+
+  bail@2.0.2: {}
+
+  base64-arraybuffer@1.0.2:
+    optional: true
+
+  baseline-browser-mapping@2.10.38: {}
+
+  browserslist@4.28.4:
+    dependencies:
+      baseline-browser-mapping: 2.10.38
+      caniuse-lite: 1.0.30001799
+      electron-to-chromium: 1.5.376
+      node-releases: 2.0.48
+      update-browserslist-db: 1.2.3(browserslist@4.28.4)
+
+  btoa@1.2.1: {}
+
+  callsites@3.1.0: {}
+
+  caniuse-lite@1.0.30001799: {}
+
+  canvas-confetti@1.9.4: {}
+
+  canvg@3.0.11:
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@types/raf': 3.4.3
+      core-js: 3.49.0
+      raf: 3.4.1
+      regenerator-runtime: 0.13.11
+      rgbcolor: 1.0.1
+      stackblur-canvas: 2.7.0
+      svg-pathdata: 6.0.3
+    optional: true
+
+  ccount@2.0.1: {}
+
+  character-entities-html4@2.1.0: {}
+
+  character-entities-legacy@3.0.0: {}
+
+  character-entities@2.0.2: {}
+
+  character-reference-invalid@2.0.1: {}
+
+  chownr@3.0.0: {}
+
+  class-variance-authority@0.7.1:
+    dependencies:
+      clsx: 2.1.1
+
+  classcat@5.0.5: {}
+
+  classnames@2.5.1: {}
+
+  clsx@2.1.1: {}
+
+  cmdk@1.1.1(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.3(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-dialog': 1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-id': 1.1.2(@types/react@19.2.17)(react@18.3.1)
+      '@radix-ui/react-primitive': 2.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
+
+  comma-separated-tokens@2.0.3: {}
+
+  commander@7.2.0: {}
+
+  commander@8.3.0: {}
+
+  convert-source-map@1.9.0: {}
+
+  convert-source-map@2.0.0: {}
+
+  cookie@1.1.1: {}
+
+  core-js@3.49.0:
+    optional: true
+
+  cose-base@1.0.3:
+    dependencies:
+      layout-base: 1.0.2
+
+  cose-base@2.2.0:
+    dependencies:
+      layout-base: 2.0.1
+
+  cosmiconfig@7.1.0:
+    dependencies:
+      '@types/parse-json': 4.0.2
+      import-fresh: 3.3.1
+      parse-json: 5.2.0
+      path-type: 4.0.0
+      yaml: 1.10.3
+
+  css-line-break@2.1.0:
+    dependencies:
+      utrie: 1.0.2
+    optional: true
+
+  csstype@3.2.3: {}
+
+  cytoscape-cose-bilkent@4.1.0(cytoscape@3.34.0):
+    dependencies:
+      cose-base: 1.0.3
+      cytoscape: 3.34.0
+
+  cytoscape-fcose@2.2.0(cytoscape@3.34.0):
+    dependencies:
+      cose-base: 2.2.0
+      cytoscape: 3.34.0
+
+  cytoscape@3.34.0: {}
+
+  d3-array@2.12.1:
+    dependencies:
+      internmap: 1.0.1
+
+  d3-array@3.2.4:
+    dependencies:
+      internmap: 2.0.3
+
+  d3-axis@3.0.0: {}
+
+  d3-brush@3.0.0:
+    dependencies:
+      d3-dispatch: 3.0.1
+      d3-drag: 3.0.0
+      d3-interpolate: 3.0.1
+      d3-selection: 3.0.0
+      d3-transition: 3.0.1(d3-selection@3.0.0)
+
+  d3-chord@3.0.1:
+    dependencies:
+      d3-path: 3.1.0
+
+  d3-color@3.1.0: {}
+
+  d3-contour@4.0.2:
+    dependencies:
+      d3-array: 3.2.4
+
+  d3-delaunay@6.0.4:
+    dependencies:
+      delaunator: 5.1.0
+
+  d3-dispatch@3.0.1: {}
+
+  d3-drag@3.0.0:
+    dependencies:
+      d3-dispatch: 3.0.1
+      d3-selection: 3.0.0
+
+  d3-dsv@3.0.1:
+    dependencies:
+      commander: 7.2.0
+      iconv-lite: 0.6.3
+      rw: 1.3.3
+
+  d3-ease@3.0.1: {}
+
+  d3-fetch@3.0.1:
+    dependencies:
+      d3-dsv: 3.0.1
+
+  d3-force@3.0.0:
+    dependencies:
+      d3-dispatch: 3.0.1
+      d3-quadtree: 3.0.1
+      d3-timer: 3.0.1
+
+  d3-format@3.1.2: {}
+
+  d3-geo@3.1.1:
+    dependencies:
+      d3-array: 3.2.4
+
+  d3-hierarchy@3.1.2: {}
+
+  d3-interpolate@3.0.1:
+    dependencies:
+      d3-color: 3.1.0
+
+  d3-path@1.0.9: {}
+
+  d3-path@3.1.0: {}
+
+  d3-polygon@3.0.1: {}
+
+  d3-quadtree@3.0.1: {}
+
+  d3-random@3.0.1: {}
+
+  d3-sankey@0.12.3:
+    dependencies:
+      d3-array: 2.12.1
+      d3-shape: 1.3.7
+
+  d3-scale-chromatic@3.1.0:
+    dependencies:
+      d3-color: 3.1.0
+      d3-interpolate: 3.0.1
+
+  d3-scale@4.0.2:
+    dependencies:
+      d3-array: 3.2.4
+      d3-format: 3.1.2
+      d3-interpolate: 3.0.1
+      d3-time: 3.1.0
+      d3-time-format: 4.1.0
+
+  d3-selection@3.0.0: {}
+
+  d3-shape@1.3.7:
+    dependencies:
+      d3-path: 1.0.9
+
+  d3-shape@3.2.0:
+    dependencies:
+      d3-path: 3.1.0
+
+  d3-time-format@4.1.0:
+    dependencies:
+      d3-time: 3.1.0
+
+  d3-time@3.1.0:
+    dependencies:
+      d3-array: 3.2.4
+
+  d3-timer@3.0.1: {}
+
+  d3-transition@3.0.1(d3-selection@3.0.0):
+    dependencies:
+      d3-color: 3.1.0
+      d3-dispatch: 3.0.1
+      d3-ease: 3.0.1
+      d3-interpolate: 3.0.1
+      d3-selection: 3.0.0
+      d3-timer: 3.0.1
+
+  d3-zoom@3.0.0:
+    dependencies:
+      d3-dispatch: 3.0.1
+      d3-drag: 3.0.0
+      d3-interpolate: 3.0.1
+      d3-selection: 3.0.0
+      d3-transition: 3.0.1(d3-selection@3.0.0)
+
+  d3@7.9.0:
+    dependencies:
+      d3-array: 3.2.4
+      d3-axis: 3.0.0
+      d3-brush: 3.0.0
+      d3-chord: 3.0.1
+      d3-color: 3.1.0
+      d3-contour: 4.0.2
+      d3-delaunay: 6.0.4
+      d3-dispatch: 3.0.1
+      d3-drag: 3.0.0
+      d3-dsv: 3.0.1
+      d3-ease: 3.0.1
+      d3-fetch: 3.0.1
+      d3-force: 3.0.0
+      d3-format: 3.1.2
+      d3-geo: 3.1.1
+      d3-hierarchy: 3.1.2
+      d3-interpolate: 3.0.1
+      d3-path: 3.1.0
+      d3-polygon: 3.0.1
+      d3-quadtree: 3.0.1
+      d3-random: 3.0.1
+      d3-scale: 4.0.2
+      d3-scale-chromatic: 3.1.0
+      d3-selection: 3.0.0
+      d3-shape: 3.2.0
+      d3-time: 3.1.0
+      d3-time-format: 4.1.0
+      d3-timer: 3.0.1
+      d3-transition: 3.0.1(d3-selection@3.0.0)
+      d3-zoom: 3.0.0
+
+  dagre-d3-es@7.0.14:
+    dependencies:
+      d3: 7.9.0
+      lodash-es: 4.18.1
+
+  date-fns@3.6.0: {}
+
+  dayjs@1.11.21: {}
+
+  debug@4.4.3:
+    dependencies:
+      ms: 2.1.3
+
+  decimal.js-light@2.5.1: {}
+
+  decode-named-character-reference@1.3.0:
+    dependencies:
+      character-entities: 2.0.2
+
+  delaunator@5.1.0:
+    dependencies:
+      robust-predicates: 3.0.3
+
+  dequal@2.0.3: {}
+
+  detect-libc@2.1.2: {}
+
+  detect-node-es@1.1.0: {}
+
+  devlop@1.1.0:
+    dependencies:
+      dequal: 2.0.3
+
+  dnd-core@16.0.1:
+    dependencies:
+      '@react-dnd/asap': 5.0.2
+      '@react-dnd/invariant': 4.0.2
+      redux: 4.2.1
+
+  dom-helpers@5.2.1:
+    dependencies:
+      '@babel/runtime': 7.29.7
+      csstype: 3.2.3
+
+  dompurify@2.5.9:
+    optional: true
+
+  dompurify@3.4.11:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
+
+  electron-to-chromium@1.5.376: {}
+
+  embla-carousel-react@8.6.0(react@18.3.1):
+    dependencies:
+      embla-carousel: 8.6.0
+      embla-carousel-reactive-utils: 8.6.0(embla-carousel@8.6.0)
+      react: 18.3.1
+
+  embla-carousel-reactive-utils@8.6.0(embla-carousel@8.6.0):
+    dependencies:
+      embla-carousel: 8.6.0
+
+  embla-carousel@8.6.0: {}
+
+  enhanced-resolve@5.24.0:
+    dependencies:
+      graceful-fs: 4.2.11
+      tapable: 2.3.3
+
+  error-ex@1.3.4:
+    dependencies:
+      is-arrayish: 0.2.1
+
+  es-errors@1.3.0: {}
+
+  es-toolkit@1.48.1: {}
+
+  esbuild@0.25.12:
+    optionalDependencies:
+      '@esbuild/aix-ppc64': 0.25.12
+      '@esbuild/android-arm': 0.25.12
+      '@esbuild/android-arm64': 0.25.12
+      '@esbuild/android-x64': 0.25.12
+      '@esbuild/darwin-arm64': 0.25.12
+      '@esbuild/darwin-x64': 0.25.12
+      '@esbuild/freebsd-arm64': 0.25.12
+      '@esbuild/freebsd-x64': 0.25.12
+      '@esbuild/linux-arm': 0.25.12
+      '@esbuild/linux-arm64': 0.25.12
+      '@esbuild/linux-ia32': 0.25.12
+      '@esbuild/linux-loong64': 0.25.12
+      '@esbuild/linux-mips64el': 0.25.12
+      '@esbuild/linux-ppc64': 0.25.12
+      '@esbuild/linux-riscv64': 0.25.12
+      '@esbuild/linux-s390x': 0.25.12
+      '@esbuild/linux-x64': 0.25.12
+      '@esbuild/netbsd-arm64': 0.25.12
+      '@esbuild/netbsd-x64': 0.25.12
+      '@esbuild/openbsd-arm64': 0.25.12
+      '@esbuild/openbsd-x64': 0.25.12
+      '@esbuild/openharmony-arm64': 0.25.12
+      '@esbuild/sunos-x64': 0.25.12
+      '@esbuild/win32-arm64': 0.25.12
+      '@esbuild/win32-ia32': 0.25.12
+      '@esbuild/win32-x64': 0.25.12
+
+  escalade@3.2.0: {}
+
+  escape-string-regexp@4.0.0: {}
+
+  escape-string-regexp@5.0.0: {}
+
+  estree-util-is-identifier-name@3.0.0: {}
+
+  eventemitter3@4.0.7: {}
+
+  extend@3.0.2: {}
+
+  fast-deep-equal@3.1.3: {}
+
+  fast-equals@5.4.0: {}
+
+  fdir@6.5.0(picomatch@4.0.4):
+    optionalDependencies:
+      picomatch: 4.0.4
+
+  fflate@0.8.3: {}
+
+  find-root@1.1.0: {}
+
+  framer-motion@12.40.0(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      motion-dom: 12.40.0
+      motion-utils: 12.39.0
+      tslib: 2.8.1
+    optionalDependencies:
+      '@emotion/is-prop-valid': 1.4.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  fsevents@2.3.3:
+    optional: true
+
+  function-bind@1.1.2: {}
+
+  gensync@1.0.0-beta.2: {}
+
+  get-nonce@1.0.1: {}
+
+  graceful-fs@4.2.11: {}
+
+  hachure-fill@0.5.2: {}
+
+  hasown@2.0.4:
+    dependencies:
+      function-bind: 1.1.2
+
+  hast-util-to-jsx-runtime@2.3.6:
+    dependencies:
+      '@types/estree': 1.0.9
+      '@types/hast': 3.0.4
+      '@types/unist': 3.0.3
+      comma-separated-tokens: 2.0.3
+      devlop: 1.1.0
+      estree-util-is-identifier-name: 3.0.0
+      hast-util-whitespace: 3.0.0
+      mdast-util-mdx-expression: 2.0.1
+      mdast-util-mdx-jsx: 3.2.0
+      mdast-util-mdxjs-esm: 2.0.1
+      property-information: 7.2.0
+      space-separated-tokens: 2.0.2
+      style-to-js: 1.1.21
+      unist-util-position: 5.0.0
+      vfile-message: 4.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  hast-util-whitespace@3.0.0:
+    dependencies:
+      '@types/hast': 3.0.4
+
+  hoist-non-react-statics@3.3.2:
+    dependencies:
+      react-is: 16.13.1
+
+  html-to-image@1.11.13: {}
+
+  html-url-attributes@3.0.1: {}
+
+  html2canvas@1.4.1:
+    dependencies:
+      css-line-break: 2.1.0
+      text-segmentation: 1.0.3
+    optional: true
+
+  iconv-lite@0.6.3:
+    dependencies:
+      safer-buffer: 2.1.2
+
+  import-fresh@3.3.1:
+    dependencies:
+      parent-module: 1.0.1
+      resolve-from: 4.0.0
+
+  import-meta-resolve@4.2.0: {}
+
+  inline-style-parser@0.2.7: {}
+
+  input-otp@1.4.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  internmap@1.0.1: {}
+
+  internmap@2.0.3: {}
+
+  is-alphabetical@2.0.1: {}
+
+  is-alphanumerical@2.0.1:
+    dependencies:
+      is-alphabetical: 2.0.1
+      is-decimal: 2.0.1
+
+  is-arrayish@0.2.1: {}
+
+  is-core-module@2.16.2:
+    dependencies:
+      hasown: 2.0.4
+
+  is-decimal@2.0.1: {}
+
+  is-hexadecimal@2.0.1: {}
+
+  is-plain-obj@4.1.0: {}
+
+  jiti@2.7.0: {}
+
+  js-tokens@4.0.0: {}
+
+  jsesc@3.1.0: {}
+
+  json-parse-even-better-errors@2.3.1: {}
+
+  json2mq@0.2.0:
+    dependencies:
+      string-convert: 0.2.1
+
+  json5@2.2.3: {}
+
+  jspdf@2.5.2:
+    dependencies:
+      '@babel/runtime': 7.29.7
+      atob: 2.1.2
+      btoa: 1.2.1
+      fflate: 0.8.3
+    optionalDependencies:
+      canvg: 3.0.11
+      core-js: 3.49.0
+      dompurify: 2.5.9
+      html2canvas: 1.4.1
+
+  katex@0.16.47:
+    dependencies:
+      commander: 8.3.0
+
+  katex@0.17.0:
+    dependencies:
+      commander: 8.3.0
+
+  khroma@2.1.0: {}
+
+  layout-base@1.0.2: {}
+
+  layout-base@2.0.1: {}
+
+  lightningcss-darwin-arm64@1.30.1:
+    optional: true
+
+  lightningcss-darwin-x64@1.30.1:
+    optional: true
+
+  lightningcss-freebsd-x64@1.30.1:
+    optional: true
+
+  lightningcss-linux-arm-gnueabihf@1.30.1:
+    optional: true
+
+  lightningcss-linux-arm64-gnu@1.30.1:
+    optional: true
+
+  lightningcss-linux-arm64-musl@1.30.1:
+    optional: true
+
+  lightningcss-linux-x64-gnu@1.30.1:
+    optional: true
+
+  lightningcss-linux-x64-musl@1.30.1:
+    optional: true
+
+  lightningcss-win32-arm64-msvc@1.30.1:
+    optional: true
+
+  lightningcss-win32-x64-msvc@1.30.1:
+    optional: true
+
+  lightningcss@1.30.1:
+    dependencies:
+      detect-libc: 2.1.2
+    optionalDependencies:
+      lightningcss-darwin-arm64: 1.30.1
+      lightningcss-darwin-x64: 1.30.1
+      lightningcss-freebsd-x64: 1.30.1
+      lightningcss-linux-arm-gnueabihf: 1.30.1
+      lightningcss-linux-arm64-gnu: 1.30.1
+      lightningcss-linux-arm64-musl: 1.30.1
+      lightningcss-linux-x64-gnu: 1.30.1
+      lightningcss-linux-x64-musl: 1.30.1
+      lightningcss-win32-arm64-msvc: 1.30.1
+      lightningcss-win32-x64-msvc: 1.30.1
+
+  lines-and-columns@1.2.4: {}
+
+  lodash-es@4.18.1: {}
+
+  lodash.debounce@4.0.8: {}
+
+  lodash@4.18.1: {}
+
+  longest-streak@3.1.0: {}
+
+  loose-envify@1.4.0:
+    dependencies:
+      js-tokens: 4.0.0
+
+  lru-cache@5.1.1:
+    dependencies:
+      yallist: 3.1.1
+
+  lucide-react@0.487.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+
+  magic-string@0.30.21:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
+
+  markdown-table@3.0.4: {}
+
+  marked@16.4.2: {}
+
+  mdast-util-find-and-replace@3.0.2:
+    dependencies:
+      '@types/mdast': 4.0.4
+      escape-string-regexp: 5.0.0
+      unist-util-is: 6.0.1
+      unist-util-visit-parents: 6.0.2
+
+  mdast-util-from-markdown@2.0.3:
+    dependencies:
+      '@types/mdast': 4.0.4
+      '@types/unist': 3.0.3
+      decode-named-character-reference: 1.3.0
+      devlop: 1.1.0
+      mdast-util-to-string: 4.0.0
+      micromark: 4.0.2
+      micromark-util-decode-numeric-character-reference: 2.0.2
+      micromark-util-decode-string: 2.0.1
+      micromark-util-normalize-identifier: 2.0.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+      unist-util-stringify-position: 4.0.0
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-gfm-autolink-literal@2.0.1:
+    dependencies:
+      '@types/mdast': 4.0.4
+      ccount: 2.0.1
+      devlop: 1.1.0
+      mdast-util-find-and-replace: 3.0.2
+      micromark-util-character: 2.1.1
+
+  mdast-util-gfm-footnote@2.1.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      devlop: 1.1.0
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+      micromark-util-normalize-identifier: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-gfm-strikethrough@2.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-gfm-table@2.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      devlop: 1.1.0
+      markdown-table: 3.0.4
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-gfm-task-list-item@2.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      devlop: 1.1.0
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-gfm@3.1.0:
+    dependencies:
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-gfm-autolink-literal: 2.0.1
+      mdast-util-gfm-footnote: 2.1.0
+      mdast-util-gfm-strikethrough: 2.0.0
+      mdast-util-gfm-table: 2.0.0
+      mdast-util-gfm-task-list-item: 2.0.0
+      mdast-util-to-markdown: 2.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-mdx-expression@2.0.1:
+    dependencies:
+      '@types/estree-jsx': 1.0.5
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.4
+      devlop: 1.1.0
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-mdx-jsx@3.2.0:
+    dependencies:
+      '@types/estree-jsx': 1.0.5
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.4
+      '@types/unist': 3.0.3
+      ccount: 2.0.1
+      devlop: 1.1.0
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+      parse-entities: 4.0.2
+      stringify-entities: 4.0.4
+      unist-util-stringify-position: 4.0.0
+      vfile-message: 4.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-mdxjs-esm@2.0.1:
+    dependencies:
+      '@types/estree-jsx': 1.0.5
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.4
+      devlop: 1.1.0
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-phrasing@4.1.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      unist-util-is: 6.0.1
+
+  mdast-util-to-hast@13.2.1:
+    dependencies:
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.4
+      '@ungap/structured-clone': 1.3.1
+      devlop: 1.1.0
+      micromark-util-sanitize-uri: 2.0.1
+      trim-lines: 3.0.1
+      unist-util-position: 5.0.0
+      unist-util-visit: 5.1.0
+      vfile: 6.0.3
+
+  mdast-util-to-markdown@2.1.2:
+    dependencies:
+      '@types/mdast': 4.0.4
+      '@types/unist': 3.0.3
+      longest-streak: 3.1.0
+      mdast-util-phrasing: 4.1.0
+      mdast-util-to-string: 4.0.0
+      micromark-util-classify-character: 2.0.1
+      micromark-util-decode-string: 2.0.1
+      unist-util-visit: 5.1.0
+      zwitch: 2.0.4
+
+  mdast-util-to-string@4.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+
+  mermaid@11.15.0:
+    dependencies:
+      '@braintree/sanitize-url': 7.1.2
+      '@iconify/utils': 3.1.3
+      '@mermaid-js/parser': 1.1.1
+      '@types/d3': 7.4.3
+      '@upsetjs/venn.js': 2.0.0
+      cytoscape: 3.34.0
+      cytoscape-cose-bilkent: 4.1.0(cytoscape@3.34.0)
+      cytoscape-fcose: 2.2.0(cytoscape@3.34.0)
+      d3: 7.9.0
+      d3-sankey: 0.12.3
+      dagre-d3-es: 7.0.14
+      dayjs: 1.11.21
+      dompurify: 3.4.11
+      es-toolkit: 1.48.1
+      katex: 0.16.47
+      khroma: 2.1.0
+      marked: 16.4.2
+      roughjs: 4.6.6
+      stylis: 4.4.0
+      ts-dedent: 2.3.0
+      uuid: 14.0.1
+
+  micromark-core-commonmark@2.0.3:
+    dependencies:
+      decode-named-character-reference: 1.3.0
+      devlop: 1.1.0
+      micromark-factory-destination: 2.0.1
+      micromark-factory-label: 2.0.1
+      micromark-factory-space: 2.0.1
+      micromark-factory-title: 2.0.1
+      micromark-factory-whitespace: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-chunked: 2.0.1
+      micromark-util-classify-character: 2.0.1
+      micromark-util-html-tag-name: 2.0.1
+      micromark-util-normalize-identifier: 2.0.1
+      micromark-util-resolve-all: 2.0.1
+      micromark-util-subtokenize: 2.1.0
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-autolink-literal@2.1.0:
+    dependencies:
+      micromark-util-character: 2.1.1
+      micromark-util-sanitize-uri: 2.0.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-footnote@2.1.0:
+    dependencies:
+      devlop: 1.1.0
+      micromark-core-commonmark: 2.0.3
+      micromark-factory-space: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-normalize-identifier: 2.0.1
+      micromark-util-sanitize-uri: 2.0.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-strikethrough@2.1.0:
+    dependencies:
+      devlop: 1.1.0
+      micromark-util-chunked: 2.0.1
+      micromark-util-classify-character: 2.0.1
+      micromark-util-resolve-all: 2.0.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-table@2.1.1:
+    dependencies:
+      devlop: 1.1.0
+      micromark-factory-space: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-tagfilter@2.0.0:
+    dependencies:
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-task-list-item@2.1.0:
+    dependencies:
+      devlop: 1.1.0
+      micromark-factory-space: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm@3.0.0:
+    dependencies:
+      micromark-extension-gfm-autolink-literal: 2.1.0
+      micromark-extension-gfm-footnote: 2.1.0
+      micromark-extension-gfm-strikethrough: 2.1.0
+      micromark-extension-gfm-table: 2.1.1
+      micromark-extension-gfm-tagfilter: 2.0.0
+      micromark-extension-gfm-task-list-item: 2.1.0
+      micromark-util-combine-extensions: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-factory-destination@2.0.1:
+    dependencies:
+      micromark-util-character: 2.1.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-factory-label@2.0.1:
+    dependencies:
+      devlop: 1.1.0
+      micromark-util-character: 2.1.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-factory-space@2.0.1:
+    dependencies:
+      micromark-util-character: 2.1.1
+      micromark-util-types: 2.0.2
+
+  micromark-factory-title@2.0.1:
+    dependencies:
+      micromark-factory-space: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-factory-whitespace@2.0.1:
+    dependencies:
+      micromark-factory-space: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-util-character@2.1.1:
+    dependencies:
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-util-chunked@2.0.1:
+    dependencies:
+      micromark-util-symbol: 2.0.1
+
+  micromark-util-classify-character@2.0.1:
+    dependencies:
+      micromark-util-character: 2.1.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-util-combine-extensions@2.0.1:
+    dependencies:
+      micromark-util-chunked: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-util-decode-numeric-character-reference@2.0.2:
+    dependencies:
+      micromark-util-symbol: 2.0.1
+
+  micromark-util-decode-string@2.0.1:
+    dependencies:
+      decode-named-character-reference: 1.3.0
+      micromark-util-character: 2.1.1
+      micromark-util-decode-numeric-character-reference: 2.0.2
+      micromark-util-symbol: 2.0.1
+
+  micromark-util-encode@2.0.1: {}
+
+  micromark-util-html-tag-name@2.0.1: {}
+
+  micromark-util-normalize-identifier@2.0.1:
+    dependencies:
+      micromark-util-symbol: 2.0.1
+
+  micromark-util-resolve-all@2.0.1:
+    dependencies:
+      micromark-util-types: 2.0.2
+
+  micromark-util-sanitize-uri@2.0.1:
+    dependencies:
+      micromark-util-character: 2.1.1
+      micromark-util-encode: 2.0.1
+      micromark-util-symbol: 2.0.1
+
+  micromark-util-subtokenize@2.1.0:
+    dependencies:
+      devlop: 1.1.0
+      micromark-util-chunked: 2.0.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-util-symbol@2.0.1: {}
+
+  micromark-util-types@2.0.2: {}
+
+  micromark@4.0.2:
+    dependencies:
+      '@types/debug': 4.1.13
+      debug: 4.4.3
+      decode-named-character-reference: 1.3.0
+      devlop: 1.1.0
+      micromark-core-commonmark: 2.0.3
+      micromark-factory-space: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-chunked: 2.0.1
+      micromark-util-combine-extensions: 2.0.1
+      micromark-util-decode-numeric-character-reference: 2.0.2
+      micromark-util-encode: 2.0.1
+      micromark-util-normalize-identifier: 2.0.1
+      micromark-util-resolve-all: 2.0.1
+      micromark-util-sanitize-uri: 2.0.1
+      micromark-util-subtokenize: 2.1.0
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+    transitivePeerDependencies:
+      - supports-color
+
+  minipass@7.1.3: {}
+
+  minizlib@3.1.0:
+    dependencies:
+      minipass: 7.1.3
+
+  motion-dom@12.40.0:
+    dependencies:
+      motion-utils: 12.39.0
+
+  motion-utils@12.39.0: {}
+
+  motion@12.23.24(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      framer-motion: 12.40.0(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tslib: 2.8.1
+    optionalDependencies:
+      '@emotion/is-prop-valid': 1.4.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  ms@2.1.3: {}
+
+  nanoid@3.3.15: {}
+
+  next-themes@0.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  node-releases@2.0.48: {}
+
+  object-assign@4.1.1: {}
+
+  package-manager-detector@1.6.0: {}
+
+  parent-module@1.0.1:
+    dependencies:
+      callsites: 3.1.0
+
+  parse-entities@4.0.2:
+    dependencies:
+      '@types/unist': 2.0.11
+      character-entities-legacy: 3.0.0
+      character-reference-invalid: 2.0.1
+      decode-named-character-reference: 1.3.0
+      is-alphanumerical: 2.0.1
+      is-decimal: 2.0.1
+      is-hexadecimal: 2.0.1
+
+  parse-json@5.2.0:
+    dependencies:
+      '@babel/code-frame': 7.29.7
+      error-ex: 1.3.4
+      json-parse-even-better-errors: 2.3.1
+      lines-and-columns: 1.2.4
+
+  path-data-parser@0.1.0: {}
+
+  path-parse@1.0.7: {}
+
+  path-type@4.0.0: {}
+
+  performance-now@2.1.0:
+    optional: true
+
+  picocolors@1.1.1: {}
+
+  picomatch@4.0.4: {}
+
+  points-on-curve@0.2.0: {}
+
+  points-on-path@0.2.1:
+    dependencies:
+      path-data-parser: 0.1.0
+      points-on-curve: 0.2.0
+
+  postcss@8.5.15:
+    dependencies:
+      nanoid: 3.3.15
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
+
+  prop-types@15.8.1:
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      react-is: 16.13.1
+
+  property-information@7.2.0: {}
+
+  raf@3.4.1:
+    dependencies:
+      performance-now: 2.1.0
+    optional: true
+
+  react-day-picker@8.10.1(date-fns@3.6.0)(react@18.3.1):
+    dependencies:
+      date-fns: 3.6.0
+      react: 18.3.1
+
+  react-dnd-html5-backend@16.0.1:
+    dependencies:
+      dnd-core: 16.0.1
+
+  react-dnd@16.0.1(@types/react@19.2.17)(react@18.3.1):
+    dependencies:
+      '@react-dnd/invariant': 4.0.2
+      '@react-dnd/shallowequal': 4.0.2
+      dnd-core: 16.0.1
+      fast-deep-equal: 3.1.3
+      hoist-non-react-statics: 3.3.2
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  react-dom@18.3.1(react@18.3.1):
+    dependencies:
+      loose-envify: 1.4.0
+      react: 18.3.1
+      scheduler: 0.23.2
+
+  react-fast-compare@3.2.2: {}
+
+  react-hook-form@7.55.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+
+  react-is@16.13.1: {}
+
+  react-is@18.3.1: {}
+
+  react-is@19.2.7: {}
+
+  react-markdown@10.1.0(@types/react@19.2.17)(react@18.3.1):
+    dependencies:
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.4
+      '@types/react': 19.2.17
+      devlop: 1.1.0
+      hast-util-to-jsx-runtime: 2.3.6
+      html-url-attributes: 3.0.1
+      mdast-util-to-hast: 13.2.1
+      react: 18.3.1
+      remark-parse: 11.0.0
+      remark-rehype: 11.1.2
+      unified: 11.0.5
+      unist-util-visit: 5.1.0
+      vfile: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@popperjs/core': 2.11.8
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-fast-compare: 3.2.2
+      warning: 4.0.3
+
+  react-refresh@0.17.0: {}
+
+  react-remove-scroll-bar@2.3.8(@types/react@19.2.17)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-style-singleton: 2.2.3(@types/react@19.2.17)(react@18.3.1)
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  react-remove-scroll@2.7.2(@types/react@19.2.17)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-remove-scroll-bar: 2.3.8(@types/react@19.2.17)(react@18.3.1)
+      react-style-singleton: 2.2.3(@types/react@19.2.17)(react@18.3.1)
+      tslib: 2.8.1
+      use-callback-ref: 1.3.3(@types/react@19.2.17)(react@18.3.1)
+      use-sidecar: 1.1.3(@types/react@19.2.17)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  react-resizable-panels@2.1.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  react-responsive-masonry@2.7.1: {}
+
+  react-router@7.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      cookie: 1.1.1
+      react: 18.3.1
+      set-cookie-parser: 2.7.2
+    optionalDependencies:
+      react-dom: 18.3.1(react@18.3.1)
+
+  react-slick@0.31.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      classnames: 2.5.1
+      json2mq: 0.2.0
+      lodash.debounce: 4.0.8
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      resize-observer-polyfill: 1.5.1
+
+  react-smooth@4.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      fast-equals: 5.4.0
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+
+  react-style-singleton@2.2.3(@types/react@19.2.17)(react@18.3.1):
+    dependencies:
+      get-nonce: 1.0.1
+      react: 18.3.1
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@babel/runtime': 7.29.7
+      dom-helpers: 5.2.1
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  react-zoom-pan-pinch@4.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  react@18.3.1:
+    dependencies:
+      loose-envify: 1.4.0
+
+  recharts-scale@0.4.5:
+    dependencies:
+      decimal.js-light: 2.5.1
+
+  recharts@2.15.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      clsx: 2.1.1
+      eventemitter3: 4.0.7
+      lodash: 4.18.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-is: 18.3.1
+      react-smooth: 4.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      recharts-scale: 0.4.5
+      tiny-invariant: 1.3.3
+      victory-vendor: 36.9.2
+
+  redux@4.2.1:
+    dependencies:
+      '@babel/runtime': 7.29.7
+
+  regenerator-runtime@0.13.11:
+    optional: true
+
+  remark-gfm@4.0.1:
+    dependencies:
+      '@types/mdast': 4.0.4
+      mdast-util-gfm: 3.1.0
+      micromark-extension-gfm: 3.0.0
+      remark-parse: 11.0.0
+      remark-stringify: 11.0.0
+      unified: 11.0.5
+    transitivePeerDependencies:
+      - supports-color
+
+  remark-parse@11.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      mdast-util-from-markdown: 2.0.3
+      micromark-util-types: 2.0.2
+      unified: 11.0.5
+    transitivePeerDependencies:
+      - supports-color
+
+  remark-rehype@11.1.2:
+    dependencies:
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.4
+      mdast-util-to-hast: 13.2.1
+      unified: 11.0.5
+      vfile: 6.0.3
+
+  remark-stringify@11.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      mdast-util-to-markdown: 2.1.2
+      unified: 11.0.5
+
+  resize-observer-polyfill@1.5.1: {}
+
+  resolve-from@4.0.0: {}
+
+  resolve@1.22.12:
+    dependencies:
+      es-errors: 1.3.0
+      is-core-module: 2.16.2
+      path-parse: 1.0.7
+      supports-preserve-symlinks-flag: 1.0.0
+
+  rgbcolor@1.0.1:
+    optional: true
+
+  robust-predicates@3.0.3: {}
+
+  rollup@4.62.2:
+    dependencies:
+      '@types/estree': 1.0.9
+    optionalDependencies:
+      '@rollup/rollup-android-arm-eabi': 4.62.2
+      '@rollup/rollup-android-arm64': 4.62.2
+      '@rollup/rollup-darwin-arm64': 4.62.2
+      '@rollup/rollup-darwin-x64': 4.62.2
+      '@rollup/rollup-freebsd-arm64': 4.62.2
+      '@rollup/rollup-freebsd-x64': 4.62.2
+      '@rollup/rollup-linux-arm-gnueabihf': 4.62.2
+      '@rollup/rollup-linux-arm-musleabihf': 4.62.2
+      '@rollup/rollup-linux-arm64-gnu': 4.62.2
+      '@rollup/rollup-linux-arm64-musl': 4.62.2
+      '@rollup/rollup-linux-loong64-gnu': 4.62.2
+      '@rollup/rollup-linux-loong64-musl': 4.62.2
+      '@rollup/rollup-linux-ppc64-gnu': 4.62.2
+      '@rollup/rollup-linux-ppc64-musl': 4.62.2
+      '@rollup/rollup-linux-riscv64-gnu': 4.62.2
+      '@rollup/rollup-linux-riscv64-musl': 4.62.2
+      '@rollup/rollup-linux-s390x-gnu': 4.62.2
+      '@rollup/rollup-linux-x64-gnu': 4.62.2
+      '@rollup/rollup-linux-x64-musl': 4.62.2
+      '@rollup/rollup-openbsd-x64': 4.62.2
+      '@rollup/rollup-openharmony-arm64': 4.62.2
+      '@rollup/rollup-win32-arm64-msvc': 4.62.2
+      '@rollup/rollup-win32-ia32-msvc': 4.62.2
+      '@rollup/rollup-win32-x64-gnu': 4.62.2
+      '@rollup/rollup-win32-x64-msvc': 4.62.2
+      fsevents: 2.3.3
+
+  roughjs@4.6.6:
+    dependencies:
+      hachure-fill: 0.5.2
+      path-data-parser: 0.1.0
+      points-on-curve: 0.2.0
+      points-on-path: 0.2.1
+
+  rw@1.3.3: {}
+
+  safer-buffer@2.1.2: {}
+
+  scheduler@0.23.2:
+    dependencies:
+      loose-envify: 1.4.0
+
+  semver@6.3.1: {}
+
+  set-cookie-parser@2.7.2: {}
+
+  sonner@2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  source-map-js@1.2.1: {}
+
+  source-map@0.5.7: {}
+
+  space-separated-tokens@2.0.2: {}
+
+  stackblur-canvas@2.7.0:
+    optional: true
+
+  string-convert@0.2.1: {}
+
+  stringify-entities@4.0.4:
+    dependencies:
+      character-entities-html4: 2.1.0
+      character-entities-legacy: 3.0.0
+
+  style-to-js@1.1.21:
+    dependencies:
+      style-to-object: 1.0.14
+
+  style-to-object@1.0.14:
+    dependencies:
+      inline-style-parser: 0.2.7
+
+  stylis@4.2.0: {}
+
+  stylis@4.4.0: {}
+
+  supports-preserve-symlinks-flag@1.0.0: {}
+
+  svg-pathdata@6.0.3:
+    optional: true
+
+  tailwind-merge@3.2.0: {}
+
+  tailwindcss@4.1.12: {}
+
+  tapable@2.3.3: {}
+
+  tar@7.5.16:
+    dependencies:
+      '@isaacs/fs-minipass': 4.0.1
+      chownr: 3.0.0
+      minipass: 7.1.3
+      minizlib: 3.1.0
+      yallist: 5.0.0
+
+  text-segmentation@1.0.3:
+    dependencies:
+      utrie: 1.0.2
+    optional: true
+
+  tiny-invariant@1.3.3: {}
+
+  tinyexec@1.2.4: {}
+
+  tinyglobby@0.2.17:
+    dependencies:
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
+
+  trim-lines@3.0.1: {}
+
+  trough@2.2.0: {}
+
+  ts-dedent@2.3.0: {}
+
+  tslib@2.8.1: {}
+
+  tw-animate-css@1.3.8: {}
+
+  typescript@6.0.3: {}
+
+  unified@11.0.5:
+    dependencies:
+      '@types/unist': 3.0.3
+      bail: 2.0.2
+      devlop: 1.1.0
+      extend: 3.0.2
+      is-plain-obj: 4.1.0
+      trough: 2.2.0
+      vfile: 6.0.3
+
+  unist-util-is@6.0.1:
+    dependencies:
+      '@types/unist': 3.0.3
+
+  unist-util-position@5.0.0:
+    dependencies:
+      '@types/unist': 3.0.3
+
+  unist-util-stringify-position@4.0.0:
+    dependencies:
+      '@types/unist': 3.0.3
+
+  unist-util-visit-parents@6.0.2:
+    dependencies:
+      '@types/unist': 3.0.3
+      unist-util-is: 6.0.1
+
+  unist-util-visit@5.1.0:
+    dependencies:
+      '@types/unist': 3.0.3
+      unist-util-is: 6.0.1
+      unist-util-visit-parents: 6.0.2
+
+  update-browserslist-db@1.2.3(browserslist@4.28.4):
+    dependencies:
+      browserslist: 4.28.4
+      escalade: 3.2.0
+      picocolors: 1.1.1
+
+  use-callback-ref@1.3.3(@types/react@19.2.17)(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  use-sidecar@1.1.3(@types/react@19.2.17)(react@18.3.1):
+    dependencies:
+      detect-node-es: 1.1.0
+      react: 18.3.1
+      tslib: 2.8.1
+    optionalDependencies:
+      '@types/react': 19.2.17
+
+  use-sync-external-store@1.6.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+
+  utrie@1.0.2:
+    dependencies:
+      base64-arraybuffer: 1.0.2
+    optional: true
+
+  uuid@14.0.1: {}
+
+  vaul@1.1.2(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@radix-ui/react-dialog': 1.1.6(@types/react@19.2.17)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
+
+  vfile-message@4.0.3:
+    dependencies:
+      '@types/unist': 3.0.3
+      unist-util-stringify-position: 4.0.0
+
+  vfile@6.0.3:
+    dependencies:
+      '@types/unist': 3.0.3
+      vfile-message: 4.0.3
+
+  victory-vendor@36.9.2:
+    dependencies:
+      '@types/d3-array': 3.2.2
+      '@types/d3-ease': 3.0.2
+      '@types/d3-interpolate': 3.0.4
+      '@types/d3-scale': 4.0.9
+      '@types/d3-shape': 3.1.8
+      '@types/d3-time': 3.0.4
+      '@types/d3-timer': 3.0.2
+      d3-array: 3.2.4
+      d3-ease: 3.0.1
+      d3-interpolate: 3.0.1
+      d3-scale: 4.0.2
+      d3-shape: 3.2.0
+      d3-time: 3.1.0
+      d3-timer: 3.0.1
+
+  vite@6.3.5(jiti@2.7.0)(lightningcss@1.30.1):
+    dependencies:
+      esbuild: 0.25.12
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
+      postcss: 8.5.15
+      rollup: 4.62.2
+      tinyglobby: 0.2.17
+    optionalDependencies:
+      fsevents: 2.3.3
+      jiti: 2.7.0
+      lightningcss: 1.30.1
+
+  warning@4.0.3:
+    dependencies:
+      loose-envify: 1.4.0
+
+  yallist@3.1.1: {}
+
+  yallist@5.0.0: {}
+
+  yaml@1.10.3: {}
+
+  zustand@4.5.7(@types/react@19.2.17)(react@18.3.1):
+    dependencies:
+      use-sync-external-store: 1.6.0(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 19.2.17
+      react: 18.3.1
+
+  zustand@5.0.14(@types/react@19.2.17)(react@18.3.1)(use-sync-external-store@1.6.0(react@18.3.1)):
+    optionalDependencies:
+      '@types/react': 19.2.17
+      react: 18.3.1
+      use-sync-external-store: 1.6.0(react@18.3.1)
+
+  zwitch@2.0.4: {}
+
+```
+
+
+## File: package.json
+```json
+{
+  "name": "@figma/my-make-file",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.1",
+    "@mui/icons-material": "7.3.5",
+    "@mui/material": "7.3.5",
+    "@popperjs/core": "2.11.8",
+    "@radix-ui/react-accordion": "1.2.3",
+    "@radix-ui/react-alert-dialog": "1.1.6",
+    "@radix-ui/react-aspect-ratio": "1.1.2",
+    "@radix-ui/react-avatar": "1.1.3",
+    "@radix-ui/react-checkbox": "1.1.4",
+    "@radix-ui/react-collapsible": "1.1.3",
+    "@radix-ui/react-context-menu": "2.2.6",
+    "@radix-ui/react-dialog": "1.1.6",
+    "@radix-ui/react-dropdown-menu": "2.1.6",
+    "@radix-ui/react-hover-card": "1.1.6",
+    "@radix-ui/react-label": "2.1.2",
+    "@radix-ui/react-menubar": "1.1.6",
+    "@radix-ui/react-navigation-menu": "1.2.5",
+    "@radix-ui/react-popover": "1.1.6",
+    "@radix-ui/react-progress": "1.1.2",
+    "@radix-ui/react-radio-group": "1.2.3",
+    "@radix-ui/react-scroll-area": "1.2.3",
+    "@radix-ui/react-select": "2.1.6",
+    "@radix-ui/react-separator": "1.1.2",
+    "@radix-ui/react-slider": "1.2.3",
+    "@radix-ui/react-slot": "1.1.2",
+    "@radix-ui/react-switch": "1.1.3",
+    "@radix-ui/react-tabs": "1.1.3",
+    "@radix-ui/react-toggle": "1.1.2",
+    "@radix-ui/react-toggle-group": "1.1.2",
+    "@radix-ui/react-tooltip": "1.1.8",
+    "@xyflow/react": "^12.11.1",
+    "canvas-confetti": "1.9.4",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "cmdk": "1.1.1",
+    "date-fns": "3.6.0",
+    "embla-carousel-react": "8.6.0",
+    "html-to-image": "^1.11.13",
+    "input-otp": "1.4.2",
+    "jspdf": "^2.5.2",
+    "katex": "^0.17.0",
+    "lucide-react": "0.487.0",
+    "mermaid": "^11.15.0",
+    "motion": "12.23.24",
+    "next-themes": "0.4.6",
+    "react-day-picker": "8.10.1",
+    "react-dnd": "16.0.1",
+    "react-dnd-html5-backend": "16.0.1",
+    "react-hook-form": "7.55.0",
+    "react-markdown": "^10.1.0",
+    "react-popper": "2.3.0",
+    "react-resizable-panels": "2.1.7",
+    "react-responsive-masonry": "2.7.1",
+    "react-router": "7.13.0",
+    "react-slick": "0.31.0",
+    "react-zoom-pan-pinch": "^4.0.3",
+    "recharts": "2.15.2",
+    "remark-gfm": "^4.0.1",
+    "sonner": "2.0.3",
+    "tailwind-merge": "3.2.0",
+    "tw-animate-css": "1.3.8",
+    "vaul": "1.1.2",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.1.12",
+    "@vitejs/plugin-react": "4.7.0",
+    "tailwindcss": "4.1.12",
+    "typescript": "^6.0.3",
+    "vite": "6.3.5"
+  },
+  "peerDependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "6.3.5"
+    }
+  }
+}
+
+```
+
 
 ## File: src/main.tsx
 ```typescript
 
-  import { createRoot } from "react-dom/client";
-  import App from "./app/App.tsx";
-  import "./styles/index.css";
+import { createRoot } from "react-dom/client";
+import App from "./app/App.tsx";
+import "./styles/index.css";
+import "katex/dist/katex.min.css";
 
-  createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(<App />);
+
   
 ```
+
 
 ## File: src/app/App.tsx
 ```typescript
@@ -387,6 +6567,7 @@ import { SettingsPage } from "./pages/Settings";
 import { Trace } from "./pages/Trace";
 import { Courses } from "./pages/Courses";
 import { Differences } from "./pages/Differences";
+import { Consistency } from "./pages/Consistency";
 import { PromptLibrary } from "./pages/PromptLibrary";
 import { OnboardingHero } from "./pages/onboarding/OnboardingHero";
 import { OnboardingImport } from "./pages/onboarding/OnboardingImport";
@@ -440,6 +6621,7 @@ export default function App() {
             <Route path="/trace" element={<Trace />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/differences" element={<Differences />} />
+            <Route path="/consistency" element={<Consistency />} />
             <Route path="/prompts" element={<PromptLibrary />} />
           </Route>
 
@@ -450,7 +6632,9 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
 ```
+
 
 ## File: src/app/components/AnswerViewer.tsx
 ```typescript
@@ -533,7 +6717,9 @@ export function AnswerViewer({ message, onCitationClick }: AnswerViewerProps) {
     </motion.div>
   );
 }
+
 ```
+
 
 ## File: src/app/components/CitationBadge.tsx
 ```typescript
@@ -560,11 +6746,13 @@ export function CitationBadge({ index, onClick, className }: CitationBadgeProps)
     </button>
   );
 }
+
 ```
+
 
 ## File: src/app/components/CommandMenu.tsx
 ```typescript
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   CommandDialog,
@@ -576,14 +6764,17 @@ import {
   CommandSeparator,
 } from "./ui/command";
 import { navItems } from "../lib/nav";
-import { courses, documents } from "../lib/mock-data";
 import { useUIStore } from "../stores/useUIStore";
+import { api } from "../lib/api";
+import type { Course, DocumentItem } from "../lib/types";
 import { FileText, GraduationCap } from "lucide-react";
 
 export function CommandMenu() {
   const open = useUIStore((s) => s.commandOpen);
   const setOpen = useUIStore((s) => s.setCommandOpen);
   const navigate = useNavigate();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -595,6 +6786,13 @@ export function CommandMenu() {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open, setOpen]);
+
+  // Fetch real data whenever the menu opens.
+  useEffect(() => {
+    if (!open) return;
+    api.listCourses().then(setCourses).catch(() => setCourses([]));
+    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
+  }, [open]);
 
   const go = (to: string) => {
     navigate(to);
@@ -642,141 +6840,10 @@ export function CommandMenu() {
     </CommandDialog>
   );
 }
+
+
 ```
 
-## File: src/app/components/DiagramViewer.tsx
-```typescript
-import { useEffect, useRef, useState } from "react";
-import mermaid from "mermaid";
-import { Loader2, AlertCircle, ZoomIn, ZoomOut, Maximize } from "lucide-react";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-
-mermaid.initialize({
-  startOnLoad: false,
-  theme: "base",
-  themeVariables: {
-    background: "#fffefb",
-    primaryColor: "#fffefb",
-    primaryTextColor: "#211f1b",
-    primaryBorderColor: "#4f4d7a",
-    lineColor: "#a39e93",
-    secondaryColor: "#efece5",
-    tertiaryColor: "#f6f5f1",
-    fontFamily: "Inter, sans-serif",
-    fontSize: "14px",
-  },
-  securityLevel: "loose",
-});
-
-let counter = 0;
-
-export function DiagramViewer({ code, flush }: { code: string; flush?: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-    const renderDiagram = async () => {
-      if (!ref.current) return;
-      
-      setLoading(true);
-      setError(null);
-      ref.current.innerHTML = "";
-      
-      const id = `mermaid-svg-${counter++}`;
-      
-      try {
-        // Clear any previous content
-        ref.current.innerHTML = "";
-        // Validate syntax first so it throws instead of rendering an error SVG
-        await mermaid.parse(code);
-        const { svg } = await mermaid.render(id, code);
-        
-        if (isMounted && ref.current) {
-          ref.current.innerHTML = svg;
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error("Mermaid render error:", err);
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : "Failed to render diagram");
-          setLoading(false);
-        }
-      }
-    };
-
-    renderDiagram();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [code]);
-
-  return (
-    <div className={`relative flex w-full items-center justify-center overflow-hidden ${flush ? "h-full" : "min-h-[400px] rounded-lg border border-border bg-card p-8 paper"}`}>
-      {loading && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-card/50 backdrop-blur-sm">
-          <Loader2 className="size-8 animate-spin text-primary" />
-          <p className="mt-4 text-sm text-muted-foreground font-medium">Rendering diagram...</p>
-        </div>
-      )}
-      
-      {error ? (
-        <div className="flex flex-col items-center gap-4 text-center max-w-md px-6">
-          <div className="flex size-12 items-center justify-center rounded-full bg-danger/10 text-danger">
-            <AlertCircle className="size-6" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold">Diagram Error</h3>
-            <p className="mt-1 text-xs text-muted-foreground">The mermaid syntax might be invalid or there was a rendering issue.</p>
-          </div>
-          <pre className="mt-2 w-full overflow-x-auto rounded-lg border border-border bg-secondary p-3 text-left text-[11px] font-mono text-danger">
-            {code}
-          </pre>
-        </div>
-      ) : (
-        <TransformWrapper initialScale={1} minScale={0.1} maxScale={8} centerOnInit>
-          {({ zoomIn, zoomOut, resetTransform }) => (
-            <>
-              <div className="absolute bottom-4 right-4 z-10 flex gap-2 rounded-lg border border-border bg-card/80 p-1.5 backdrop-blur shadow-sm">
-                <button
-                  onClick={() => zoomOut()}
-                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                  title="Zoom Out"
-                >
-                  <ZoomOut className="size-4" />
-                </button>
-                <button
-                  onClick={() => resetTransform()}
-                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                  title="Reset Zoom"
-                >
-                  <Maximize className="size-4" />
-                </button>
-                <button
-                  onClick={() => zoomIn()}
-                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                  title="Zoom In"
-                >
-                  <ZoomIn className="size-4" />
-                </button>
-              </div>
-              <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div 
-                  ref={ref} 
-                  className="flex h-full w-full items-center justify-center transition-opacity duration-300 [&_svg]:max-w-full [&_svg]:h-auto"
-                  style={{ opacity: loading ? 0 : 1 }}
-                />
-              </TransformComponent>
-            </>
-          )}
-        </TransformWrapper>
-      )}
-    </div>
-  );
-}
-```
 
 ## File: src/app/components/FlashcardCard.tsx
 ```typescript
@@ -861,7 +6928,9 @@ export function FlashcardCard({ card }: { card: Flashcard }) {
     </button>
   );
 }
+
 ```
+
 
 ## File: src/app/components/MetricCard.tsx
 ```typescript
@@ -911,7 +6980,9 @@ export function MetricCard({ label, value, icon: Icon, accent, delta, hint }: Me
     </motion.div>
   );
 }
+
 ```
+
 
 ## File: src/app/components/MindMapViewer.tsx
 ```typescript
@@ -1009,7 +7080,9 @@ export function MindMapViewer() {
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/components/Page.tsx
 ```typescript
@@ -1040,7 +7113,9 @@ export function SectionTitle({
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/components/SelectionToolbar.tsx
 ```typescript
@@ -1150,7 +7225,9 @@ export function SelectionToolbar({
     </AnimatePresence>
   );
 }
+
 ```
+
 
 ## File: src/app/components/ConceptNode.tsx
 ```typescript
@@ -1218,7 +7295,9 @@ export const ConceptNode = memo(function ConceptNode({
     </div>
   );
 });
+
 ```
+
 
 ## File: src/app/components/RelationshipInspector.tsx
 ```typescript
@@ -1382,7 +7461,9 @@ export function RelationshipInspector({ isOpen, onClose }: RelationshipInspector
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/components/EvidenceViewer.tsx
 ```typescript
@@ -1654,7 +7735,9 @@ const EvidenceViewer: React.FC = () => {
 };
 
 export default EvidenceViewer;
+
 ```
+
 
 ## File: src/app/components/ConceptPlayground.tsx
 ```typescript
@@ -1853,7 +7936,9 @@ export function ConceptPlayground({ isOpen, onClose, conceptName = "Tool Calling
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/components/SemanticNeighborhood.tsx
 ```typescript
@@ -2063,233 +8148,9 @@ export function SemanticNeighborhood({ isOpen = true, onClose }: { isOpen?: bool
     </div>
   );
 }
+
 ```
 
-## File: src/app/components/RetrievalTracePanel.tsx
-```typescript
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { ScrollArea } from './ui/scroll-area';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from './ui/table';
-import {
-  ArrowDown,
-  Database,
-  FileText,
-  Search,
-  Layers,
-  ArrowRight,
-  Eye,
-  GitCompare,
-  RefreshCw,
-  ExternalLink,
-  BrainCircuit,
-  Box,
-  Hash
-} from 'lucide-react';
-import { toast } from "sonner";
-import { api, type TraceData } from "../lib/api";
-
-interface MetricProps {
-  label: string;
-  value: string | number;
-  icon: React.ElementType;
-}
-
-const MetricItem = ({ label, value, icon: Icon }: MetricProps) => (
-  <div className="flex flex-col bg-muted/50 p-3 rounded-lg border border-border/50">
-    <div className="flex items-center space-x-2 text-muted-foreground mb-1">
-      <Icon className="h-4 w-4" />
-      <span className="text-xs font-medium uppercase tracking-wider">{label}</span>
-    </div>
-    <span className="text-lg font-semibold">{value}</span>
-  </div>
-);
-
-const FlowStep = ({ title, icon: Icon, isLast = false }: { title: string, icon: React.ElementType, isLast?: boolean }) => (
-  <div className="flex flex-col items-center">
-    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary border border-primary/20">
-      <Icon className="h-5 w-5" />
-    </div>
-    <span className="text-xs font-medium mt-2 text-center">{title}</span>
-    {!isLast && (
-      <div className="h-6 w-px bg-border my-1" />
-    )}
-  </div>
-);
-
-export const RetrievalTracePanel = () => {
-  const [trace, setTrace] = useState<TraceData | null>(null);
-  const [selectedChunk, setSelectedChunk] = useState<string | null>(null);
-
-  const load = () => {
-    api
-      .getTrace()
-      .then((t) => {
-        setTrace(t);
-        setSelectedChunk(t.chunks[0]?.id ?? null);
-      })
-      .catch(() => toast.error("Could not load trace"));
-  };
-
-  useEffect(load, []);
-
-  const chunks = trace?.chunks ?? [];
-  const selected = chunks.find((c) => c.id === selectedChunk) ?? null;
-
-  return (
-    <Card className="w-full h-full flex flex-col rounded-none border-0 shadow-none bg-background">
-      <CardHeader className="border-b pb-4 shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xl flex items-center space-x-2">
-              <BrainCircuit className="h-5 w-5 text-primary" />
-              <span>Retrieval Trace</span>
-            </CardTitle>
-            <CardDescription className="mt-1">
-              Internal RAG execution metrics and flow
-            </CardDescription>
-          </div>
-          <Button variant="outline" size="sm" className="h-8" onClick={load}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-        </div>
-      </CardHeader>
-
-      <ScrollArea className="flex-1">
-        <div className="p-6 space-y-8">
-          
-          {/* Metrics Grid */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium flex items-center">
-              <Database className="h-4 w-4 mr-2 text-muted-foreground" />
-              System Metrics
-            </h3>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-              <MetricItem label="Retrieved Chunks" value={trace?.retrievedChunks ?? 0} icon={Box} />
-              <MetricItem label="Documents" value={trace?.documents ?? 0} icon={FileText} />
-              <MetricItem label="Avg Similarity" value={(trace?.avgSimilarity ?? 0).toFixed(2)} icon={Hash} />
-              <MetricItem label="Embedding Model" value={trace?.embeddingModel || "—"} icon={BrainCircuit} />
-              <MetricItem label="Vector Store" value={trace?.vectorStore || "LanceDB"} icon={Database} />
-              <MetricItem label="Top K" value={trace?.topK ?? 0} icon={Layers} />
-            </div>
-          </div>
-
-          {/* Retrieval Flow */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium flex items-center">
-              <Layers className="h-4 w-4 mr-2 text-muted-foreground" />
-              Execution Pipeline
-            </h3>
-            <div className="bg-muted/30 border rounded-lg p-4 flex flex-wrap justify-between items-start">
-              <FlowStep title="Query" icon={Search} />
-              <FlowStep title="Embedding" icon={BrainCircuit} />
-              <FlowStep title="Vector Search" icon={Database} />
-              <FlowStep title="Top K" icon={Box} />
-              <FlowStep title="Reranking" icon={Layers} />
-              <FlowStep title="Context" icon={FileText} isLast={true} />
-            </div>
-          </div>
-
-          {/* Chunks Table */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium flex items-center">
-              <Box className="h-4 w-4 mr-2 text-muted-foreground" />
-              Top Retrieved Chunks
-            </h3>
-            <div className="border rounded-md">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Chunk ID</TableHead>
-                    <TableHead>Source</TableHead>
-                    <TableHead className="text-right">Sim</TableHead>
-                    <TableHead className="text-right">Tokens</TableHead>
-                    <TableHead className="text-right">Page</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {chunks.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
-                        No retrieval yet — ask a question to populate the trace.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                  {chunks.map((chunk) => (
-                    <TableRow
-                      key={chunk.id}
-                      className={`cursor-pointer transition-colors ${selectedChunk === chunk.id ? 'bg-muted/50' : ''}`}
-                      onClick={() => setSelectedChunk(chunk.id)}
-                    >
-                      <TableCell className="font-mono text-xs">{chunk.id}</TableCell>
-                      <TableCell className="max-w-[150px] truncate" title={chunk.source}>
-                        {chunk.source}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant={chunk.similarity > 0.9 ? "default" : "secondary"} className="font-mono">
-                          {chunk.similarity.toFixed(2)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">{chunk.tokens}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">{chunk.page}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-
-          {/* Chunk Preview */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium flex items-center justify-between">
-              <div className="flex items-center">
-                <Eye className="h-4 w-4 mr-2 text-muted-foreground" />
-                Chunk Preview
-                {selected && (
-                  <Badge variant="outline" className="ml-2 font-mono text-xs bg-muted/50">
-                    {selected.id}
-                  </Badge>
-                )}
-              </div>
-            </h3>
-            <div className="bg-muted/30 border rounded-lg p-4 font-mono text-sm leading-relaxed overflow-x-auto whitespace-pre-wrap">
-              <p>{selected?.text ?? "Select a chunk to preview its retrieved text."}</p>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              <Button size="sm" variant="secondary" className="flex-1" onClick={() => toast.success("Chunk opened")}>
-                <Box className="h-4 w-4 mr-2" />
-                Open Chunk
-              </Button>
-              <Button size="sm" variant="secondary" className="flex-1" onClick={() => toast.success("Source viewed")}>
-                <ExternalLink className="h-4 w-4 mr-2" />
-                View Source
-              </Button>
-              <Button size="sm" variant="secondary" className="flex-1" onClick={() => toast.success("Comparing chunk")}>
-                <GitCompare className="h-4 w-4 mr-2" />
-                Compare
-              </Button>
-            </div>
-          </div>
-
-        </div>
-      </ScrollArea>
-    </Card>
-  );
-};
-
-export default RetrievalTracePanel;
-```
 
 ## File: src/app/components/GenerationSteps.tsx
 ```typescript
@@ -2399,7 +8260,9 @@ export function GenerationSteps({ steps, loading, interval = 1800, className }: 
     </AnimatePresence>
   );
 }
+
 ```
+
 
 ## File: src/app/components/MindMapTree.tsx
 ```typescript
@@ -2489,7 +8352,9 @@ export function MindMapTree({ text }: { text: string }) {
     </ul>
   );
 }
+
 ```
+
 
 ## File: src/app/components/SourcePanel.tsx
 ```typescript
@@ -2532,8 +8397,8 @@ function SourceTypeBadge({ type }: { type: SourceType }) {
 
 export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
   return (
-    <div className="flex h-full flex-col border-r border-border bg-card/40">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+    <div className="flex h-full min-h-0 flex-col bg-card/40 overflow-hidden">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3 shrink-0">
         <div className="flex items-center gap-2">
           <FileText className="size-4 text-muted-foreground" />
           <span className="text-sm font-medium">Sources</span>
@@ -2542,7 +8407,7 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
           {sources.length}
         </span>
       </div>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="space-y-2 p-3">
           {sources.length === 0 && (
             <p className="px-2 py-8 text-center text-sm text-muted-foreground">
@@ -2558,7 +8423,7 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
               transition={{ delay: i * 0.05 }}
               onClick={() => onSelect?.(s.id)}
               className={cn(
-                "w-full scroll-mt-4 rounded-lg border p-3 text-left transition-colors",
+                "w-full scroll-mt-4 rounded-lg border p-3 text-left transition-colors overflow-hidden",
                 activeId === s.id
                   ? "border-primary/60 bg-violet-soft"
                   : "border-border bg-card hover:border-ring/40 hover:bg-accent/40",
@@ -2572,7 +8437,7 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
                   <div className="truncate text-sm font-medium">{s.title}</div>
                   <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                     <SourceTypeBadge type={s.sourceType ?? "text"} />
-                    <span>
+                    <span className="truncate">
                       {s.course} · p.{s.page}
                     </span>
                   </div>
@@ -2586,7 +8451,7 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
                   className="mt-2 max-h-32 w-full rounded-md border border-border object-contain bg-muted/40"
                 />
               )}
-              <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground break-all whitespace-pre-wrap">
                 {s.snippet}
               </p>
               <div className="mt-2.5 flex items-center gap-2">
@@ -2613,13 +8478,16 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/components/MarkdownRenderer.tsx
 ```typescript
 import { Children, isValidElement, type ReactNode, cloneElement } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import katex from "katex";
 import { CitationBadge } from "./CitationBadge";
 import { DiagramViewer } from "./DiagramViewer";
 import { cn } from "./ui/utils";
@@ -2630,19 +8498,48 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
+function MathRenderer({ formula, displayMode }: { formula: string; displayMode: boolean }) {
+  try {
+    const html = katex.renderToString(formula, {
+      displayMode,
+      throwOnError: false,
+    });
+    return <span dangerouslySetInnerHTML={{ __html: html }} />;
+  } catch (err) {
+    return <code>{formula}</code>;
+  }
+}
+
 /** 
- * Recursive function to replace [n] tokens inside a React tree with citation badges.
- * This handles nested structures like **text [1]** or *text [2]*.
+ * Recursive function to replace [n] tokens and LaTeX math formulas inside a React tree.
+ * This handles nested structures like **text [1]** or *text [2]*, and renders LaTeX equations.
  */
-function withCitations(
+function withMathAndCitations(
   children: ReactNode,
   onCitationClick?: (index: number) => void,
 ): ReactNode {
   return Children.map(children, (child) => {
-    // If it's a string, we perform the regex replacement
+    // If it's a string, we perform the regex replacement for citations and math
     if (typeof child === "string") {
-      const parts = child.split(/(\[\d+\])/g);
+      const regex = /(\$\$[\s\S]+?\$\$|\$[^\s$\n](?:[^$\n]*?[^\s$\n])?\$|\\\(.+?\\\)|\\\[[\s\S]+?\\\]|\[\d+\])/g;
+      const parts = child.split(regex);
       return parts.map((part, i) => {
+        if (part.startsWith("$$") && part.endsWith("$$")) {
+          const formula = part.slice(2, -2);
+          return <MathRenderer key={i} formula={formula} displayMode={true} />;
+        }
+        if (part.startsWith("$") && part.endsWith("$")) {
+          const formula = part.slice(1, -1);
+          return <MathRenderer key={i} formula={formula} displayMode={false} />;
+        }
+        if (part.startsWith("\\(") && part.endsWith("\\)")) {
+          const formula = part.slice(2, -2);
+          return <MathRenderer key={i} formula={formula} displayMode={false} />;
+        }
+        if (part.startsWith("\\[") && part.endsWith("\\]")) {
+          const formula = part.slice(2, -2);
+          return <MathRenderer key={i} formula={formula} displayMode={true} />;
+        }
         const m = part.match(/^\[(\d+)\]$/);
         if (m) {
           return (
@@ -2663,7 +8560,7 @@ function withCitations(
       if (elementChildren) {
         return cloneElement(child, {
           ...child.props,
-          children: withCitations(elementChildren, onCitationClick),
+          children: withMathAndCitations(elementChildren, onCitationClick),
         } as any);
       }
       return child;
@@ -2672,6 +8569,7 @@ function withCitations(
     return child;
   });
 }
+
 
 export function MarkdownRenderer({
   content,
@@ -2699,7 +8597,7 @@ export function MarkdownRenderer({
           ),
           p: ({ children }) => (
             <p className="mb-4 leading-7">
-              {withCitations(children, onCitationClick)}
+              {withMathAndCitations(children, onCitationClick)}
             </p>
           ),
           ul: ({ children }) => (
@@ -2715,7 +8613,7 @@ export function MarkdownRenderer({
               <li className="relative flex gap-3 pl-1 mb-2">
                 <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-primary/60" />
                 <span className="flex-1">
-                  {withCitations(children, onCitationClick)}
+                  {withMathAndCitations(children, onCitationClick)}
                 </span>
               </li>
             );
@@ -2800,7 +8698,7 @@ export function MarkdownRenderer({
           ),
           td: ({ children }) => (
             <td className="border-b border-border/60 px-4 py-2.5 text-foreground/80">
-              {withCitations(children, onCitationClick)}
+              {withMathAndCitations(children, onCitationClick)}
             </td>
           ),
           hr: () => <hr className="my-6 border-border" />,
@@ -2811,7 +8709,982 @@ export function MarkdownRenderer({
     </div>
   );
 }
+
 ```
+
+
+## File: src/app/components/QualityBadge.tsx
+```typescript
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Gauge, ChevronDown, ChevronUp, AlertCircle, FileText } from "lucide-react";
+import type { QualityScore } from "../lib/types";
+
+// A deliberately subtle, non-gamified quality indicator: one muted chip showing
+// the overall score, expanding to a breakdown of the objective sub-dimensions
+// and any detected issues. No badges, XP, or leaderboards.
+
+function tone(score: number): string {
+  if (score >= 80) return "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
+  if (score >= 60) return "text-amber-400 bg-amber-500/10 border-amber-500/20";
+  return "text-rose-400 bg-rose-500/10 border-rose-500/20";
+}
+
+function barTone(score: number): string {
+  if (score >= 80) return "bg-emerald-500/70";
+  if (score >= 60) return "bg-amber-500/70";
+  return "bg-rose-500/70";
+}
+
+const DIMENSIONS: { key: keyof QualityScore; label: string }[] = [
+  { key: "coverage", label: "Coverage" },
+  { key: "grounding", label: "Grounding" },
+  { key: "structure", label: "Structure" },
+  { key: "balance", label: "Balance" },
+  { key: "diversity", label: "Diversity" },
+  { key: "redundancy", label: "Redundancy" },
+];
+
+interface Props {
+  score?: QualityScore | null;
+  className?: string;
+}
+
+const QualityBadge: React.FC<Props> = ({ score, className }) => {
+  const [open, setOpen] = useState(false);
+  if (!score) return null;
+
+  const dims = DIMENSIONS.map((d) => ({ ...d, value: score[d.key] as number | undefined })).filter(
+    (d) => typeof d.value === "number"
+  );
+
+  return (
+    <div className={`relative inline-block ${className ?? ""}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        title="Artifact quality (objective estimate)"
+        className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-xs font-medium transition-colors ${tone(
+          score.overall
+        )}`}
+      >
+        <Gauge className="w-3.5 h-3.5" />
+        <span>Quality {score.overall}%</span>
+        {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-20 mt-2 w-64 rounded-lg border border-slate-700 bg-slate-900/95 backdrop-blur-xl p-3 shadow-xl"
+          >
+            <div className="space-y-2">
+              {dims.map((d) => (
+                <div key={d.key as string} className="flex items-center gap-2">
+                  <span className="w-20 shrink-0 text-[11px] text-slate-400">{d.label}</span>
+                  <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${barTone(d.value!)}`}
+                      style={{ width: `${d.value}%` }}
+                    />
+                  </div>
+                  <span className="w-8 text-right text-[11px] font-medium text-slate-300">{d.value}%</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-2.5 pt-2 border-t border-slate-800 flex items-center gap-3 text-[11px] text-slate-500">
+              <span className="flex items-center gap-1">
+                <FileText className="w-3 h-3" />
+                {score.sourceChunks} chunks · {score.documents} docs
+              </span>
+            </div>
+
+            {score.notes.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {score.notes.map((n, i) => (
+                  <div key={i} className="flex items-center gap-1.5 text-[11px] text-amber-400/90">
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    <span>{n}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default QualityBadge;
+
+```
+
+
+## File: src/app/components/DiagramViewer.tsx
+```typescript
+import { useEffect, useRef, useState } from "react";
+import mermaid from "mermaid";
+import { Loader2, AlertCircle, ZoomIn, ZoomOut, Maximize } from "lucide-react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: "base",
+  themeVariables: {
+    background: "#fffefb",
+    primaryColor: "#fffefb",
+    primaryTextColor: "#211f1b",
+    primaryBorderColor: "#4f4d7a",
+    lineColor: "#a39e93",
+    secondaryColor: "#efece5",
+    tertiaryColor: "#f6f5f1",
+    fontFamily: "Inter, sans-serif",
+    fontSize: "14px",
+  },
+  securityLevel: "loose",
+});
+
+let counter = 0;
+
+export function DiagramViewer({ code, flush, title = "diagram" }: { code: string; flush?: boolean; title?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const renderDiagram = async () => {
+      if (!ref.current) return;
+      
+      setLoading(true);
+      setError(null);
+      ref.current.innerHTML = "";
+      
+      const id = `mermaid-svg-${counter++}`;
+      
+      try {
+        // Clear any previous content
+        ref.current.innerHTML = "";
+        // Validate syntax first so it throws instead of rendering an error SVG
+        await mermaid.parse(code);
+        const { svg } = await mermaid.render(id, code);
+        
+        if (isMounted && ref.current) {
+          ref.current.innerHTML = svg;
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Mermaid render error:", err);
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : "Failed to render diagram");
+          setLoading(false);
+        }
+      }
+    };
+
+    renderDiagram();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [code]);
+
+  return (
+    <div className={`relative flex w-full items-center justify-center overflow-hidden ${flush ? "h-full" : "min-h-[400px] rounded-lg border border-border bg-card p-8 paper"}`}>
+      {loading && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-card/50 backdrop-blur-sm">
+          <Loader2 className="size-8 animate-spin text-primary" />
+          <p className="mt-4 text-sm text-muted-foreground font-medium">Rendering diagram...</p>
+        </div>
+      )}
+      
+      {error ? (
+        <div className="flex flex-col items-center gap-4 text-center max-w-md px-6">
+          <div className="flex size-12 items-center justify-center rounded-full bg-danger/10 text-danger">
+            <AlertCircle className="size-6" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold">Diagram Error</h3>
+            <p className="mt-1 text-xs text-muted-foreground">The mermaid syntax might be invalid or there was a rendering issue.</p>
+          </div>
+          <pre className="mt-2 w-full overflow-x-auto rounded-lg border border-border bg-secondary p-3 text-left text-[11px] font-mono text-danger">
+            {code}
+          </pre>
+        </div>
+      ) : (
+        <TransformWrapper initialScale={1} minScale={0.1} maxScale={8} centerOnInit>
+          {({ zoomIn, zoomOut, resetTransform }) => (
+            <>
+              <div className="absolute bottom-4 right-4 z-10 flex gap-2 rounded-lg border border-border bg-card/80 p-1.5 backdrop-blur shadow-sm">
+                <button
+                  onClick={() => zoomOut()}
+                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  title="Zoom Out"
+                >
+                  <ZoomOut className="size-4" />
+                </button>
+                <button
+                  onClick={() => resetTransform()}
+                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  title="Reset Zoom"
+                >
+                  <Maximize className="size-4" />
+                </button>
+                <button
+                  onClick={() => zoomIn()}
+                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  title="Zoom In"
+                >
+                  <ZoomIn className="size-4" />
+                </button>
+              </div>
+              <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div 
+                  ref={ref} 
+                  className="flex h-full w-full items-center justify-center transition-opacity duration-300 [&_svg]:max-w-full [&_svg]:h-auto"
+                  style={{ opacity: loading ? 0 : 1 }}
+                />
+              </TransformComponent>
+            </>
+          )}
+        </TransformWrapper>
+      )}
+    </div>
+  );
+}
+
+```
+
+
+## File: src/app/components/RetrievalTracePanel.tsx
+```typescript
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { ScrollArea } from './ui/scroll-area';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './ui/table';
+import {
+  ArrowDown,
+  Database,
+  FileText,
+  Search,
+  Layers,
+  ArrowRight,
+  Eye,
+  GitCompare,
+  RefreshCw,
+  ExternalLink,
+  BrainCircuit,
+  Box,
+  Hash,
+  ThumbsDown,
+  TriangleAlert,
+} from 'lucide-react';
+import { toast } from "sonner";
+import { api, type TraceData, type TraceAnalytics } from "../lib/api";
+
+interface MetricProps {
+  label: string;
+  value: string | number;
+  icon: React.ElementType;
+}
+
+const MetricItem = ({ label, value, icon: Icon }: MetricProps) => (
+  <div className="flex flex-col bg-muted/50 p-3 rounded-lg border border-border/50">
+    <div className="flex items-center space-x-2 text-muted-foreground mb-1">
+      <Icon className="h-4 w-4" />
+      <span className="text-xs font-medium uppercase tracking-wider">{label}</span>
+    </div>
+    <span className="text-lg font-semibold">{value}</span>
+  </div>
+);
+
+const FlowStep = ({ title, icon: Icon, isLast = false }: { title: string, icon: React.ElementType, isLast?: boolean }) => (
+  <div className="flex flex-col items-center">
+    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary border border-primary/20">
+      <Icon className="h-5 w-5" />
+    </div>
+    <span className="text-xs font-medium mt-2 text-center">{title}</span>
+    {!isLast && (
+      <div className="h-6 w-px bg-border my-1" />
+    )}
+  </div>
+);
+
+export const RetrievalTracePanel = () => {
+  const [trace, setTrace] = useState<TraceData | null>(null);
+  const [selectedChunk, setSelectedChunk] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<TraceAnalytics | null>(null);
+
+  const loadAnalytics = () => {
+    api.getTraceAnalytics().then(setAnalytics).catch(() => {});
+  };
+
+  const load = () => {
+    api
+      .getTrace()
+      .then((t) => {
+        setTrace(t);
+        setSelectedChunk(t.chunks[0]?.id ?? null);
+      })
+      .catch(() => toast.error("Could not load trace"));
+    loadAnalytics();
+  };
+
+  useEffect(load, []);
+
+  const chunks = trace?.chunks ?? [];
+  const selected = chunks.find((c) => c.id === selectedChunk) ?? null;
+
+  const flagChunk = async () => {
+    if (!selected) return;
+    try {
+      await api.sendChunkFeedback(selected.source, selected.id, trace?.query ?? "", selected.similarity);
+      toast.success("Chunk flagged as unhelpful");
+      loadAnalytics();
+    } catch {
+      toast.error("Could not record feedback");
+    }
+  };
+
+  return (
+    <Card className="w-full h-full flex flex-col rounded-none border-0 shadow-none bg-background">
+      <CardHeader className="border-b pb-4 shrink-0">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl flex items-center space-x-2">
+              <BrainCircuit className="h-5 w-5 text-primary" />
+              <span>Retrieval Trace</span>
+            </CardTitle>
+            <CardDescription className="mt-1">
+              Internal RAG execution metrics and flow
+            </CardDescription>
+          </div>
+          <Button variant="outline" size="sm" className="h-8" onClick={load}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
+      </CardHeader>
+
+      <ScrollArea className="flex-1">
+        <div className="p-6 space-y-8">
+          
+          {/* Metrics Grid */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center">
+              <Database className="h-4 w-4 mr-2 text-muted-foreground" />
+              System Metrics
+            </h3>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <MetricItem label="Retrieved Chunks" value={trace?.retrievedChunks ?? 0} icon={Box} />
+              <MetricItem label="Documents" value={trace?.documents ?? 0} icon={FileText} />
+              <MetricItem label="Avg Similarity" value={(trace?.avgSimilarity ?? 0).toFixed(2)} icon={Hash} />
+              <MetricItem label="Embedding Model" value={trace?.embeddingModel || "—"} icon={BrainCircuit} />
+              <MetricItem label="Vector Store" value={trace?.vectorStore || "LanceDB"} icon={Database} />
+              <MetricItem label="Top K" value={trace?.topK ?? 0} icon={Layers} />
+            </div>
+          </div>
+
+          {/* Bad-chunk analytics */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center">
+              <TriangleAlert className="h-4 w-4 mr-2 text-muted-foreground" />
+              Low-quality Chunk Analytics
+              <Badge variant="outline" className="ml-2 text-xs">{analytics?.totalFlags ?? 0} flags</Badge>
+            </h3>
+            {analytics && analytics.sources.length > 0 ? (
+              <div className="border rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Source</TableHead>
+                      <TableHead className="text-right">Weak</TableHead>
+                      <TableHead className="text-right">👎</TableHead>
+                      <TableHead className="text-right">Avg Sim</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {analytics.sources.map((s) => (
+                      <TableRow key={s.source}>
+                        <TableCell className="max-w-[180px] truncate" title={s.source}>{s.source}</TableCell>
+                        <TableCell className="text-right text-muted-foreground">{s.weakCount}</TableCell>
+                        <TableCell className="text-right text-muted-foreground">{s.downCount}</TableCell>
+                        <TableCell className="text-right font-mono">{s.avgSimilarity.toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                No weak generations recorded yet. Chunks retrieved for ungrounded or low-confidence
+                answers — plus any you flag below — show up here.
+              </p>
+            )}
+          </div>
+
+          {/* Retrieval Flow */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center">
+              <Layers className="h-4 w-4 mr-2 text-muted-foreground" />
+              Execution Pipeline
+            </h3>
+            <div className="bg-muted/30 border rounded-lg p-4 flex flex-wrap justify-between items-start">
+              <FlowStep title="Query" icon={Search} />
+              <FlowStep title="Embedding" icon={BrainCircuit} />
+              <FlowStep title="Vector Search" icon={Database} />
+              <FlowStep title="Top K" icon={Box} />
+              <FlowStep title="Reranking" icon={Layers} />
+              <FlowStep title="Context" icon={FileText} isLast={true} />
+            </div>
+          </div>
+
+          {/* Chunks Table */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center">
+              <Box className="h-4 w-4 mr-2 text-muted-foreground" />
+              Top Retrieved Chunks
+            </h3>
+            <div className="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Chunk ID</TableHead>
+                    <TableHead>Source</TableHead>
+                    <TableHead className="text-right">Sim</TableHead>
+                    <TableHead className="text-right">Tokens</TableHead>
+                    <TableHead className="text-right">Page</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {chunks.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                        No retrieval yet — ask a question to populate the trace.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {chunks.map((chunk) => (
+                    <TableRow
+                      key={chunk.id}
+                      className={`cursor-pointer transition-colors ${selectedChunk === chunk.id ? 'bg-muted/50' : ''}`}
+                      onClick={() => setSelectedChunk(chunk.id)}
+                    >
+                      <TableCell className="font-mono text-xs">{chunk.id}</TableCell>
+                      <TableCell className="max-w-[150px] truncate" title={chunk.source}>
+                        {chunk.source}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Badge variant={chunk.similarity > 0.9 ? "default" : "secondary"} className="font-mono">
+                          {chunk.similarity.toFixed(2)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">{chunk.tokens}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{chunk.page}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          {/* Chunk Preview */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium flex items-center justify-between">
+              <div className="flex items-center">
+                <Eye className="h-4 w-4 mr-2 text-muted-foreground" />
+                Chunk Preview
+                {selected && (
+                  <Badge variant="outline" className="ml-2 font-mono text-xs bg-muted/50">
+                    {selected.id}
+                  </Badge>
+                )}
+              </div>
+            </h3>
+            <div className="bg-muted/30 border rounded-lg p-4 font-mono text-sm leading-relaxed overflow-x-auto whitespace-pre-wrap">
+              <p>{selected?.text ?? "Select a chunk to preview its retrieved text."}</p>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              <Button size="sm" variant="secondary" className="flex-1" onClick={() => toast.success("Chunk opened")}>
+                <Box className="h-4 w-4 mr-2" />
+                Open Chunk
+              </Button>
+              <Button size="sm" variant="secondary" className="flex-1" onClick={() => toast.success("Source viewed")}>
+                <ExternalLink className="h-4 w-4 mr-2" />
+                View Source
+              </Button>
+              <Button size="sm" variant="secondary" className="flex-1" onClick={() => toast.success("Comparing chunk")}>
+                <GitCompare className="h-4 w-4 mr-2" />
+                Compare
+              </Button>
+              <Button size="sm" variant="outline" className="flex-1" disabled={!selected} onClick={flagChunk}>
+                <ThumbsDown className="h-4 w-4 mr-2" />
+                Flag unhelpful
+              </Button>
+            </div>
+          </div>
+
+        </div>
+      </ScrollArea>
+    </Card>
+  );
+};
+
+export default RetrievalTracePanel;
+
+```
+
+
+## File: src/app/components/JobsIndicator.tsx
+```typescript
+import { useEffect, useRef, useState } from "react";
+import {
+  Bell,
+  CheckCircle2,
+  Clock,
+  Loader2,
+  XCircle,
+} from "lucide-react";
+import { api, JobItem } from "../lib/api";
+import { Button } from "./ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./ui/popover";
+
+const POLL_INTERVAL_MS = 4000;
+const MAX_DISPLAYED = 8;
+
+function elapsedLabel(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const secs = Math.floor(diff / 1000);
+  if (secs < 60) return `${secs}s ago`;
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  return `${Math.floor(mins / 60)}h ago`;
+}
+
+function StatusChip({ status }: { status: JobItem["status"] }) {
+  if (status === "queued") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+        <Clock className="size-3" />
+        queued
+      </span>
+    );
+  }
+  if (status === "running") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+        <Loader2 className="size-3 animate-spin" />
+        running
+      </span>
+    );
+  }
+  if (status === "done") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+        <CheckCircle2 className="size-3" />
+        done
+      </span>
+    );
+  }
+  // failed
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
+      <XCircle className="size-3" />
+      failed
+    </span>
+  );
+}
+
+export function JobsIndicator() {
+  const [jobs, setJobs] = useState<JobItem[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const hasActive = jobs.some(
+    (j) => j.status === "queued" || j.status === "running"
+  );
+
+  const fetchJobs = async () => {
+    try {
+      const data = await api.listJobs();
+      // Sort by most-recent first, keep last MAX_DISPLAYED
+      const sorted = [...data].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setJobs(sorted.slice(0, MAX_DISPLAYED));
+    } catch {
+      // silently ignore; don't break the UI on transient errors
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs();
+    timerRef.current = setInterval(fetchJobs, POLL_INTERVAL_MS);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  // Stop polling when all jobs are settled; resume only on re-mount
+  useEffect(() => {
+    if (!hasActive && timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    } else if (hasActive && !timerRef.current) {
+      timerRef.current = setInterval(fetchJobs, POLL_INTERVAL_MS);
+    }
+  }, [hasActive]);
+
+  const activeCount = jobs.filter(
+    (j) => j.status === "queued" || j.status === "running"
+  ).length;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="icon" className="relative shrink-0">
+          <Bell className="size-[18px]" />
+          {activeCount > 0 && (
+            <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold leading-none text-primary-foreground animate-pulse">
+              {activeCount}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80 p-0">
+        <div className="border-b border-border px-4 py-3">
+          <p className="text-sm font-semibold">Background Jobs</p>
+          {activeCount > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {activeCount} job{activeCount !== 1 ? "s" : ""} in progress
+            </p>
+          )}
+        </div>
+
+        {jobs.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 px-4 py-8 text-center text-sm text-muted-foreground">
+            <Bell className="size-6 opacity-40" />
+            No background jobs
+          </div>
+        ) : (
+          <ul className="divide-y divide-border">
+            {jobs.map((job) => (
+              <li key={job.id} className="flex items-start gap-3 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium leading-tight">
+                    {job.label}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    {elapsedLabel(job.createdAt)}
+                  </p>
+                  {job.error && (
+                    <p className="mt-1 truncate text-[11px] text-destructive">
+                      {job.error}
+                    </p>
+                  )}
+                </div>
+                <StatusChip status={job.status} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+```
+
+
+## File: src/app/components/ConsistencyReport.tsx
+```typescript
+import { useState } from "react";
+import { motion } from "motion/react";
+import { AlertTriangle, CheckCircle2, Info, Loader2, ShieldCheck, Wand2 } from "lucide-react";
+import type { ConsistencyReport as Report } from "../lib/api";
+import { Badge } from "./ui/badge";
+import { cn } from "./ui/utils";
+
+const ARTIFACT_LABELS: Record<string, string> = {
+  notes: "Notes",
+  flashcards: "Flashcards",
+  quiz: "Quiz",
+  mindmap: "Mind Map",
+  diagram: "Diagram",
+  difference: "Difference Table",
+};
+
+function coverageTone(pct: number): string {
+  if (pct >= 80) return "text-success";
+  if (pct >= 60) return "text-warning";
+  return "text-danger";
+}
+
+function coverageBar(pct: number): string {
+  if (pct >= 80) return "bg-success";
+  if (pct >= 60) return "bg-warning";
+  return "bg-danger";
+}
+
+function Chips({ items, tone }: { items: string[]; tone: string }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {items.map((c) => (
+        <Badge key={c} variant="outline" className={cn("text-[11px] font-medium", tone)}>
+          {c}
+        </Badge>
+      ))}
+    </div>
+  );
+}
+
+interface ConsistencyReportProps {
+  report: Report;
+  course?: string;
+  onApply?: (artifactType: string, concepts: string[]) => Promise<void>;
+}
+
+function ApplyButton({ onClick }: { onClick: () => Promise<void> }) {
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  async function handleClick() {
+    setLoading(true);
+    try {
+      await onClick();
+      setDone(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <button
+      onClick={() => void handleClick()}
+      disabled={loading || done}
+      className={cn(
+        "flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+        done
+          ? "bg-success/10 text-success cursor-default"
+          : "bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-60"
+      )}
+    >
+      {loading ? (
+        <Loader2 className="size-3 animate-spin" />
+      ) : done ? (
+        <CheckCircle2 className="size-3" />
+      ) : (
+        <Wand2 className="size-3" />
+      )}
+      {done ? "Applied" : "Apply"}
+    </button>
+  );
+}
+
+export function ConsistencyReport({ report, onApply }: ConsistencyReportProps) {
+  const { canonicalConcepts, overallCoverage, artifacts } = report;
+
+  if (!canonicalConcepts.length && !artifacts.length) {
+    return (
+      <div className="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
+        {report.recommendations[0] ??
+          "No concepts could be extracted from the source material."}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Overall coverage */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <ShieldCheck className="size-4 text-primary" />
+            Overall coverage
+          </div>
+          <span className={cn("text-2xl font-semibold tabular-nums", coverageTone(overallCoverage))}>
+            {overallCoverage.toFixed(0)}%
+          </span>
+        </div>
+        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${overallCoverage}%` }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className={cn("h-full rounded-full", coverageBar(overallCoverage))}
+          />
+        </div>
+        <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <Info className="size-3" />
+          Analysis only — no artifacts were created or modified.
+        </p>
+      </div>
+
+      {/* Per-artifact coverage */}
+      <div className="space-y-3">
+        {artifacts.map((a) => {
+          const hasGaps = a.missing.length > 0 || a.weak.length > 0;
+          const label = ARTIFACT_LABELS[a.artifact] ?? a.artifact;
+          return (
+            <div key={a.artifact} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {hasGaps ? (
+                    <AlertTriangle className="size-4 text-warning" />
+                  ) : (
+                    <CheckCircle2 className="size-4 text-success" />
+                  )}
+                  <span className="text-sm font-medium text-foreground">{label}</span>
+                </div>
+                <span className={cn("text-sm font-semibold tabular-nums", coverageTone(a.coverage))}>
+                  {a.coverage.toFixed(0)}%
+                </span>
+              </div>
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${a.coverage}%` }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className={cn("h-full rounded-full", coverageBar(a.coverage))}
+                />
+              </div>
+              {a.missing.length > 0 && (
+                <div className="mt-3">
+                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-danger">
+                    Missing
+                  </div>
+                  <Chips items={a.missing} tone="border-danger/40 bg-danger-soft text-danger" />
+                </div>
+              )}
+              {a.weak.length > 0 && (
+                <div className="mt-3">
+                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-warning">
+                    Weak coverage
+                  </div>
+                  <Chips items={a.weak} tone="border-warning/40 bg-warning-soft text-warning" />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Under / over represented */}
+      {(report.underrepresented.length > 0 || report.overrepresented.length > 0) && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {report.underrepresented.length > 0 && (
+            <div className="rounded-xl border border-border bg-card p-4">
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Under-represented concepts
+              </div>
+              <Chips
+                items={report.underrepresented}
+                tone="border-warning/40 bg-warning-soft text-warning"
+              />
+            </div>
+          )}
+          {report.overrepresented.length > 0 && (
+            <div className="rounded-xl border border-border bg-card p-4">
+              <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Covered by every artifact
+              </div>
+              <Chips
+                items={report.overrepresented}
+                tone="border-success/40 bg-success-soft text-success"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Recommendations */}
+      {report.recommendations.length > 0 && (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Recommendations
+          </div>
+          <ul className="space-y-2">
+            {report.recommendations.map((r, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-foreground/90">
+                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md bg-violet-soft text-[11px] font-medium text-primary">
+                  {i + 1}
+                </span>
+                {r}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Suggested fixes */}
+      {report.suggestions && report.suggestions.length > 0 && (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Suggested Fixes
+          </div>
+          <div className="space-y-3">
+            {report.suggestions.map((s, i) => (
+              <div key={i} className="flex items-start justify-between gap-3 rounded-lg border border-border bg-background p-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">{s.label}</span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{s.issue}</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {s.concepts.slice(0, 4).map((c) => (
+                      <Badge key={c} variant="outline" className="text-[10px]">{c}</Badge>
+                    ))}
+                    {s.concepts.length > 4 && (
+                      <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                        +{s.concepts.length - 4} more
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                {onApply && (
+                  <ApplyButton onClick={() => onApply(s.artifactType, s.concepts)} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Canonical concept cloud */}
+      {canonicalConcepts.length > 0 && (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Canonical concepts ({canonicalConcepts.length}) — from source material
+          </div>
+          <Chips items={canonicalConcepts} tone="border-border text-muted-foreground" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+```
+
 
 ## File: src/app/components/figma/ImageWithFallback.tsx
 ```typescript
@@ -2842,7 +9715,9 @@ export function ImageWithFallback(props: React.ImgHTMLAttributes<HTMLImageElemen
     <img src={src} alt={alt} className={className} style={style} {...rest} onError={handleError} />
   )
 }
+
 ```
+
 
 ## File: src/app/components/ui/utils.ts
 ```typescript
@@ -2852,7 +9727,9 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
 ```
+
 
 ## File: src/app/components/ui/use-mobile.ts
 ```typescript
@@ -2877,7 +9754,9 @@ export function useIsMobile() {
 
   return !!isMobile;
 }
+
 ```
+
 
 ## File: src/app/components/ui/toggle.tsx
 ```typescript
@@ -2928,7 +9807,9 @@ function Toggle({
 }
 
 export { Toggle, toggleVariants };
+
 ```
+
 
 ## File: src/app/components/ui/textarea.tsx
 ```typescript
@@ -2950,7 +9831,9 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
 }
 
 export { Textarea };
+
 ```
+
 
 ## File: src/app/components/ui/tabs.tsx
 ```typescript
@@ -3020,7 +9903,9 @@ function TabsContent({
 }
 
 export { Tabs, TabsList, TabsTrigger, TabsContent };
+
 ```
+
 
 ## File: src/app/components/ui/switch.tsx
 ```typescript
@@ -3055,7 +9940,9 @@ function Switch({
 }
 
 export { Switch };
+
 ```
+
 
 ## File: src/app/components/ui/skeleton.tsx
 ```typescript
@@ -3072,7 +9959,9 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 export { Skeleton };
+
 ```
+
 
 ## File: src/app/components/ui/sheet.tsx
 ```typescript
@@ -3215,7 +10104,9 @@ export {
   SheetTitle,
   SheetDescription,
 };
+
 ```
+
 
 ## File: src/app/components/ui/select.tsx
 ```typescript
@@ -3408,7 +10299,9 @@ export {
   SelectTrigger,
   SelectValue,
 };
+
 ```
+
 
 ## File: src/app/components/ui/resizable.tsx
 ```typescript
@@ -3468,7 +10361,9 @@ function ResizableHandle({
 }
 
 export { ResizablePanelGroup, ResizablePanel, ResizableHandle };
+
 ```
+
 
 ## File: src/app/components/ui/tooltip.tsx
 ```typescript
@@ -3533,7 +10428,9 @@ function TooltipContent({
 }
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+
 ```
+
 
 ## File: src/app/components/ui/popover.tsx
 ```typescript
@@ -3585,7 +10482,9 @@ function PopoverAnchor({
 }
 
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };
+
 ```
+
 
 ## File: src/app/components/ui/pagination.tsx
 ```typescript
@@ -3716,7 +10615,9 @@ export {
   PaginationNext,
   PaginationEllipsis,
 };
+
 ```
+
 
 ## File: src/app/components/ui/navigation-menu.tsx
 ```typescript
@@ -3888,7 +10789,9 @@ export {
   NavigationMenuViewport,
   navigationMenuTriggerStyle,
 };
+
 ```
+
 
 ## File: src/app/components/ui/radio-group.tsx
 ```typescript
@@ -3937,7 +10840,9 @@ function RadioGroupItem({
 }
 
 export { RadioGroup, RadioGroupItem };
+
 ```
+
 
 ## File: src/app/components/ui/hover-card.tsx
 ```typescript
@@ -3985,7 +10890,9 @@ function HoverCardContent({
 }
 
 export { HoverCard, HoverCardTrigger, HoverCardContent };
+
 ```
+
 
 ## File: src/app/components/ui/form.tsx
 ```typescript
@@ -4157,7 +11064,9 @@ export {
   FormMessage,
   FormField,
 };
+
 ```
+
 
 ## File: src/app/components/ui/label.tsx
 ```typescript
@@ -4185,7 +11094,9 @@ function Label({
 }
 
 export { Label };
+
 ```
+
 
 ## File: src/app/components/ui/dialog.tsx
 ```typescript
@@ -4324,7 +11235,9 @@ export {
   DialogTitle,
   DialogTrigger,
 };
+
 ```
+
 
 ## File: src/app/components/ui/command.tsx
 ```typescript
@@ -4505,7 +11418,9 @@ export {
   CommandShortcut,
   CommandSeparator,
 };
+
 ```
+
 
 ## File: src/app/components/ui/collapsible.tsx
 ```typescript
@@ -4542,7 +11457,9 @@ function CollapsibleContent({
 }
 
 export { Collapsible, CollapsibleTrigger, CollapsibleContent };
+
 ```
+
 
 ## File: src/app/components/ui/drawer.tsx
 ```typescript
@@ -4678,7 +11595,9 @@ export {
   DrawerTitle,
   DrawerDescription,
 };
+
 ```
+
 
 ## File: src/app/components/ui/checkbox.tsx
 ```typescript
@@ -4714,7 +11633,9 @@ function Checkbox({
 }
 
 export { Checkbox };
+
 ```
+
 
 ## File: src/app/components/ui/table.tsx
 ```typescript
@@ -4834,7 +11755,9 @@ export {
   TableCell,
   TableCaption,
 };
+
 ```
+
 
 ## File: src/app/components/ui/card.tsx
 ```typescript
@@ -4930,7 +11853,9 @@ export {
   CardDescription,
   CardContent,
 };
+
 ```
+
 
 ## File: src/app/components/ui/scroll-area.tsx
 ```typescript
@@ -4992,7 +11917,9 @@ function ScrollBar({
 }
 
 export { ScrollArea, ScrollBar };
+
 ```
+
 
 ## File: src/app/components/ui/calendar.tsx
 ```typescript
@@ -5071,7 +11998,9 @@ function Calendar({
 }
 
 export { Calendar };
+
 ```
+
 
 ## File: src/app/components/ui/context-menu.tsx
 ```typescript
@@ -5327,7 +12256,9 @@ export {
   ContextMenuSubTrigger,
   ContextMenuRadioGroup,
 };
+
 ```
+
 
 ## File: src/app/components/ui/separator.tsx
 ```typescript
@@ -5359,7 +12290,9 @@ function Separator({
 }
 
 export { Separator };
+
 ```
+
 
 ## File: src/app/components/ui/input.tsx
 ```typescript
@@ -5384,7 +12317,9 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
 }
 
 export { Input };
+
 ```
+
 
 ## File: src/app/components/ui/sidebar.tsx
 ```typescript
@@ -6114,7 +13049,9 @@ export {
   SidebarTrigger,
   useSidebar,
 };
+
 ```
+
 
 ## File: src/app/components/ui/dropdown-menu.tsx
 ```typescript
@@ -6375,7 +13312,9 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 };
+
 ```
+
 
 ## File: src/app/components/ui/button.tsx
 ```typescript
@@ -6437,7 +13376,9 @@ function Button({
 }
 
 export { Button, buttonVariants };
+
 ```
+
 
 ## File: src/app/components/ui/chart.tsx
 ```typescript
@@ -6794,7 +13735,9 @@ export {
   ChartLegendContent,
   ChartStyle,
 };
+
 ```
+
 
 ## File: src/app/components/ui/breadcrumb.tsx
 ```typescript
@@ -6907,7 +13850,9 @@ export {
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
 };
+
 ```
+
 
 ## File: src/app/components/ui/aspect-ratio.tsx
 ```typescript
@@ -6922,7 +13867,9 @@ function AspectRatio({
 }
 
 export { AspectRatio };
+
 ```
+
 
 ## File: src/app/components/ui/avatar.tsx
 ```typescript
@@ -6979,7 +13926,9 @@ function AvatarFallback({
 }
 
 export { Avatar, AvatarImage, AvatarFallback };
+
 ```
+
 
 ## File: src/app/components/ui/alert-dialog.tsx
 ```typescript
@@ -7140,7 +14089,9 @@ export {
   AlertDialogAction,
   AlertDialogCancel,
 };
+
 ```
+
 
 ## File: src/app/components/ui/menubar.tsx
 ```typescript
@@ -7420,7 +14371,9 @@ export {
   MenubarSubTrigger,
   MenubarSubContent,
 };
+
 ```
+
 
 ## File: src/app/components/ui/accordion.tsx
 ```typescript
@@ -7490,7 +14443,9 @@ function AccordionContent({
 }
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };
+
 ```
+
 
 ## File: src/app/components/ui/input-otp.tsx
 ```typescript
@@ -7571,7 +14526,9 @@ function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
 }
 
 export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator };
+
 ```
+
 
 ## File: src/app/components/ui/slider.tsx
 ```typescript
@@ -7638,7 +14595,9 @@ function Slider({
 }
 
 export { Slider };
+
 ```
+
 
 ## File: src/app/components/ui/carousel.tsx
 ```typescript
@@ -7883,7 +14842,9 @@ export {
   CarouselPrevious,
   CarouselNext,
 };
+
 ```
+
 
 ## File: src/app/components/ui/toggle-group.tsx
 ```typescript
@@ -7960,7 +14921,9 @@ function ToggleGroupItem({
 }
 
 export { ToggleGroup, ToggleGroupItem };
+
 ```
+
 
 ## File: src/app/components/ui/progress.tsx
 ```typescript
@@ -7995,7 +14958,9 @@ function Progress({
 }
 
 export { Progress };
+
 ```
+
 
 ## File: src/app/components/ui/alert.tsx
 ```typescript
@@ -8065,7 +15030,9 @@ function AlertDescription({
 }
 
 export { Alert, AlertTitle, AlertDescription };
+
 ```
+
 
 ## File: src/app/components/ui/badge.tsx
 ```typescript
@@ -8115,7 +15082,9 @@ function Badge({
 }
 
 export { Badge, badgeVariants };
+
 ```
+
 
 ## File: src/app/components/ui/sonner.tsx
 ```typescript
@@ -8144,16 +15113,41 @@ const Toaster = ({ ...props }: ToasterProps) => {
 };
 
 export { Toaster };
+
 ```
+
 
 ## File: src/app/components/layout/AppLayout.tsx
 ```typescript
-import { Outlet } from "react-router";
+import { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router";
 import { AppSidebar } from "./AppSidebar";
 import { Topbar } from "./Topbar";
 import { CommandMenu } from "../CommandMenu";
+import { navItems } from "../../lib/nav";
 
 export function AppLayout() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      // Skip if a text input is focused or any modifier (except Shift) is held.
+      const tag = (e.target as HTMLElement)?.tagName;
+      const editable = (e.target as HTMLElement)?.isContentEditable;
+      if (tag === "INPUT" || tag === "TEXTAREA" || editable) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      const pressed = e.key.toLowerCase();
+      const match = navItems.find((item) => item.shortcut?.toLowerCase() === pressed);
+      if (match) {
+        e.preventDefault();
+        navigate(match.to);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [navigate]);
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
       <AppSidebar />
@@ -8167,7 +15161,9 @@ export function AppLayout() {
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/components/layout/AppSidebar.tsx
 ```typescript
@@ -8329,16 +15325,19 @@ export function AppSidebar() {
     </motion.aside>
   );
 }
+
 ```
+
 
 ## File: src/app/components/layout/Topbar.tsx
 ```typescript
 import { useLocation } from "react-router";
-import { Bell, Command, Plus } from "lucide-react";
+import { Command, Plus } from "lucide-react";
 import { navItems } from "../../lib/nav";
 import { useUIStore } from "../../stores/useUIStore";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import { JobsIndicator } from "../JobsIndicator";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   "/": { title: "Dashboard", subtitle: "Your learning at a glance" },
@@ -8349,6 +15348,10 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   "/documents": {
     title: "Documents",
     subtitle: "Upload and manage source material",
+  },
+  "/courses": {
+    title: "Courses",
+    subtitle: "Manage your courses and subjects",
   },
   "/ask": {
     title: "Ask AI",
@@ -8363,6 +15366,14 @@ const titles: Record<string, { title: string; subtitle: string }> = {
     title: "Exam",
     subtitle: "Simulate real exams from your materials",
   },
+  "/exam-analysis": {
+    title: "PYQ Analysis",
+    subtitle: "Analyze previous year questions",
+  },
+  "/teach": {
+    title: "Teach Me",
+    subtitle: "Learn concepts interactively",
+  },
   "/revision": {
     title: "Revision Mode",
     subtitle: "Generate exam-ready study sheets",
@@ -8371,7 +15382,19 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   "/quiz": { title: "Quizzes", subtitle: "Test your understanding" },
   "/diagrams": { title: "Diagrams", subtitle: "Generated visual explanations" },
   "/mindmaps": { title: "Mind Maps", subtitle: "Explore knowledge as a graph" },
+  "/differences": {
+    title: "Difference Tables",
+    subtitle: "Compare concepts, architectures, algorithms and more",
+  },
+  "/consistency": {
+    title: "Consistency",
+    subtitle: "Track your learning habits",
+  },
   "/search": { title: "Search", subtitle: "Semantic search across everything" },
+  "/prompts": {
+    title: "Prompts",
+    subtitle: "Manage your system prompts",
+  },
   "/settings": {
     title: "Settings",
     subtitle: "Configure models and preferences",
@@ -8381,8 +15404,8 @@ const titles: Record<string, { title: string; subtitle: string }> = {
 export function Topbar() {
   const { pathname } = useLocation();
   const setCommandOpen = useUIStore((s) => s.setCommandOpen);
-  const meta = titles[pathname] ?? { title: "ScholarAI", subtitle: "" };
   const current = navItems.find((n) => n.to === pathname);
+  const meta = titles[pathname] ?? { title: current?.label ?? "ScholarAI", subtitle: "" };
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border bg-background/70 px-6 backdrop-blur-xl">
@@ -8411,10 +15434,7 @@ export function Topbar() {
         </kbd>
       </button>
 
-      <Button variant="ghost" size="icon" className="relative shrink-0">
-        <Bell className="size-[18px]" />
-        <span className="absolute right-2 top-2 size-1.5 rounded-full bg-primary" />
-      </Button>
+      <JobsIndicator />
 
       <Button
         onClick={() => toast.success("New item created")}
@@ -8425,7 +15445,9 @@ export function Topbar() {
     </header>
   );
 }
+
 ```
+
 
 ## File: src/app/lib/mock-data.ts
 ```typescript
@@ -8669,7 +15691,9 @@ export const searchResults = [
   { id: "sr4", group: "Quizzes", title: "Neural Network Fundamentals", snippet: "Which algorithm computes <mark>gradients</mark> in a neural network?", course: "Machine Learning" },
   { id: "sr5", group: "Diagrams", title: "Neural Network Training Loop", snippet: "Forward pass → Compute loss → Backward pass → Update weights", course: "Machine Learning" },
 ];
+
 ```
+
 
 ## File: src/app/lib/exam-data.ts
 ```typescript
@@ -8720,7 +15744,9 @@ export const formulaSheet = [
   { name: "Cross-entropy", formula: "L = −Σᵢ yᵢ · log(ŷᵢ)" },
   { name: "Attention", formula: "softmax(QKᵀ / √dₖ) · V" },
 ];
+
 ```
+
 
 ## File: src/app/lib/notebook-data.ts
 ```typescript
@@ -8875,7 +15901,9 @@ export const inspector = {
   relatedTopics: ["Attention", "RNNs", "BERT", "Positional Encoding", "Tokenization"],
   revisionStatus: "In progress",
 };
+
 ```
+
 
 ## File: src/app/lib/reading-data.ts
 ```typescript
@@ -8959,7 +15987,9 @@ export const lensExplanations: Record<string, string> = {
   Expert:
     "For a differentiable loss L(θ), the update θ ← θ − η∇L(θ) follows the steepest-descent direction. Convergence and stability depend on the learning rate η relative to the curvature (Hessian eigenvalues) of L near the optimum.",
 };
+
 ```
+
 
 ## File: src/app/lib/graph-data.ts
 ```typescript
@@ -9253,7 +16283,9 @@ export const relatedDiscoveries: Record<string, string[]> = {
   rag: ["Self-RAG", "Corrective RAG", "Modular RAG", "Graph RAG", "Agentic RAG"],
   retrieval: ["Sparse Retrieval", "Dense Retrieval", "Multi-hop Retrieval", "Iterative Retrieval"],
 };
+
 ```
+
 
 ## File: src/app/lib/nav.ts
 ```typescript
@@ -9277,6 +16309,7 @@ import {
   Settings,
   BookMarked,
   FileSearch,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 
@@ -9305,11 +16338,169 @@ export const navItems: NavItem[] = [
   { label: "Diagrams", to: "/diagrams", icon: Workflow, shortcut: "G", group: "study" },
   { label: "Mind Maps", to: "/mindmaps", icon: Network, shortcut: "M", group: "study" },
   { label: "Differences", to: "/differences", icon: Columns2, shortcut: "I", group: "study" },
+  { label: "Consistency", to: "/consistency", icon: ShieldCheck, shortcut: "Z", group: "study" },
   { label: "Search", to: "/search", icon: Search, shortcut: "S", group: "system" },
   { label: "Prompts", to: "/prompts", icon: BookMarked, shortcut: "P", group: "system" },
   { label: "Settings", to: "/settings", icon: Settings, shortcut: ",", group: "system" },
 ];
+
 ```
+
+
+## File: src/app/lib/types.ts
+```typescript
+export type DocStatus = "indexed" | "processing" | "failed";
+export type DocType = "pdf" | "docx" | "markdown" | "text";
+
+export interface Course {
+  id: string;
+  name: string;
+  code: string;
+  color: string;
+  documents: number;
+  flashcards: number;
+  progress: number;
+}
+
+export interface DocumentItem {
+  id: string;
+  title: string;
+  type: DocType;
+  course: string;
+  sizeKb: number;
+  pages: number;
+  addedAt: string;
+  status: DocStatus;
+}
+
+export type SourceType = "text" | "ocr" | "table" | "image" | "diagram";
+
+export interface Source {
+  id: string;
+  title: string;
+  page: number;
+  course: string;
+  snippet: string;
+  similarity: number;
+  sourceType?: SourceType;
+  imageUrl?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources?: Source[];
+  confidence?: number;
+  streaming?: boolean;
+}
+
+// Objective artifact quality estimate (backend api/quality.py). Sub-scores are
+// 0..100; dimensions that don't apply to an artifact are omitted.
+export interface QualityScore {
+  overall: number;
+  coverage?: number;
+  grounding?: number;
+  structure?: number;
+  balance?: number;
+  diversity?: number;
+  redundancy?: number;
+  sourceChunks: number;
+  documents: number;
+  notes: string[];
+}
+
+export interface Flashcard {
+  id: string;
+  type: "basic" | "cloze";
+  front: string;
+  back: string;
+  deck: string;
+  due: string;
+  ease: "new" | "learning" | "mastered";
+}
+
+export interface Deck {
+  id: string;
+  name: string;
+  course: string;
+  cards: number;
+  mastered: number;
+  color: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  type: "mcq" | "truefalse" | "short";
+  prompt: string;
+  options?: string[];
+  answer: string;
+  explanation: string;
+}
+
+export interface Quiz {
+  id: string;
+  title: string;
+  course: string;
+  questions: QuizQuestion[];
+  difficulty: "Easy" | "Medium" | "Hard";
+  quality?: QualityScore;
+  session_answers?: Record<string, string> | null;
+  session_current_question?: number | null;
+  session_started_at?: string | null;
+}
+
+export interface DiagramItem {
+  id: string;
+  title: string;
+  course: string;
+  kind: string;
+  mermaid: string;
+  quality?: QualityScore;
+}
+
+export interface TopicNode {
+  id: string;
+  label: string;
+  children?: TopicNode[];
+  docId?: string;
+}
+
+export interface ActivityItem {
+  id: string;
+  kind: "ask" | "flashcard" | "quiz" | "document" | "diagram";
+  text: string;
+  time: string;
+}
+
+export interface PromptItem {
+  id: number;
+  category: string;
+  name: string;
+  style: string;
+  body: string;
+  built_in: boolean;
+  active: boolean;
+}
+
+export interface GeneratedDifference {
+  title: string;
+  content: string;
+  grounded: boolean;
+  quality?: QualityScore;
+}
+
+export interface DifferenceTableItem {
+  id: number;
+  title: string;
+  course: string;
+  content: string;
+  createdAt: string;
+  quality?: QualityScore;
+}
+
+```
+
 
 ## File: src/app/lib/api.ts
 ```typescript
@@ -9317,7 +16508,7 @@ export const navItems: NavItem[] = [
 // In dev, requests go to `/api/*` which Vite proxies to the backend
 // (see vite.config.ts). Override with VITE_API_BASE_URL for production.
 
-import type { Course, DiagramItem, DifferenceTableItem, DocumentItem, Flashcard, GeneratedDifference, Quiz, Source, PromptItem } from "./types";
+import type { Course, DiagramItem, DifferenceTableItem, DocumentItem, Flashcard, GeneratedDifference, QualityScore, Quiz, Source, PromptItem } from "./types";
 
 const BASE: string = (import.meta as any).env?.VITE_API_BASE_URL ?? "";
 
@@ -9326,6 +16517,7 @@ export interface FlashcardSet {
   course: string | null;
   grounded: boolean;
   cards: Flashcard[];
+  quality?: QualityScore;
 }
 
 export interface GeneratedQuiz extends Quiz {
@@ -9342,13 +16534,27 @@ export interface GeneratedMindmap {
   course: string;
   text: string;
   grounded: boolean;
+  quality?: QualityScore;
 }
 
 export interface GeneratedRevision {
   title: string;
   markdown: string;
   grounded: boolean;
+  quality?: QualityScore;
 }
+
+export interface SavedRevision {
+  id: string;
+  title: string;
+  topic: string;
+  course: string;
+  format: "notes" | "concepts" | "formulas" | "summary";
+  content: string;
+  quality?: QualityScore;
+  timestamp: number;
+}
+
 
 // ---- Teach Me ----
 export interface TeachOverview {
@@ -9394,6 +16600,7 @@ export interface DeckOut {
   color: string;
   cards: number;
   mastered: number;
+  quality?: QualityScore;
 }
 
 export interface NotebookMeta {
@@ -9413,6 +16620,7 @@ export interface NotebookFull {
   color: string;
   blocks: any[];
   updated: string;
+  is_draft: boolean;
 }
 
 export interface ReadingSection {
@@ -9448,6 +16656,16 @@ export interface ExamSession {
   sessionId: string;
   questions: ExamQuestionOut[];
   grounded: boolean;
+  durationMinutes?: number;
+  remainingSeconds?: number | null;
+}
+
+export interface ExamStatus {
+  sessionId: string;
+  submitted: boolean;
+  expired: boolean;
+  durationMinutes: number;
+  remainingSeconds: number | null;
 }
 
 export interface ExamResult {
@@ -9458,6 +16676,7 @@ export interface ExamResult {
   difficultyAnalysis: { level: string; correct: number; total: number }[];
   review: { id: string; prompt: string; given: string; expected: string; correct: boolean; topic: string }[];
   recommendedRevisions: string[];
+  timedOut?: boolean;
 }
 
 // ---- PYQ analysis ----
@@ -9605,6 +16824,80 @@ export interface ConceptInspector {
   citations: { source: string; detail: string }[];
 }
 
+// ---- Cross-artifact consistency ----
+export interface ArtifactCoverage {
+  artifact: string;
+  coverage: number;
+  covered: string[];
+  weak: string[];
+  missing: string[];
+}
+
+export interface ConsistencySuggestion {
+  artifactType: string;
+  label: string;
+  issue: string;
+  concepts: string[];
+}
+
+export interface ConsistencyReport {
+  canonicalConcepts: string[];
+  overallCoverage: number;
+  artifacts: ArtifactCoverage[];
+  underrepresented: string[];
+  overrepresented: string[];
+  recommendations: string[];
+  suggestions?: ConsistencySuggestion[];
+}
+
+// ---- Chat history ----
+export interface ChatSessionMeta {
+  id: string;
+  title: string;
+  course: string;
+  messageCount: number;
+  updatedAt: string;
+}
+
+export interface ChatMessageRow {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources: Source[];
+  createdAt: string;
+}
+
+export interface ChatSessionFull extends ChatSessionMeta {
+  messages: ChatMessageRow[];
+}
+
+// ---- Background jobs ----
+export interface JobItem {
+  id: string;
+  kind: string;
+  status: "queued" | "running" | "done" | "failed";
+  label: string;
+  result: Record<string, any> | null;
+  error: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---- Prompt A/B experiments ----
+// ---- Trace analytics ----
+export interface TraceSourceStat {
+  source: string;
+  weakCount: number;
+  downCount: number;
+  total: number;
+  avgSimilarity: number;
+}
+
+export interface TraceAnalytics {
+  totalFlags: number;
+  sources: TraceSourceStat[];
+}
+
 export interface AskResponse {
   id: string;
   role: "assistant";
@@ -9654,6 +16947,7 @@ export interface BackendSettings {
   goals: string;
   interests: string;
   learningPreferences: string;
+  ragMode: string;
 }
 
 export interface ModelsList {
@@ -9689,8 +16983,8 @@ function json(body: unknown): RequestInit {
 
 export const api = {
   // ---- Ask / chat ----
-  ask(question: string, course?: string | null, document?: string | null): Promise<AskResponse> {
-    return request<AskResponse>("/api/ask", json({ question, course: course ?? null, document: document ?? null }));
+  ask(question: string, course?: string | null, document?: string | null, sessionId?: string | null, ragMode?: string, socratic?: boolean): Promise<AskResponse> {
+    return request<AskResponse>("/api/ask", json({ question, course: course ?? null, document: document ?? null, sessionId: sessionId ?? null, rag_mode: ragMode ?? "fallback", socratic: socratic ?? false }));
   },
 
   /** Stream an answer token-by-token over SSE. Returns the final metadata. */
@@ -9704,9 +16998,12 @@ export const api = {
       onError?: (message: string) => void;
       signal?: AbortSignal;
     },
+    sessionId?: string | null,
+    ragMode?: string,
+    socratic?: boolean,
   ): Promise<void> {
     const res = await fetch(`${BASE}/api/ask/stream`, {
-      ...json({ question, course: course ?? null, document: document ?? null }),
+      ...json({ question, course: course ?? null, document: document ?? null, sessionId: sessionId ?? null, rag_mode: ragMode ?? "fallback", socratic: socratic ?? false }),
       signal: handlers.signal,
     });
     if (!res.ok || !res.body) {
@@ -9784,19 +17081,20 @@ export const api = {
   },
 
   // ---- Generative study features ----
-  generateFlashcards(topic: string, course?: string | null, document?: string | null, count = 8): Promise<FlashcardSet> {
-    return request<FlashcardSet>("/api/flashcards/generate", json({ topic, course: course ?? null, document: document ?? null, count }));
+  generateFlashcards(topic: string, course?: string | null, document?: string | null, count = 8, ragMode = "fallback"): Promise<FlashcardSet> {
+    return request<FlashcardSet>("/api/flashcards/generate", json({ topic, course: course ?? null, document: document ?? null, count, rag_mode: ragMode }));
   },
   generateQuiz(
     topic: string,
     course?: string | null,
     document?: string | null,
     difficulty: "Easy" | "Medium" | "Hard" = "Medium",
+    ragMode = "fallback",
   ): Promise<GeneratedQuiz> {
-    return request<GeneratedQuiz>("/api/quizzes/generate", json({ topic, course: course ?? null, document: document ?? null, difficulty }));
+    return request<GeneratedQuiz>("/api/quizzes/generate", json({ topic, course: course ?? null, document: document ?? null, difficulty, rag_mode: ragMode }));
   },
-  generateDiagram(topic: string, course?: string | null, document?: string | null, type?: string): Promise<GeneratedDiagram> {
-    return request<GeneratedDiagram>("/api/diagrams/generate", json({ topic, course: course ?? null, document: document ?? null, type }));
+  generateDiagram(topic: string, course?: string | null, document?: string | null, type?: string, ragMode = "fallback"): Promise<GeneratedDiagram> {
+    return request<GeneratedDiagram>("/api/diagrams/generate", json({ topic, course: course ?? null, document: document ?? null, type, rag_mode: ragMode }));
   },
   listDiagrams(): Promise<DiagramItem[]> {
     return request<DiagramItem[]>("/api/diagrams");
@@ -9804,8 +17102,8 @@ export const api = {
   deleteDiagram(id: string): Promise<void> {
     return request<void>(`/api/diagrams/${id}`, { method: "DELETE" });
   },
-  generateMindmap(topic: string, course?: string | null, document?: string | null): Promise<GeneratedMindmap> {
-    return request<GeneratedMindmap>("/api/mindmaps/generate", json({ topic, course: course ?? null, document: document ?? null }));
+  generateMindmap(topic: string, course?: string | null, document?: string | null, ragMode = "fallback"): Promise<GeneratedMindmap> {
+    return request<GeneratedMindmap>("/api/mindmaps/generate", json({ topic, course: course ?? null, document: document ?? null, rag_mode: ragMode }));
   },
   listMindmaps(): Promise<GeneratedMindmap[]> {
     return request<GeneratedMindmap[]>("/api/mindmaps");
@@ -9814,21 +17112,23 @@ export const api = {
     return request<void>(`/api/mindmaps/${id}`, { method: "DELETE" });
   },
   generateRevision(
-    opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
+    opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary"; ragMode?: string },
   ): Promise<GeneratedRevision> {
-    return request<GeneratedRevision>("/api/revision/generate", json(opts));
+    const { ragMode, ...rest } = opts;
+    return request<GeneratedRevision>("/api/revision/generate", json({ ...rest, rag_mode: ragMode ?? "fallback" }));
   },
   async revisionStream(
-    opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary" },
+    opts: { topic?: string; course?: string | null; document?: string | null; format: "notes" | "concepts" | "formulas" | "summary"; ragMode?: string },
     handlers: {
       onToken: (chunk: string) => void;
-      onDone?: (meta: { grounded: boolean; title: string }) => void;
+      onDone?: (meta: { grounded: boolean; title: string; quality?: QualityScore }) => void;
       onError?: (message: string) => void;
       signal?: AbortSignal;
     },
   ): Promise<void> {
+    const { ragMode, ...restOpts } = opts;
     const res = await fetch(`${BASE}/api/revision/generate/stream`, {
-      ...json(opts),
+      ...json({ ...restOpts, rag_mode: ragMode ?? "fallback" }),
       signal: handlers.signal,
     });
     if (!res.ok || !res.body) {
@@ -9851,7 +17151,7 @@ export const api = {
         let evt: any;
         try { evt = JSON.parse(line.slice(5).trim()); } catch { continue; }
         if (evt.type === "token") handlers.onToken(evt.value);
-        else if (evt.type === "done") handlers.onDone?.({ grounded: evt.grounded, title: evt.title ?? "" });
+        else if (evt.type === "done") handlers.onDone?.({ grounded: evt.grounded, title: evt.title ?? "", quality: evt.quality });
         else if (evt.type === "error") handlers.onError?.(evt.value);
       }
     }
@@ -9861,12 +17161,23 @@ export const api = {
     return request<SearchResult[]>(`/api/search?${p.toString()}`);
   },
 
+  // ---- Revisions persistence ----
+  listRevisions(): Promise<SavedRevision[]> {
+    return request<SavedRevision[]>("/api/revisions");
+  },
+  saveRevision(rev: { title: string; topic: string; course?: string | null; format: string; content: string; quality?: QualityScore }): Promise<SavedRevision> {
+    return request<SavedRevision>("/api/revisions", json(rev));
+  },
+  deleteRevision(id: string): Promise<void> {
+    return request<void>(`/api/revisions/${id}`, { method: "DELETE" });
+  },
+
   // ---- Decks / flashcard persistence ----
   listDecks(): Promise<DeckOut[]> {
     return request<DeckOut[]>("/api/decks");
   },
-  saveDeck(name: string, course: string | null, cards: Flashcard[], color?: string): Promise<DeckOut> {
-    return request<DeckOut>("/api/decks", json({ name, course, cards, color }));
+  saveDeck(name: string, course: string | null, cards: Flashcard[], color?: string, quality?: QualityScore): Promise<DeckOut> {
+    return request<DeckOut>("/api/decks", json({ name, course, cards, color, quality }));
   },
   deleteDeck(id: string): Promise<void> {
     return request<void>(`/api/decks/${id}`, { method: "DELETE" });
@@ -9889,11 +17200,17 @@ export const api = {
   listSavedQuizzes(): Promise<Quiz[]> {
     return request<Quiz[]>("/api/quizzes");
   },
-  saveQuiz(quiz: { title: string; course?: string | null; difficulty: string; questions: Quiz["questions"] }): Promise<Quiz> {
+  saveQuiz(quiz: { title: string; course?: string | null; difficulty: string; questions: Quiz["questions"]; quality?: QualityScore }): Promise<Quiz> {
     return request<Quiz>("/api/quizzes", json(quiz));
   },
   deleteQuiz(id: string): Promise<void> {
     return request<void>(`/api/quizzes/${id}`, { method: "DELETE" });
+  },
+  patchQuizSession(id: string, payload: { session_answers: Record<string, string>; session_current_question: number }): Promise<void> {
+    return request<void>(`/api/quizzes/${id}/session`, { ...json(payload), method: "PATCH" });
+  },
+  clearQuizSession(id: string): Promise<void> {
+    return request<void>(`/api/quizzes/${id}/session`, { method: "DELETE" });
   },
 
   // ---- Notebooks ----
@@ -9906,7 +17223,7 @@ export const api = {
   createNotebook(title: string, course?: string | null): Promise<NotebookFull> {
     return request<NotebookFull>("/api/notebooks", json({ title, course }));
   },
-  updateNotebook(id: string, patch: { title?: string; subtitle?: string; blocks?: any[]; color?: string }): Promise<NotebookFull> {
+  updateNotebook(id: string, patch: { title?: string; subtitle?: string; blocks?: any[]; color?: string; is_draft?: boolean }): Promise<NotebookFull> {
     return request<NotebookFull>(`/api/notebooks/${id}`, { ...json(patch), method: "PUT" });
   },
   deleteNotebook(id: string): Promise<void> {
@@ -9932,11 +17249,14 @@ export const api = {
   },
 
   // ---- Exam ----
-  generateExam(opts: { topic?: string; course?: string | null; document?: string | null; difficulty?: "Easy" | "Medium" | "Hard"; count?: number; types?: string[]; pyqCourse?: string | null }): Promise<ExamSession> {
+  generateExam(opts: { topic?: string; course?: string | null; document?: string | null; difficulty?: "Easy" | "Medium" | "Hard"; count?: number; types?: string[]; pyqCourse?: string | null; durationMinutes?: number }): Promise<ExamSession> {
     return request<ExamSession>("/api/exams/generate", json(opts));
   },
   submitExam(sessionId: string, answers: Record<string, string>, timeSpent?: number): Promise<ExamResult> {
     return request<ExamResult>(`/api/exams/${sessionId}/submit`, json({ answers, timeSpent }));
+  },
+  examStatus(sessionId: string): Promise<ExamStatus> {
+    return request<ExamStatus>(`/api/exams/${sessionId}/status`);
   },
 
   // ---- PYQ analysis ----
@@ -9971,6 +17291,12 @@ export const api = {
   getPyqDifferenceSuggestions(course: string): Promise<PyqDifferenceSuggestion[]> {
     return request<PyqDifferenceSuggestion[]>(`/api/pyq/difference-suggestions?course=${encodeURIComponent(course)}`);
   },
+  patchPyqQuestion(id: number, patch: Partial<Omit<PyqQuestion, "id">>): Promise<PyqQuestion> {
+    return request<PyqQuestion>(`/api/pyq/questions/${id}`, { ...json(patch), method: "PATCH" });
+  },
+  deletePyqQuestion(id: number): Promise<void> {
+    return request<void>(`/api/pyq/questions/${id}`, { method: "DELETE" });
+  },
 
   // ---- Knowledge graph ----
   buildKnowledgeGraph(course?: string | null, maxDocuments = 8): Promise<{ concepts: number; edges: number }> {
@@ -9987,6 +17313,12 @@ export const api = {
   },
   discoverConcepts(conceptId: string): Promise<string[]> {
     return request<string[]>(`/api/concepts/discover?conceptId=${conceptId}`);
+  },
+  mergeConcepts(keepId: number, dropId: number): Promise<ConceptInspector> {
+    return request<ConceptInspector>("/api/concepts/merge", json({ keepId, dropId }));
+  },
+  deleteConcept(id: string): Promise<void> {
+    return request<void>(`/api/concepts/${id}`, { method: "DELETE" });
   },
 
   // ---- Dashboard ----
@@ -10055,8 +17387,8 @@ export const api = {
   listDifferences(): Promise<DifferenceTableItem[]> {
     return request<DifferenceTableItem[]>("/api/differences");
   },
-  saveDifference(title: string, content: string, course?: string | null): Promise<DifferenceTableItem> {
-    return request<DifferenceTableItem>("/api/differences", json({ title, content, course: course ?? null }));
+  saveDifference(title: string, content: string, course?: string | null, quality?: QualityScore): Promise<DifferenceTableItem> {
+    return request<DifferenceTableItem>("/api/differences", json({ title, content, course: course ?? null, quality }));
   },
   deleteDifference(id: number): Promise<void> {
     return request<void>(`/api/differences/${id}`, { method: "DELETE" });
@@ -10085,139 +17417,208 @@ export const api = {
   deletePackage(id: string): Promise<void> {
     return request<void>(`/api/teach/packages/${id}`, { method: "DELETE" });
   },
+
+  // ---- Cross-artifact consistency (analyze-only) ----
+  analyzeConsistency(sourceText: string, artifacts: Record<string, any>): Promise<ConsistencyReport> {
+    return request<ConsistencyReport>("/api/consistency/analyze", json({ sourceText, artifacts }));
+  },
+  analyzeLibraryConsistency(course: string, document?: string | null): Promise<ConsistencyReport> {
+    return request<ConsistencyReport>("/api/consistency/library", json({ course, document: document ?? null }));
+  },
+  applyConsistencyFix(course: string, artifactType: string, concepts: string[]): Promise<{ applied: boolean; artifactType: string; preview: string; message: string }> {
+    return request("/api/consistency/apply", json({ course, artifactType, concepts }));
+  },
+
+  // ---- Chat history ----
+  listChatSessions(): Promise<ChatSessionMeta[]> {
+    return request<ChatSessionMeta[]>("/api/chat/sessions");
+  },
+  createChatSession(course?: string | null, title?: string | null): Promise<ChatSessionMeta> {
+    return request<ChatSessionMeta>("/api/chat/sessions", json({ course: course ?? null, title: title ?? null }));
+  },
+  getChatSession(id: string): Promise<ChatSessionFull> {
+    return request<ChatSessionFull>(`/api/chat/sessions/${id}`);
+  },
+  deleteChatSession(id: string): Promise<void> {
+    return request<void>(`/api/chat/sessions/${id}`, { method: "DELETE" });
+  },
+
+  // ---- Background jobs ----
+  listJobs(): Promise<JobItem[]> {
+    return request<JobItem[]>("/api/jobs");
+  },
+  getJob(id: string): Promise<JobItem> {
+    return request<JobItem>(`/api/jobs/${id}`);
+  },
+
+
+  // ---- Trace analytics ----
+  getTraceAnalytics(): Promise<TraceAnalytics> {
+    return request<TraceAnalytics>("/api/trace/analytics");
+  },
+  sendChunkFeedback(source: string, chunkId = "", query = "", similarity = 0): Promise<void> {
+    return request<void>("/api/trace/feedback", json({ source, chunkId, query, similarity }));
+  },
+
+
 };
+
 ```
 
-## File: src/app/lib/types.ts
+
+## File: src/app/lib/markdown-format.ts
 ```typescript
-export type DocStatus = "indexed" | "processing" | "failed";
-export type DocType = "pdf" | "docx" | "markdown" | "text";
+// Markdown formatting helpers for the Notebooks editor toolbar.
+// These operate on a <textarea>, wrapping/prefixing the current selection with
+// markdown syntax and restoring a sensible cursor/selection afterwards.
 
-export interface Course {
-  id: string;
-  name: string;
-  code: string;
-  color: string;
-  documents: number;
-  flashcards: number;
-  progress: number;
+export type MarkdownAction =
+  | "bold"
+  | "italic"
+  | "code"
+  | "h1"
+  | "h2"
+  | "h3"
+  | "ul"
+  | "ol"
+  | "quote"
+  | "link";
+
+/** Wrap the textarea's current selection with `before`/`after`. Returns the new value. */
+export function wrapSelection(
+  el: HTMLTextAreaElement,
+  before: string,
+  after: string = before,
+): string {
+  const { selectionStart: s, selectionEnd: e, value } = el;
+  const selected = value.slice(s, e) || "text";
+  const next = value.slice(0, s) + before + selected + after + value.slice(e);
+  // Re-select the inner text so repeated clicks/typing feel natural.
+  queueMicrotask(() => {
+    el.focus();
+    el.setSelectionRange(s + before.length, s + before.length + selected.length);
+  });
+  return next;
 }
 
-export interface DocumentItem {
-  id: string;
-  title: string;
-  type: DocType;
-  course: string;
-  sizeKb: number;
-  pages: number;
-  addedAt: string;
-  status: DocStatus;
+/** Prefix each line of the selection (or current line) with `prefix`. */
+export function prefixLines(el: HTMLTextAreaElement, prefix: string | ((i: number) => string)): string {
+  const { selectionStart: s, selectionEnd: e, value } = el;
+  // Expand selection to whole lines.
+  const lineStart = value.lastIndexOf("\n", s - 1) + 1;
+  const lineEnd = value.indexOf("\n", e);
+  const end = lineEnd === -1 ? value.length : lineEnd;
+  const block = value.slice(lineStart, end);
+  const lines = block.split("\n");
+  const out = lines
+    .map((ln, i) => (typeof prefix === "string" ? prefix : prefix(i)) + ln)
+    .join("\n");
+  const next = value.slice(0, lineStart) + out + value.slice(end);
+  queueMicrotask(() => {
+    el.focus();
+    el.setSelectionRange(lineStart, lineStart + out.length);
+  });
+  return next;
 }
 
-export type SourceType = "text" | "ocr" | "table" | "image" | "diagram";
-
-export interface Source {
-  id: string;
-  title: string;
-  page: number;
-  course: string;
-  snippet: string;
-  similarity: number;
-  sourceType?: SourceType;
-  imageUrl?: string;
+/** Apply a named markdown action to a textarea, returning its new value. */
+export function applyMarkdown(el: HTMLTextAreaElement, action: MarkdownAction): string {
+  switch (action) {
+    case "bold":
+      return wrapSelection(el, "**");
+    case "italic":
+      return wrapSelection(el, "*");
+    case "code":
+      return wrapSelection(el, "`");
+    case "h1":
+      return prefixLines(el, "# ");
+    case "h2":
+      return prefixLines(el, "## ");
+    case "h3":
+      return prefixLines(el, "### ");
+    case "ul":
+      return prefixLines(el, "- ");
+    case "ol":
+      return prefixLines(el, (i) => `${i + 1}. `);
+    case "quote":
+      return prefixLines(el, "> ");
+    case "link":
+      return wrapSelection(el, "[", "](url)");
+    default:
+      return el.value;
+  }
 }
 
-export interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  sources?: Source[];
-  confidence?: number;
-  streaming?: boolean;
-}
-
-export interface Flashcard {
-  id: string;
-  type: "basic" | "cloze";
-  front: string;
-  back: string;
-  deck: string;
-  due: string;
-  ease: "new" | "learning" | "mastered";
-}
-
-export interface Deck {
-  id: string;
-  name: string;
-  course: string;
-  cards: number;
-  mastered: number;
-  color: string;
-}
-
-export interface QuizQuestion {
-  id: string;
-  type: "mcq" | "truefalse" | "short";
-  prompt: string;
-  options?: string[];
-  answer: string;
-  explanation: string;
-}
-
-export interface Quiz {
-  id: string;
-  title: string;
-  course: string;
-  questions: QuizQuestion[];
-  difficulty: "Easy" | "Medium" | "Hard";
-}
-
-export interface DiagramItem {
-  id: string;
-  title: string;
-  course: string;
-  kind: string;
-  mermaid: string;
-}
-
-export interface TopicNode {
-  id: string;
-  label: string;
-  children?: TopicNode[];
-  docId?: string;
-}
-
-export interface ActivityItem {
-  id: string;
-  kind: "ask" | "flashcard" | "quiz" | "document" | "diagram";
-  text: string;
-  time: string;
-}
-
-export interface PromptItem {
-  id: number;
-  category: string;
-  name: string;
-  style: string;
-  body: string;
-  built_in: boolean;
-  active: boolean;
-}
-
-export interface GeneratedDifference {
-  title: string;
-  content: string;
-  grounded: boolean;
-}
-
-export interface DifferenceTableItem {
-  id: number;
-  title: string;
-  course: string;
-  content: string;
-  createdAt: string;
-}
 ```
+
+
+## File: src/app/lib/export.ts
+```typescript
+// Export helpers — render a DOM node (Mermaid SVG, mind-map tree, etc.) to a
+// high-resolution PNG or a PDF. Uses html-to-image (DOM → PNG) + jsPDF.
+
+import { toPng } from "html-to-image";
+import { jsPDF } from "jspdf";
+
+const SCALE = 2; // 2× pixel ratio for crisp, high-res output.
+
+function triggerDownload(href: string, filename: string): void {
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function safeName(name: string): string {
+  return (name || "export").replace(/[^\w.-]+/g, "_");
+}
+
+/** Render `node` to a PNG data URL at high resolution. */
+export async function nodeToPng(node: HTMLElement): Promise<string> {
+  return toPng(node, {
+    pixelRatio: SCALE,
+    cacheBust: true,
+    backgroundColor: getBg(node),
+  });
+}
+
+/** Read an effective background so transparent areas don't export as black. */
+function getBg(node: HTMLElement): string {
+  const bg = getComputedStyle(node).backgroundColor;
+  if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") return bg;
+  return "#ffffff";
+}
+
+/** Export a DOM node as a downloaded PNG file. */
+export async function exportNodeToPng(node: HTMLElement, name: string): Promise<void> {
+  const url = await nodeToPng(node);
+  triggerDownload(url, `${safeName(name)}.png`);
+}
+
+/** Export a DOM node as a downloaded single-page PDF sized to the image. */
+export async function exportNodeToPdf(node: HTMLElement, name: string): Promise<void> {
+  const url = await nodeToPng(node);
+  const img = new Image();
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error("Failed to load rendered image"));
+    img.src = url;
+  });
+  const w = img.width;
+  const h = img.height;
+  const pdf = new jsPDF({
+    orientation: w >= h ? "landscape" : "portrait",
+    unit: "px",
+    format: [w, h],
+  });
+  pdf.addImage(url, "PNG", 0, 0, w, h);
+  pdf.save(`${safeName(name)}.pdf`);
+}
+
+```
+
 
 ## File: src/app/pages/Trace.tsx
 ```typescript
@@ -10232,241 +17633,9 @@ export function Trace() {
     </div>
   );
 }
+
 ```
 
-## File: src/app/pages/AskAI.tsx
-```typescript
-import { useEffect, useRef, useState, useMemo } from "react";
-import { ArrowUp, Gauge, Paperclip, Sparkles, Trash2, BookOpen } from "lucide-react";
-import { motion } from "motion/react";
-import { useChatStore } from "../stores/useChatStore";
-import { useSettingsStore } from "../stores/useSettingsStore";
-import { SourcePanel } from "../components/SourcePanel";
-import { AnswerViewer } from "../components/AnswerViewer";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { api } from "../lib/api";
-import type { Course, DocumentItem } from "../lib/types";
-
-export function AskAI() {
-  const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument } = useChatStore();
-  const streaming = useSettingsStore((s) => s.streaming);
-  const [input, setInput] = useState("");
-  const [activeSource, setActiveSource] = useState<string | null>(null);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [documents, setDocuments] = useState<DocumentItem[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    api.listCourses().then(setCourses).catch(() => setCourses([]));
-    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
-  }, []);
-
-  const suggestions = useMemo(() => {
-    const generic = [
-      "Summarize the key concepts across my courses",
-      "What are the most important formulas to remember?",
-    ];
-    if (!documents.length) return generic;
-
-    const dynamic = documents
-      .slice(0, 2)
-      .map((doc) => `Explain the main topics in ${doc.title}`);
-
-    return [...dynamic, ...generic].slice(0, 4);
-  }, [documents]);
-
-  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
-  const sources = lastAssistant?.sources ?? [];
-  const confidence = lastAssistant?.confidence;
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-  }, [messages]);
-
-  const submit = (q?: string) => {
-    const value = (q ?? input).trim();
-    if (!value || isStreaming) return;
-    void ask(value, { stream: streaming });
-    setInput("");
-  };
-
-  const jumpToSource = (index: number) => {
-    const target = sources[index - 1];
-    if (target) {
-      setActiveSource(target.id);
-      document
-        .getElementById(`source-${index}`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  };
-
-  return (
-    <div className="flex h-full">
-      {/* Sources — 25% */}
-      <div className="hidden w-[25%] min-w-[260px] max-w-[360px] lg:block">
-        <SourcePanel sources={sources} activeId={activeSource} onSelect={setActiveSource} />
-      </div>
-
-      {/* Answer — 75% */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Answer header */}
-        <div className="flex h-12 items-center justify-between border-b border-border px-6">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <BookOpen className="size-4 text-muted-foreground" />
-            Answer
-          </div>
-          <div className="flex items-center gap-2">
-            <Select
-              value={course ?? "all"}
-              onValueChange={(v) => setCourse(v === "all" ? null : v)}
-            >
-              <SelectTrigger className="h-8 w-44 bg-input-background text-xs">
-                <SelectValue placeholder="All courses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All courses</SelectItem>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={document ?? "all"}
-              onValueChange={(v) => setDocument(v === "all" ? null : v)}
-            >
-              <SelectTrigger className="h-8 w-44 bg-input-background text-xs">
-                <SelectValue placeholder="All documents" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All documents</SelectItem>
-                {documents.filter(d => course ? d.course === course : true).map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
-                    {d.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {confidence !== undefined && !isStreaming && (
-              <Badge
-                variant="outline"
-                className="gap-1.5 border-success/40 bg-success-soft text-success"
-              >
-                <Gauge className="size-3.5" />
-                {(confidence * 100).toFixed(0)}% confidence
-              </Badge>
-            )}
-            {messages.length > 0 && (
-              <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs" onClick={reset}>
-                <Trash2 className="size-3.5" /> Clear
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-3xl px-6 py-6">
-            {messages.length === 0 ? (
-              <EmptyAsk onPick={submit} suggestions={suggestions} />
-            ) : (
-              <div className="space-y-4">
-                {messages.map((m) => (
-                  <AnswerViewer key={m.id} message={m} onCitationClick={jumpToSource} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Sticky input */}
-        <div className="border-t border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
-          <div className="mx-auto max-w-3xl">
-            <div className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 transition-colors focus-within:border-ring/60">
-              <Button variant="ghost" size="icon" className="size-9 shrink-0 text-muted-foreground">
-                <Paperclip className="size-[18px]" />
-              </Button>
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    submit();
-                  }
-                }}
-                rows={1}
-                placeholder="Ask anything about your materials…"
-                className="max-h-40 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
-              />
-              <Button
-                size="icon"
-                disabled={!input.trim() || isStreaming}
-                onClick={() => submit()}
-                className="size-9 shrink-0 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <ArrowUp className="size-[18px]" />
-              </Button>
-            </div>
-            <div className="mt-2 flex items-center justify-between px-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="size-3 text-primary" />
-                Grounded in {courses.length} courses · {streaming ? "Streaming on" : "Streaming off"}
-              </span>
-              <span>
-                <kbd className="rounded border border-border bg-muted px-1 font-mono">Enter</kbd> to send ·{" "}
-                <kbd className="rounded border border-border bg-muted px-1 font-mono">Shift+Enter</kbd> newline
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function EmptyAsk({ onPick, suggestions }: { onPick: (q: string) => void; suggestions: string[] }) {
-  return (
-    <div className="flex flex-col items-center pt-12 text-center">
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-violet"
-      >
-        <Sparkles className="size-6" />
-      </motion.div>
-      <h1 className="mt-5">Ask your knowledge base</h1>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">
-        Get source-grounded answers with citations, drawn directly from your documents, notes and lectures.
-      </p>
-      <div className="mt-8 grid w-full max-w-xl gap-2 sm:grid-cols-2">
-        {suggestions.map((s, i) => (
-          <motion.button
-            key={s}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + i * 0.06 }}
-            onClick={() => onPick(s)}
-            className="rounded-xl border border-border bg-card p-3 text-left text-sm text-foreground/90 transition-colors hover:border-primary/50 hover:bg-violet-soft/40"
-          >
-            {s}
-          </motion.button>
-        ))}
-      </div>
-    </div>
-  );
-}
-```
 
 ## File: src/app/pages/Documents.tsx
 ```typescript
@@ -10729,7 +17898,9 @@ export function Documents() {
     </Page>
   );
 }
+
 ```
+
 
 ## File: src/app/pages/Search.tsx
 ```typescript
@@ -10946,7 +18117,9 @@ export function SearchPage() {
     </Page>
   );
 }
+
 ```
+
 
 ## File: src/app/pages/Reading.tsx
 ```typescript
@@ -11448,7 +18621,9 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/pages/Dashboard.tsx
 ```typescript
@@ -11830,861 +19005,9 @@ export function Dashboard() {
     </Page>
   );
 }
+
 ```
 
-## File: src/app/pages/Revision.tsx
-```typescript
-import { useEffect, useState, useMemo } from "react";
-import {
-  Sparkles,
-  NotebookPen,
-  FileText,
-  Sigma,
-  ListTree,
-  Download,
-  Loader2,
-  AlertTriangle,
-  Clock,
-  Bookmark,
-} from "lucide-react";
-import { motion } from "motion/react";
-import { toast } from "sonner";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { Label } from "../components/ui/label";
-import { MarkdownRenderer } from "../components/MarkdownRenderer";
-import { api } from "../lib/api";
-import {
-  useRevisionStore,
-  type RevisionFormat,
-} from "../stores/useRevisionStore";
-import type { Course, DocumentItem } from "../lib/types";
-import { cn } from "../components/ui/utils";
-
-const formats: {
-  id: RevisionFormat;
-  label: string;
-  icon: typeof NotebookPen;
-}[] = [
-    { id: "notes", label: "Exam Notes", icon: NotebookPen },
-    { id: "concepts", label: "Key Concepts", icon: ListTree },
-    { id: "formulas", label: "Formula Sheet", icon: Sigma },
-    { id: "summary", label: "Summary Sheet", icon: FileText },
-  ];
-
-export function Revision() {
-  const {
-    format,
-    topic,
-    course,
-    loading,
-    output,
-    title,
-    ungrounded,
-    savedRevisions,
-    setField,
-    generate,
-    stop,
-    loadRevision,
-  } = useRevisionStore();
-  const setFormat = (f: RevisionFormat) => setField("format", f);
-  const setTopic = (v: string) => setField("topic", v);
-  const setCourse = (v: string) => setField("course", v);
-  const document = useRevisionStore((s) => s.document);
-  const setDocument = (v: string | null) => setField("document", v);
-
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [documents, setDocuments] = useState<DocumentItem[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    api
-      .listCourses()
-      .then((cs) => {
-        if (!cancelled) setCourses(cs);
-      })
-      .catch(() => { });
-    api
-      .listDocuments()
-      .then((docs) => {
-        if (!cancelled) setDocuments(docs);
-      })
-      .catch(() => { });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const suggestedRevision = useMemo(() => {
-    if (!documents.length) return [];
-
-    return documents.slice(0, 3).map((doc, i) => ({
-      id: `sr-d${i}`,
-      topic: doc.title.replace(/\.[^/.]+$/, ""),
-      reason: i === 0 ? "Due for review today" : "Upcoming exam",
-      course: doc.course,
-    }));
-  }, [documents]);
-
-  const pickTopic = (value: string) => {
-    setTopic(value);
-    toast.success(`Topic set to "${value}"`);
-  };
-
-  return (
-    <div className="flex h-full">
-      {/* Generator */}
-      <div className="w-96 shrink-0 overflow-y-auto border-r border-border bg-card/40 p-5">
-        <div className="flex items-center gap-2">
-          <Sparkles className="size-4 text-primary" />
-          <h3>Generator</h3>
-        </div>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Turn your materials into exam-ready study resources.
-        </p>
-
-        <div className="mt-6 space-y-5">
-          <div>
-            <Label className="mb-2 block">Format</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {formats.map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setFormat(f.id)}
-                  className={cn(
-                    "flex flex-col items-start gap-2 rounded-xl border p-3 text-left transition-colors",
-                    format === f.id
-                      ? "border-primary bg-violet-soft"
-                      : "border-border bg-card hover:border-ring/40",
-                  )}
-                >
-                  <f.icon
-                    className={cn(
-                      "size-4",
-                      format === f.id
-                        ? "text-primary"
-                        : "text-muted-foreground",
-                    )}
-                  />
-                  <span className="text-sm">{f.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Label className="mb-2 block">Topic</Label>
-            <Input
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !loading) generate();
-              }}
-              placeholder="e.g. Backpropagation (optional)"
-              className="bg-input-background"
-            />
-          </div>
-
-          <div>
-            <Label className="mb-2 block">Course</Label>
-            <Select value={course} onValueChange={setCourse}>
-              <SelectTrigger className="bg-input-background">
-                <SelectValue placeholder="No course" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No course</SelectItem>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
-              <SelectTrigger className="mt-2 bg-input-background">
-                <SelectValue placeholder="All documents" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All documents</SelectItem>
-                {documents.filter(d => course !== "none" ? d.course === course : true).map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
-                    {d.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              Provide at least a topic or a course.
-            </p>
-          </div>
-
-          <Button
-            onClick={loading ? stop : generate}
-            className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {loading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Sparkles className="size-4" />
-            )}
-            {loading ? "Stop" : "Generate"}
-          </Button>
-        </div>
-
-        {/* Quick picks */}
-        {suggestedRevision.length > 0 && (
-          <div className="mt-8 space-y-5">
-            <div>
-              <div className="mb-2 flex items-center gap-2">
-                <Clock className="size-3.5 text-muted-foreground" />
-                <Label>Suggested revision</Label>
-              </div>
-              <div className="space-y-2">
-                {suggestedRevision.map((r) => (
-                  <button
-                    key={r.id}
-                    onClick={() => pickTopic(r.topic)}
-                    className="flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
-                  >
-                    <span className="text-sm font-medium">{r.topic}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {r.reason}
-                    </span>
-                    <span className="text-xs text-muted-foreground/70">
-                      {r.course}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Saved revisions */}
-        {savedRevisions.length > 0 && (
-          <div className="mt-8 space-y-5">
-            <div>
-              <div className="mb-2 flex items-center gap-2">
-                <Bookmark className="size-3.5 text-muted-foreground" />
-                <Label>Saved revisions</Label>
-              </div>
-              <div className="space-y-2">
-                {savedRevisions.map((r) => (
-                  <button
-                    key={r.id}
-                    onClick={() => loadRevision(r.id)}
-                    className="flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
-                  >
-                    <span className="text-sm font-medium truncate w-full">
-                      {r.title}
-                    </span>
-                    <span className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                      {r.content.replace(/[#*]/g, "").trim()}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground/60 mt-1">
-                      {new Date(r.timestamp).toLocaleDateString()}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Preview */}
-      <div className="min-w-0 flex-1 overflow-y-auto">
-        <div className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-          <span className="text-sm font-medium">{title ?? "Preview"}</span>
-          {output && (
-            <div className="flex gap-2">
-              {/* <Button variant="outline" size="sm" className="gap-1.5" onClick={saveRevision}> */}
-              {/*   <Bookmark className="size-3.5" /> Save */}
-              {/* </Button> */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5"
-                onClick={() => {
-                  if (!output) return;
-                  const blob = new Blob([output], { type: "text/markdown" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `${(title || "revision").replace(/[^a-z0-9]/gi, "_").toLowerCase()}.md`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                  toast.success("Exported as markdown");
-                }}
-              >
-                <Download className="size-3.5" /> Export
-              </Button>
-            </div>
-          )}
-        </div>
-        <div className="mx-auto max-w-3xl px-8 py-8">
-          {output ? (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              {!loading && ungrounded && (
-                <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
-                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-                  <span>
-                    This topic may not be covered by your uploaded documents —
-                    the result below may be incomplete or based on general
-                    knowledge.
-                  </span>
-                </div>
-              )}
-              <MarkdownRenderer content={output} />
-              {loading && (
-                <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-primary" />
-              )}
-            </motion.div>
-          ) : loading ? (
-            <div className="flex flex-col items-center pt-24 text-muted-foreground">
-              <Loader2 className="size-6 animate-spin text-primary" />
-              <p className="mt-3 text-sm">Retrieving sources…</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center pt-24 text-center text-muted-foreground">
-              <Sparkles className="size-6 text-primary/60" />
-              <p className="mt-3 text-sm">
-                Choose a format, enter a topic or course, then generate a study
-                sheet.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-```
-
-## File: src/app/pages/Quiz.tsx
-```typescript
-import { useEffect, useState } from "react";
-import {
-  ListChecks,
-  Play,
-  ChevronRight,
-  Check,
-  X,
-  RotateCw,
-  Trophy,
-  Settings2,
-  Loader2,
-  Save,
-  Trash2,
-} from "lucide-react";
-import { GenerationSteps } from "../components/GenerationSteps";
-import { motion, AnimatePresence } from "motion/react";
-import { toast } from "sonner";
-import { Page } from "../components/Page";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
-import { Input } from "../components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { api } from "../lib/api";
-import type { Quiz, QuizQuestion, Course, DocumentItem } from "../lib/types";
-import { cn } from "../components/ui/utils";
-import { useQuizStore } from "../stores/useQuizStore";
-import type { Difficulty } from "../stores/useQuizStore";
-
-const difficulties: Difficulty[] = ["Easy", "Medium", "Hard"];
-
-const diffColor: Record<Quiz["difficulty"], string> = {
-  Easy: "border-success/40 bg-success-soft text-success",
-  Medium: "border-warning/40 bg-warning-soft text-warning",
-  Hard: "border-danger/40 bg-danger-soft text-danger",
-};
-
-export function QuizPage() {
-  // Flow state lives in the store so it survives page navigation.
-  const stage = useQuizStore((s) => s.stage);
-  const active = useQuizStore((s) => s.active);
-  const answers = useQuizStore((s) => s.answers);
-  const start = useQuizStore((s) => s.start);
-  const submit = useQuizStore((s) => s.submit);
-  const backToBuilder = useQuizStore((s) => s.backToBuilder);
-
-  // Page-only ephemeral data that's cheap to refetch stays local.
-  const [saved, setSaved] = useState<Quiz[]>([]);
-  const [loadingSaved, setLoadingSaved] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  const refreshSaved = () =>
-    api
-      .listSavedQuizzes()
-      .then(setSaved)
-      .catch(() => setSaved([]))
-      .finally(() => setLoadingSaved(false));
-
-  useEffect(() => {
-    refreshSaved();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const saveQuiz = async (quiz: Quiz) => {
-    if (saving) return;
-    setSaving(true);
-    try {
-      await api.saveQuiz({
-        title: quiz.title,
-        course: quiz.course && quiz.course !== "all" ? quiz.course : null,
-        difficulty: quiz.difficulty,
-        questions: quiz.questions,
-      });
-      await refreshSaved();
-      toast.success("Quiz saved");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to save quiz");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const deleteQuiz = async (id: string) => {
-    try {
-      await api.deleteQuiz(id);
-      setSaved((s) => s.filter((q) => q.id !== id));
-      toast.success("Quiz deleted");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to delete quiz");
-    }
-  };
-
-  return (
-    <Page className="space-y-6">
-      {stage === "builder" && (
-        <Builder
-          onStart={start}
-          saved={saved}
-          loadingSaved={loadingSaved}
-          onDelete={deleteQuiz}
-        />
-      )}
-      {stage === "player" && active && (
-        <Player
-          quiz={active}
-          onFinish={(a) => submit(a)}
-          onSave={() => saveQuiz(active)}
-          saving={saving}
-        />
-      )}
-      {stage === "results" && active && (
-        <Results
-          quiz={active}
-          answers={answers}
-          onRetry={() => start(active)}
-          onBack={backToBuilder}
-          onSave={() => saveQuiz(active)}
-          saving={saving}
-        />
-      )}
-    </Page>
-  );
-}
-
-function Builder({
-  onStart,
-  saved,
-  loadingSaved,
-  onDelete,
-}: {
-  onStart: (q: Quiz) => void;
-  saved: Quiz[];
-  loadingSaved: boolean;
-  onDelete: (id: string) => void;
-}) {
-  // Builder inputs + the in-flight generation flag live in the store so the
-  // selections survive navigation and a running generation keeps going.
-  const topic = useQuizStore((s) => s.topic);
-  const course = useQuizStore((s) => s.course);
-  const document = useQuizStore((s) => s.document);
-  const difficulty = useQuizStore((s) => s.difficulty);
-  const loading = useQuizStore((s) => s.generating);
-  const setField = useQuizStore((s) => s.setField);
-  const generate = useQuizStore((s) => s.generate);
-
-  const setTopic = (v: string) => setField("topic", v);
-  const setCourse = (v: string) => setField("course", v);
-  const setDocument = (v: string | null) => setField("document", v);
-  const setDifficulty = (v: Difficulty) => setField("difficulty", v);
-
-  // Course list is cheap to refetch — keep it local.
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [documents, setDocuments] = useState<DocumentItem[]>([]);
-
-  useEffect(() => {
-    api.listCourses().then(setCourses).catch(() => setCourses([]));
-    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
-  }, []);
-
-  return (
-    <>
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <div className="flex items-center gap-2">
-          <Settings2 className="size-4 text-primary" />
-          <h3>Quiz builder</h3>
-        </div>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Generate a quiz from your materials or pick a saved one below.
-        </p>
-        <div className="mt-4 flex flex-wrap items-end gap-3">
-          <div className="flex-1 min-w-48">
-            <label className="mb-1.5 block text-xs text-muted-foreground">Topic</label>
-            <Input
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") generate();
-              }}
-              placeholder="e.g. Neural networks"
-              className="bg-input-background"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs text-muted-foreground">Course</label>
-            <Select value={course} onValueChange={setCourse}>
-              <SelectTrigger className="w-44 bg-input-background">
-                <SelectValue placeholder="All courses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All courses</SelectItem>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs text-muted-foreground">Document</label>
-            <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
-              <SelectTrigger className="w-44 bg-input-background">
-                <SelectValue placeholder="All documents" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All documents</SelectItem>
-                {documents.filter(d => course !== "all" ? d.course === course : true).map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
-                    {d.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs text-muted-foreground">Difficulty</label>
-            <div className="flex gap-2">
-              {difficulties.map((d) => (
-                <Badge
-                  key={d}
-                  variant="outline"
-                  onClick={() => setDifficulty(d)}
-                  className={cn(
-                    "cursor-pointer py-1.5",
-                    difficulty === d
-                      ? diffColor[d]
-                      : "border-border text-muted-foreground hover:border-ring/40",
-                  )}
-                >
-                  {d}
-                </Badge>
-              ))}
-            </div>
-          </div>
-          <Button
-            onClick={generate}
-            disabled={loading || !topic.trim()}
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="size-4 animate-spin" /> Generating…
-              </>
-            ) : (
-              <>
-                <ListChecks className="size-4" /> Generate quiz
-              </>
-            )}
-          </Button>
-        </div>
-        <GenerationSteps
-          steps={["Searching your library", "Selecting relevant sources", "Writing questions", "Validating answers"]}
-          loading={loading}
-          className="mt-4"
-        />
-      </div>
-
-      {loadingSaved ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card p-8 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" /> Loading saved quizzes…
-        </div>
-      ) : saved.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
-          <div className="mx-auto flex size-10 items-center justify-center rounded-lg bg-violet-soft text-primary">
-            <ListChecks className="size-5" />
-          </div>
-          <h4 className="mt-3">No saved quizzes yet</h4>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Generate a quiz above and save it to find it here later.
-          </p>
-        </div>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {saved.map((q) => (
-            <motion.div key={q.id} whileHover={{ y: -2 }} className="rounded-xl border border-border bg-card p-5">
-              <div className="flex items-start justify-between">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-violet-soft text-primary">
-                  <ListChecks className="size-5" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className={diffColor[q.difficulty]}>
-                    {q.difficulty}
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(q.id)}
-                    aria-label="Delete quiz"
-                    className="size-8 text-muted-foreground hover:text-danger"
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              </div>
-              <h4 className="mt-3">{q.title}</h4>
-              <div className="mt-1 text-sm text-muted-foreground">{q.course}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{q.questions.length} questions</div>
-              <Button onClick={() => onStart(q)} className="mt-4 w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                <Play className="size-4" /> Start quiz
-              </Button>
-            </motion.div>
-          ))}
-        </div>
-      )}
-    </>
-  );
-}
-
-function Player({
-  quiz,
-  onFinish,
-  onSave,
-  saving,
-}: {
-  quiz: Quiz;
-  onFinish: (a: Record<string, string>) => void;
-  onSave: () => void;
-  saving: boolean;
-}) {
-  // Position + answers live in the store so they survive navigation.
-  const idx = useQuizStore((s) => s.idx);
-  const answers = useQuizStore((s) => s.answers);
-  const goTo = useQuizStore((s) => s.goTo);
-  const answer = useQuizStore((s) => s.answer);
-  const q = quiz.questions[idx];
-  const progress = ((idx + 1) / quiz.questions.length) * 100;
-  const selected = answers[q.id];
-
-  const choose = (value: string) => answer(q.id, value);
-
-  const advance = () => {
-    if (idx === quiz.questions.length - 1) {
-      onFinish(answers);
-    } else {
-      goTo(idx + 1);
-    }
-  };
-
-  const canAdvance =
-    q.type === "short" ? (selected ?? "").trim().length > 0 : !!selected;
-
-  return (
-    <div className="mx-auto max-w-2xl">
-      <div className="mb-5 flex items-center gap-3">
-        <Progress value={progress} className="h-1.5 flex-1" />
-        <span className="text-xs text-muted-foreground">
-          {idx + 1} / {quiz.questions.length}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onSave}
-          disabled={saving}
-          className="gap-1.5"
-        >
-          {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
-          Save quiz
-        </Button>
-      </div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={q.id}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          className="rounded-2xl border border-border bg-card p-6"
-        >
-          <Badge variant="outline" className="text-[10px] uppercase">
-            {q.type === "mcq" ? "Multiple choice" : q.type === "truefalse" ? "True / False" : "Short answer"}
-          </Badge>
-          <h3 className="mt-3 text-lg leading-relaxed">{q.prompt}</h3>
-
-          <div className="mt-5 space-y-2">
-            {q.type === "short" ? (
-              <Input
-                value={selected ?? ""}
-                onChange={(e) => answer(q.id, e.target.value)}
-                placeholder="Type your answer…"
-                className="bg-input-background"
-              />
-            ) : (
-              q.options?.map((opt) => (
-                <button
-                  key={opt}
-                  onClick={() => choose(opt)}
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition-colors",
-                    selected === opt
-                      ? "border-primary bg-violet-soft"
-                      : "border-border bg-background/40 hover:border-ring/40",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "flex size-5 items-center justify-center rounded-full border text-[10px]",
-                      selected === opt ? "border-primary bg-primary text-white" : "border-border",
-                    )}
-                  >
-                    {selected === opt && <Check className="size-3" />}
-                  </span>
-                  {opt}
-                </button>
-              ))
-            )}
-          </div>
-        </motion.div>
-      </AnimatePresence>
-
-      <div className="mt-5 flex justify-end">
-        <Button
-          onClick={advance}
-          disabled={!canAdvance}
-          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          {idx === quiz.questions.length - 1 ? "Finish" : "Next"} <ChevronRight className="size-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function Results({
-  quiz,
-  answers,
-  onRetry,
-  onBack,
-  onSave,
-  saving,
-}: {
-  quiz: Quiz;
-  answers: Record<string, string>;
-  onRetry: () => void;
-  onBack: () => void;
-  onSave: () => void;
-  saving: boolean;
-}) {
-  const correct = quiz.questions.filter(
-    (q) => answers[q.id]?.trim().toLowerCase() === q.answer.toLowerCase(),
-  ).length;
-  const total = quiz.questions.length;
-  const pct = Math.round((correct / total) * 100);
-
-  return (
-    <div className="mx-auto max-w-2xl space-y-5">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="rounded-2xl border border-border bg-card p-8 text-center"
-      >
-        <div className="mx-auto flex size-14 items-center justify-center rounded-xl border border-border bg-card text-violet">
-          <Trophy className="size-7" />
-        </div>
-        <h1 className="mt-4 text-4xl font-semibold">{pct}%</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          You answered {correct} of {total} correctly
-        </p>
-        <div className="mt-5 flex justify-center gap-2">
-          <Button variant="outline" onClick={onBack}>Back to quizzes</Button>
-          <Button variant="outline" onClick={onSave} disabled={saving} className="gap-2">
-            {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Save quiz
-          </Button>
-          <Button onClick={onRetry} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-            <RotateCw className="size-4" /> Retry
-          </Button>
-        </div>
-      </motion.div>
-
-      <div className="space-y-3">
-        {quiz.questions.map((q: QuizQuestion, i) => {
-          const userAns = answers[q.id] ?? "—";
-          const isCorrect = userAns.trim().toLowerCase() === q.answer.toLowerCase();
-          return (
-            <div key={q.id} className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-start gap-3">
-                <span
-                  className={cn(
-                    "flex size-6 shrink-0 items-center justify-center rounded-full",
-                    isCorrect ? "bg-success-soft text-success" : "bg-danger-soft text-danger",
-                  )}
-                >
-                  {isCorrect ? <Check className="size-3.5" /> : <X className="size-3.5" />}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium">
-                    {i + 1}. {q.prompt}
-                  </div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    Your answer: <span className={isCorrect ? "text-success" : "text-danger"}>{userAns}</span>
-                    {!isCorrect && <> · Correct: <span className="text-success">{q.answer}</span></>}
-                  </div>
-                  {q.explanation.trim() && (
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{q.explanation}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-```
 
 ## File: src/app/pages/Exam.tsx
 ```typescript
@@ -12714,6 +19037,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
@@ -13266,11 +19590,12 @@ function AnswerArea({
     );
   if (q.type === "short")
     return (
-      <Input
+      <Textarea
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
+        rows={4}
         placeholder="Type a short answer…"
-        className="bg-input-background"
+        className="resize-none bg-input-background font-reading"
       />
     );
   return (
@@ -13569,13 +19894,12 @@ function Results() {
             Recommended Revision for weak topics
           </h3>
         </div>
-        <div className="mt-3 space-y-2">
+        <div className="mt-3">
           {recommendedRevisions.length > 0 ? (
-            <ul className="list-inside list-disc text-sm text-muted-foreground space-y-1">
-              {recommendedRevisions.map((rev, i) => (
-                <li key={i}>{rev}</li>
-              ))}
-            </ul>
+            <MarkdownRenderer
+              content={recommendedRevisions.map((rev) => `- ${rev}`).join("\n")}
+              className="font-sans text-sm text-muted-foreground"
+            />
           ) : (
             <p className="text-sm text-muted-foreground">
               {weak.length > 0
@@ -13777,3493 +20101,9 @@ export function MultiSegmented({
     </div>
   );
 }
+
 ```
 
-## File: src/app/pages/Flashcards.tsx
-```typescript
-import { useEffect, useState } from "react";
-import {
-  LayoutGrid,
-  List,
-  GraduationCap,
-  RotateCw,
-  Check,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-  Loader2,
-  Save,
-  Trash2,
-} from "lucide-react";
-import { GenerationSteps } from "../components/GenerationSteps";
-import { motion, AnimatePresence } from "motion/react";
-import { toast } from "sonner";
-import { Page, SectionTitle } from "../components/Page";
-import { FlashcardCard } from "../components/FlashcardCard";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { api } from "../lib/api";
-import type { DeckOut } from "../lib/api";
-import type { Course, DocumentItem, Flashcard } from "../lib/types";
-import { useFlashcardGenStore } from "../stores/useFlashcardGenStore";
-import { cn } from "../components/ui/utils";
-
-type View = "grid" | "list" | "study";
-
-const NO_GROUNDED_MESSAGE =
-  "No grounded flashcards — try uploading documents or a different topic.";
-
-export function Flashcards() {
-  // Generation state lives in the store so freshly generated (unsaved) cards and
-  // in-flight generations survive navigation.
-  const topic = useFlashcardGenStore((s) => s.topic);
-  const course = useFlashcardGenStore((s) => s.course);
-  const document = useFlashcardGenStore((s) => s.document);
-  const generating = useFlashcardGenStore((s) => s.generating);
-  const genCards = useFlashcardGenStore((s) => s.cards);
-  const genUngrounded = useFlashcardGenStore((s) => s.ungrounded);
-  const generatedDeckName = useFlashcardGenStore((s) => s.generatedDeckName);
-  const activeDeck = useFlashcardGenStore((s) => s.activeDeck);
-  const setField = useFlashcardGenStore((s) => s.setField);
-  const setGenCards = useFlashcardGenStore((s) => s.setCards);
-  const generate = useFlashcardGenStore((s) => s.generate);
-
-  // View mode persists in the store so it survives navigation.
-  const view = useFlashcardGenStore((s) => s.view);
-  const setView = (v: View) => setField("view", v);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [documents, setDocuments] = useState<DocumentItem[]>([]);
-  // Cards loaded from a saved deck (view-only / reviewable) — cheap to refetch,
-  // so they stay page-local. The store holds the generated unsaved set instead.
-  const [savedCards, setSavedCards] = useState<Flashcard[]>([]);
-
-  const [decks, setDecks] = useState<DeckOut[]>([]);
-  const [loadingDecks, setLoadingDecks] = useState(true);
-  const [loadingCards, setLoadingCards] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  // When a saved deck is open (activeDeck set) we display its cards; otherwise we
-  // display the generated unsaved set from the store.
-  const cards = activeDeck ? savedCards : genCards;
-  const ungrounded = activeDeck ? false : genUngrounded;
-  // Helper to update whichever card set is currently displayed.
-  const updateActiveCards = (updater: (cs: Flashcard[]) => Flashcard[]) => {
-    if (activeDeck) setSavedCards(updater);
-    else setGenCards(updater(genCards));
-  };
-
-  const loadDecks = async () => {
-    setLoadingDecks(true);
-    try {
-      setDecks(await api.listDecks());
-    } catch {
-      setDecks([]);
-    } finally {
-      setLoadingDecks(false);
-    }
-  };
-
-  useEffect(() => {
-    api.listCourses().then(setCourses).catch(() => setCourses([]));
-    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
-    void loadDecks();
-    // If a saved deck was open before navigating away, re-fetch its cards on
-    // remount (savedCards is local state and would otherwise be empty).
-    const openDeckName = useFlashcardGenStore.getState().activeDeck;
-    if (openDeckName) {
-      setLoadingCards(true);
-      api
-        .listSavedFlashcards(openDeckName)
-        .then(setSavedCards)
-        .catch(() => setField("activeDeck", null))
-        .finally(() => setLoadingCards(false));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // After a successful generation, switch to grid view to show the new cards.
-  const runGenerate = async () => {
-    await generate();
-    if (useFlashcardGenStore.getState().cards.length > 0) setView("grid");
-  };
-
-  const saveDeck = async () => {
-    if (saving || cards.length === 0 || activeDeck) return;
-    const name = (generatedDeckName ?? topic.trim() ?? "").trim() || "Untitled deck";
-    setSaving(true);
-    try {
-      const deck = await api.saveDeck(name, course, cards);
-      toast.success(`Saved "${deck.name}"`);
-      // Mark the generated set as saved and reload from the persisted deck so
-      // card ids become DB ids (reviewable).
-      setField("generatedDeckName", null);
-      await loadDecks();
-      await openDeck(deck);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save deck");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const openDeck = async (deck: DeckOut) => {
-    setLoadingCards(true);
-    try {
-      const loaded = await api.listSavedFlashcards(deck.name);
-      setSavedCards(loaded);
-      setField("activeDeck", deck.name);
-      setField("generatedDeckName", null);
-      setField("ungrounded", false);
-      setView("grid");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load deck");
-    } finally {
-      setLoadingCards(false);
-    }
-  };
-
-  const deleteDeck = async (deck: DeckOut) => {
-    try {
-      await api.deleteDeck(deck.id);
-      toast.success(`Deleted "${deck.name}"`);
-      if (activeDeck === deck.name) {
-        setSavedCards([]);
-        setField("activeDeck", null);
-      }
-      await loadDecks();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete deck");
-    }
-  };
-
-  const deleteCard = async (card: Flashcard) => {
-    const prev = cards;
-    updateActiveCards((cs) => cs.filter((c) => c.id !== card.id));
-    try {
-      await api.deleteCard(card.id);
-      toast.success("Card deleted");
-      await loadDecks();
-    } catch (err) {
-      updateActiveCards(() => prev);
-      toast.error(err instanceof Error ? err.message : "Failed to delete card");
-    }
-  };
-
-  const reviewCard = async (card: Flashcard, ease: Flashcard["ease"]) => {
-    // Optimistic update on whichever set is shown.
-    updateActiveCards((cs) => cs.map((c) => (c.id === card.id ? { ...c, ease } : c)));
-    if (!activeDeck) return; // Unsaved cards have no DB id to persist against.
-    try {
-      const updated = await api.reviewCard(card.id, ease);
-      setSavedCards((cs) => cs.map((c) => (c.id === card.id ? updated : c)));
-      void loadDecks();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save review");
-    }
-  };
-
-  const hasCards = cards.length > 0;
-  const canSave = hasCards && !activeDeck;
-
-  return (
-    <Page className="space-y-6">
-      {/* Generate flashcards */}
-      <div className="rounded-xl border border-border bg-card p-4">
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <Sparkles className="size-4 text-violet" /> Generate flashcards
-        </div>
-        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Input
-            value={topic}
-            onChange={(e) => setField("topic", e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                void runGenerate();
-              }
-            }}
-            placeholder="Topic, e.g. eigenvalues, SN1 vs SN2…"
-            className="flex-1"
-            disabled={generating}
-          />
-          <Select
-            value={course ?? "all"}
-            onValueChange={(v) => setField("course", v === "all" ? null : v)}
-          >
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="All courses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All courses</SelectItem>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={c.name}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={document ?? "all"}
-            onValueChange={(v) => setField("document", v === "all" ? null : v)}
-          >
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="All documents" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All documents</SelectItem>
-              {documents.filter(d => course ? d.course === course : true).map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={() => void runGenerate()}
-            disabled={!topic.trim() || generating}
-            className="gap-1.5"
-          >
-            {generating ? (
-              <>
-                <Loader2 className="size-4 animate-spin" /> Generating…
-              </>
-            ) : (
-              <>
-                <Sparkles className="size-4" /> Generate
-              </>
-            )}
-          </Button>
-        </div>
-        <GenerationSteps
-          steps={["Searching your library", "Extracting key concepts", "Writing cards", "Formatting deck"]}
-          loading={generating}
-          className="mt-3"
-        />
-      </div>
-
-      {/* Decks */}
-      <div>
-        <SectionTitle title="Decks" />
-        {loadingDecks ? (
-          <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/40 px-4 py-8 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" /> Loading decks…
-          </div>
-        ) : decks.length === 0 ? (
-          <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card/40 px-6 py-10 text-center">
-            <div className="flex size-10 items-center justify-center rounded-xl border border-border bg-card text-violet">
-              <GraduationCap className="size-5" />
-            </div>
-            <h3 className="mt-4 text-sm font-semibold">No saved decks yet</h3>
-            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-              Generate a set of flashcards above and save it as a deck to start
-              building your spaced-repetition library.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {decks.map((d) => (
-              <motion.div
-                key={d.id}
-                whileHover={{ y: -2 }}
-                onClick={() => void openDeck(d)}
-                className={cn(
-                  "group relative cursor-pointer rounded-xl border bg-card p-4 transition-colors",
-                  activeDeck === d.name ? "border-violet/60 ring-1 ring-violet/30" : "border-border hover:border-border",
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex size-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${d.color}22`, color: d.color }}>
-                    <GraduationCap className="size-4" />
-                  </div>
-                  <span className="text-xs text-muted-foreground">{d.cards} cards</span>
-                </div>
-                <div className="mt-3 text-sm font-medium">{d.name}</div>
-                <div className="text-xs text-muted-foreground">{d.course}</div>
-                <Progress value={d.cards ? (d.mastered / d.cards) * 100 : 0} className="mt-3 h-1.5" />
-                <div className="mt-1.5 text-xs text-muted-foreground">{d.mastered} mastered</div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    void deleteDeck(d);
-                  }}
-                  aria-label={`Delete ${d.name}`}
-                  className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger group-hover:opacity-100"
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* View switcher */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">Cards</h3>
-          {activeDeck && (
-            <Badge variant="outline" className="text-[10px] font-medium">
-              {activeDeck}
-            </Badge>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {canSave && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => void saveDeck()}
-              disabled={saving}
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" /> Saving…
-                </>
-              ) : (
-                <>
-                  <Save className="size-4" /> Save as deck
-                </>
-              )}
-            </Button>
-          )}
-          <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
-            {([
-              { id: "grid", icon: LayoutGrid, label: "Grid" },
-              { id: "list", icon: List, label: "List" },
-              { id: "study", icon: RotateCw, label: "Study" },
-            ] as const).map((v) => (
-              <button
-                key={v.id}
-                onClick={() => setView(v.id)}
-                disabled={!hasCards}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors",
-                  view === v.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-                  !hasCards && "cursor-not-allowed opacity-50",
-                )}
-              >
-                <v.icon className="size-4" /> {v.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {loadingCards ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 px-6 py-14 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" /> Loading cards…
-        </div>
-      ) : !hasCards ? (
-        <EmptyCards ungrounded={ungrounded} />
-      ) : (
-        <>
-          {view === "grid" && (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {cards.map((c) => (
-                <div key={c.id} className="group/card relative">
-                  <FlashcardCard card={c} />
-                  <button
-                    onClick={() => void deleteCard(c)}
-                    aria-label="Delete card"
-                    className="absolute right-2 top-2 z-10 flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground opacity-0 backdrop-blur transition-opacity hover:bg-danger-soft hover:text-danger group-hover/card:opacity-100"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {view === "list" && (
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
-              {cards.map((c, i) => (
-                <div
-                  key={c.id}
-                  className={cn("group/row flex items-center gap-4 px-4 py-3 hover:bg-accent/30", i !== 0 && "border-t border-border")}
-                >
-                  <Badge variant="outline" className="text-[10px] uppercase">{c.type}</Badge>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm">{c.front}</div>
-                    <div className="truncate text-xs text-muted-foreground">{c.back}</div>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{c.deck}</span>
-                  <span className="text-xs text-muted-foreground">{c.due}</span>
-                  <button
-                    onClick={() => void deleteCard(c)}
-                    aria-label="Delete card"
-                    className="flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger group-hover/row:opacity-100"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {view === "study" && (
-            <StudyMode cards={cards} onReview={reviewCard} persisted={!!activeDeck} />
-          )}
-        </>
-      )}
-    </Page>
-  );
-}
-
-function EmptyCards({ ungrounded }: { ungrounded: boolean }) {
-  return (
-    <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card/40 px-6 py-14 text-center">
-      <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-violet">
-        <Sparkles className="size-6" />
-      </div>
-      <h3 className="mt-5 text-sm font-semibold">
-        {ungrounded ? "No grounded flashcards" : "No flashcards yet"}
-      </h3>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">
-        {ungrounded
-          ? NO_GROUNDED_MESSAGE
-          : "Enter a topic above and generate a set of source-grounded flashcards, or pick a saved deck to start studying."}
-      </p>
-    </div>
-  );
-}
-
-function StudyMode({
-  cards,
-  onReview,
-  persisted,
-}: {
-  cards: Flashcard[];
-  onReview: (card: Flashcard, ease: Flashcard["ease"]) => void;
-  persisted: boolean;
-}) {
-  const [idx, setIdx] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const card = cards[idx % cards.length];
-  const progress = ((idx + 1) / cards.length) * 100;
-
-  const next = () => {
-    setFlipped(false);
-    setIdx((i) => (i + 1) % cards.length);
-  };
-  const prev = () => {
-    setFlipped(false);
-    setIdx((i) => (i - 1 + cards.length) % cards.length);
-  };
-
-  const grade = (ease: Flashcard["ease"]) => {
-    onReview(card, ease);
-    next();
-  };
-
-  return (
-    <div className="mx-auto max-w-2xl">
-      <div className="mb-6 flex items-center gap-4">
-        <Progress value={progress} className="h-1.5 flex-1" />
-        <span className="text-xs font-medium tabular-nums text-muted-foreground">
-          {idx + 1} of {cards.length}
-        </span>
-      </div>
-
-      <AnimatePresence mode="wait">
-        <div key={card.id} className="group relative h-80 w-full [perspective:1000px]">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{
-              opacity: 1,
-              y: 0,
-              rotateY: flipped ? 180 : 0
-            }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{
-              rotateY: { duration: 0.6, type: "spring", stiffness: 260, damping: 20 },
-              opacity: { duration: 0.3 },
-              y: { duration: 0.3 }
-            }}
-            className="relative size-full cursor-pointer [transform-style:preserve-3d]"
-            onClick={() => setFlipped(!flipped)}
-          >
-            {/* Front */}
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-10 text-center [backface-visibility:hidden] [transform:rotateY(0deg)] shadow-sm"
-              style={{ zIndex: flipped ? 0 : 1 }}
-            >
-              <Badge variant="outline" className="mb-8 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                Question · {card.deck}
-              </Badge>
-              <p className="font-serif text-2xl leading-tight text-foreground">{card.front}</p>
-              <div className="mt-8 flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wider opacity-60">
-                <RotateCw className="size-3" /> Tap to reveal
-              </div>
-            </div>
-
-            {/* Back */}
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-violet/30 bg-[#fdfcfa] p-10 text-center [backface-visibility:hidden] [transform:rotateY(180deg)] shadow-sm"
-              style={{ zIndex: flipped ? 1 : 0 }}
-            >
-              <Badge variant="outline" className="mb-8 text-[10px] font-semibold uppercase tracking-widest text-violet">
-                Answer · {card.deck}
-              </Badge>
-              <p className="font-serif text-2xl leading-tight text-foreground">{card.back}</p>
-              <div className="mt-8 flex items-center gap-2 text-xs font-medium text-violet/60 uppercase tracking-wider">
-                <RotateCw className="size-3" /> Tap to see question
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </AnimatePresence>
-
-      <div className="mt-8 flex items-center justify-between">
-        <Button variant="outline" size="icon" className="size-11 rounded-full border-border/60" onClick={prev}>
-          <ChevronLeft className="size-5" />
-        </Button>
-        <div className="flex gap-4">
-          <Button variant="outline" className="h-11 gap-2 rounded-full border-danger/40 px-6 font-medium text-danger hover:bg-danger-soft" onClick={() => grade("learning")}>
-            <X className="size-4" /> Hard
-          </Button>
-          <Button variant="outline" className="h-11 gap-2 rounded-full border-success/40 px-6 font-medium text-success hover:bg-success-soft" onClick={() => grade("mastered")}>
-            <Check className="size-4" /> Easy
-          </Button>
-        </div>
-        <Button variant="outline" size="icon" className="size-11 rounded-full border-border/60" onClick={next}>
-          <ChevronRight className="size-5" />
-        </Button>
-      </div>
-
-      {!persisted && (
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          Save this set as a deck to record your reviews.
-        </p>
-      )}
-    </div>
-  );
-}
-```
-
-## File: src/app/pages/Diagrams.tsx
-```typescript
-import { Component, useEffect, useState, type ReactNode } from "react";
-import { Workflow, Copy, Check, Download, FileImage, Code2, Sparkles, Loader2, AlertCircle, Trash2 } from "lucide-react";
-import { GenerationSteps } from "../components/GenerationSteps";
-import { toast } from "sonner";
-import { DiagramViewer } from "../components/DiagramViewer";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import { Input } from "../components/ui/input";
-import { ScrollArea } from "../components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { api } from "../lib/api";
-import type { Course, DiagramItem, DocumentItem } from "../lib/types";
-import { useDiagramGenStore } from "../stores/useDiagramGenStore";
-import { cn } from "../components/ui/utils";
-
-const DIAGRAM_TYPES = [
-  { value: "flowchart", label: "Flowchart" },
-  { value: "decision_tree", label: "Decision tree" },
-  { value: "concept_map", label: "Concept map" },
-] as const;
-
-export function Diagrams() {
-  const [items, setItems] = useState<DiagramItem[]>([]);
-  const [active, setActiveState] = useState<DiagramItem | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [showCode, setShowCode] = useState(false);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [documents, setDocuments] = useState<DocumentItem[]>([]);
-
-  // Generation state lives in a global store so an in-flight generation keeps
-  // running (and shows a pending item) when navigating away and back.
-  const { topic, course, document, type, generating, generated, setField, generate } = useDiagramGenStore();
-  const setTopic = (v: string) => setField("topic", v);
-  const setCourse = (v: string) => setField("course", v);
-  const setDocument = (v: string | null) => setField("document", v);
-  const setType = (v: string) => setField("type", v);
-
-  // Selecting a diagram also records its id in the store, so the viewer
-  // restores the same diagram after navigating away and back.
-  const setActive = (d: DiagramItem | null) => {
-    setActiveState(d);
-    setField("activeId", d?.id ?? null);
-  };
-
-  // Absorb the latest generated diagram into the list + select it. Runs on
-  // mount too, so a diagram generated while the page was unmounted shows up.
-  useEffect(() => {
-    if (!generated) return;
-    setItems((prev) => (prev.some((d) => d.id === generated.id) ? prev : [generated, ...prev]));
-    setActive(generated);
-    setShowCode(false);
-  }, [generated]);
-
-  useEffect(() => {
-    let cancelled = false;
-    api
-      .listCourses()
-      .then((cs) => {
-        if (!cancelled) setCourses(cs);
-      })
-      .catch(() => {
-        /* leave course selector with just "No course" */
-      });
-    api.listDocuments().then((ds) => { if (!cancelled) setDocuments(ds); }).catch(() => {});
-    api
-      .listDiagrams()
-      .then((ds) => {
-        if (cancelled) return;
-        setItems(ds);
-        // Restore the previously-open diagram by id; fall back to the first.
-        const storedId = useDiagramGenStore.getState().activeId;
-        setActiveState((cur) => cur ?? ds.find((d) => d.id === storedId) ?? ds[0] ?? null);
-      })
-      .catch(() => {
-        /* empty library */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const remove = async (id: string) => {
-    try {
-      await api.deleteDiagram(id);
-      const next = items.filter((d) => d.id !== id);
-      setItems(next);
-      if (active?.id === id) setActive(next[0] ?? null);
-      toast.success("Diagram deleted");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete diagram");
-    }
-  };
-
-  const copy = () => {
-    if (!active) return;
-    navigator.clipboard.writeText(active.mermaid);
-    setCopied(true);
-    toast.success("Mermaid copied to clipboard");
-    setTimeout(() => setCopied(false), 1500);
-  };
-
-  const exportSvg = () => {
-    const svg = document.querySelector("#diagram-container svg");
-    if (!svg) {
-      toast.error("Diagram not found");
-      return;
-    }
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${active?.title || "diagram"}.svg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    toast.success("Exported as SVG");
-  };
-
-  const exportPng = () => {
-    const svg = document.querySelector("#diagram-container svg") as SVGElement;
-    if (!svg) {
-      toast.error("Diagram not found");
-      return;
-    }
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const rect = svg.getBoundingClientRect();
-    canvas.width = rect.width * 2;
-    canvas.height = rect.height * 2;
-    if (ctx) {
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.scale(2, 2);
-    }
-    const img = new Image();
-    img.onload = () => {
-      ctx?.drawImage(img, 0, 0, rect.width, rect.height);
-      const pngUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = pngUrl;
-      link.download = `${active?.title || "diagram"}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success("Exported as PNG");
-    };
-    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
-  };
-
-  return (
-    <div className="flex h-full">
-      {/* Diagram list */}
-      <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card/40">
-        <div className="border-b border-border px-4 py-3 text-sm font-medium">
-          Diagrams
-        </div>
-        <ScrollArea className="flex-1 [&>[data-radix-scroll-area-viewport]>div]:!block">
-          <div className="space-y-1 p-2 w-full">
-            {generating && (
-              <div className="flex w-full items-center gap-3 rounded-lg border border-dashed border-violet/40 bg-violet-soft/40 p-3">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-violet">
-                  <Loader2 className="size-4 animate-spin" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{topic.trim() || "Generating…"}</div>
-                  <div className="truncate text-xs text-muted-foreground">Generating…</div>
-                </div>
-              </div>
-            )}
-            {items.length === 0 && !generating && (
-              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
-                No diagrams yet. Generate one to get started.
-              </div>
-            )}
-            {items.map((d) => (
-              <div
-                key={d.id}
-                onClick={() => setActive(d)}
-                className={cn(
-                  "group flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-left transition-colors",
-                  active?.id === d.id ? "bg-violet-soft" : "hover:bg-accent/40",
-                )}
-              >
-                <div
-                  className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-lg",
-                    active?.id === d.id ? "bg-primary text-white" : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  <Workflow className="size-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{d.title}</div>
-                  <div className="truncate text-xs text-muted-foreground">{d.kind}</div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    void remove(d.id);
-                  }}
-                >
-                  <Trash2 className="size-3.5" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
-
-      {/* Preview */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* Generate control */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card/40 px-6 py-3">
-          <Input
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !generating) generate();
-            }}
-            placeholder="Topic, e.g. TCP handshake"
-            className="h-9 max-w-xs flex-1 bg-input-background"
-          />
-          <Select value={course} onValueChange={setCourse}>
-            <SelectTrigger className="h-9 w-44 bg-input-background">
-              <SelectValue placeholder="No course" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">No course</SelectItem>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={c.name}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
-            <SelectTrigger className="h-9 w-44 bg-input-background">
-              <SelectValue placeholder="All documents" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All documents</SelectItem>
-              {documents.filter(d => course !== "none" ? d.course === course : true).map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="h-9 w-44 bg-input-background">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {DIAGRAM_TYPES.map((dt) => (
-                <SelectItem key={dt.value} value={dt.value}>
-                  {dt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button size="sm" className="gap-1.5" onClick={generate} disabled={generating}>
-            {generating ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Sparkles className="size-3.5" />
-            )}
-            {generating ? "Generating..." : "Generate diagram"}
-          </Button>
-        </div>
-        <GenerationSteps
-          steps={["Searching your library", "Analyzing relationships", "Building diagram structure", "Rendering Mermaid"]}
-          loading={generating}
-          className="border-b border-border px-6 py-3"
-          interval={2200}
-        />
-
-        {active ? (
-          <>
-            <div className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">{active.title}</span>
-                <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
-                  {active.kind}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setShowCode((s) => !s)}>
-                  <Code2 className="size-3.5" /> {showCode ? "Hide" : "Show"} code
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={copy}>
-                  {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
-                  Copy Mermaid
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportSvg}>
-                  <Download className="size-3.5" /> SVG
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportPng}>
-                  <FileImage className="size-3.5" /> PNG
-                </Button>
-              </div>
-            </div>
-
-            <div className="relative flex min-h-0 flex-1 flex-col" id="diagram-container">
-              <div className="min-h-0 flex-1 relative">
-                <DiagramErrorBoundary key={active.id} code={active.mermaid}>
-                  <DiagramViewer code={active.mermaid} flush />
-                </DiagramErrorBoundary>
-              </div>
-              {showCode && (
-                <div className="absolute bottom-4 left-4 z-20">
-                  <pre className="max-h-64 max-w-2xl overflow-auto rounded-lg border border-border bg-secondary/95 p-4 font-mono text-[13px] text-foreground/80 shadow-lg backdrop-blur">
-                    {active.mermaid}
-                  </pre>
-                </div>
-              )}
-            </div>
-          </>
-        ) : (
-          <div className="flex h-[60vh] flex-col items-center justify-center gap-3 text-center text-muted-foreground">
-            <div className="flex size-12 items-center justify-center rounded-xl bg-violet-soft text-primary">
-              <Workflow className="size-6" />
-            </div>
-            <div className="text-sm">No diagram selected — generate one above.</div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Catches synchronous render errors thrown from DiagramViewer (e.g. invalid
- * Mermaid that the viewer's internal try/catch doesn't absorb) so a bad
- * LLM-generated diagram never crashes the whole page. Resets when the code
- * (and thus the `key`) changes.
- */
-class DiagramErrorBoundary extends Component<
-  { code: string; children: ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { code: string; children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch() {
-    toast.error("Couldn't render that diagram — the Mermaid syntax may be invalid");
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="flex min-h-[400px] w-full flex-col items-center justify-center gap-4 rounded-lg border border-border bg-card p-8 text-center">
-          <div className="flex size-12 items-center justify-center rounded-full bg-danger/10 text-danger">
-            <AlertCircle className="size-6" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold">Diagram Error</h3>
-            <p className="mt-1 text-xs text-muted-foreground">
-              The mermaid syntax might be invalid. Try the code view or regenerate.
-            </p>
-          </div>
-          <pre className="mt-2 w-full overflow-x-auto rounded-lg border border-border bg-secondary p-3 text-left text-[11px] font-mono text-danger">
-            {this.props.code}
-          </pre>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-```
-
-## File: src/app/pages/KnowledgeBase.tsx
-```typescript
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  ReactFlow,
-  Background,
-  BackgroundVariant,
-  Controls,
-  useNodesState,
-  useEdgesState,
-  type Node,
-  type Edge,
-  type NodeMouseHandler,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
-import {
-  Search,
-  PanelLeftClose,
-  PanelLeftOpen,
-  PanelRightClose,
-  PanelRightOpen,
-  SlidersHorizontal,
-  Tag,
-  History,
-  Bookmark,
-  Sparkles,
-  FileText,
-  Layers,
-  ListChecks,
-  Workflow,
-  Network,
-  Notebook,
-  BookOpen,
-  Quote,
-  Gauge,
-  Compass,
-  X,
-  ExternalLink,
-  Loader2,
-  RefreshCw,
-} from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { toast } from "sonner";
-import { cn } from "../components/ui/utils";
-import { Input } from "../components/ui/input";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import { ScrollArea } from "../components/ui/scroll-area";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "../components/ui/sheet";
-import { ConceptNode } from "../components/ConceptNode";
-import {
-  savedViews,
-  type ConceptData,
-} from "../lib/graph-data";
-import { useNavigate } from "react-router";
-import { api, type KGGraph, type KGSidebar, type ConceptInspector } from "../lib/api";
-import { MarkdownRenderer } from "../components/MarkdownRenderer";
-import { useConceptActionStore } from "../stores/useConceptActionStore";
-import { useKnowledgeBaseStore } from "../stores/useKnowledgeBaseStore";
-import type { Course } from "../lib/types";
-
-// stable node type map — must be outside component
-const nodeTypes = { concept: ConceptNode };
-
-// Map each concept cluster (backend enum) to the sidebar source-type label it
-// most naturally represents. Clusters are hash-assigned so this is approximate,
-// but it gives the source-type checkboxes a real visual effect.
-const CLUSTER_SOURCE: Record<string, string> = {
-  rag: "Documents",
-  agent: "Answers",
-  infra: "Notes",
-  eval: "Quizzes",
-};
-
-// edge styling reused for every backend edge (mirrors the previous mock styling)
-const edgeBase = {
-  type: "smoothstep" as const,
-  style: { stroke: "#c8c2b5", strokeWidth: 1.5 },
-  labelStyle: { fontSize: 9, fill: "#79736a", fontFamily: "Inter, sans-serif" },
-  labelBgStyle: { fill: "#f6f5f1", fillOpacity: 0.9 },
-  labelBgPadding: [3, 2] as [number, number],
-  labelBgBorderRadius: 3,
-};
-
-// ─── deterministic layout ─────────────────────────────────────────────────────
-// The backend provides no x/y. We sort nodes so larger/more-referenced concepts
-// sit toward the center, then place them on concentric rings: the single most
-// important node is the hub at the origin, the rest fan out on rings whose
-// capacity grows with radius. This is stable (no randomness) so the graph looks
-// the same on every load.
-
-const SIZE_WEIGHT: Record<ConceptData["size"], number> = {
-  large: 3,
-  medium: 2,
-  small: 1,
-};
-
-function layoutGraph(graph: KGGraph): {
-  nodes: Node<ConceptData>[];
-  edges: Edge[];
-} {
-  // Most "important" first (size, then refCount) so hubs end up central.
-  const ordered = [...graph.nodes].sort((a, b) => {
-    const w = SIZE_WEIGHT[b.size] - SIZE_WEIGHT[a.size];
-    if (w !== 0) return w;
-    return b.refCount - a.refCount;
-  });
-
-  const CENTER = { x: 560, y: 360 };
-  const RING_GAP = 230;
-
-  const nodes: Node<ConceptData>[] = ordered.map((n, i) => {
-    const data: ConceptData = {
-      label: n.label,
-      description: n.description,
-      size: n.size,
-      refCount: n.refCount,
-      sourceCount: n.sourceCount,
-      // ConceptData.cluster is a narrow union; the backend cluster is a free
-      // string, so coerce it (it is only used as a tag, not switched on here).
-      cluster: n.cluster as ConceptData["cluster"],
-    };
-
-    if (i === 0) {
-      return { id: n.id, type: "concept", position: { ...CENTER }, data };
-    }
-
-    // ring index grows as we run out of room on inner rings:
-    // ring r (1-based) holds up to 6*r slots.
-    let idx = i - 1;
-    let ring = 1;
-    while (idx >= 6 * ring) {
-      idx -= 6 * ring;
-      ring += 1;
-    }
-    const slots = 6 * ring;
-    // offset alternate rings so nodes don't line up radially
-    const angle = (idx / slots) * 2 * Math.PI + (ring % 2 ? 0 : Math.PI / slots);
-    const radius = ring * RING_GAP;
-
-    return {
-      id: n.id,
-      type: "concept",
-      position: {
-        x: CENTER.x + radius * Math.cos(angle),
-        y: CENTER.y + radius * Math.sin(angle),
-      },
-      data,
-    };
-  });
-
-  const edges: Edge[] = graph.edges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    label: e.label,
-    ...edgeBase,
-  }));
-
-  return { nodes, edges };
-}
-
-// ─── main page ───────────────────────────────────────────────────────────────
-
-export function KnowledgeBase() {
-  // Exploration/session state lives in a global store so the research session
-  // (selected concept, search, collection/filters, course, panel layout)
-  // survives navigating away from this page and back.
-  const {
-    selectedId,
-    drawerConceptId,
-    leftCollapsed,
-    rightCollapsed,
-    searchQuery,
-    activeCollection,
-    course,
-    activeFilters,
-    setField,
-    toggleFilter,
-  } = useKnowledgeBaseStore();
-  // Component still works with a Set for membership checks; derive it locally
-  // from the serializable array kept in the store.
-  const activeFilterSet = useMemo(() => new Set(activeFilters), [activeFilters]);
-
-  const setSelectedId = useCallback((v: string | null) => setField("selectedId", v), [setField]);
-  const setDrawerConceptId = useCallback((v: string | null) => setField("drawerConceptId", v), [setField]);
-  const setLeftCollapsed = useCallback((v: boolean) => setField("leftCollapsed", v), [setField]);
-  const setRightCollapsed = useCallback((v: boolean) => setField("rightCollapsed", v), [setField]);
-  const setSearchQuery = useCallback((v: string) => setField("searchQuery", v), [setField]);
-  const setActiveCollection = useCallback((v: string | null) => setField("activeCollection", v), [setField]);
-  const setCourse = useCallback((v: string | null) => setField("course", v), [setField]);
-
-  // graph state — re-fetched on mount, so it stays local (not in the store)
-  const [graph, setGraph] = useState<{ nodes: Node<ConceptData>[]; edges: Edge[] } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [building, setBuilding] = useState(false);
-  const [courses, setCourses] = useState<Course[]>([]);
-
-  // explorer side-panel data loaded from the backend
-  const [sidebar, setSidebar] = useState<KGSidebar>({
-    collections: [],
-    recentConcepts: [],
-    sourceFilters: [],
-  });
-
-  const loadSidebar = useCallback(async (c: string | null) => {
-    try {
-      const s = await api.getKnowledgeSidebar(c);
-      setSidebar(s);
-      // Seed "all source-type filters enabled" only on a fresh session. If the
-      // user already picked filters before navigating away, the store holds
-      // them and we must NOT overwrite them on remount.
-      const { initializedFilters } = useKnowledgeBaseStore.getState();
-      if (!initializedFilters) {
-        setField("activeFilters", s.sourceFilters);
-        setField("initializedFilters", true);
-      }
-    } catch {
-      // side-panel is non-critical — fall back to empty state
-      setSidebar({ collections: [], recentConcepts: [], sourceFilters: [] });
-    }
-  }, [setField]);
-
-  const loadGraph = useCallback(async (c: string | null) => {
-    setLoading(true);
-    try {
-      const g = await api.getKnowledgeGraph(c);
-      setGraph(layoutGraph(g));
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load knowledge graph");
-      setGraph({ nodes: [], edges: [] });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadGraph(course);
-    loadSidebar(course);
-  }, [course, loadGraph, loadSidebar]);
-
-  // load courses once for the optional filter
-  useEffect(() => {
-    api.listCourses().then(setCourses).catch(() => {
-      /* filter is optional — ignore failures */
-    });
-  }, []);
-
-  const build = useCallback(async () => {
-    setBuilding(true);
-    toast.info("Building knowledge graph — this runs the LLM over your documents and may take a while…");
-    try {
-      const { concepts, edges } = await api.buildKnowledgeGraph(course);
-      toast.success(`Knowledge graph built — ${concepts} concepts, ${edges} relationships.`);
-      await Promise.all([loadGraph(course), loadSidebar(course)]);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to build knowledge graph");
-    } finally {
-      setBuilding(false);
-    }
-  }, [course, loadGraph, loadSidebar]);
-
-  const isEmpty = !!graph && graph.nodes.length === 0;
-
-  return (
-    <div className="flex h-full overflow-hidden">
-      {/* ── Left panel ── */}
-      <motion.aside
-        animate={{ width: leftCollapsed ? 0 : 280 }}
-        transition={{ type: "spring", stiffness: 340, damping: 36 }}
-        className="relative z-10 hidden shrink-0 flex-col overflow-hidden border-r border-border bg-card/50 lg:flex"
-      >
-        <div className="flex h-full w-[280px] flex-col overflow-hidden">
-          {/* header */}
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <Compass className="size-3.5" /> Knowledge Explorer
-            </div>
-            <Button variant="ghost" size="icon" className="size-7" onClick={() => setLeftCollapsed(true)}>
-              <PanelLeftClose className="size-4" />
-            </Button>
-          </div>
-
-          {/* search */}
-          <div className="border-b border-border p-3">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search concepts…"
-                className="h-8 bg-input-background pl-8 text-xs"
-              />
-            </div>
-          </div>
-
-          <ScrollArea className="min-h-0 flex-1">
-            {/* course filter (real) */}
-            {courses.length > 0 && (
-              <SideSection label="Course" icon={Bookmark}>
-                <div className="space-y-0.5">
-                  <button
-                    onClick={() => setCourse(null)}
-                    className={cn(
-                      "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
-                      course === null ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
-                    )}
-                  >
-                    <span>All courses</span>
-                  </button>
-                  {courses.map((c) => (
-                    <button
-                      key={c.id}
-                      onClick={() => setCourse(c.name === course ? null : c.name)}
-                      className={cn(
-                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
-                        course === c.name ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
-                      )}
-                    >
-                      <span>{c.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </SideSection>
-            )}
-
-            {/* source filters (from backend) */}
-            {sidebar.sourceFilters.length > 0 && (
-              <SideSection label="Source Type" icon={SlidersHorizontal}>
-                <div className="space-y-1">
-                  {sidebar.sourceFilters.map((f) => (
-                    <label key={f} className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1 text-sm text-foreground/80 hover:bg-accent/50">
-                      <input
-                        type="checkbox"
-                        checked={activeFilterSet.has(f)}
-                        onChange={() => toggleFilter(f)}
-                        className="accent-violet"
-                      />
-                      {f}
-                    </label>
-                  ))}
-                </div>
-              </SideSection>
-            )}
-
-            {/* collections (from backend, concepts grouped by cluster) */}
-            <SideSection label="Collections" icon={Bookmark}>
-              {sidebar.collections.length === 0 ? (
-                <p className="px-1 text-xs text-muted-foreground">
-                  Build the graph to group concepts into collections.
-                </p>
-              ) : (
-                <div className="space-y-0.5">
-                  {sidebar.collections.map((c) => (
-                    <button
-                      key={c.id}
-                      onClick={() => setActiveCollection(c.id === activeCollection ? null : c.id)}
-                      className={cn(
-                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
-                        activeCollection === c.id ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
-                      )}
-                    >
-                      <span>{c.label}</span>
-                      <span className="text-xs text-muted-foreground">{c.count}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </SideSection>
-
-            {/* recent (from backend) */}
-            <SideSection label="Recent Concepts" icon={History}>
-              {sidebar.recentConcepts.length === 0 ? (
-                <p className="px-1 text-xs text-muted-foreground">
-                  No concepts extracted yet.
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-1.5 px-1">
-                  {sidebar.recentConcepts.map((c) => (
-                    <button
-                      key={c}
-                      className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground/70 transition-colors hover:border-violet/40 hover:text-violet"
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </SideSection>
-
-            {/* saved views (mock-only) */}
-            <SideSection label="Saved Views" icon={Tag}>
-              {savedViews.map((v) => (
-                <button
-                  key={v.id}
-                  className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50"
-                >
-                  <v.icon className="size-4 text-muted-foreground" />
-                  <span>{v.label}</span>
-                </button>
-              ))}
-            </SideSection>
-          </ScrollArea>
-        </div>
-      </motion.aside>
-
-      {/* ── Center canvas ── */}
-      <div className="relative min-w-0 flex-1">
-        {/* panel re-open buttons */}
-        {leftCollapsed && (
-          <button
-            onClick={() => setLeftCollapsed(false)}
-            className="absolute left-3 top-3 z-20 flex size-8 items-center justify-center rounded-full border border-border bg-card shadow-sm hover:bg-accent"
-          >
-            <PanelLeftOpen className="size-4" />
-          </button>
-        )}
-        {rightCollapsed && (
-          <button
-            onClick={() => setRightCollapsed(false)}
-            className="absolute right-3 top-3 z-20 flex size-8 items-center justify-center rounded-full border border-border bg-card shadow-sm hover:bg-accent"
-          >
-            <PanelRightOpen className="size-4" />
-          </button>
-        )}
-
-        {/* Rebuild action for non-empty graphs */}
-        {graph && !isEmpty && !loading && (
-          <div className="absolute right-3 top-3 z-20">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 bg-card shadow-sm"
-              onClick={build}
-              disabled={building}
-            >
-              {building ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCw className="size-3.5" />}
-              {building ? "Rebuilding…" : "Rebuild"}
-            </Button>
-          </div>
-        )}
-
-        {loading ? (
-          <GraphLoading />
-        ) : isEmpty ? (
-          <GraphEmpty onBuild={build} building={building} />
-        ) : (
-          <GraphCanvas
-            nodes={graph!.nodes}
-            edges={graph!.edges}
-            selectedId={selectedId}
-            searchQuery={searchQuery}
-            activeFilters={activeFilters}
-            activeCollection={activeCollection}
-            onNodeClick={(id) => setSelectedId(id === selectedId ? null : id)}
-            onNodeDoubleClick={(id) => setDrawerConceptId(id)}
-            onPaneClick={() => setSelectedId(null)}
-          />
-        )}
-
-        {/* Bottom canvas legend */}
-        {!loading && !isEmpty && (
-          <div className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2">
-            <div className="flex items-center gap-4 rounded-full border border-border bg-card/80 px-4 py-2 text-[11px] text-muted-foreground backdrop-blur">
-              <LegendDot cls="size-4 border-2 border-foreground bg-card" label="Large (hub)" />
-              <LegendDot cls="size-3 border border-foreground/60 bg-card" label="Medium" />
-              <LegendDot cls="size-2.5 border border-foreground/40 bg-card" label="Small (rare)" />
-              <span className="h-3 w-px bg-border" />
-              <span className="flex items-center gap-1">Click to inspect · Double-click for details</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ── Right inspector ── */}
-      <motion.aside
-        animate={{ width: rightCollapsed ? 0 : 320 }}
-        transition={{ type: "spring", stiffness: 340, damping: 36 }}
-        className="relative z-10 hidden shrink-0 flex-col overflow-hidden border-l border-border bg-card/50 xl:flex"
-      >
-        <div className="flex h-full w-[320px] flex-col overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Inspector</span>
-            <Button variant="ghost" size="icon" className="size-7" onClick={() => setRightCollapsed(true)}>
-              <PanelRightClose className="size-4" />
-            </Button>
-          </div>
-          <ScrollArea className="min-h-0 flex-1">
-            {selectedId ? (
-              <InspectorContent
-                key={selectedId}
-                conceptId={selectedId}
-                onOpenDrawer={() => setDrawerConceptId(selectedId)}
-              />
-            ) : (
-              <EmptyInspector />
-            )}
-          </ScrollArea>
-        </div>
-      </motion.aside>
-
-      {/* ── Concept drawer (Sheet) ── */}
-      <Sheet open={!!drawerConceptId} onOpenChange={(o) => !o && setDrawerConceptId(null)}>
-        <SheetContent side="right" className="w-[540px] max-w-full overflow-y-auto p-0 sm:max-w-[540px]">
-          {drawerConceptId && (
-            <ConceptDrawerContent key={drawerConceptId} conceptId={drawerConceptId} onClose={() => setDrawerConceptId(null)} />
-          )}
-        </SheetContent>
-      </Sheet>
-    </div>
-  );
-}
-
-// ─── data hook ────────────────────────────────────────────────────────────────
-
-function useConcept(conceptId: string) {
-  const [concept, setConcept] = useState<ConceptInspector | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setConcept(null);
-    api
-      .getConcept(conceptId)
-      .then((c) => {
-        if (!cancelled) setConcept(c);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          toast.error(err instanceof Error ? err.message : "Failed to load concept");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [conceptId]);
-
-  return { concept, loading };
-}
-
-// ─── graph states ─────────────────────────────────────────────────────────────
-
-function GraphLoading() {
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 bg-background text-muted-foreground">
-      <Loader2 className="size-6 animate-spin text-violet" />
-      <span className="text-sm">Loading knowledge graph…</span>
-    </div>
-  );
-}
-
-function GraphEmpty({ onBuild, building }: { onBuild: () => void; building: boolean }) {
-  return (
-    <div className="flex h-full flex-col items-center justify-center bg-background px-6 text-center">
-      <div className="flex size-14 items-center justify-center rounded-2xl border border-border bg-card text-muted-foreground">
-        <Network className="size-7" />
-      </div>
-      <h3 className="mt-5 text-lg font-semibold">No knowledge graph yet</h3>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-        Build your knowledge graph to discover how concepts across your indexed documents
-        connect. This runs the LLM over your documents and may take a while.
-      </p>
-      <Button className="mt-6 gap-2" onClick={onBuild} disabled={building}>
-        {building ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-        {building ? "Building knowledge graph…" : "Build knowledge graph"}
-      </Button>
-      {building && (
-        <p className="mt-3 text-xs text-muted-foreground">
-          Extracting concepts and relationships — this can take a minute or two.
-        </p>
-      )}
-    </div>
-  );
-}
-
-// ─── graph canvas ─────────────────────────────────────────────────────────────
-
-function GraphCanvas({
-  nodes: sourceNodes,
-  edges: sourceEdges,
-  selectedId,
-  searchQuery,
-  activeFilters,
-  activeCollection,
-  onNodeClick,
-  onNodeDoubleClick,
-  onPaneClick,
-}: {
-  nodes: Node<ConceptData>[];
-  edges: Edge[];
-  selectedId: string | null;
-  searchQuery: string;
-  activeFilters: string[];
-  activeCollection: string | null;
-  onNodeClick: (id: string) => void;
-  onNodeDoubleClick: (id: string) => void;
-  onPaneClick: () => void;
-}) {
-  const q = searchQuery.toLowerCase().trim();
-
-  const styledNodes = useMemo(
-    () =>
-      sourceNodes.map((n) => {
-        const cluster = n.data.cluster as string;
-
-        // Search match: dim if query doesn't match label
-        const searchMatch = !q || n.data.label.toLowerCase().includes(q);
-
-        // Collection filter: dim if a specific collection is active and this node isn't in it
-        const collectionMatch = !activeCollection || `col-${cluster}` === activeCollection;
-
-        // Source type filter: dim if this node's mapped source type is unchecked
-        const nodeSourceType = CLUSTER_SOURCE[cluster];
-        const sourceMatch = !nodeSourceType || activeFilters.includes(nodeSourceType);
-
-        const visible = searchMatch && collectionMatch && sourceMatch;
-
-        return {
-          ...n,
-          selected: n.id === selectedId,
-          style: { opacity: visible ? 1 : 0.12, transition: "opacity 0.2s" },
-        };
-      }),
-    [sourceNodes, selectedId, q, activeFilters, activeCollection],
-  );
-
-  const [nodes, setNodes, onNodesChange] = useNodesState(styledNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(sourceEdges);
-
-  // keep ReactFlow's internal state in sync when graph/selection/search change
-  useEffect(() => {
-    setNodes(styledNodes);
-  }, [styledNodes, setNodes]);
-  useEffect(() => {
-    setEdges(sourceEdges);
-  }, [sourceEdges, setEdges]);
-
-  const handleNodeClick: NodeMouseHandler = useCallback(
-    (_, node) => onNodeClick(node.id),
-    [onNodeClick],
-  );
-  const handleDblClick: NodeMouseHandler = useCallback(
-    (_, node) => onNodeDoubleClick(node.id),
-    [onNodeDoubleClick],
-  );
-
-  return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      nodeTypes={nodeTypes}
-      onNodeClick={handleNodeClick}
-      onNodeDoubleClick={handleDblClick}
-      onPaneClick={onPaneClick}
-      fitView
-      fitViewOptions={{ padding: 0.22 }}
-      proOptions={{ hideAttribution: true }}
-      minZoom={0.3}
-      maxZoom={3}
-      className="bg-background"
-      defaultEdgeOptions={{
-        type: "smoothstep",
-        style: { stroke: "#c8c2b5", strokeWidth: 1.5 },
-      }}
-    >
-      <Background variant={BackgroundVariant.Dots} gap={28} size={1} color="#ddd8cc" />
-      <Controls
-        showInteractive={false}
-        className="!border-border !bg-card [&_button]:!border-border [&_button]:!bg-card [&_button]:!fill-foreground [&_button:hover]:!bg-accent"
-      />
-    </ReactFlow>
-  );
-}
-
-// ─── inspector content ────────────────────────────────────────────────────────
-
-function InspectorContent({
-  conceptId,
-  onOpenDrawer,
-}: {
-  conceptId: string;
-  onOpenDrawer: () => void;
-}) {
-  const { concept, loading } = useConcept(conceptId);
-  const navigate = useNavigate();
-  const [discoveries, setDiscoveries] = useState<string[] | null>(null);
-  const [discovering, setDiscovering] = useState(false);
-  // AI-action state lives in a global store so an in-flight action and its
-  // result panel survive navigating away from the Knowledge page and back.
-  const { running, runningConceptId, result, resultConceptId, clearResult, runAction } =
-    useConceptActionStore();
-  const showResult = result && resultConceptId === conceptId;
-
-  const onDiscover = useCallback(async () => {
-    setDiscovering(true);
-    try {
-      const list = await api.discoverConcepts(conceptId);
-      setDiscoveries(list);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to discover related concepts");
-    } finally {
-      setDiscovering(false);
-    }
-  }, [conceptId]);
-
-  if (loading || !concept) {
-    return (
-      <div className="flex flex-col items-center gap-3 px-6 pt-20 text-muted-foreground">
-        <Loader2 className="size-5 animate-spin text-violet" />
-        <span className="text-sm">Loading concept…</span>
-      </div>
-    );
-  }
-
-  const ri = concept.referencedIn ?? {};
-  const refInRows = [
-    { label: "Documents", icon: FileText, count: ri.documents ?? 0 },
-    { label: "Notebook Notes", icon: Notebook, count: ri.notes ?? 0 },
-    { label: "Flashcards", icon: Layers, count: ri.flashcards ?? 0 },
-    { label: "Quizzes", icon: ListChecks, count: ri.quizzes ?? 0 },
-    { label: "Saved Answers", icon: Sparkles, count: ri.answers ?? 0 },
-    { label: "Diagrams", icon: Workflow, count: ri.diagrams ?? 0 },
-  ];
-
-  const aiActions = [
-    { label: "Explain Concept", icon: Sparkles },
-    { label: "Generate Summary", icon: FileText },
-    { label: "Generate Flashcards", icon: Layers },
-    { label: "Generate Quiz", icon: ListChecks },
-    { label: "Generate Diagram", icon: Workflow },
-    { label: "Generate Mind Map", icon: Network },
-    { label: "Add To Notebook", icon: Notebook },
-  ];
-
-  return (
-    <div className="space-y-0 divide-y divide-border">
-      {/* Concept header */}
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3">
-          <h2 className="font-display text-2xl leading-tight">{concept.name}</h2>
-          <Button variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={onOpenDrawer}>
-            <ExternalLink className="size-3.5" /> Full page
-          </Button>
-        </div>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{concept.description}</p>
-
-        <div className="mt-4 flex gap-3">
-          <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-center">
-            <div className="font-display text-2xl leading-none">{(concept.confidence * 100).toFixed(0)}%</div>
-            <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Confidence</div>
-          </div>
-          <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-center">
-            <div className="font-display text-2xl leading-none">{concept.refCount}</div>
-            <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">References</div>
-          </div>
-          <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-center">
-            <div className="font-display text-2xl leading-none">{concept.sourceCount}</div>
-            <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Sources</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Related concepts */}
-      <div className="p-4">
-        <InspectorBlock title="Related Concepts">
-          <div className="flex flex-wrap gap-1.5">
-            {concept.relatedConcepts.map((c) => (
-              <span key={c} className="cursor-pointer rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground/80 hover:border-violet/40 hover:text-violet">
-                {c}
-              </span>
-            ))}
-          </div>
-        </InspectorBlock>
-      </div>
-
-      {/* Referenced in */}
-      <div className="p-4">
-        <InspectorBlock title="Referenced In">
-          <div className="space-y-1">
-            {refInRows.map((r) => (
-              <div key={r.label} className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-accent/50">
-                <span className="flex items-center gap-2 text-sm text-foreground/80">
-                  <r.icon className="size-3.5 text-muted-foreground" /> {r.label}
-                </span>
-                <Badge variant="outline" className="text-xs">{r.count}</Badge>
-              </div>
-            ))}
-          </div>
-        </InspectorBlock>
-      </div>
-
-      {/* Citations */}
-      <div className="p-4">
-        <InspectorBlock title="Source Citations">
-          <div className="space-y-2">
-            {concept.citations.map((c, i) => (
-              <div key={i} className="rounded-lg border border-border bg-card px-3 py-2">
-                <div className="flex items-start gap-2">
-                  <Quote className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-                  <div>
-                    <div className="text-sm font-medium">{c.source}</div>
-                    <div className="text-[11px] text-muted-foreground">{c.detail}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </InspectorBlock>
-      </div>
-
-      {/* Generated assets */}
-      <div className="p-4">
-        <InspectorBlock title="Generated Assets">
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { label: "Open Flashcards", icon: Layers, to: "/flashcards" },
-              { label: "Open Quiz", icon: ListChecks, to: "/quiz" },
-              { label: "Open Diagram", icon: Workflow, to: "/diagrams" },
-              { label: "Open Mind Map", icon: Network, to: "/mindmaps" },
-              { label: "Open Notebook", icon: Notebook, to: "/notebooks" },
-            ].map((a) => (
-              <button
-                key={a.label}
-                onClick={() => navigate(a.to)}
-                className="flex items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-2 text-[12px] font-medium text-foreground/80 transition-colors hover:border-violet/40 hover:text-violet"
-              >
-                <a.icon className="size-3.5" /> {a.label}
-              </button>
-            ))}
-          </div>
-        </InspectorBlock>
-      </div>
-
-      {/* AI Actions */}
-      <div className="p-4">
-        <InspectorBlock title="AI Actions">
-          <div className="space-y-1">
-            {aiActions.map((a) => {
-              const isRunning = running === a.label && runningConceptId === conceptId;
-              return (
-                <button
-                  key={a.label}
-                  onClick={() => concept && runAction(concept, conceptId, a.label, navigate)}
-                  disabled={running !== null}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground/80 transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
-                >
-                  {isRunning ? (
-                    <Loader2 className="size-4 animate-spin text-violet" />
-                  ) : (
-                    <a.icon className="size-4 text-violet" />
-                  )}
-                  {isRunning ? `${a.label}…` : a.label}
-                </button>
-              );
-            })}
-          </div>
-          <AnimatePresence>
-            {showResult && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-3 overflow-hidden rounded-lg border border-border bg-card"
-              >
-                <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                  <span className="text-xs font-medium">{result!.title}</span>
-                  <button onClick={clearResult} className="text-muted-foreground hover:text-foreground">
-                    <X className="size-3.5" />
-                  </button>
-                </div>
-                <div className="max-h-80 overflow-y-auto p-3">
-                  {result!.mono ? (
-                    <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-foreground/80">{result!.body}</pre>
-                  ) : (
-                    <MarkdownRenderer content={result!.body} />
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </InspectorBlock>
-      </div>
-
-      {/* Semantic discovery */}
-      <div className="p-4">
-        <Button
-          onClick={onDiscover}
-          variant="outline"
-          disabled={discovering}
-          className="w-full gap-2 border-violet/30 text-violet hover:bg-violet-soft"
-        >
-          {discovering ? <Loader2 className="size-4 animate-spin" /> : <Compass className="size-4" />}
-          {discovering ? "Discovering…" : "Discover Related Concepts"}
-        </Button>
-        <AnimatePresence>
-          {discoveries && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-3 overflow-hidden"
-            >
-              <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                <Sparkles className="size-3 text-violet" /> AI Suggestions
-              </div>
-              {discoveries.length === 0 ? (
-                <p className="mt-2 text-xs text-muted-foreground">No related concepts found.</p>
-              ) : (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {discoveries.map((d) => (
-                    <button
-                      key={d}
-                      className="rounded-full border border-violet/30 bg-violet-soft px-2.5 py-1 text-[11px] text-violet"
-                    >
-                      + {d}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
-
-function EmptyInspector() {
-  return (
-    <div className="flex flex-col items-center px-6 pt-20 text-center">
-      <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
-        <Network className="size-6" />
-      </div>
-      <h3 className="mt-4 text-base font-semibold">Explore your knowledge base</h3>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        Click any concept in the graph to inspect its sources, references, and generated assets.
-      </p>
-      <Button
-        variant="outline"
-        className="mt-6 gap-2"
-        onClick={() => toast.info("Browsing all concepts…")}
-      >
-        <Compass className="size-4" /> Browse Concepts
-      </Button>
-      <div className="mt-8 w-full rounded-xl border border-border bg-card p-4 text-left">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">How it works</div>
-        <p className="mt-2 text-xs leading-relaxed text-foreground/80">
-          ScholarAI automatically discovers relationships between concepts across your documents, notes, flashcards, quizzes and AI answers — building your personal knowledge graph.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ─── concept drawer ───────────────────────────────────────────────────────────
-
-function ConceptDrawerContent({ conceptId, onClose }: { conceptId: string; onClose: () => void }) {
-  const { concept, loading } = useConcept(conceptId);
-  const navigate = useNavigate();
-  const [adding, setAdding] = useState(false);
-
-  const addToNotebook = async () => {
-    if (!concept || adding) return;
-    setAdding(true);
-    try {
-      const ex = await api.ask(`Explain the concept: ${concept.name}`);
-      const nb = await api.createNotebook(concept.name);
-      await api.updateNotebook(nb.id, {
-        blocks: [
-          { type: "heading", level: 1, text: concept.name },
-          { type: "ai-answer", question: `Explain ${concept.name}`, answer: ex.content, confidence: 1, sources: 0 },
-        ],
-      });
-      toast.success("Added to notebook", { action: { label: "Open", onClick: () => navigate("/notebooks") } });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add to notebook");
-    } finally {
-      setAdding(false);
-    }
-  };
-
-  if (loading || !concept) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
-        <Loader2 className="size-6 animate-spin text-violet" />
-        <span className="text-sm">Loading concept…</span>
-      </div>
-    );
-  }
-
-  const ri = concept.referencedIn ?? {};
-  const refInRows = [
-    { label: "Documents", icon: FileText, count: ri.documents ?? 0 },
-    { label: "Notes", icon: Notebook, count: ri.notes ?? 0 },
-    { label: "Flashcards", icon: Layers, count: ri.flashcards ?? 0 },
-    { label: "Quizzes", icon: ListChecks, count: ri.quizzes ?? 0 },
-    { label: "Answers", icon: Sparkles, count: ri.answers ?? 0 },
-    { label: "Diagrams", icon: Workflow, count: ri.diagrams ?? 0 },
-  ];
-
-  return (
-    <div className="flex h-full flex-col">
-      {/* Drawer header */}
-      <SheetHeader className="border-b border-border px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-[10px] text-muted-foreground">Concept</Badge>
-              <Badge variant="outline" className="border-success/40 bg-success-soft text-[10px] text-success">
-                <Gauge className="mr-1 size-2.5" /> {(concept.confidence * 100).toFixed(0)}%
-              </Badge>
-            </div>
-            <SheetTitle className="mt-1 font-display text-2xl">{concept.name}</SheetTitle>
-          </div>
-          <Button variant="ghost" size="icon" onClick={onClose}><X className="size-4" /></Button>
-        </div>
-      </SheetHeader>
-
-      <ScrollArea className="min-h-0 flex-1">
-        <div className="space-y-8 px-6 py-6">
-          {/* Definition */}
-          <DrawerBlock title="Definition">
-            <p className="font-reading text-[16px] leading-relaxed text-foreground/90">{concept.definition}</p>
-          </DrawerBlock>
-
-          {/* AI Summary */}
-          <DrawerBlock title="AI Summary">
-            <div className="rounded-xl border border-violet/25 bg-violet-soft/40 p-4">
-              <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-violet">
-                <Sparkles className="size-3" /> ScholarAI
-              </div>
-              <p className="font-reading text-[15px] leading-relaxed text-foreground/90">{concept.aiSummary}</p>
-            </div>
-          </DrawerBlock>
-
-          {/* Source References */}
-          <DrawerBlock title="Source References">
-            <div className="space-y-2">
-              {concept.citations.map((c, i) => (
-                <div key={i} className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3">
-                  <Quote className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                  <div>
-                    <div className="text-sm font-medium">{c.source}</div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">{c.detail}</div>
-                  </div>
-                  <ExternalLink className="ml-auto size-3.5 shrink-0 text-muted-foreground" />
-                </div>
-              ))}
-            </div>
-          </DrawerBlock>
-
-          {/* Related Concepts */}
-          <DrawerBlock title="Related Concepts">
-            <div className="flex flex-wrap gap-2">
-              {concept.relatedConcepts.map((c) => (
-                <span key={c} className="cursor-pointer rounded-full border border-border bg-card px-3 py-1.5 text-sm text-foreground/80 hover:border-violet/40 hover:text-violet">
-                  {c}
-                </span>
-              ))}
-            </div>
-          </DrawerBlock>
-
-          {/* Referenced In */}
-          <DrawerBlock title="Referenced In">
-            <div className="grid grid-cols-2 gap-2">
-              {refInRows.map((r) => (
-                <div key={r.label} className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2.5">
-                  <r.icon className="size-4 shrink-0 text-muted-foreground" />
-                  <div className="min-w-0">
-                    <div className="font-display text-lg leading-none">{r.count}</div>
-                    <div className="text-[10px] text-muted-foreground">{r.label}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </DrawerBlock>
-
-          {/* Generated Assets */}
-          <DrawerBlock title="Generated Assets">
-            <div className="space-y-1">
-              {[
-                { label: "Open Flashcard Deck", icon: Layers, onClick: () => navigate("/flashcards") },
-                { label: "Open Quiz", icon: ListChecks, onClick: () => navigate("/quiz") },
-                { label: "Open Diagram", icon: Workflow, onClick: () => navigate("/diagrams") },
-                { label: "Open Mind Map", icon: Network, onClick: () => navigate("/mindmaps") },
-                { label: "Add To Notebook", icon: Notebook, onClick: addToNotebook },
-                { label: "View in Reading Mode", icon: BookOpen, onClick: () => navigate("/reading") },
-              ].map((a) => (
-                <button
-                  key={a.label}
-                  onClick={a.onClick}
-                  disabled={a.label === "Add To Notebook" && adding}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground/80 transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
-                >
-                  {a.label === "Add To Notebook" && adding ? (
-                    <Loader2 className="size-4 animate-spin text-violet" />
-                  ) : (
-                    <a.icon className="size-4 text-violet" />
-                  )}
-                  {a.label}
-                  <ExternalLink className="ml-auto size-3.5 text-muted-foreground" />
-                </button>
-              ))}
-            </div>
-          </DrawerBlock>
-
-          {/* Recent Activity */}
-          <DrawerBlock title="Recent Activity">
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <div className="flex justify-between py-1">
-                <span>Generated flashcard deck</span><span>2h ago</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span>Saved AI answer</span><span>Yesterday</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span>Added to Notebook</span><span>3d ago</span>
-              </div>
-            </div>
-          </DrawerBlock>
-        </div>
-      </ScrollArea>
-    </div>
-  );
-}
-
-// ─── small shared components ──────────────────────────────────────────────────
-
-function SideSection({ label, icon: Icon, children }: { label: string; icon: React.ElementType; children: React.ReactNode }) {
-  return (
-    <div className="border-b border-border px-3 py-3">
-      <div className="mb-1.5 flex items-center gap-1.5 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        <Icon className="size-3" /> {label}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function InspectorBlock({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</div>
-      {children}
-    </div>
-  );
-}
-
-function DrawerBlock({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</div>
-      {children}
-    </div>
-  );
-}
-
-function LegendDot({ cls, label }: { cls: string; label: string }) {
-  return (
-    <span className="flex items-center gap-1.5">
-      <span className={cn("shrink-0 rounded-full", cls)} />
-      {label}
-    </span>
-  );
-}
-```
-
-## File: src/app/pages/Notebooks.tsx
-```typescript
-import { useMemo, useEffect, useRef, useState } from "react";
-import {
-  PanelLeftClose,
-  PanelLeftOpen,
-  PanelRightClose,
-  PanelRightOpen,
-  Plus,
-  Search,
-  Hash,
-  FolderClosed,
-  Clock,
-  Sparkles,
-  FileText,
-  ScrollText,
-  Wand2,
-  Layers,
-  ListChecks,
-  Workflow,
-  Quote,
-  Gauge,
-  GripVertical,
-  Lightbulb,
-  Info,
-  TriangleAlert,
-  Check,
-  BookOpen,
-  Loader2,
-  Trash2,
-} from "lucide-react";
-import { toast } from "sonner";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "../components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { cn } from "../components/ui/utils";
-import { Input } from "../components/ui/input";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
-import { MarkdownRenderer } from "../components/MarkdownRenderer";
-import { DiagramViewer } from "../components/DiagramViewer";
-import { SelectionToolbar } from "../components/SelectionToolbar";
-import { type NotebookBlock } from "../lib/notebook-data";
-import {
-  api,
-  type NotebookMeta,
-  type NotebookFull,
-  type Collection,
-} from "../lib/api";
-import type { Course } from "../lib/types";
-
-// Deterministic default icon per notebook (no icon field on real notebooks).
-const NOTEBOOK_ICONS = [
-  BookOpen,
-  FileText,
-  Layers,
-  ScrollText,
-  Lightbulb,
-] as const;
-function iconFor(id: string) {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  return NOTEBOOK_ICONS[h % NOTEBOOK_ICONS.length];
-}
-
-const calloutMeta = {
-  note: {
-    icon: Info,
-    cls: "border-border bg-muted/50 text-foreground",
-    iconCls: "text-muted-foreground",
-  },
-  insight: {
-    icon: Lightbulb,
-    cls: "border-violet/30 bg-violet-soft text-foreground",
-    iconCls: "text-violet",
-  },
-  warning: {
-    icon: TriangleAlert,
-    cls: "border-warning/30 bg-warning-soft text-foreground",
-    iconCls: "text-warning",
-  },
-};
-
-export function Notebooks() {
-  const [list, setList] = useState<NotebookMeta[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [active, setActive] = useState<NotebookFull | null>(null);
-  const [blocks, setBlocks] = useState<NotebookBlock[]>([]);
-  const [loadingList, setLoadingList] = useState(true);
-  const [loadingNotebook, setLoadingNotebook] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [assisting, setAssisting] = useState(false);
-
-  const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [rightCollapsed, setRightCollapsed] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  // Block editing / drag-reorder state.
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [overIndex, setOverIndex] = useState<number | null>(null);
-
-  // Dynamic sidebar sections (collections + tags).
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
-
-  // New-notebook dialog state
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newCourse, setNewCourse] = useState<string>("none");
-  const [creating, setCreating] = useState(false);
-
-  // Fetch the dynamic sidebar sections (collections + tags). Called on mount
-  // and again whenever a notebook is created so counts/tags stay fresh.
-  function loadSidebar() {
-    api
-      .listNotebookCollections()
-      .then(setCollections)
-      .catch(() => setCollections([]));
-    api
-      .listNotebookTags()
-      .then(setTags)
-      .catch(() => setTags([]));
-  }
-
-  // Load the notebook list on mount.
-  useEffect(() => {
-    setLoadingList(true);
-    api
-      .listNotebooks()
-      .then((nbs) => {
-        setList(nbs);
-        if (nbs.length > 0) setActiveId(nbs[0].id);
-      })
-      .catch((e) => toast.error(`Failed to load notebooks: ${e.message}`))
-      .finally(() => setLoadingList(false));
-    api
-      .listCourses()
-      .then(setCourses)
-      .catch(() => setCourses([]));
-    loadSidebar();
-  }, []);
-
-  // Load the selected notebook whenever the active id changes.
-  useEffect(() => {
-    if (!activeId) {
-      setActive(null);
-      setBlocks([]);
-      return;
-    }
-    let cancelled = false;
-    setLoadingNotebook(true);
-    api
-      .getNotebook(activeId)
-      .then((nb) => {
-        if (cancelled) return;
-        setActive(nb);
-        setBlocks((nb.blocks ?? []) as NotebookBlock[]);
-      })
-      .catch((e) => {
-        if (!cancelled) toast.error(`Failed to open notebook: ${e.message}`);
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingNotebook(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [activeId]);
-
-  // Persist the given blocks for the active notebook, and reflect any
-  // server-side metadata changes (e.g. updated timestamp / notes count).
-  async function persistBlocks(next: NotebookBlock[]) {
-    if (!activeId) return;
-    setBlocks(next);
-    setSaving(true);
-    try {
-      const updated = await api.updateNotebook(activeId, { blocks: next });
-      setActive(updated);
-      setList((prev) =>
-        prev.map((n) =>
-          n.id === activeId
-            ? {
-              ...n,
-              notes: updated.blocks?.length ?? n.notes,
-              lastEdited: "just now",
-            }
-            : n,
-        ),
-      );
-    } catch (e: any) {
-      toast.error(`Failed to save: ${e.message}`);
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  // Append a fresh block of the given type and jump straight into editing it.
-  function addBlock(block: NotebookBlock) {
-    const next = [...blocks, block];
-    persistBlocks(next);
-    setEditingIndex(next.length - 1);
-  }
-
-  function updateBlock(index: number, patch: Partial<NotebookBlock>) {
-    persistBlocks(
-      blocks.map((b, i) =>
-        i === index ? ({ ...b, ...patch } as NotebookBlock) : b,
-      ),
-    );
-  }
-
-  function deleteBlock(index: number) {
-    if (editingIndex === index) setEditingIndex(null);
-    persistBlocks(blocks.filter((_, i) => i !== index));
-  }
-
-  // Reorder via drag handle: pull `from` out, splice it back at `to`.
-  function moveBlock(from: number, to: number) {
-    if (from === to) return;
-    const next = [...blocks];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
-    persistBlocks(next);
-  }
-
-  async function handleCreate() {
-    const title = newTitle.trim();
-    if (!title) {
-      toast.error("Enter a notebook title");
-      return;
-    }
-    setCreating(true);
-    try {
-      const nb = await api.createNotebook(
-        title,
-        newCourse === "none" ? null : newCourse,
-      );
-      const meta: NotebookMeta = {
-        id: nb.id,
-        name: nb.title,
-        course: nb.course,
-        color: nb.color,
-        notes: nb.blocks?.length ?? 0,
-        lastEdited: "just now",
-      };
-      setList((prev) => [meta, ...prev]);
-      setActiveId(nb.id);
-      setCreateOpen(false);
-      setNewTitle("");
-      setNewCourse("none");
-      loadSidebar();
-      toast.success(`Created “${nb.title}”`);
-    } catch (e: any) {
-      toast.error(`Failed to create notebook: ${e.message}`);
-    } finally {
-      setCreating(false);
-    }
-  }
-
-  // AI assist: run the action on the selected text, then insert the
-  // returned markdown as a new ai-answer block and persist.
-  async function runAssist(
-    action: "explain" | "summarize" | "improve",
-    selected: string,
-  ) {
-    const sel = selected.trim();
-    if (!sel) {
-      toast.error("Select some text first");
-      return;
-    }
-    if (!activeId || assisting) return;
-    const labels: Record<typeof action, string> = {
-      explain: "Explaining selection…",
-      summarize: "Summarizing selection…",
-      improve: "Improving selection…",
-    };
-    setAssisting(true);
-    const toastId = toast.loading(labels[action]);
-    try {
-      const { text } = await api.notebookAssist(
-        action,
-        sel,
-        active?.course ?? null,
-      );
-      const block: NotebookBlock = {
-        type: "ai-answer",
-        question: `${action[0].toUpperCase()}${action.slice(1)}: ${sel.slice(0, 80)}${sel.length > 80 ? "…" : ""}`,
-        answer: text,
-        confidence: 1,
-        sources: 0,
-      };
-      await persistBlocks([...blocks, block]);
-      toast.success("AI block added", { id: toastId });
-    } catch (e: any) {
-      toast.error(`AI assist failed: ${e.message}`, { id: toastId });
-    } finally {
-      setAssisting(false);
-    }
-  }
-
-  const actions = [
-    {
-      label: "Explain",
-      icon: Wand2,
-      onSelect: (text: string) => runAssist("explain", text),
-    },
-    {
-      label: "Summarize",
-      icon: ScrollText,
-      onSelect: (text: string) => runAssist("summarize", text),
-    },
-    {
-      label: "Improve",
-      icon: Sparkles,
-      onSelect: (text: string) => runAssist("improve", text),
-    },
-    {
-      label: "Cite",
-      icon: Quote,
-      onSelect: () => toast.success("Citation saved"),
-    },
-  ];
-
-  const activeMeta = list.find((n) => n.id === activeId);
-
-  // Recent notes derived from the already-loaded notebook list (list is kept
-  // in recency order — newly created notebooks are prepended).
-  const recentNotes = list.slice(0, 5).map((n) => ({
-    id: n.id,
-    title: n.name,
-    notebook: n.course || "Notebook",
-  }));
-
-  const dynamicInspector = useMemo(() => {
-    if (!active) return null;
-
-    let wordCount = 0;
-    let aiCount = 0;
-    let diagramCount = 0;
-    let flashcardCount = 0;
-    let quizCount = 0;
-
-    (blocks || []).forEach((b: any) => {
-      if (!b) return;
-      if (b.type === "text" || b.type === "heading" || b.type === "callout") {
-        wordCount += (b.text || "").split(/\s+/).length;
-      } else if (b.type === "ai-answer") {
-        wordCount += (b.answer || "").split(/\s+/).length;
-        aiCount++;
-      } else if (b.type === "mermaid") {
-        diagramCount++;
-      } else if (b.type === "flashdeck") {
-        flashcardCount += b.count || 0;
-      } else if (b.type === "quiz-results") {
-        quizCount++;
-      }
-    });
-
-    const readingTime = Math.max(1, Math.ceil(wordCount / 200));
-
-    const generatedAssets = [
-      { label: "AI Answers", count: aiCount },
-      { label: "Diagrams", count: diagramCount },
-      { label: "Flashcards", count: flashcardCount },
-      { label: "Quizzes", count: quizCount },
-    ].filter((a) => a.count > 0);
-
-    return {
-      details: {
-        notebook: activeMeta?.name ?? active.title,
-        type: active.course || "General Note",
-        created: active.updated || "Unknown",
-      },
-      wordCount,
-      readingTime: `${readingTime} min`,
-      linkedSources: [] as string[],
-      generatedAssets,
-      relatedTopics: [] as string[],
-      revisionStatus: "In progress",
-    };
-  }, [active, activeMeta, blocks]);
-
-  return (
-    <div className="flex h-full overflow-hidden">
-      {/* Left — Notebooks */}
-      <aside
-        className={cn(
-          "hidden shrink-0 flex-col overflow-y-auto border-r border-border bg-card/40 transition-all duration-300 lg:flex",
-          leftCollapsed ? "w-0 border-r-0" : "w-[280px]",
-        )}
-      >
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Notebooks
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7"
-              onClick={() => setLeftCollapsed(true)}
-            >
-              <PanelLeftClose className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7"
-              onClick={() => setCreateOpen(true)}
-            >
-              <Plus className="size-4" />
-            </Button>
-          </div>
-        </div>
-        <div className="border-b border-border p-3">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search notes…"
-              className="h-8 bg-input-background pl-8 text-xs"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-1 p-2">
-          {loadingList ? (
-            <div className="flex items-center gap-2 px-2.5 py-3 text-xs text-muted-foreground">
-              <Loader2 className="size-3.5 animate-spin" /> Loading notebooks…
-            </div>
-          ) : list.length === 0 ? (
-            <button
-              onClick={() => setCreateOpen(true)}
-              className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border px-2.5 py-3 text-left text-xs text-muted-foreground hover:border-violet/50 hover:text-violet"
-            >
-              <Plus className="size-3.5" /> Create your first notebook
-            </button>
-          ) : (
-            list.map((n) => {
-              const Icon = iconFor(n.id);
-              return (
-                <button
-                  key={n.id}
-                  onClick={() => setActiveId(n.id)}
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors",
-                    activeId === n.id ? "bg-accent" : "hover:bg-accent/50",
-                  )}
-                >
-                  <div className="flex h-6 w-6 items-center justify-center rounded bg-background/50">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">{n.name}</div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {n.notes} notes · {n.lastEdited}
-                    </div>
-                  </div>
-                  <span
-                    className="size-1.5 rounded-full"
-                    style={{ backgroundColor: n.color }}
-                  />
-                </button>
-              );
-            })
-          )}
-        </div>
-
-        <Section label="Collections" icon={FolderClosed}>
-          {collections.length === 0 ? (
-            <div className="px-2.5 py-1.5 text-xs text-muted-foreground">
-              No collections
-            </div>
-          ) : (
-            collections.map((c) => (
-              <div
-                key={c.id}
-                className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50"
-              >
-                <span className="truncate">{c.name}</span>
-                <span className="text-xs text-muted-foreground">{c.count}</span>
-              </div>
-            ))
-          )}
-        </Section>
-
-        <Section label="Tags" icon={Hash}>
-          {tags.length === 0 ? (
-            <div className="px-2.5 py-1.5 text-xs text-muted-foreground">
-              No tags
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-1.5 px-2">
-              {tags.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground"
-                >
-                  #{t}
-                </span>
-              ))}
-            </div>
-          )}
-        </Section>
-
-        <Section label="Recent" icon={Clock}>
-          {recentNotes.length === 0 ? (
-            <div className="px-2.5 py-1.5 text-xs text-muted-foreground">
-              No recent notes
-            </div>
-          ) : (
-            recentNotes.map((r) => (
-              <div
-                key={r.id}
-                className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50"
-              >
-                <FileText className="size-3.5 shrink-0 text-muted-foreground" />
-                <span className="truncate">{r.title}</span>
-              </div>
-            ))
-          )}
-        </Section>
-      </aside>
-
-      {/* Center — Content */}
-      <main className="relative min-w-0 flex-1 overflow-y-auto">
-        <SelectionToolbar containerRef={contentRef} actions={actions} />
-
-        {/* Sidebar Toggles */}
-        <div className="pointer-events-none absolute left-0 top-4 z-10 flex w-full justify-between px-4">
-          <div className="pointer-events-auto">
-            {leftCollapsed && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8 rounded-full bg-card/80 backdrop-blur shadow-sm"
-                onClick={() => setLeftCollapsed(false)}
-              >
-                <PanelLeftOpen className="size-4" />
-              </Button>
-            )}
-          </div>
-          <div className="pointer-events-auto">
-            {rightCollapsed && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8 rounded-full bg-card/80 backdrop-blur shadow-sm"
-                onClick={() => setRightCollapsed(false)}
-              >
-                <PanelRightOpen className="size-4" />
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <div ref={contentRef} className="mx-auto max-w-[900px] px-10 py-12">
-          {loadingNotebook ? (
-            <div className="flex items-center gap-2 py-20 text-sm text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" /> Loading notebook…
-            </div>
-          ) : !active ? (
-            <div className="flex flex-col items-center gap-4 py-24 text-center text-muted-foreground">
-              <BookOpen className="size-10 opacity-40" />
-              <div>
-                <div className="text-base font-medium text-foreground">
-                  No notebook selected
-                </div>
-                <p className="mt-1 text-sm">
-                  Pick a notebook from the sidebar or create a new one.
-                </p>
-              </div>
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-2 size-4" /> New notebook
-              </Button>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                <span>
-                  {activeMeta?.name ?? active.title} · {active.updated}
-                </span>
-                {saving && <Loader2 className="size-3 animate-spin" />}
-              </div>
-              <h1 className="mt-3 text-[2.75rem] leading-[1.1]">
-                {active.title}
-              </h1>
-              {active.subtitle && (
-                <p className="mt-3 font-reading text-lg italic text-muted-foreground">
-                  {active.subtitle}
-                </p>
-              )}
-
-              <div className="mt-8 space-y-5">
-                {blocks.length === 0 && (
-                  <div className="rounded-xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
-                    This notebook is empty. Add a block below, or select text
-                    elsewhere and use AI assist.
-                  </div>
-                )}
-
-                {blocks.map((block, i) => (
-                  <BlockView
-                    key={i}
-                    block={block}
-                    index={i}
-                    editing={editingIndex === i}
-                    dragging={dragIndex === i}
-                    dropTarget={
-                      overIndex === i && dragIndex !== null && dragIndex !== i
-                    }
-                    onEdit={() => setEditingIndex(i)}
-                    onSave={(patch) => {
-                      updateBlock(i, patch);
-                      setEditingIndex(null);
-                    }}
-                    onCancel={() => setEditingIndex(null)}
-                    onDelete={() => deleteBlock(i)}
-                    onDragStart={() => setDragIndex(i)}
-                    onDragEnter={() => dragIndex !== null && setOverIndex(i)}
-                    onDragEnd={() => {
-                      if (dragIndex !== null && overIndex !== null)
-                        moveBlock(dragIndex, overIndex);
-                      setDragIndex(null);
-                      setOverIndex(null);
-                    }}
-                  />
-                ))}
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="group flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet">
-                      <Plus className="size-4" /> Add block
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-[300px]">
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "text",
-                          text: "New text block. Edit me!",
-                        })
-                      }
-                    >
-                      <FileText className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Text
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "heading",
-                          level: 2,
-                          text: "New Heading",
-                        })
-                      }
-                    >
-                      <Hash className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Heading
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "callout",
-                          tone: "note",
-                          text: "New note callout.",
-                        })
-                      }
-                    >
-                      <Info className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Callout
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "code",
-                          lang: "python",
-                          code: "print('Hello world')",
-                        })
-                      }
-                    >
-                      <Workflow className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Code
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "mermaid",
-                          code: "graph TD\n  A[Start] --> B[End]",
-                        })
-                      }
-                    >
-                      <Workflow className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Diagram
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "table",
-                          headers: ["Column A", "Column B"],
-                          rows: [["", ""]],
-                        })
-                      }
-                    >
-                      <Layers className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Table
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </>
-          )}
-        </div>
-      </main>
-
-      {/* Right — Inspector */}
-      <aside
-        className={cn(
-          "hidden shrink-0 flex-col overflow-y-auto border-l border-border bg-card/40 transition-all duration-300 xl:flex",
-          rightCollapsed ? "w-0 border-l-0" : "w-[300px]",
-        )}
-      >
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            onClick={() => setRightCollapsed(true)}
-          >
-            <PanelRightClose className="size-4" />
-          </Button>
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Inspector
-          </span>
-          <div className="size-7" /> {/* spacer */}
-        </div>
-
-        {dynamicInspector ? (
-          <div className="space-y-5 p-4">
-            <InspectorBlock title="Notebook Details">
-              <MetaRow k="Notebook" v={dynamicInspector.details.notebook} />
-              <MetaRow k="Course" v={dynamicInspector.details.type} />
-              <MetaRow k="Updated" v={dynamicInspector.details.created} />
-            </InspectorBlock>
-
-            <div className="grid grid-cols-2 gap-2">
-              <Stat label="Words" value={dynamicInspector.wordCount} />
-              <Stat label="Reading" value={dynamicInspector.readingTime} />
-            </div>
-
-            {dynamicInspector.linkedSources.length > 0 && (
-              <InspectorBlock title="Linked Sources">
-                {dynamicInspector.linkedSources.map((s) => (
-                  <div
-                    key={s}
-                    className="flex items-start gap-2 py-1 text-sm text-foreground/80"
-                  >
-                    <FileText className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-                    <span className="leading-snug">{s}</span>
-                  </div>
-                ))}
-              </InspectorBlock>
-            )}
-
-            {dynamicInspector.generatedAssets.length > 0 && (
-              <InspectorBlock title="Generated Assets">
-                <div className="grid grid-cols-2 gap-2">
-                  {dynamicInspector.generatedAssets.map((a) => (
-                    <div
-                      key={a.label}
-                      className="rounded-lg border border-border bg-card px-3 py-2"
-                    >
-                      <div className="font-display text-xl leading-none">
-                        {a.count}
-                      </div>
-                      <div className="mt-1 text-[11px] text-muted-foreground">
-                        {a.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </InspectorBlock>
-            )}
-
-            {dynamicInspector.relatedTopics.length > 0 && (
-              <InspectorBlock title="Related Topics">
-                <div className="flex flex-wrap gap-1.5">
-                  {dynamicInspector.relatedTopics.map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-foreground/70"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </InspectorBlock>
-            )}
-
-            <InspectorBlock title="Revision Status">
-              <Badge
-                variant="outline"
-                className="gap-1.5 border-warning/40 bg-warning-soft text-warning"
-              >
-                <Gauge className="size-3" /> {dynamicInspector.revisionStatus}
-              </Badge>
-            </InspectorBlock>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground mt-10">
-            <Info className="size-8 opacity-20 mb-3" />
-            <p className="text-sm">Select a notebook to view its details.</p>
-          </div>
-        )}
-      </aside>
-
-      {/* New notebook dialog */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>New notebook</DialogTitle>
-            <DialogDescription>
-              Give your notebook a title and optionally link a course.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">
-                Title
-              </label>
-              <Input
-                autoFocus
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !creating) handleCreate();
-                }}
-                placeholder="e.g. Machine Learning"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">
-                Course (optional)
-              </label>
-              <Select value={newCourse} onValueChange={setNewCourse}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="No course" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No course</SelectItem>
-                  {courses.map((c) => (
-                    <SelectItem key={c.id} value={c.name}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setCreateOpen(false)}
-              disabled={creating}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreate}
-              disabled={creating || !newTitle.trim()}
-            >
-              {creating && <Loader2 className="mr-2 size-4 animate-spin" />}
-              Create
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-// A block in the document: hover reveals a drag handle (reorder), edit and
-// delete controls. Clicking edit swaps the rendered block for an inline editor.
-function BlockView({
-  block,
-  index,
-  editing,
-  dragging,
-  dropTarget,
-  onEdit,
-  onSave,
-  onCancel,
-  onDelete,
-  onDragStart,
-  onDragEnter,
-  onDragEnd,
-}: {
-  block: NotebookBlock;
-  index: number;
-  editing: boolean;
-  dragging: boolean;
-  dropTarget: boolean;
-  onEdit: () => void;
-  onSave: (patch: Partial<NotebookBlock>) => void;
-  onCancel: () => void;
-  onDelete: () => void;
-  onDragStart: () => void;
-  onDragEnter: () => void;
-  onDragEnd: () => void;
-}) {
-  const editable = EDITABLE_TYPES.has(block.type);
-  return (
-    <div
-      onDragOver={(e) => e.preventDefault()}
-      onDragEnter={onDragEnter}
-      className={cn(
-        "group/block relative -mx-3 rounded-lg px-3 py-1 transition-colors hover:bg-accent/20",
-        dragging && "opacity-40",
-        dropTarget &&
-        "before:absolute before:-top-1 before:left-3 before:right-3 before:h-0.5 before:rounded-full before:bg-violet",
-      )}
-    >
-      {!editing && (
-        <div className="absolute -left-3 top-2 flex items-center opacity-0 transition-opacity group-hover/block:opacity-100">
-          <span
-            draggable
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            className="cursor-grab active:cursor-grabbing"
-            title="Drag to reorder"
-          >
-            <GripVertical className="size-4 text-muted-foreground" />
-          </span>
-        </div>
-      )}
-
-      {!editing && (
-        <div className="absolute -top-1 right-1 z-10 flex items-center gap-0.5 opacity-0 transition-opacity group-hover/block:opacity-100">
-          {editable && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6 bg-card/80 backdrop-blur"
-              onClick={onEdit}
-              title="Edit"
-            >
-              <Wand2 className="size-3.5 text-muted-foreground" />
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-6 bg-card/80 backdrop-blur hover:text-destructive"
-            onClick={onDelete}
-            title="Delete"
-          >
-            <Trash2 className="size-3.5 text-muted-foreground hover:text-destructive" />
-          </Button>
-        </div>
-      )}
-
-      {editing ? (
-        <BlockEditor block={block} onSave={onSave} onCancel={onCancel} />
-      ) : (
-        <BlockInner block={block} />
-      )}
-    </div>
-  );
-}
-
-const EDITABLE_TYPES = new Set([
-  "heading",
-  "text",
-  "callout",
-  "code",
-  "mermaid",
-  "ai-answer",
-]);
-
-// Inline editor for the common authorable block types. Commits a typed patch
-// back to the parent on save.
-function BlockEditor({
-  block,
-  onSave,
-  onCancel,
-}: {
-  block: NotebookBlock;
-  onSave: (patch: Partial<NotebookBlock>) => void;
-  onCancel: () => void;
-}) {
-  const [draft, setDraft] = useState<NotebookBlock>(block);
-  const d = draft as any;
-
-  const field = (patch: Record<string, unknown>) =>
-    setDraft({ ...d, ...patch } as NotebookBlock);
-
-  return (
-    <div className="space-y-3 rounded-xl border border-violet/40 bg-card/60 p-4">
-      {draft.type === "heading" && (
-        <>
-          <div className="flex gap-1.5">
-            {[1, 2].map((lvl) => (
-              <button
-                key={lvl}
-                onClick={() => field({ level: lvl })}
-                className={cn(
-                  "rounded-md border px-2.5 py-1 text-xs",
-                  d.level === lvl
-                    ? "border-violet bg-violet-soft text-violet"
-                    : "border-border text-muted-foreground",
-                )}
-              >
-                H{lvl}
-              </button>
-            ))}
-          </div>
-          <Input
-            value={d.text}
-            onChange={(e) => field({ text: e.target.value })}
-            placeholder="Heading text"
-            autoFocus
-          />
-        </>
-      )}
-
-      {draft.type === "text" && (
-        <textarea
-          value={d.text}
-          onChange={(e) => field({ text: e.target.value })}
-          placeholder="Write markdown…"
-          autoFocus
-          rows={5}
-          className="w-full resize-y rounded-lg border border-border bg-input-background p-3 font-reading text-sm leading-relaxed outline-none focus:border-violet"
-        />
-      )}
-
-      {draft.type === "callout" && (
-        <>
-          <div className="flex gap-1.5">
-            {(["note", "insight", "warning"] as const).map((tone) => (
-              <button
-                key={tone}
-                onClick={() => field({ tone })}
-                className={cn(
-                  "rounded-md border px-2.5 py-1 text-xs capitalize",
-                  d.tone === tone
-                    ? "border-violet bg-violet-soft text-violet"
-                    : "border-border text-muted-foreground",
-                )}
-              >
-                {tone}
-              </button>
-            ))}
-          </div>
-          <textarea
-            value={d.text}
-            onChange={(e) => field({ text: e.target.value })}
-            placeholder="Callout text"
-            autoFocus
-            rows={3}
-            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 text-sm outline-none focus:border-violet"
-          />
-        </>
-      )}
-
-      {draft.type === "code" && (
-        <>
-          <Input
-            value={d.lang}
-            onChange={(e) => field({ lang: e.target.value })}
-            placeholder="Language (e.g. python)"
-            className="h-8 max-w-[200px] text-xs"
-          />
-          <textarea
-            value={d.code}
-            onChange={(e) => field({ code: e.target.value })}
-            placeholder="Code…"
-            autoFocus
-            rows={6}
-            spellCheck={false}
-            className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
-          />
-        </>
-      )}
-
-      {draft.type === "mermaid" && (
-        <textarea
-          value={d.code}
-          onChange={(e) => field({ code: e.target.value })}
-          placeholder="Mermaid graph definition…"
-          autoFocus
-          rows={6}
-          spellCheck={false}
-          className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
-        />
-      )}
-
-      {draft.type === "ai-answer" && (
-        <>
-          <Input
-            value={d.question}
-            onChange={(e) => field({ question: e.target.value })}
-            placeholder="Question / prompt"
-            autoFocus
-          />
-          <textarea
-            value={d.answer}
-            onChange={(e) => field({ answer: e.target.value })}
-            placeholder="Answer (markdown)"
-            rows={5}
-            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 text-sm leading-relaxed outline-none focus:border-violet"
-          />
-        </>
-      )}
-
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" size="sm" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button size="sm" onClick={() => onSave(draft)}>
-          <Check className="mr-1.5 size-3.5" /> Save
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function BlockInner({ block }: { block: NotebookBlock }) {
-  switch (block.type) {
-    case "heading":
-      return block.level === 1 ? (
-        <h1 className="mt-4 text-3xl">{block.text}</h1>
-      ) : (
-        <h2 className="mt-4">{block.text}</h2>
-      );
-    case "text":
-      return <MarkdownRenderer content={block.text} />;
-    case "callout": {
-      const m = calloutMeta[block.tone];
-      return (
-        <div className={cn("flex gap-3 rounded-xl border p-4", m.cls)}>
-          <m.icon className={cn("mt-0.5 size-5 shrink-0", m.iconCls)} />
-          <div className="font-reading leading-relaxed">{block.text}</div>
-        </div>
-      );
-    }
-    case "code":
-      return (
-        <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-4">
-          <code className="font-mono text-[13px] leading-relaxed text-foreground/90">
-            {block.code}
-          </code>
-        </pre>
-      );
-    case "table":
-      return (
-        <div className="overflow-x-auto rounded-xl border border-border">
-          <table className="w-full border-collapse text-sm">
-            <thead className="bg-muted/60">
-              <tr>
-                {block.headers.map((h) => (
-                  <th
-                    key={h}
-                    className="border-b border-border px-4 py-2.5 text-left font-semibold"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {block.rows.map((row, i) => (
-                <tr key={i}>
-                  {row.map((cell, j) => (
-                    <td
-                      key={j}
-                      className="border-b border-border/60 px-4 py-2.5 text-foreground/80"
-                    >
-                      {cell}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    case "ai-answer":
-      return (
-        <div className="overflow-hidden rounded-xl border border-violet/25 bg-violet-soft/40">
-          <div className="flex items-center justify-between border-b border-violet/15 px-4 py-2.5">
-            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-violet">
-              <Sparkles className="size-3.5" /> Saved AI Answer
-            </span>
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Gauge className="size-3" /> {(block.confidence * 100).toFixed(0)}
-              % · {block.sources} sources
-            </span>
-          </div>
-          <div className="px-4 pb-3 pt-3">
-            <div className="mb-2 font-reading text-base font-medium italic text-foreground">
-              {block.question}
-            </div>
-            <MarkdownRenderer content={block.answer} />
-          </div>
-        </div>
-      );
-    case "mermaid":
-      return (
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <Workflow className="size-3.5" /> Diagram
-          </div>
-          <DiagramViewer code={block.code} />
-        </div>
-      );
-    case "flashdeck":
-      return (
-        <div className="rounded-xl border border-border bg-card p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="flex items-center gap-2 text-sm font-medium">
-              <Layers className="size-4 text-violet" /> {block.name}
-            </span>
-            <Badge variant="outline" className="text-xs text-muted-foreground">
-              {block.count} cards
-            </Badge>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {block.cards.map((c, i) => (
-              <div
-                key={i}
-                className="rounded-lg border border-border bg-background/50 p-3"
-              >
-                <div className="font-reading text-sm leading-snug">
-                  {c.front}
-                </div>
-                <div className="mt-2 border-t border-border pt-2 text-xs text-muted-foreground">
-                  {c.back}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    case "quiz-results": {
-      const pct = Math.round((block.score / block.total) * 100);
-      return (
-        <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
-          <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-xl bg-success-soft text-success">
-            <span className="font-display text-xl leading-none">{pct}%</span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <ListChecks className="size-4 text-success" /> {block.title}
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              Scored {block.score} of {block.total} · embedded quiz result
-            </div>
-          </div>
-          <Check className="size-5 text-success" />
-        </div>
-      );
-    }
-    default:
-      return null;
-  }
-}
-
-function Section({
-  label,
-  icon: Icon,
-  children,
-}: {
-  label: string;
-  icon: typeof Hash;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="border-t border-border px-2 py-3">
-      <div className="flex items-center gap-1.5 px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        <Icon className="size-3" /> {label}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function InspectorBlock({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {title}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function MetaRow({ k, v }: { k: string; v: string }) {
-  return (
-    <div className="flex items-center justify-between py-0.5 text-sm">
-      <span className="text-muted-foreground">{k}</span>
-      <span className="font-medium">{v}</span>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-lg border border-border bg-card px-3 py-2.5">
-      <div className="font-display text-2xl leading-none">{value}</div>
-      <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-    </div>
-  );
-}
-```
 
 ## File: src/app/pages/Courses.tsx
 ```typescript
@@ -17424,288 +20264,24 @@ export function Courses() {
     </Page>
   );
 }
+
 ```
 
-## File: src/app/pages/PromptLibrary.tsx
+
+## File: src/app/pages/Settings.tsx
 ```typescript
 import { useEffect, useState } from "react";
-import { BookMarked, Check, Plus, Trash2, X } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { api } from "../lib/api";
-import type { PromptItem } from "../lib/types";
-import { toast } from "sonner";
-import { cn } from "../components/ui/utils";
-
-const STYLE_BADGE: Record<string, string> = {
-  Concise: "bg-cyan-soft text-cyan",
-  Comprehensive: "bg-violet-soft text-violet",
-  Socratic: "bg-warning-soft text-warning",
-  "": "bg-muted text-muted-foreground",
-};
-
-export function PromptLibrary() {
-  const [categories, setCategories] = useState<{ key: string; label: string; description: string }[]>([]);
-  const [prompts, setPrompts] = useState<PromptItem[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>("");
-  const [selected, setSelected] = useState<PromptItem | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ name: "", style: "", body: "" });
-
-  useEffect(() => {
-    api.listPromptCategories().then((cs) => {
-      setCategories(cs);
-      if (cs.length) setActiveCategory(cs[0].key);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!activeCategory) return;
-    api.listPrompts(activeCategory).then((ps) => {
-      setPrompts(ps);
-      setSelected(ps.find((p) => p.active) ?? ps[0] ?? null);
-    });
-  }, [activeCategory]);
-
-  async function activate(p: PromptItem) {
-    await api.activatePrompt(p.id);
-    setPrompts((prev) => prev.map((x) => ({ ...x, active: x.id === p.id })));
-    setSelected({ ...p, active: true });
-    toast.success(`"${p.name}" activated`);
-  }
-
-  async function remove(p: PromptItem) {
-    await api.deletePrompt(p.id);
-    const next = prompts.filter((x) => x.id !== p.id);
-    setPrompts(next);
-    if (selected?.id === p.id) setSelected(next[0] ?? null);
-    toast.success("Prompt deleted");
-  }
-
-  async function save() {
-    if (!form.name.trim() || !form.body.trim()) return;
-    const created = await api.createPrompt({ category: activeCategory, ...form });
-    setPrompts((prev) => [...prev, created]);
-    setSelected(created);
-    setCreating(false);
-    setForm({ name: "", style: "", body: "" });
-    toast.success("Prompt created");
-  }
-
-  const visible = prompts.filter((p) => p.category === activeCategory);
-  const cat = categories.find((c) => c.key === activeCategory);
-
-  return (
-    <div className="flex h-full overflow-hidden">
-      {/* ── Left: category tabs + prompt list ───────────────────────── */}
-      <div className="flex w-64 shrink-0 flex-col border-r border-border bg-sidebar">
-        <div className="border-b border-border px-4 py-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <BookMarked className="size-4 text-violet" />
-            Prompt Library
-          </div>
-          <p className="mt-0.5 text-xs text-muted-foreground">Customise AI generation</p>
-        </div>
-
-        {/* category list */}
-        <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
-          {categories.map((c) => (
-            <button
-              key={c.key}
-              onClick={() => setActiveCategory(c.key)}
-              className={cn(
-                "w-full rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                activeCategory === c.key
-                  ? "bg-sidebar-accent text-foreground font-medium"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-foreground"
-              )}
-            >
-              {c.label}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* ── Middle: prompt list ──────────────────────────────────────── */}
-      <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card/50">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <span className="text-sm font-medium text-foreground">{cat?.label}</span>
-          <button
-            onClick={() => { setCreating(true); setSelected(null); }}
-            className="flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Plus className="size-3" /> New
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
-          {visible.map((p) => (
-            <motion.button
-              key={p.id}
-              layout
-              onClick={() => { setSelected(p); setCreating(false); }}
-              className={cn(
-                "group w-full rounded-lg px-3 py-2.5 text-left transition-colors",
-                selected?.id === p.id
-                  ? "bg-sidebar-accent"
-                  : "hover:bg-sidebar-accent/50"
-              )}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 truncate text-sm font-medium text-foreground">
-                    {p.active && <Check className="size-3 shrink-0 text-success" />}
-                    <span className="truncate">{p.name}</span>
-                  </div>
-                  {p.style && (
-                    <span className={cn("mt-0.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-medium", STYLE_BADGE[p.style] ?? STYLE_BADGE[""])}>
-                      {p.style}
-                    </span>
-                  )}
-                </div>
-                {!p.built_in && selected?.id === p.id && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); remove(p); }}
-                    className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                )}
-              </div>
-            </motion.button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Right: editor / viewer ───────────────────────────────────── */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <AnimatePresence mode="wait">
-          {creating ? (
-            <motion.div
-              key="create"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="flex h-full flex-col p-6 gap-4"
-            >
-              <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-foreground">New Prompt — {cat?.label}</h2>
-                <button onClick={() => setCreating(false)} className="rounded p-1 hover:bg-muted">
-                  <X className="size-4 text-muted-foreground" />
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Name</label>
-                  <input
-                    value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    placeholder="My custom prompt"
-                    className="mt-1 w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Style tag (optional)</label>
-                  <input
-                    value={form.style}
-                    onChange={(e) => setForm((f) => ({ ...f, style: e.target.value }))}
-                    placeholder="e.g. Concise"
-                    className="mt-1 w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">System prompt</label>
-                  <textarea
-                    value={form.body}
-                    onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))}
-                    rows={14}
-                    placeholder="You are a..."
-                    className="mt-1 w-full resize-none rounded-md border border-border bg-input px-3 py-2 font-mono text-sm leading-relaxed outline-none focus:ring-1 focus:ring-ring"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={save}
-                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setCreating(false)}
-                  className="rounded-md border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted"
-                >
-                  Cancel
-                </button>
-              </div>
-            </motion.div>
-          ) : selected ? (
-            <motion.div
-              key={selected.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="flex h-full flex-col p-6 gap-4 overflow-hidden"
-            >
-              <div className="flex items-start justify-between gap-4 shrink-0">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-base font-semibold text-foreground">{selected.name}</h2>
-                    {selected.style && (
-                      <span className={cn("rounded px-2 py-0.5 text-[11px] font-medium", STYLE_BADGE[selected.style] ?? STYLE_BADGE[""])}>
-                        {selected.style}
-                      </span>
-                    )}
-                    {selected.built_in && (
-                      <span className="rounded bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">Built-in</span>
-                    )}
-                  </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{cat?.description}</p>
-                </div>
-                {!selected.active && (
-                  <button
-                    onClick={() => activate(selected)}
-                    className="shrink-0 flex items-center gap-1.5 rounded-md bg-violet px-3 py-1.5 text-xs font-medium text-white hover:bg-violet/90"
-                  >
-                    <Check className="size-3" /> Activate
-                  </button>
-                )}
-                {selected.active && (
-                  <span className="flex items-center gap-1.5 rounded-md bg-success-soft px-3 py-1.5 text-xs font-medium text-success">
-                    <Check className="size-3" /> Active
-                  </span>
-                )}
-              </div>
-
-              <pre className="flex-1 overflow-y-auto rounded-lg border border-border bg-muted/40 p-4 font-mono text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
-                {selected.body}
-              </pre>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="empty"
-              className="flex flex-1 items-center justify-center text-muted-foreground text-sm"
-            >
-              Select a prompt to preview
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
-```
-
-## File: src/app/pages/MindMaps.tsx
-```typescript
-import { useEffect, useMemo, useState } from "react";
-import { Network, Sparkles, Loader2, Trash2 } from "lucide-react";
-import { GenerationSteps } from "../components/GenerationSteps";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
+import { Cpu, Boxes, Filter, Keyboard, User, ShieldCheck } from "lucide-react";
+import { Page } from "../components/Page";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import { Slider } from "../components/ui/slider";
+import { Switch } from "../components/ui/switch";
 import { Input } from "../components/ui/input";
-import { ScrollArea } from "../components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -17713,216 +20289,1637 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { api, type GeneratedMindmap } from "../lib/api";
-import type { Course, DocumentItem } from "../lib/types";
-import { useMindmapStore, ALL_COURSES } from "../stores/useMindmapStore";
-import { toast } from "sonner";
-import { cn } from "../components/ui/utils";
-import { MindMapTree, parseMindmapText, countNodes } from "../components/MindMapTree";
+import { useSettingsStore } from "../stores/useSettingsStore";
+import { navItems } from "../lib/nav";
+import { api, type ModelsList } from "../lib/api";
 
-export function MindMaps() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [items, setItems] = useState<GeneratedMindmap[]>([]);
-  const [active, setActive] = useState<GeneratedMindmap | null>(null);
-  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+function ModelOptions({
+  models,
+  current,
+}: {
+  models: string[];
+  current: string;
+}) {
+  const list = models.includes(current) ? models : [current, ...models];
+  return (
+    <>
+      {list.filter(Boolean).map((m) => (
+        <SelectItem key={m} value={m}>
+          {m}
+        </SelectItem>
+      ))}
+    </>
+  );
+}
 
-  const { topic, course, document, loading, mindmap, setField, generate } = useMindmapStore();
-  const setCourse = (v: string) => setField("course", v);
-  const setDocument = (v: string | null) => setField("document", v);
-  const setTopic = (v: string) => setField("topic", v);
+function Row({
+  title,
+  desc,
+  children,
+}: {
+  title: string;
+  desc?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-6 border-b border-border py-4 last:border-0">
+      <div className="min-w-0">
+        <div className="text-sm font-medium">{title}</div>
+        {desc && <div className="text-xs text-muted-foreground">{desc}</div>}
+      </div>
+      <div className="shrink-0">{children}</div>
+    </div>
+  );
+}
 
-  // Absorb a newly generated mindmap into the sidebar list and select it.
+export function SettingsPage() {
+  const s = useSettingsStore();
+  const [models, setModels] = useState<ModelsList>({
+    fastModels: [],
+    reasoningModels: [],
+    embeddingModels: [],
+    visionModels: [],
+  });
+
   useEffect(() => {
-    if (!mindmap) return;
-    setItems((prev) => (prev.some((m) => m.id === mindmap.id) ? prev : [mindmap, ...prev]));
-    setActive(mindmap);
-  }, [mindmap]);
+    s.hydrate();
+    api
+      .listModels()
+      .then(setModels)
+      .catch(() => { });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <Page className="max-w-4xl">
+      <Tabs defaultValue="models">
+        <TabsList className="mb-6 bg-card">
+          <TabsTrigger value="profile" className="gap-1.5">
+            <User className="size-4" /> Profile
+          </TabsTrigger>
+          <TabsTrigger value="models" className="gap-1.5">
+            <Cpu className="size-4" /> Models
+          </TabsTrigger>
+          <TabsTrigger value="embeddings" className="gap-1.5">
+            <Boxes className="size-4" /> Embeddings
+          </TabsTrigger>
+          <TabsTrigger value="retrieval" className="gap-1.5">
+            <Filter className="size-4" /> Retrieval
+          </TabsTrigger>
+          <TabsTrigger value="shortcuts" className="gap-1.5">
+            <Keyboard className="size-4" /> Shortcuts
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="models">
+          <div className="rounded-2xl border border-border bg-card px-5">
+            <Row
+              title="AI Mode"
+              desc={
+                s.ragMode === "strict"
+                  ? "Strict RAG — only answers from ingested documents"
+                  : "AI Fallback — LLM fills gaps when documents lack context"
+              }
+            >
+              <div className="flex items-center gap-2">
+                <ShieldCheck
+                  className={`size-5 ${s.ragMode === "strict" ? "text-amber-500" : "text-muted-foreground"}`}
+                />
+                <span
+                  className={`text-sm font-medium ${s.ragMode === "strict" ? "text-amber-600" : "text-muted-foreground"}`}
+                >
+                  {s.ragMode === "strict" ? "Strict RAG" : "AI Fallback"}
+                </span>
+                <Switch
+                  checked={s.ragMode === "strict"}
+                  onCheckedChange={(v) =>
+                    s.set("ragMode", v ? "strict" : "fallback")
+                  }
+                />
+              </div>
+            </Row>
+            <Row
+              title="General Purpose Fast Model"
+              desc="Optimized for speed and quick summaries"
+            >
+              <Select
+                value={s.fastModel}
+                onValueChange={(v) => s.set("fastModel", v)}
+              >
+                <SelectTrigger className="w-56 bg-input-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <ModelOptions
+                    models={models.fastModels}
+                    current={s.fastModel}
+                  />
+                </SelectContent>
+              </Select>
+            </Row>
+            <Row
+              title="Deep Reasoning Model"
+              desc="Optimized for complex synthesis and large tasks"
+            >
+              <Select
+                value={s.reasoningModel}
+                onValueChange={(v) => s.set("reasoningModel", v)}
+              >
+                <SelectTrigger className="w-56 bg-input-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <ModelOptions
+                    models={models.reasoningModels}
+                    current={s.reasoningModel}
+                  />
+                </SelectContent>
+              </Select>
+            </Row>
+            <Row
+              title="Temperature"
+              desc={`Creativity of responses · ${s.temperature.toFixed(2)}`}
+            >
+              <Slider
+                className="w-56"
+                value={[s.temperature]}
+                onValueChange={(v) => s.set("temperature", v[0])}
+                min={0}
+                max={1}
+                step={0.05}
+              />
+            </Row>
+            <Row title="Stream responses" desc="Render tokens as they generate">
+              <Switch
+                checked={s.streaming}
+                onCheckedChange={(v) => s.set("streaming", v)}
+              />
+            </Row>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="embeddings">
+          <div className="rounded-2xl border border-border bg-card px-5">
+            <Row
+              title="Embedding model"
+              desc="Used to vectorize your documents"
+            >
+              <Select
+                value={s.embeddingModel}
+                onValueChange={(v) => s.set("embeddingModel", v)}
+              >
+                <SelectTrigger className="w-56 bg-input-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <ModelOptions
+                    models={models.embeddingModels}
+                    current={s.embeddingModel}
+                  />
+                </SelectContent>
+              </Select>
+            </Row>
+            <Row
+              title="Vision / OCR model"
+              desc="Describes images & diagrams and recovers low-confidence OCR"
+            >
+              <Select
+                value={s.visionModel}
+                onValueChange={(v) => s.set("visionModel", v)}
+              >
+                <SelectTrigger className="w-56 bg-input-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <ModelOptions
+                    models={models.visionModels}
+                    current={s.visionModel}
+                  />
+                </SelectContent>
+              </Select>
+            </Row>
+            <Row title="Vector store" desc="Local LanceDB storage">
+              <span className="rounded-md bg-muted px-3 py-1.5 font-mono text-xs text-muted-foreground">
+                lancedb
+              </span>
+            </Row>
+            <Row title="Chunk size" desc="Tokens per indexed chunk">
+              <span className="rounded-md bg-muted px-3 py-1.5 font-mono text-xs text-muted-foreground">
+                800
+              </span>
+            </Row>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="retrieval">
+          <div className="rounded-2xl border border-border bg-card px-5">
+            <Row
+              title="Top-K results"
+              desc={`Documents retrieved per query · ${s.topK}`}
+            >
+              <Slider
+                className="w-56"
+                value={[s.topK]}
+                onValueChange={(v) => s.set("topK", v[0])}
+                min={1}
+                max={10}
+                step={1}
+              />
+            </Row>
+            <Row
+              title="Similarity threshold"
+              desc={`Minimum cosine similarity · ${s.similarityThreshold.toFixed(2)}`}
+            >
+              <Slider
+                className="w-56"
+                value={[s.similarityThreshold]}
+                onValueChange={(v) => s.set("similarityThreshold", v[0])}
+                min={0.5}
+                max={0.95}
+                step={0.01}
+              />
+            </Row>
+            <Row
+              title="Strict RAG Mode"
+              desc={
+                s.ragMode === "strict"
+                  ? "Only answers from ingested documents — no AI knowledge"
+                  : "AI fills gaps when documents lack context"
+              }
+            >
+              <div className="flex items-center gap-2">
+                <ShieldCheck
+                  className={`size-4 ${s.ragMode === "strict" ? "text-amber-500" : "text-muted-foreground"}`}
+                />
+                <Switch
+                  checked={s.ragMode === "strict"}
+                  onCheckedChange={(v) =>
+                    s.set("ragMode", v ? "strict" : "fallback")
+                  }
+                />
+              </div>
+            </Row>
+            <Row
+              title="Inline citations"
+              desc="Show [n] markers within answers"
+            >
+              <Switch
+                checked={s.citationsInline}
+                onCheckedChange={(v) => s.set("citationsInline", v)}
+              />
+            </Row>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="shortcuts">
+          <div className="rounded-2xl border border-border bg-card px-5">
+            <Row title="Command menu" desc="Open the global search palette">
+              <kbd className="rounded border border-border bg-muted px-2 py-1 font-mono text-xs">
+                ⌘ K
+              </kbd>
+            </Row>
+            {navItems.map((n) => (
+              <Row key={n.to} title={n.label} desc={`Jump to ${n.label}`}>
+                <kbd className="rounded border border-border bg-muted px-2 py-1 font-mono text-xs">
+                  {n.shortcut}
+                </kbd>
+              </Row>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="profile">
+          <div className="rounded-2xl border border-border bg-card px-5">
+            <Row title="Industry" desc="Your professional industry">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.industry}
+                onChange={(e) => s.set("industry", e.target.value)}
+                placeholder="e.g. Technology"
+              />
+            </Row>
+            <Row title="Role" desc="Your primary role or title">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.role}
+                onChange={(e) => s.set("role", e.target.value)}
+                placeholder="e.g. Software Engineer"
+              />
+            </Row>
+            <Row title="Goals" desc="Your learning or professional goals">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.goals}
+                onChange={(e) => s.set("goals", e.target.value)}
+                placeholder="e.g. Learn AI"
+              />
+            </Row>
+            <Row title="Interests" desc="Topics you are interested in">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.interests}
+                onChange={(e) => s.set("interests", e.target.value)}
+                placeholder="e.g. Machine Learning"
+              />
+            </Row>
+            <Row title="Learning Preferences" desc="How you prefer to learn">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.learningPreferences}
+                onChange={(e) => s.set("learningPreferences", e.target.value)}
+                placeholder="e.g. Visual, Hands-on"
+              />
+            </Row>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </Page>
+  );
+}
+
+```
+
+
+## File: src/app/pages/Teach.tsx
+```typescript
+import { useEffect, useState } from "react";
+import {
+  GraduationCap,
+  BookOpen,
+  NotebookPen,
+  Layers,
+  ListChecks,
+  Network,
+  Workflow,
+  Columns2,
+  FileText,
+  Sparkles,
+  Loader2,
+  AlertTriangle,
+  Save,
+  Plus,
+  Trash2,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  ShieldCheck,
+} from "lucide-react";
+import { motion } from "motion/react";
+import { toast } from "sonner";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { Badge } from "../components/ui/badge";
+import { ScrollArea } from "../components/ui/scroll-area";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
+import { FlashcardCard } from "../components/FlashcardCard";
+import { DiagramViewer } from "../components/DiagramViewer";
+import { SourcePanel } from "../components/SourcePanel";
+import { MindMapTree, countNodes, parseMindmapText } from "../components/MindMapTree";
+import { ConsistencyReport } from "../components/ConsistencyReport";
+import { cn } from "../components/ui/utils";
+import { api, type PackageMeta, type FlashcardSet, type GeneratedQuiz, type GeneratedDiagram, type GeneratedMindmap, type GeneratedRevision } from "../lib/api";
+import type { GeneratedDifference, Flashcard, QuizQuestion } from "../lib/types";
+import {
+  useTeachStore,
+  ARTIFACT_KEYS,
+  type ArtifactKey,
+  type Depth,
+  type ViewKey,
+  type SlotStatus,
+} from "../stores/useTeachStore";
+
+const EXAMPLES = ["CAP Theorem", "RAG", "Deadlocks", "Service Discovery", "OS Scheduling", "LangGraph"];
+
+const DEPTHS: { id: Depth; label: string }[] = [
+  { id: "quick", label: "Quick Overview" },
+  { id: "standard", label: "Standard" },
+  { id: "deep", label: "Deep Dive" },
+];
+
+const ARTIFACT_LABELS: Record<ArtifactKey, string> = {
+  notes: "Notes",
+  flashcards: "Flashcards",
+  quiz: "Quiz",
+  mindmap: "Mind Map",
+  diagram: "Diagram",
+  difference: "Difference Tables",
+};
+
+const NAV: { id: ViewKey; label: string; icon: typeof BookOpen }[] = [
+  { id: "overview", label: "Overview", icon: BookOpen },
+  { id: "notes", label: "Notes", icon: NotebookPen },
+  { id: "flashcards", label: "Flashcards", icon: Layers },
+  { id: "quiz", label: "Quiz", icon: ListChecks },
+  { id: "mindmap", label: "Mind Map", icon: Network },
+  { id: "diagram", label: "Diagram", icon: Workflow },
+  { id: "difference", label: "Difference Tables", icon: Columns2 },
+  { id: "sources", label: "Sources", icon: FileText },
+  { id: "consistency", label: "Consistency", icon: ShieldCheck },
+];
+
+// ---------------------------------------------------------------------------
+// Input phase
+// ---------------------------------------------------------------------------
+
+function InputPhase() {
+  const { topic, depth, course, document, courses, documents, selected, setField, setCourse, setDocument, toggleArtifact, startGenerate, loadPackage, fetchCoursesAndDocs } =
+    useTeachStore();
+  const [packages, setPackages] = useState<PackageMeta[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>(EXAMPLES);
 
   useEffect(() => {
     let cancelled = false;
-    api
-      .listCourses()
-      .then((cs) => { if (!cancelled) setCourses(cs); })
-      .catch(() => {});
-    api.listDocuments().then((ds) => { if (!cancelled) setDocuments(ds); }).catch(() => {});
-    api
-      .listMindmaps()
-      .then((ms) => {
-        if (cancelled) return;
-        setItems(ms);
-        setActive((cur) => cur ?? ms[0] ?? null);
-      })
-      .catch(() => {});
+    fetchCoursesAndDocs();
+    api.listPackages().then((p) => { if (!cancelled) setPackages(p); }).catch(() => { });
+    api.onboardingAnalysis().then((a) => {
+      if (!cancelled) {
+        const generated = [...(a.topics || []), ...(a.concepts || [])];
+        if (generated.length > 0) {
+          // Get unique suggestions up to 6
+          const unique = Array.from(new Set(generated)).slice(0, 6);
+          setSuggestions(unique);
+        }
+      }
+    }).catch(() => { });
     return () => { cancelled = true; };
   }, []);
 
-  const remove = async (id: string) => {
-    try {
-      await api.deleteMindmap(id);
-      const next = items.filter((m) => m.id !== id);
-      setItems(next);
-      if (active?.id === id) setActive(next[0] ?? null);
-      toast.success("Mind map deleted");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete mind map");
-    }
-  };
+    const removePackage = async (id: string) => {
+      try {
+        await api.deletePackage(id);
+        setPackages((prev) => prev.filter((p) => p.id !== id));
+        toast.success("Package deleted");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to delete");
+      }
+    };
 
-  const tree = useMemo(
-    () => (active?.text ? parseMindmapText(active.text) : []),
-    [active],
-  );
-  const nodeCount = useMemo(() => countNodes(tree), [tree]);
+    return (
+      <ScrollArea className="h-full">
+        <div className="mx-auto max-w-2xl px-6 py-12">
+          <div className="flex flex-col items-center text-center">
+            <div className="flex size-12 items-center justify-center rounded-2xl bg-violet-soft text-primary">
+              <GraduationCap className="size-6" />
+            </div>
+            <h1 className="mt-4 text-2xl font-semibold">Teach Me</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Enter a topic and get a complete learning workspace — notes, flashcards, quiz,
+              mind map, diagram and more, all in one place.
+            </p>
+          </div>
+
+          <div className="mt-8 rounded-2xl border border-border bg-card p-5">
+            <Input
+              value={topic}
+              onChange={(e) => setField("topic", e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") startGenerate(); }}
+              placeholder="What would you like to learn?"
+              className="h-11 bg-input-background text-base"
+              autoFocus
+            />
+
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {suggestions.map((ex) => (
+                <button
+                  key={ex}
+                  onClick={() => setField("topic", ex)}
+                  className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground transition-colors hover:border-ring/40 hover:text-foreground"
+                >
+                  {ex}
+                </button>
+              ))}
+            </div>
+
+            {/* Context Pickers */}
+            <div className="mt-5 flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Course</div>
+                <Select value={course} onValueChange={setCourse}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All courses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">All courses</SelectItem>
+                    {courses.map((c) => (
+                      <SelectItem key={c.id} value={c.name}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex-1">
+                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Document</div>
+                <Select
+                  value={document ?? "all"}
+                  onValueChange={(v) => setDocument(v === "all" ? null : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All documents" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All documents</SelectItem>
+                    {(course === "none" ? documents : documents.filter(d => d.course === course)).map((d) => (
+                      <SelectItem key={d.id} value={d.id}>
+                        {d.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Depth */}
+            <div className="mt-5">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Depth</div>
+              <div className="flex gap-2">
+                {DEPTHS.map((d) => (
+                  <button
+                    key={d.id}
+                    onClick={() => setField("depth", d.id)}
+                    className={cn(
+                      "flex-1 rounded-lg border px-3 py-2 text-sm transition-colors",
+                      depth === d.id ? "border-primary bg-violet-soft text-primary" : "border-border bg-background hover:border-ring/40",
+                    )}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Artifacts */}
+            <div className="mt-5">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Artifacts</div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {ARTIFACT_KEYS.map((key) => (
+                  <button
+                    key={key}
+                    onClick={() => toggleArtifact(key)}
+                    className={cn(
+                      "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
+                      selected[key] ? "border-primary/50 bg-violet-soft/60" : "border-border bg-background text-muted-foreground hover:border-ring/40",
+                    )}
+                  >
+                    <span className={cn("flex size-4 items-center justify-center rounded border", selected[key] ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40")}>
+                      {selected[key] && <CheckCircle2 className="size-3" />}
+                    </span>
+                    {ARTIFACT_LABELS[key]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Button onClick={startGenerate} className="mt-6 w-full gap-2">
+              <Sparkles className="size-4" /> Generate learning package
+            </Button>
+          </div>
+
+          {/* Library */}
+          {packages.length > 0 && (
+            <div className="mt-10">
+              <h2 className="mb-3 text-sm font-medium">Your learning packages</h2>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {packages.map((p) => (
+                  <div
+                    key={p.id}
+                    className="group flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-ring/40"
+                    onClick={() => loadPackage(p.id)}
+                  >
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-violet-soft text-primary">
+                      <GraduationCap className="size-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium">{p.title}</div>
+                      <div className="mt-0.5 text-xs text-muted-foreground capitalize">
+                        {p.depth} · {p.artifactCount} {p.artifactCount === 1 ? "artifact" : "artifacts"}
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
+                      onClick={(e) => { e.stopPropagation(); void removePackage(p.id); }}
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+    );
+  }
+
+// ---------------------------------------------------------------------------
+// Workspace views
+// ---------------------------------------------------------------------------
+
+function ViewState({ icon: Icon, message }: { icon: typeof Sparkles; message: string }) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-3 pt-24 text-center text-muted-foreground">
+          <Icon className="size-7 opacity-50" />
+          <p className="max-w-sm text-sm">{message}</p>
+        </div>
+      );
+    }
+
+function Spinner({ message }: { message: string }) {
+      return (
+        <div className="flex flex-col items-center pt-24 text-muted-foreground">
+          <Loader2 className="size-6 animate-spin text-primary" />
+          <p className="mt-3 text-sm">{message}</p>
+        </div>
+      );
+    }
+
+function QuizReview({ questions }: { questions: QuizQuestion[] }) {
+      const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+      if (!questions.length) {
+        return <ViewState icon={ListChecks} message="No quiz questions were generated for this topic." />;
+      }
+      return (
+        <div className="space-y-4">
+          {questions.map((q, i) => {
+            const show = revealed[q.id];
+            return (
+              <div key={q.id} className="rounded-xl border border-border bg-card p-4">
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md bg-violet-soft text-[11px] font-medium text-primary">{i + 1}</span>
+                  <p className="text-sm font-medium leading-snug">{q.prompt}</p>
+                </div>
+                {q.options && q.options.length > 0 && (
+                  <ul className="mt-3 space-y-1.5 pl-7">
+                    {q.options.map((opt, oi) => {
+                      const isAnswer = show && opt.trim() === q.answer.trim();
+                      return (
+                        <li
+                          key={oi}
+                          className={cn(
+                            "flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm",
+                            isAnswer ? "border-success/50 bg-success-soft text-success" : "border-border",
+                          )}
+                        >
+                          {isAnswer && <CheckCircle2 className="size-3.5 shrink-0" />}
+                          {opt}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                <div className="mt-3 pl-7">
+                  {show ? (
+                    q.explanation && (
+                      <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm">
+                        <p className="text-muted-foreground">{q.explanation}</p>
+                      </div>
+                    )
+                  ) : (
+                    <Button variant="outline" size="sm" onClick={() => setRevealed((r) => ({ ...r, [q.id]: true }))}>
+                      Show answer
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+function ArtifactBody({ view }: { view: ArtifactKey }) {
+      const slot = useTeachStore((s) => s.artifacts[view]);
+      const selected = useTeachStore((s) => s.selected[view]);
+      const retryArtifact = useTeachStore((s) => s.retryArtifact);
+
+      if (!selected) {
+        return <ViewState icon={XCircle} message={`${ARTIFACT_LABELS[view]} was not included in this package.`} />;
+      }
+      if (slot.status === "queued") return <Spinner message="Queued — waiting for earlier artifacts…" />;
+      if (slot.status === "loading") return <Spinner message={`Generating ${ARTIFACT_LABELS[view].toLowerCase()}…`} />;
+      if (slot.status === "error") {
+        return (
+          <div className="flex flex-col items-center gap-3 pt-24 text-center text-muted-foreground">
+            <AlertTriangle className="size-7 text-danger/70" />
+            <p className="max-w-sm text-sm">{slot.error}</p>
+            <Button variant="outline" size="sm" onClick={() => void retryArtifact(view)}>Retry</Button>
+          </div>
+        );
+      }
+      if (!slot.data) return <Spinner message="Loading…" />;
+
+      switch (view) {
+        case "notes":
+          return <MarkdownRenderer content={(slot.data as GeneratedRevision).markdown} />;
+        case "difference":
+          return <MarkdownRenderer content={(slot.data as GeneratedDifference).content} />;
+        case "flashcards": {
+          const cards = (slot.data as FlashcardSet).cards as Flashcard[];
+          if (!cards.length) return <ViewState icon={Layers} message="No flashcards were generated." />;
+          return (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {cards.map((c) => <FlashcardCard key={c.id} card={c} />)}
+            </div>
+          );
+        }
+        case "quiz":
+          return <QuizReview questions={(slot.data as GeneratedQuiz).questions} />;
+        case "diagram":
+          return <DiagramViewer code={(slot.data as GeneratedDiagram).mermaid} flush />;
+        case "mindmap": {
+          const text = (slot.data as GeneratedMindmap).text;
+          if (!text?.trim()) return <ViewState icon={Network} message="No mind map was generated." />;
+          const count = countNodes(parseMindmapText(text));
+          return (
+            <div>
+              <Badge variant="outline" className="mb-4 border-cyan/40 bg-cyan-soft text-cyan">
+                {count} {count === 1 ? "node" : "nodes"}
+              </Badge>
+              <MindMapTree text={text} />
+            </div>
+          );
+        }
+      }
+    }
+
+function StatusIcon({ status }: { status: SlotStatus }) {
+      switch (status) {
+        case "loading":
+          return <Loader2 className="size-3.5 shrink-0 animate-spin text-primary" />;
+        case "done":
+          return <CheckCircle2 className="size-3.5 shrink-0 text-success" />;
+        case "error":
+          return <AlertTriangle className="size-3.5 shrink-0 text-danger" />;
+        case "queued":
+          return <Clock className="size-3.5 shrink-0 text-muted-foreground/60" />;
+        default:
+          return null;
+      }
+    }
+
+function ConsistencyView() {
+      const report = useTeachStore((s) => s.consistency);
+      const status = useTeachStore((s) => s.consistencyStatus);
+      const generating = useTeachStore((s) => s.generating);
+      const runConsistency = useTeachStore((s) => s.runConsistency);
+
+      return (
+        <div className="space-y-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-base font-medium text-foreground">Cross-artifact consistency</h2>
+              <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+                Check that every artifact covers the same concepts as the source material.
+                Detects missing, weak and under-represented concepts. Analysis only — nothing
+                is regenerated.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              className="shrink-0 gap-2"
+              disabled={generating || status === "loading"}
+              onClick={() => void runConsistency()}
+            >
+              {status === "loading" ? <Loader2 className="size-3.5 animate-spin" /> : <ShieldCheck className="size-3.5" />}
+              {report ? "Re-analyze" : "Analyze"}
+            </Button>
+          </div>
+
+          {status === "loading" ? (
+            <Spinner message="Extracting concepts and comparing artifacts…" />
+          ) : status === "error" ? (
+            <ViewState icon={AlertTriangle} message="Failed to analyze consistency. Try again." />
+          ) : report ? (
+            <ConsistencyReport report={report} />
+          ) : (
+            <ViewState icon={ShieldCheck} message="Run an analysis to see concept coverage across your artifacts." />
+          )}
+        </div>
+      );
+    }
+
+function WorkspacePhase() {
+      const {
+        topic, activeView, overview, overviewStatus, sources, packageId, saving,
+        artifacts, selected, generating, currentTask, consistencyStatus, openView, savePackage, reset,
+      } = useTeachStore();
+
+      const grounded = overview?.grounded;
+
+      // Status per nav item: overview/artifacts have real status; Sources rides on
+      // the overview (its chunks come back with the overview).
+      const statusFor = (view: ViewKey): SlotStatus => {
+        if (view === "overview" || view === "sources") return overviewStatus;
+        if (view === "consistency") return consistencyStatus;
+        return artifacts[view as ArtifactKey].status;
+      };
+
+      // Progress across the whole package: overview + each selected artifact.
+      const total = 1 + ARTIFACT_KEYS.filter((k) => selected[k]).length;
+      const done =
+        (overviewStatus === "done" ? 1 : 0) +
+        ARTIFACT_KEYS.filter((k) => selected[k] && artifacts[k].status === "done").length;
+      const currentLabel = currentTask ? NAV.find((n) => n.id === currentTask)?.label : null;
+
+      return (
+        <div className="flex h-full">
+          {/* Nav rail */}
+          <div className="flex w-64 shrink-0 flex-col border-r border-border bg-card/40">
+            <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+              <GraduationCap className="size-4 text-primary" />
+              <span className="truncate text-sm font-medium">{topic}</span>
+            </div>
+
+            {/* Live progress strip */}
+            <div className="border-b border-border px-4 py-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium text-muted-foreground">
+                  {generating ? (
+                    <span className="flex items-center gap-1.5 text-foreground">
+                      <Loader2 className="size-3 animate-spin text-primary" />
+                      Generating {currentLabel ?? "…"}
+                    </span>
+                  ) : done >= total ? (
+                    "All artifacts ready"
+                  ) : (
+                    "Ready"
+                  )}
+                </span>
+                <span className="font-mono text-muted-foreground">{done}/{total}</span>
+              </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                <motion.div
+                  className="h-full rounded-full bg-primary"
+                  animate={{ width: `${total ? (done / total) * 100 : 0}%` }}
+                  transition={{ duration: 0.4 }}
+                />
+              </div>
+            </div>
+
+            <div className="min-h-0 flex-1">
+              <ScrollArea className="h-full">
+              <nav className="space-y-1 p-2">
+                {NAV.map((item) => {
+                  const st = statusFor(item.id);
+                  const isArtifact = (ARTIFACT_KEYS as string[]).includes(item.id);
+                  const notIncluded = isArtifact && !selected[item.id as ArtifactKey];
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => openView(item.id)}
+                      className={cn(
+                        "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                        activeView === item.id ? "bg-violet-soft text-primary" : "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
+                        notIncluded && "opacity-40",
+                      )}
+                    >
+                      <item.icon className="size-4 shrink-0" />
+                      <span className="flex-1 truncate">{item.label}</span>
+                      <StatusIcon status={st} />
+                    </button>
+                  );
+                })}
+              </nav>
+              </ScrollArea>
+            </div>
+            <div className="space-y-2 border-t border-border p-3">
+              <Button onClick={savePackage} disabled={saving || !overview} className="w-full gap-2" size="sm">
+                {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+                {packageId ? "Saved" : "Save Learning Package"}
+              </Button>
+              <Button onClick={reset} variant="outline" className="w-full gap-2" size="sm">
+                <Plus className="size-3.5" /> New topic
+              </Button>
+            </div>
+          </div>
+
+          {/* Main panel */}
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background/80 px-6 backdrop-blur-xl">
+              <span className="text-sm font-medium">{NAV.find((n) => n.id === activeView)?.label}</span>
+              {grounded !== undefined && (
+                <Badge variant="outline" className={cn("text-[10px]", grounded ? "border-success/40 bg-success-soft text-success" : "border-warning/40 bg-warning-soft text-warning")}>
+                  {grounded ? "From your documents" : "General knowledge"}
+                </Badge>
+              )}
+            </div>
+
+            {activeView === "sources" ? (
+              <div className="min-h-0 flex-1">
+                <SourcePanel sources={sources} />
+              </div>
+            ) : activeView === "diagram" ? (
+              <div className="min-h-0 flex-1 relative">
+                <motion.div
+                  key={activeView}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="absolute inset-0"
+                >
+                  <ArtifactBody view={activeView as ArtifactKey} />
+                </motion.div>
+              </div>
+            ) : (
+              <div className="min-h-0 flex-1">
+                <ScrollArea className="h-full">
+                <motion.div
+                  key={activeView}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mx-auto max-w-3xl px-8 py-8"
+                >
+                  {activeView === "overview" ? (
+                    overviewStatus === "loading" ? (
+                      <Spinner message="Retrieving sources…" />
+                    ) : overviewStatus === "error" ? (
+                      <ViewState icon={AlertTriangle} message="Failed to generate the overview." />
+                    ) : overview ? (
+                      <MarkdownRenderer content={overview.markdown} />
+                    ) : (
+                      <ViewState icon={Sparkles} message="Generating overview…" />
+                    )
+                  ) : activeView === "consistency" ? (
+                    <ConsistencyView />
+                  ) : (
+                    <ArtifactBody view={activeView as ArtifactKey} />
+                  )}
+                </motion.div>
+                </ScrollArea>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+export function Teach() {
+    const phase = useTeachStore((s) => s.phase);
+    return phase === "input" ? <InputPhase /> : <WorkspacePhase />;
+  }
+
+```
+
+
+## File: src/app/pages/Differences.tsx
+```typescript
+import { useEffect, useRef } from "react";
+import {
+  Columns2,
+  Copy,
+  Download,
+  Loader2,
+  Sparkles,
+  Trash2,
+  Code,
+  Eye,
+} from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
+import { Page, SectionTitle } from "../components/Page";
+import QualityBadge from "../components/QualityBadge";
+import { useDifferencesStore } from "../stores/useDifferencesStore";
+import { cn } from "../components/ui/utils";
+
+export function Differences() {
+  const topic = useDifferencesStore((s) => s.topic);
+  const course = useDifferencesStore((s) => s.course);
+  const document = useDifferencesStore((s) => s.document);
+  const loading = useDifferencesStore((s) => s.loading);
+  const output = useDifferencesStore((s) => s.output);
+  const showRaw = useDifferencesStore((s) => s.showRaw);
+  const suggestions = useDifferencesStore((s) => s.suggestions);
+  const saved = useDifferencesStore((s) => s.saved);
+  const courses = useDifferencesStore((s) => s.courses);
+  const documents = useDifferencesStore((s) => s.documents);
+  const setTopic = useDifferencesStore((s) => s.setTopic);
+  const setCourse = useDifferencesStore((s) => s.setCourse);
+  const setDocument = useDifferencesStore((s) => s.setDocument);
+  const setShowRaw = useDifferencesStore((s) => s.setShowRaw);
+  const generate = useDifferencesStore((s) => s.generate);
+  const fetchSuggestions = useDifferencesStore((s) => s.fetchSuggestions);
+  const fetchSaved = useDifferencesStore((s) => s.fetchSaved);
+  const fetchCoursesAndDocs = useDifferencesStore((s) => s.fetchCoursesAndDocs);
+  const saveTable = useDifferencesStore((s) => s.saveTable);
+  const deleteTable = useDifferencesStore((s) => s.deleteTable);
+  const loadSaved = useDifferencesStore((s) => s.loadSaved);
+
+  const viewerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchSuggestions();
+    fetchSaved();
+    fetchCoursesAndDocs();
+  }, [fetchSuggestions, fetchSaved, fetchCoursesAndDocs]);
+
+  const prevOutput = useRef(output);
+  useEffect(() => {
+    if (output && output !== prevOutput.current) {
+      setTimeout(() => viewerRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    }
+    prevOutput.current = output;
+  }, [output]);
+
+  function copyMarkdown() {
+    if (!output) return;
+    navigator.clipboard.writeText(output.content);
+    toast.success("Copied to clipboard");
+  }
+
+  function exportMarkdown() {
+    if (!output) return;
+    const blob = new Blob([output.content], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${output.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.md`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success("Exported as Markdown");
+  }
+
+  const visibleDocs = course === "none"
+    ? documents
+    : documents.filter((d) => d.course === course);
+
+  const isEmpty = !output && saved.length === 0 && !loading;
 
   return (
-    <div className="flex h-full">
-      {/* Sidebar */}
-      <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card/40">
-        <div className="border-b border-border px-4 py-3 text-sm font-medium">
-          Mind Maps
+    <Page>
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <Columns2 className="size-5 text-violet" />
+          <h1 className="text-2xl font-semibold tracking-tight">Difference Tables</h1>
         </div>
-        <ScrollArea className="flex-1">
-          <div className="space-y-1 p-2">
-            {loading && (
-              <div className="flex w-full items-center gap-3 rounded-lg border border-dashed border-violet/40 bg-violet-soft/40 p-3">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-violet">
-                  <Loader2 className="size-4 animate-spin" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{topic.trim() || "Generating…"}</div>
-                  <div className="truncate text-xs text-muted-foreground">Generating…</div>
-                </div>
-              </div>
+        <p className="text-sm text-muted-foreground">
+          Compare concepts, architectures, algorithms and systems.
+        </p>
+      </div>
+
+      {/* Search + generate */}
+      <div className="flex gap-2 mb-3">
+        <Input
+          placeholder="Compare concepts… e.g. Process vs Thread"
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && !loading && generate()}
+          className="flex-1"
+        />
+        <Button onClick={generate} disabled={loading || !topic.trim()}>
+          {loading ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Sparkles className="size-4" />
+          )}
+          {loading ? "Generating…" : "Generate Table"}
+        </Button>
+      </div>
+
+      {/* Course + document pickers */}
+      <div className="flex gap-2 mb-6">
+        <Select value={course} onValueChange={setCourse}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All courses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">All courses</SelectItem>
+            {courses.map((c) => (
+              <SelectItem key={c.id} value={c.name}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={document ?? "all"}
+          onValueChange={(v) => setDocument(v === "all" ? null : v)}
+        >
+          <SelectTrigger className="w-56">
+            <SelectValue placeholder="All documents" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All documents</SelectItem>
+            {visibleDocs.map((d) => (
+              <SelectItem key={d.id} value={d.id}>
+                {d.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Suggestions */}
+      {suggestions.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {suggestions.map((s) => (
+            <button
+              key={s}
+              onClick={() => setTopic(s)}
+              className="rounded-full border border-border bg-muted/50 px-3 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Viewer */}
+      {output && (
+        <div ref={viewerRef} className="mb-8">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="font-medium text-foreground">{output.title}</h2>
+              <QualityBadge score={output.quality} />
+            </div>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowRaw(!showRaw)}
+                className="gap-1.5"
+              >
+                {showRaw ? <Eye className="size-3.5" /> : <Code className="size-3.5" />}
+                {showRaw ? "Rendered" : "Raw"}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={copyMarkdown} className="gap-1.5">
+                <Copy className="size-3.5" /> Copy
+              </Button>
+              <Button variant="ghost" size="sm" onClick={exportMarkdown} className="gap-1.5">
+                <Download className="size-3.5" /> Export
+              </Button>
+              <Button size="sm" onClick={saveTable} className="gap-1.5">
+                Save
+              </Button>
+            </div>
+          </div>
+          <div
+            className={cn(
+              "rounded-lg border border-border bg-card p-4",
+              showRaw && "font-mono text-xs",
             )}
-            {items.length === 0 && !loading && (
-              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
-                No mind maps yet. Generate one to get started.
-              </div>
+          >
+            {showRaw ? (
+              <pre className="whitespace-pre-wrap text-foreground">{output.content}</pre>
+            ) : (
+              <MarkdownRenderer content={output.content} />
             )}
-            {items.map((m) => (
+          </div>
+          {!output.grounded && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Based on general knowledge — upload documents for grounded comparisons.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {isEmpty && (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Columns2 className="size-10 text-muted-foreground/40 mb-3" />
+          <p className="font-medium text-muted-foreground mb-1">Generate your first comparison.</p>
+          <p className="text-sm text-muted-foreground/70">
+            Compare two concepts to create an exam-ready revision table.
+          </p>
+          <div className="flex gap-2 mt-4 flex-wrap justify-center">
+            {["Process vs Thread", "REST vs gRPC", "Monolith vs Microservices"].map((ex) => (
+              <button
+                key={ex}
+                onClick={() => setTopic(ex)}
+                className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                {ex}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Saved tables */}
+      {saved.length > 0 && (
+        <div>
+          <SectionTitle title="Saved Comparisons" />
+          <div className="space-y-2">
+            {saved.map((item) => (
               <div
-                key={m.id}
-                onClick={() => setActive(m)}
+                key={item.id}
                 className={cn(
-                  "group flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-left transition-colors",
-                  active?.id === m.id ? "bg-violet-soft" : "hover:bg-accent/40",
+                  "flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 transition-colors",
+                  output?.title === item.title
+                    ? "border-violet/40 bg-violet/5"
+                    : "hover:bg-muted/50",
                 )}
               >
-                <div
-                  className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-lg",
-                    active?.id === m.id ? "bg-primary text-white" : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  <Network className="size-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{m.title}</div>
-                  <div className="truncate text-xs text-muted-foreground">{m.course}</div>
-                </div>
+                <button className="flex-1 text-left" onClick={() => loadSaved(item)}>
+                  <p className="text-sm font-medium text-foreground">{item.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {new Date(item.createdAt).toLocaleDateString()}
+                    {item.course && ` · ${item.course}`}
+                  </p>
+                </button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    void remove(m.id);
-                  }}
+                  onClick={() => deleteTable(item.id)}
+                  className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="size-3.5" />
                 </Button>
               </div>
             ))}
           </div>
-        </ScrollArea>
-      </div>
+        </div>
+      )}
+    </Page>
+  );
+}
 
-      {/* Main panel */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
-        {/* Generate controls */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card/40 px-6 py-3">
-          <Input
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !loading) generate(); }}
-            placeholder="Topic to map…"
-            className="h-9 max-w-xs flex-1 bg-input-background"
-            disabled={loading}
-          />
-          <Select value={course} onValueChange={setCourse} disabled={loading}>
-            <SelectTrigger className="h-9 w-48 bg-input-background">
-              <SelectValue placeholder="All courses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL_COURSES}>All courses</SelectItem>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+```
+
+
+## File: src/app/pages/Revision.tsx
+```typescript
+import { useEffect, useState, useMemo } from "react";
+import {
+  Sparkles,
+  NotebookPen,
+  FileText,
+  Sigma,
+  ListTree,
+  Download,
+  Loader2,
+  AlertTriangle,
+  Clock,
+  Bookmark,
+  Trash2,
+} from "lucide-react";
+import { motion } from "motion/react";
+import { toast } from "sonner";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { Label } from "../components/ui/label";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
+import QualityBadge from "../components/QualityBadge";
+import { api } from "../lib/api";
+import {
+  useRevisionStore,
+  type RevisionFormat,
+} from "../stores/useRevisionStore";
+import type { Course, DocumentItem } from "../lib/types";
+import { cn } from "../components/ui/utils";
+
+const formats: {
+  id: RevisionFormat;
+  label: string;
+  icon: typeof NotebookPen;
+}[] = [
+    { id: "notes", label: "Exam Notes", icon: NotebookPen },
+    { id: "concepts", label: "Key Concepts", icon: ListTree },
+    { id: "formulas", label: "Formula Explorer", icon: Sigma },
+    { id: "summary", label: "Summary Sheet", icon: FileText },
+  ];
+
+export function Revision() {
+  const {
+    format,
+    topic,
+    course,
+    loading,
+    output,
+    title,
+    ungrounded,
+    quality,
+    savedRevisions,
+    setField,
+    generate,
+    stop,
+    loadRevision,
+    fetchRevisions,
+    deleteRevision,
+  } = useRevisionStore();
+  const setFormat = (f: RevisionFormat) => setField("format", f);
+  const setTopic = (v: string) => setField("topic", v);
+  const setCourse = (v: string) => setField("course", v);
+  const document = useRevisionStore((s) => s.document);
+  const setDocument = (v: string | null) => setField("document", v);
+
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+
+  useEffect(() => {
+    fetchRevisions();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .listCourses()
+      .then((cs) => {
+        if (!cancelled) setCourses(cs);
+      })
+      .catch(() => { });
+    api
+      .listDocuments()
+      .then((docs) => {
+        if (!cancelled) setDocuments(docs);
+      })
+      .catch(() => { });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const suggestedRevision = useMemo(() => {
+    if (!documents.length) return [];
+
+    return documents.slice(0, 3).map((doc, i) => ({
+      id: `sr-d${i}`,
+      topic: doc.title.replace(/\.[^/.]+$/, ""),
+      reason: i === 0 ? "Due for review today" : "Upcoming exam",
+      course: doc.course,
+    }));
+  }, [documents]);
+
+  const pickTopic = (value: string) => {
+    setTopic(value);
+    toast.success(`Topic set to "${value}"`);
+  };
+
+  return (
+    <div className="flex h-full">
+      {/* Generator */}
+      <div className="w-96 shrink-0 overflow-y-auto border-r border-border bg-card/40 p-5">
+        <div className="flex items-center gap-2">
+          <Sparkles className="size-4 text-primary" />
+          <h3>Generator</h3>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Turn your materials into exam-ready study resources.
+        </p>
+
+        <div className="mt-6 space-y-5">
+          <div>
+            <Label className="mb-2 block">Format</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {formats.map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setFormat(f.id)}
+                  className={cn(
+                    "flex flex-col items-start gap-2 rounded-xl border p-3 text-left transition-colors",
+                    format === f.id
+                      ? "border-primary bg-violet-soft"
+                      : "border-border bg-card hover:border-ring/40",
+                  )}
+                >
+                  <f.icon
+                    className={cn(
+                      "size-4",
+                      format === f.id
+                        ? "text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  />
+                  <span className="text-sm">{f.label}</span>
+                </button>
               ))}
-            </SelectContent>
-          </Select>
-          <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)} disabled={loading}>
-            <SelectTrigger className="h-9 w-48 bg-input-background">
-              <SelectValue placeholder="All documents" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All documents</SelectItem>
-              {documents.filter(d => course !== ALL_COURSES ? d.course === course : true).map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button size="sm" onClick={generate} disabled={loading} className="gap-1.5">
-            {loading ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
-            {loading ? "Generating..." : "Generate"}
+            </div>
+          </div>
+
+          <div>
+            <Label className="mb-2 block">Topic</Label>
+            <Input
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !loading) generate();
+              }}
+              placeholder="e.g. Backpropagation (optional)"
+              className="bg-input-background"
+            />
+          </div>
+
+          <div>
+            <Label className="mb-2 block">Course</Label>
+            <Select value={course} onValueChange={setCourse}>
+              <SelectTrigger className="bg-input-background">
+                <SelectValue placeholder="No course" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No course</SelectItem>
+                {courses.map((c) => (
+                  <SelectItem key={c.id} value={c.name}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
+              <SelectTrigger className="mt-2 bg-input-background">
+                <SelectValue placeholder="All documents" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All documents</SelectItem>
+                {documents.filter(d => course !== "none" ? d.course === course : true).map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              Provide at least a topic or a course.
+            </p>
+          </div>
+
+          <Button
+            onClick={loading ? stop : generate}
+            className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            {loading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Sparkles className="size-4" />
+            )}
+            {loading ? "Stop" : "Generate"}
           </Button>
         </div>
 
-        <GenerationSteps
-          steps={["Searching your library", "Mapping concepts", "Building hierarchy", "Assembling tree"]}
-          loading={loading}
-          className="border-b border-border px-6 py-3"
-          interval={2000}
-        />
-
-        {/* Tree viewer */}
-        {active ? (
-          <>
-            <div className="sticky top-0 z-10 flex h-12 items-center gap-2 border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-              <Network className="size-4 text-primary" />
-              <span className="text-sm font-medium">{active.title}</span>
-              <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
-                {nodeCount} {nodeCount === 1 ? "node" : "nodes"}
-              </Badge>
-            </div>
-            <ScrollArea className="flex-1">
-              <div className="p-6">
-                {active.course && (
-                  <p className="mb-4 text-xs uppercase tracking-wide text-muted-foreground">
-                    {active.course}
-                  </p>
-                )}
-                <MindMapTree text={active.text} />
-              </div>
-            </ScrollArea>
-          </>
-        ) : (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-muted-foreground">
-            <Network className="size-8 opacity-40" />
+        {/* Quick picks */}
+        {suggestedRevision.length > 0 && (
+          <div className="mt-8 space-y-5">
             <div>
-              <p className="text-sm font-medium text-foreground">No mind map selected</p>
-              <p className="mt-1 text-sm">
-                Enter a topic and press Generate, or select one from the sidebar.
-              </p>
+              <div className="mb-2 flex items-center gap-2">
+                <Clock className="size-3.5 text-muted-foreground" />
+                <Label>Suggested revision</Label>
+              </div>
+              <div className="space-y-2">
+                {suggestedRevision.map((r) => (
+                  <button
+                    key={r.id}
+                    onClick={() => pickTopic(r.topic)}
+                    className="flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40"
+                  >
+                    <span className="text-sm font-medium">{r.topic}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {r.reason}
+                    </span>
+                    <span className="text-xs text-muted-foreground/70">
+                      {r.course}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Saved revisions */}
+        {savedRevisions.length > 0 && (
+          <div className="mt-8 space-y-5">
+            <div>
+              <div className="mb-2 flex items-center gap-2">
+                <Bookmark className="size-3.5 text-muted-foreground" />
+                <Label>Saved revisions</Label>
+              </div>
+              <div className="space-y-2">
+                {savedRevisions.map((r) => (
+                  <div key={r.id} className="group relative flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40">
+                    <button
+                      onClick={() => loadRevision(r.id)}
+                      className="w-full text-left"
+                    >
+                      <span className="text-sm font-medium truncate w-full pr-8 block">
+                        {r.title}
+                      </span>
+                      <span className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                        {r.content.replace(/[#*]/g, "").trim()}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground/60 mt-1 block">
+                        {new Date(r.timestamp).toLocaleDateString()}
+                      </span>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteRevision(r.id);
+                      }}
+                      className="absolute right-3 top-3 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* Preview */}
+      <div className="min-w-0 flex-1 overflow-y-auto">
+        <div className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">{title ?? "Preview"}</span>
+            {!loading && <QualityBadge score={quality} />}
+          </div>
+          {output && (
+            <div className="flex gap-2">
+              {/* <Button variant="outline" size="sm" className="gap-1.5" onClick={saveRevision}> */}
+              {/*   <Bookmark className="size-3.5" /> Save */}
+              {/* </Button> */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => {
+                  if (!output) return;
+                  const blob = new Blob([output], { type: "text/markdown" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `${(title || "revision").replace(/[^a-z0-9]/gi, "_").toLowerCase()}.md`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                  toast.success("Exported as markdown");
+                }}
+              >
+                <Download className="size-3.5" /> Export
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="mx-auto max-w-3xl px-8 py-8">
+          {output ? (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              {!loading && ungrounded && (
+                <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                  <span>
+                    This topic may not be covered by your uploaded documents —
+                    the result below may be incomplete or based on general
+                    knowledge.
+                  </span>
+                </div>
+              )}
+              <MarkdownRenderer content={output} />
+              {loading && (
+                <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-primary" />
+              )}
+            </motion.div>
+          ) : loading ? (
+            <div className="flex flex-col items-center pt-24 text-muted-foreground">
+              <Loader2 className="size-6 animate-spin text-primary" />
+              <p className="mt-3 text-sm">Retrieving sources…</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center pt-24 text-center text-muted-foreground">
+              <Sparkles className="size-6 text-primary/60" />
+              <p className="mt-3 text-sm">
+                Choose a format, enter a topic or course, then generate a study
+                sheet.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/pages/PyqAnalysis.tsx
 ```typescript
@@ -17945,6 +21942,9 @@ import {
   BookOpen,
   FileSearch,
   Columns2,
+  Pencil,
+  Save,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Page } from "../components/Page";
@@ -17967,7 +21967,7 @@ import {
   DialogDescription,
 } from "../components/ui/dialog";
 import { api } from "../lib/api";
-import type { PyqTopicFreq } from "../lib/api";
+import type { PyqQuestion, PyqTopicFreq } from "../lib/api";
 import type { Course } from "../lib/types";
 import { usePyqStore } from "../stores/usePyqStore";
 import { useExamStore } from "../stores/useExamStore";
@@ -18510,6 +22510,143 @@ function ExamReadiness({ a }: { a: NonNullable<ReturnType<typeof usePyqStore.get
   );
 }
 
+/* ---------------- Question card (inline edit/delete) ---------------- */
+
+const QTYPES = [
+  "definition", "explanation", "comparison", "advantages", "architecture",
+  "case_study", "numerical", "problem_solving", "short_answer", "long_answer", "other",
+];
+
+function QuestionCard({ q }: { q: PyqQuestion }) {
+  const updateQuestion = usePyqStore((s) => s.updateQuestion);
+  const deleteQuestion = usePyqStore((s) => s.deleteQuestion);
+
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({ ...q });
+
+  useEffect(() => {
+    if (!editing) setDraft({ ...q });
+  }, [q]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSave = async () => {
+    try {
+      await updateQuestion(q.id, {
+        text: draft.text,
+        topic: draft.topic,
+        subtopics: draft.subtopics,
+        difficulty: draft.difficulty,
+        type: draft.type,
+        marks: draft.marks,
+        year: draft.year,
+      });
+      setEditing(false);
+    } catch {
+      // error toast already shown by updateQuestion; keep editing open
+    }
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Remove this question?")) {
+      deleteQuestion(q.id);
+    }
+  };
+
+  if (editing) {
+    return (
+      <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+        <textarea
+          className="w-full rounded border border-border bg-background p-2 text-sm resize-none"
+          rows={3}
+          value={draft.text}
+          onChange={(e) => setDraft((d) => ({ ...d, text: e.target.value }))}
+        />
+        <div className="flex flex-wrap gap-2">
+          <input
+            className="rounded border border-border bg-background px-2 py-1 text-xs w-36"
+            placeholder="Topic"
+            value={draft.topic}
+            onChange={(e) => setDraft((d) => ({ ...d, topic: e.target.value }))}
+          />
+          <select
+            className="rounded border border-border bg-background px-2 py-1 text-xs"
+            value={draft.difficulty}
+            onChange={(e) => setDraft((d) => ({ ...d, difficulty: e.target.value }))}
+          >
+            {["Easy", "Medium", "Hard"].map((v) => <option key={v}>{v}</option>)}
+          </select>
+          <select
+            className="rounded border border-border bg-background px-2 py-1 text-xs"
+            value={draft.type}
+            onChange={(e) => setDraft((d) => ({ ...d, type: e.target.value }))}
+          >
+            {QTYPES.map((v) => <option key={v}>{v}</option>)}
+          </select>
+          <input
+            className="rounded border border-border bg-background px-2 py-1 text-xs w-20"
+            type="number"
+            placeholder="Marks"
+            value={draft.marks ?? ""}
+            onChange={(e) => setDraft((d) => ({ ...d, marks: e.target.value ? Number(e.target.value) : null }))}
+          />
+          <input
+            className="rounded border border-border bg-background px-2 py-1 text-xs w-20"
+            type="number"
+            placeholder="Year"
+            value={draft.year ?? ""}
+            onChange={(e) => setDraft((d) => ({ ...d, year: e.target.value ? Number(e.target.value) : null }))}
+          />
+        </div>
+        <div className="flex gap-2">
+          <button
+            className="flex items-center gap-1 rounded px-2 py-1 text-xs bg-primary text-primary-foreground hover:opacity-90"
+            onClick={handleSave}
+          >
+            <Save className="size-3" /> Save
+          </button>
+          <button
+            className="flex items-center gap-1 rounded px-2 py-1 text-xs border border-border hover:bg-muted"
+            onClick={() => { setDraft({ ...q }); setEditing(false); }}
+          >
+            <X className="size-3" /> Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="group rounded-lg border border-border p-3">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm flex-1">{q.text}</p>
+        <div className="flex shrink-0 gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            className="rounded p-1 hover:bg-muted text-muted-foreground hover:text-foreground"
+            title="Edit question"
+            onClick={() => { setDraft({ ...q }); setEditing(true); }}
+          >
+            <Pencil className="size-3.5" />
+          </button>
+          <button
+            className="rounded p-1 hover:bg-muted text-muted-foreground hover:text-danger"
+            title="Delete question"
+            onClick={handleDelete}
+          >
+            <Trash2 className="size-3.5" />
+          </button>
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+        <Badge variant="outline">{q.topic}</Badge>
+        {q.subtopics?.map((st) => <Badge key={st} variant="outline" className="text-violet">{st}</Badge>)}
+        <Badge variant="secondary">{q.difficulty}</Badge>
+        <Badge variant="outline">{q.type.replace(/_/g, " ")}</Badge>
+        {q.marks != null && <Badge variant="outline">{q.marks} marks</Badge>}
+        {q.year != null && <Badge variant="outline">{q.year}</Badge>}
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- Question explorer ---------------- */
 
 function QuestionExplorer() {
@@ -18556,17 +22693,7 @@ function QuestionExplorer() {
       <div className="max-h-[460px] space-y-2 overflow-y-auto">
         {questions.length === 0 && <p className="text-sm text-muted-foreground">No questions match these filters.</p>}
         {questions.map((q) => (
-          <div key={q.id} className="rounded-lg border border-border p-3">
-            <p className="text-sm">{q.text}</p>
-            <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
-              <Badge variant="outline">{q.topic}</Badge>
-              {q.subtopics?.map((st) => <Badge key={st} variant="outline" className="text-violet">{st}</Badge>)}
-              <Badge variant="secondary">{q.difficulty}</Badge>
-              <Badge variant="outline">{q.type.replace(/_/g, " ")}</Badge>
-              {q.marks != null && <Badge variant="outline">{q.marks} marks</Badge>}
-              {q.year != null && <Badge variant="outline">{q.year}</Badge>}
-            </div>
-          </div>
+          <QuestionCard key={q.id} q={q} />
         ))}
       </div>
     </section>
@@ -18700,35 +22827,20 @@ function TopicDrawer({
     </Dialog>
   );
 }
+
 ```
 
-## File: src/app/pages/Teach.tsx
+
+## File: src/app/pages/MindMaps.tsx
 ```typescript
-import { useEffect, useState } from "react";
-import {
-  GraduationCap,
-  BookOpen,
-  NotebookPen,
-  Layers,
-  ListChecks,
-  Network,
-  Workflow,
-  Columns2,
-  FileText,
-  Sparkles,
-  Loader2,
-  AlertTriangle,
-  Save,
-  Plus,
-  Trash2,
-  Clock,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
-import { motion } from "motion/react";
-import { toast } from "sonner";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Network, Sparkles, Loader2, Trash2, ImageDown, FileDown } from "lucide-react";
+import { exportNodeToPng, exportNodeToPdf } from "../lib/export";
+import { GenerationSteps } from "../components/GenerationSteps";
 import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
+import { ScrollArea } from "../components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -18736,1157 +22848,5381 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { Badge } from "../components/ui/badge";
-import { ScrollArea } from "../components/ui/scroll-area";
-import { MarkdownRenderer } from "../components/MarkdownRenderer";
-import { FlashcardCard } from "../components/FlashcardCard";
-import { DiagramViewer } from "../components/DiagramViewer";
-import { SourcePanel } from "../components/SourcePanel";
-import { MindMapTree, countNodes, parseMindmapText } from "../components/MindMapTree";
+import { api, type GeneratedMindmap } from "../lib/api";
+import type { Course, DocumentItem } from "../lib/types";
+import { useMindmapStore, ALL_COURSES } from "../stores/useMindmapStore";
+import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
-import { api, type PackageMeta, type FlashcardSet, type GeneratedQuiz, type GeneratedDiagram, type GeneratedMindmap, type GeneratedRevision } from "../lib/api";
-import type { GeneratedDifference, Flashcard, QuizQuestion } from "../lib/types";
-import {
-  useTeachStore,
-  ARTIFACT_KEYS,
-  type ArtifactKey,
-  type Depth,
-  type ViewKey,
-  type SlotStatus,
-} from "../stores/useTeachStore";
+import { MindMapTree, parseMindmapText, countNodes } from "../components/MindMapTree";
+import QualityBadge from "../components/QualityBadge";
 
-const EXAMPLES = ["CAP Theorem", "RAG", "Deadlocks", "Service Discovery", "OS Scheduling", "LangGraph"];
+export function MindMaps() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [items, setItems] = useState<GeneratedMindmap[]>([]);
+  const [active, setActive] = useState<GeneratedMindmap | null>(null);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
-const DEPTHS: { id: Depth; label: string }[] = [
-  { id: "quick", label: "Quick Overview" },
-  { id: "standard", label: "Standard" },
-  { id: "deep", label: "Deep Dive" },
-];
+  const { topic, course, document, loading, mindmap, setField, generate } = useMindmapStore();
+  const setCourse = (v: string) => setField("course", v);
+  const setDocument = (v: string | null) => setField("document", v);
+  const setTopic = (v: string) => setField("topic", v);
 
-const ARTIFACT_LABELS: Record<ArtifactKey, string> = {
-  notes: "Notes",
-  flashcards: "Flashcards",
-  quiz: "Quiz",
-  mindmap: "Mind Map",
-  diagram: "Diagram",
-  difference: "Difference Tables",
-};
-
-const NAV: { id: ViewKey; label: string; icon: typeof BookOpen }[] = [
-  { id: "overview", label: "Overview", icon: BookOpen },
-  { id: "notes", label: "Notes", icon: NotebookPen },
-  { id: "flashcards", label: "Flashcards", icon: Layers },
-  { id: "quiz", label: "Quiz", icon: ListChecks },
-  { id: "mindmap", label: "Mind Map", icon: Network },
-  { id: "diagram", label: "Diagram", icon: Workflow },
-  { id: "difference", label: "Difference Tables", icon: Columns2 },
-  { id: "sources", label: "Sources", icon: FileText },
-];
-
-// ---------------------------------------------------------------------------
-// Input phase
-// ---------------------------------------------------------------------------
-
-function InputPhase() {
-  const { topic, depth, course, document, courses, documents, selected, setField, setCourse, setDocument, toggleArtifact, startGenerate, loadPackage, fetchCoursesAndDocs } =
-    useTeachStore();
-  const [packages, setPackages] = useState<PackageMeta[]>([]);
-  const [suggestions, setSuggestions] = useState<string[]>(EXAMPLES);
+  // Absorb a newly generated mindmap into the sidebar list and select it.
+  useEffect(() => {
+    if (!mindmap) return;
+    setItems((prev) => (prev.some((m) => m.id === mindmap.id) ? prev : [mindmap, ...prev]));
+    setActive(mindmap);
+  }, [mindmap]);
 
   useEffect(() => {
     let cancelled = false;
-    fetchCoursesAndDocs();
-    api.listPackages().then((p) => { if (!cancelled) setPackages(p); }).catch(() => { });
-    api.onboardingAnalysis().then((a) => {
-      if (!cancelled) {
-        const generated = [...(a.topics || []), ...(a.concepts || [])];
-        if (generated.length > 0) {
-          // Get unique suggestions up to 6
-          const unique = Array.from(new Set(generated)).slice(0, 6);
-          setSuggestions(unique);
-        }
-      }
-    }).catch(() => { });
+    api
+      .listCourses()
+      .then((cs) => { if (!cancelled) setCourses(cs); })
+      .catch(() => {});
+    api.listDocuments().then((ds) => { if (!cancelled) setDocuments(ds); }).catch(() => {});
+    api
+      .listMindmaps()
+      .then((ms) => {
+        if (cancelled) return;
+        setItems(ms);
+        setActive((cur) => cur ?? ms[0] ?? null);
+      })
+      .catch(() => {});
     return () => { cancelled = true; };
   }, []);
 
-    const removePackage = async (id: string) => {
-      try {
-        await api.deletePackage(id);
-        setPackages((prev) => prev.filter((p) => p.id !== id));
-        toast.success("Package deleted");
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to delete");
-      }
-    };
-
-    return (
-      <ScrollArea className="h-full">
-        <div className="mx-auto max-w-2xl px-6 py-12">
-          <div className="flex flex-col items-center text-center">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-violet-soft text-primary">
-              <GraduationCap className="size-6" />
-            </div>
-            <h1 className="mt-4 text-2xl font-semibold">Teach Me</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Enter a topic and get a complete learning workspace — notes, flashcards, quiz,
-              mind map, diagram and more, all in one place.
-            </p>
-          </div>
-
-          <div className="mt-8 rounded-2xl border border-border bg-card p-5">
-            <Input
-              value={topic}
-              onChange={(e) => setField("topic", e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") startGenerate(); }}
-              placeholder="What would you like to learn?"
-              className="h-11 bg-input-background text-base"
-              autoFocus
-            />
-
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {suggestions.map((ex) => (
-                <button
-                  key={ex}
-                  onClick={() => setField("topic", ex)}
-                  className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground transition-colors hover:border-ring/40 hover:text-foreground"
-                >
-                  {ex}
-                </button>
-              ))}
-            </div>
-
-            {/* Context Pickers */}
-            <div className="mt-5 flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
-                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Course</div>
-                <Select value={course} onValueChange={setCourse}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All courses" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">All courses</SelectItem>
-                    {courses.map((c) => (
-                      <SelectItem key={c.id} value={c.name}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex-1">
-                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Document</div>
-                <Select
-                  value={document ?? "all"}
-                  onValueChange={(v) => setDocument(v === "all" ? null : v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="All documents" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All documents</SelectItem>
-                    {(course === "none" ? documents : documents.filter(d => d.course === course)).map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
-                        {d.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Depth */}
-            <div className="mt-5">
-              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Depth</div>
-              <div className="flex gap-2">
-                {DEPTHS.map((d) => (
-                  <button
-                    key={d.id}
-                    onClick={() => setField("depth", d.id)}
-                    className={cn(
-                      "flex-1 rounded-lg border px-3 py-2 text-sm transition-colors",
-                      depth === d.id ? "border-primary bg-violet-soft text-primary" : "border-border bg-background hover:border-ring/40",
-                    )}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Artifacts */}
-            <div className="mt-5">
-              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Artifacts</div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {ARTIFACT_KEYS.map((key) => (
-                  <button
-                    key={key}
-                    onClick={() => toggleArtifact(key)}
-                    className={cn(
-                      "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
-                      selected[key] ? "border-primary/50 bg-violet-soft/60" : "border-border bg-background text-muted-foreground hover:border-ring/40",
-                    )}
-                  >
-                    <span className={cn("flex size-4 items-center justify-center rounded border", selected[key] ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40")}>
-                      {selected[key] && <CheckCircle2 className="size-3" />}
-                    </span>
-                    {ARTIFACT_LABELS[key]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <Button onClick={startGenerate} className="mt-6 w-full gap-2">
-              <Sparkles className="size-4" /> Generate learning package
-            </Button>
-          </div>
-
-          {/* Library */}
-          {packages.length > 0 && (
-            <div className="mt-10">
-              <h2 className="mb-3 text-sm font-medium">Your learning packages</h2>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {packages.map((p) => (
-                  <div
-                    key={p.id}
-                    className="group flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-ring/40"
-                    onClick={() => loadPackage(p.id)}
-                  >
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-violet-soft text-primary">
-                      <GraduationCap className="size-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">{p.title}</div>
-                      <div className="mt-0.5 text-xs text-muted-foreground capitalize">
-                        {p.depth} · {p.artifactCount} {p.artifactCount === 1 ? "artifact" : "artifacts"}
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
-                      onClick={(e) => { e.stopPropagation(); void removePackage(p.id); }}
-                    >
-                      <Trash2 className="size-3.5" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
-    );
-  }
-
-// ---------------------------------------------------------------------------
-// Workspace views
-// ---------------------------------------------------------------------------
-
-function ViewState({ icon: Icon, message }: { icon: typeof Sparkles; message: string }) {
-      return (
-        <div className="flex flex-col items-center justify-center gap-3 pt-24 text-center text-muted-foreground">
-          <Icon className="size-7 opacity-50" />
-          <p className="max-w-sm text-sm">{message}</p>
-        </div>
-      );
+  const remove = async (id: string) => {
+    try {
+      await api.deleteMindmap(id);
+      const next = items.filter((m) => m.id !== id);
+      setItems(next);
+      if (active?.id === id) setActive(next[0] ?? null);
+      toast.success("Mind map deleted");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete mind map");
     }
+  };
 
-function Spinner({ message }: { message: string }) {
-      return (
-        <div className="flex flex-col items-center pt-24 text-muted-foreground">
-          <Loader2 className="size-6 animate-spin text-primary" />
-          <p className="mt-3 text-sm">{message}</p>
-        </div>
-      );
+  const tree = useMemo(
+    () => (active?.text ? parseMindmapText(active.text) : []),
+    [active],
+  );
+  const nodeCount = useMemo(() => countNodes(tree), [tree]);
+
+  const treeRef = useRef<HTMLDivElement>(null);
+  const exportTree = async (kind: "png" | "pdf") => {
+    if (!treeRef.current || !active) return;
+    try {
+      const name = active.title || "mindmap";
+      if (kind === "png") await exportNodeToPng(treeRef.current, name);
+      else await exportNodeToPdf(treeRef.current, name);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Export failed");
     }
+  };
 
-function QuizReview({ questions }: { questions: QuizQuestion[] }) {
-      const [revealed, setRevealed] = useState<Record<string, boolean>>({});
-      if (!questions.length) {
-        return <ViewState icon={ListChecks} message="No quiz questions were generated for this topic." />;
-      }
-      return (
-        <div className="space-y-4">
-          {questions.map((q, i) => {
-            const show = revealed[q.id];
-            return (
-              <div key={q.id} className="rounded-xl border border-border bg-card p-4">
-                <div className="flex items-start gap-2">
-                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md bg-violet-soft text-[11px] font-medium text-primary">{i + 1}</span>
-                  <p className="text-sm font-medium leading-snug">{q.prompt}</p>
+  return (
+    <div className="flex h-full">
+      {/* Sidebar */}
+      <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card/40">
+        <div className="border-b border-border px-4 py-3 text-sm font-medium">
+          Mind Maps
+        </div>
+        <ScrollArea className="flex-1">
+          <div className="space-y-1 p-2">
+            {loading && (
+              <div className="flex w-full items-center gap-3 rounded-lg border border-dashed border-violet/40 bg-violet-soft/40 p-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-violet">
+                  <Loader2 className="size-4 animate-spin" />
                 </div>
-                {q.options && q.options.length > 0 && (
-                  <ul className="mt-3 space-y-1.5 pl-7">
-                    {q.options.map((opt, oi) => {
-                      const isAnswer = show && opt.trim() === q.answer.trim();
-                      return (
-                        <li
-                          key={oi}
-                          className={cn(
-                            "flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm",
-                            isAnswer ? "border-success/50 bg-success-soft text-success" : "border-border",
-                          )}
-                        >
-                          {isAnswer && <CheckCircle2 className="size-3.5 shrink-0" />}
-                          {opt}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-                <div className="mt-3 pl-7">
-                  {show ? (
-                    q.explanation && (
-                      <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm">
-                        <p className="text-muted-foreground">{q.explanation}</p>
-                      </div>
-                    )
-                  ) : (
-                    <Button variant="outline" size="sm" onClick={() => setRevealed((r) => ({ ...r, [q.id]: true }))}>
-                      Show answer
-                    </Button>
-                  )}
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{topic.trim() || "Generating…"}</div>
+                  <div className="truncate text-xs text-muted-foreground">Generating…</div>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      );
-    }
-
-function ArtifactBody({ view }: { view: ArtifactKey }) {
-      const slot = useTeachStore((s) => s.artifacts[view]);
-      const selected = useTeachStore((s) => s.selected[view]);
-      const retryArtifact = useTeachStore((s) => s.retryArtifact);
-
-      if (!selected) {
-        return <ViewState icon={XCircle} message={`${ARTIFACT_LABELS[view]} was not included in this package.`} />;
-      }
-      if (slot.status === "queued") return <Spinner message="Queued — waiting for earlier artifacts…" />;
-      if (slot.status === "loading") return <Spinner message={`Generating ${ARTIFACT_LABELS[view].toLowerCase()}…`} />;
-      if (slot.status === "error") {
-        return (
-          <div className="flex flex-col items-center gap-3 pt-24 text-center text-muted-foreground">
-            <AlertTriangle className="size-7 text-danger/70" />
-            <p className="max-w-sm text-sm">{slot.error}</p>
-            <Button variant="outline" size="sm" onClick={() => void retryArtifact(view)}>Retry</Button>
-          </div>
-        );
-      }
-      if (!slot.data) return <Spinner message="Loading…" />;
-
-      switch (view) {
-        case "notes":
-          return <MarkdownRenderer content={(slot.data as GeneratedRevision).markdown} />;
-        case "difference":
-          return <MarkdownRenderer content={(slot.data as GeneratedDifference).content} />;
-        case "flashcards": {
-          const cards = (slot.data as FlashcardSet).cards as Flashcard[];
-          if (!cards.length) return <ViewState icon={Layers} message="No flashcards were generated." />;
-          return (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {cards.map((c) => <FlashcardCard key={c.id} card={c} />)}
-            </div>
-          );
-        }
-        case "quiz":
-          return <QuizReview questions={(slot.data as GeneratedQuiz).questions} />;
-        case "diagram":
-          return <DiagramViewer code={(slot.data as GeneratedDiagram).mermaid} flush />;
-        case "mindmap": {
-          const text = (slot.data as GeneratedMindmap).text;
-          if (!text?.trim()) return <ViewState icon={Network} message="No mind map was generated." />;
-          const count = countNodes(parseMindmapText(text));
-          return (
-            <div>
-              <Badge variant="outline" className="mb-4 border-cyan/40 bg-cyan-soft text-cyan">
-                {count} {count === 1 ? "node" : "nodes"}
-              </Badge>
-              <MindMapTree text={text} />
-            </div>
-          );
-        }
-      }
-    }
-
-function StatusIcon({ status }: { status: SlotStatus }) {
-      switch (status) {
-        case "loading":
-          return <Loader2 className="size-3.5 shrink-0 animate-spin text-primary" />;
-        case "done":
-          return <CheckCircle2 className="size-3.5 shrink-0 text-success" />;
-        case "error":
-          return <AlertTriangle className="size-3.5 shrink-0 text-danger" />;
-        case "queued":
-          return <Clock className="size-3.5 shrink-0 text-muted-foreground/60" />;
-        default:
-          return null;
-      }
-    }
-
-function WorkspacePhase() {
-      const {
-        topic, activeView, overview, overviewStatus, sources, packageId, saving,
-        artifacts, selected, generating, currentTask, openView, savePackage, reset,
-      } = useTeachStore();
-
-      const grounded = overview?.grounded;
-
-      // Status per nav item: overview/artifacts have real status; Sources rides on
-      // the overview (its chunks come back with the overview).
-      const statusFor = (view: ViewKey): SlotStatus => {
-        if (view === "overview" || view === "sources") return overviewStatus;
-        return artifacts[view].status;
-      };
-
-      // Progress across the whole package: overview + each selected artifact.
-      const total = 1 + ARTIFACT_KEYS.filter((k) => selected[k]).length;
-      const done =
-        (overviewStatus === "done" ? 1 : 0) +
-        ARTIFACT_KEYS.filter((k) => selected[k] && artifacts[k].status === "done").length;
-      const currentLabel = currentTask ? NAV.find((n) => n.id === currentTask)?.label : null;
-
-      return (
-        <div className="flex h-full">
-          {/* Nav rail */}
-          <div className="flex w-64 shrink-0 flex-col border-r border-border bg-card/40">
-            <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-              <GraduationCap className="size-4 text-primary" />
-              <span className="truncate text-sm font-medium">{topic}</span>
-            </div>
-
-            {/* Live progress strip */}
-            <div className="border-b border-border px-4 py-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-medium text-muted-foreground">
-                  {generating ? (
-                    <span className="flex items-center gap-1.5 text-foreground">
-                      <Loader2 className="size-3 animate-spin text-primary" />
-                      Generating {currentLabel ?? "…"}
-                    </span>
-                  ) : done >= total ? (
-                    "All artifacts ready"
-                  ) : (
-                    "Ready"
-                  )}
-                </span>
-                <span className="font-mono text-muted-foreground">{done}/{total}</span>
-              </div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                <motion.div
-                  className="h-full rounded-full bg-primary"
-                  animate={{ width: `${total ? (done / total) * 100 : 0}%` }}
-                  transition={{ duration: 0.4 }}
-                />
-              </div>
-            </div>
-
-            <div className="min-h-0 flex-1">
-              <ScrollArea className="h-full">
-              <nav className="space-y-1 p-2">
-                {NAV.map((item) => {
-                  const st = statusFor(item.id);
-                  const isArtifact = (ARTIFACT_KEYS as string[]).includes(item.id);
-                  const notIncluded = isArtifact && !selected[item.id as ArtifactKey];
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => openView(item.id)}
-                      className={cn(
-                        "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                        activeView === item.id ? "bg-violet-soft text-primary" : "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
-                        notIncluded && "opacity-40",
-                      )}
-                    >
-                      <item.icon className="size-4 shrink-0" />
-                      <span className="flex-1 truncate">{item.label}</span>
-                      <StatusIcon status={st} />
-                    </button>
-                  );
-                })}
-              </nav>
-              </ScrollArea>
-            </div>
-            <div className="space-y-2 border-t border-border p-3">
-              <Button onClick={savePackage} disabled={saving || !overview} className="w-full gap-2" size="sm">
-                {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
-                {packageId ? "Saved" : "Save Learning Package"}
-              </Button>
-              <Button onClick={reset} variant="outline" className="w-full gap-2" size="sm">
-                <Plus className="size-3.5" /> New topic
-              </Button>
-            </div>
-          </div>
-
-          {/* Main panel */}
-          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-            <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-              <span className="text-sm font-medium">{NAV.find((n) => n.id === activeView)?.label}</span>
-              {grounded !== undefined && (
-                <Badge variant="outline" className={cn("text-[10px]", grounded ? "border-success/40 bg-success-soft text-success" : "border-warning/40 bg-warning-soft text-warning")}>
-                  {grounded ? "From your documents" : "General knowledge"}
-                </Badge>
-              )}
-            </div>
-
-            {activeView === "sources" ? (
-              <div className="min-h-0 flex-1">
-                <SourcePanel sources={sources} />
-              </div>
-            ) : activeView === "diagram" ? (
-              <div className="min-h-0 flex-1 relative">
-                <motion.div
-                  key={activeView}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="absolute inset-0"
-                >
-                  <ArtifactBody view={activeView as ArtifactKey} />
-                </motion.div>
-              </div>
-            ) : (
-              <div className="min-h-0 flex-1">
-                <ScrollArea className="h-full">
-                <motion.div
-                  key={activeView}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mx-auto max-w-3xl px-8 py-8"
-                >
-                  {activeView === "overview" ? (
-                    overviewStatus === "loading" ? (
-                      <Spinner message="Retrieving sources…" />
-                    ) : overviewStatus === "error" ? (
-                      <ViewState icon={AlertTriangle} message="Failed to generate the overview." />
-                    ) : overview ? (
-                      <MarkdownRenderer content={overview.markdown} />
-                    ) : (
-                      <ViewState icon={Sparkles} message="Generating overview…" />
-                    )
-                  ) : (
-                    <ArtifactBody view={activeView as ArtifactKey} />
-                  )}
-                </motion.div>
-                </ScrollArea>
+            )}
+            {items.length === 0 && !loading && (
+              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+                No mind maps yet. Generate one to get started.
               </div>
             )}
-          </div>
-        </div>
-      );
-    }
-
-export function Teach() {
-    const phase = useTeachStore((s) => s.phase);
-    return phase === "input" ? <InputPhase /> : <WorkspacePhase />;
-  }
-```
-
-## File: src/app/pages/Settings.tsx
-```typescript
-import { useEffect, useState } from "react";
-import { Cpu, Boxes, Filter, Keyboard, User } from "lucide-react";
-import { Page } from "../components/Page";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
-import { Slider } from "../components/ui/slider";
-import { Switch } from "../components/ui/switch";
-import { Input } from "../components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { useSettingsStore } from "../stores/useSettingsStore";
-import { navItems } from "../lib/nav";
-import { api, type ModelsList } from "../lib/api";
-
-function ModelOptions({
-  models,
-  current,
-}: {
-  models: string[];
-  current: string;
-}) {
-  const list = models.includes(current) ? models : [current, ...models];
-  return (
-    <>
-      {list.filter(Boolean).map((m) => (
-        <SelectItem key={m} value={m}>
-          {m}
-        </SelectItem>
-      ))}
-    </>
-  );
-}
-
-function Row({
-  title,
-  desc,
-  children,
-}: {
-  title: string;
-  desc?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-6 border-b border-border py-4 last:border-0">
-      <div className="min-w-0">
-        <div className="text-sm font-medium">{title}</div>
-        {desc && <div className="text-xs text-muted-foreground">{desc}</div>}
-      </div>
-      <div className="shrink-0">{children}</div>
-    </div>
-  );
-}
-
-export function SettingsPage() {
-  const s = useSettingsStore();
-  const [models, setModels] = useState<ModelsList>({
-    fastModels: [],
-    reasoningModels: [],
-    embeddingModels: [],
-    visionModels: [],
-  });
-
-  useEffect(() => {
-    s.hydrate();
-    api
-      .listModels()
-      .then(setModels)
-      .catch(() => { });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <Page className="max-w-4xl">
-      <Tabs defaultValue="models">
-        <TabsList className="mb-6 bg-card">
-          <TabsTrigger value="profile" className="gap-1.5">
-            <User className="size-4" /> Profile
-          </TabsTrigger>
-          <TabsTrigger value="models" className="gap-1.5">
-            <Cpu className="size-4" /> Models
-          </TabsTrigger>
-          <TabsTrigger value="embeddings" className="gap-1.5">
-            <Boxes className="size-4" /> Embeddings
-          </TabsTrigger>
-          <TabsTrigger value="retrieval" className="gap-1.5">
-            <Filter className="size-4" /> Retrieval
-          </TabsTrigger>
-          <TabsTrigger value="shortcuts" className="gap-1.5">
-            <Keyboard className="size-4" /> Shortcuts
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="models">
-          <div className="rounded-2xl border border-border bg-card px-5">
-            <Row
-              title="General Purpose Fast Model"
-              desc="Optimized for speed and quick summaries"
-            >
-              <Select
-                value={s.fastModel}
-                onValueChange={(v) => s.set("fastModel", v)}
-              >
-                <SelectTrigger className="w-56 bg-input-background">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <ModelOptions
-                    models={models.fastModels}
-                    current={s.fastModel}
-                  />
-                </SelectContent>
-              </Select>
-            </Row>
-            <Row
-              title="Deep Reasoning Model"
-              desc="Optimized for complex synthesis and large tasks"
-            >
-              <Select
-                value={s.reasoningModel}
-                onValueChange={(v) => s.set("reasoningModel", v)}
-              >
-                <SelectTrigger className="w-56 bg-input-background">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <ModelOptions
-                    models={models.reasoningModels}
-                    current={s.reasoningModel}
-                  />
-                </SelectContent>
-              </Select>
-            </Row>
-            <Row
-              title="Temperature"
-              desc={`Creativity of responses · ${s.temperature.toFixed(2)}`}
-            >
-              <Slider
-                className="w-56"
-                value={[s.temperature]}
-                onValueChange={(v) => s.set("temperature", v[0])}
-                min={0}
-                max={1}
-                step={0.05}
-              />
-            </Row>
-            <Row title="Stream responses" desc="Render tokens as they generate">
-              <Switch
-                checked={s.streaming}
-                onCheckedChange={(v) => s.set("streaming", v)}
-              />
-            </Row>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="embeddings">
-          <div className="rounded-2xl border border-border bg-card px-5">
-            <Row
-              title="Embedding model"
-              desc="Used to vectorize your documents"
-            >
-              <Select
-                value={s.embeddingModel}
-                onValueChange={(v) => s.set("embeddingModel", v)}
-              >
-                <SelectTrigger className="w-56 bg-input-background">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <ModelOptions
-                    models={models.embeddingModels}
-                    current={s.embeddingModel}
-                  />
-                </SelectContent>
-              </Select>
-            </Row>
-            <Row
-              title="Vision / OCR model"
-              desc="Describes images & diagrams and recovers low-confidence OCR"
-            >
-              <Select
-                value={s.visionModel}
-                onValueChange={(v) => s.set("visionModel", v)}
-              >
-                <SelectTrigger className="w-56 bg-input-background">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <ModelOptions
-                    models={models.visionModels}
-                    current={s.visionModel}
-                  />
-                </SelectContent>
-              </Select>
-            </Row>
-            <Row title="Vector store" desc="Local LanceDB storage">
-              <span className="rounded-md bg-muted px-3 py-1.5 font-mono text-xs text-muted-foreground">
-                lancedb
-              </span>
-            </Row>
-            <Row title="Chunk size" desc="Tokens per indexed chunk">
-              <span className="rounded-md bg-muted px-3 py-1.5 font-mono text-xs text-muted-foreground">
-                800
-              </span>
-            </Row>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="retrieval">
-          <div className="rounded-2xl border border-border bg-card px-5">
-            <Row
-              title="Top-K results"
-              desc={`Documents retrieved per query · ${s.topK}`}
-            >
-              <Slider
-                className="w-56"
-                value={[s.topK]}
-                onValueChange={(v) => s.set("topK", v[0])}
-                min={1}
-                max={10}
-                step={1}
-              />
-            </Row>
-            <Row
-              title="Similarity threshold"
-              desc={`Minimum cosine similarity · ${s.similarityThreshold.toFixed(2)}`}
-            >
-              <Slider
-                className="w-56"
-                value={[s.similarityThreshold]}
-                onValueChange={(v) => s.set("similarityThreshold", v[0])}
-                min={0.5}
-                max={0.95}
-                step={0.01}
-              />
-            </Row>
-            <Row
-              title="Inline citations"
-              desc="Show [n] markers within answers"
-            >
-              <Switch
-                checked={s.citationsInline}
-                onCheckedChange={(v) => s.set("citationsInline", v)}
-              />
-            </Row>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="shortcuts">
-          <div className="rounded-2xl border border-border bg-card px-5">
-            <Row title="Command menu" desc="Open the global search palette">
-              <kbd className="rounded border border-border bg-muted px-2 py-1 font-mono text-xs">
-                ⌘ K
-              </kbd>
-            </Row>
-            {navItems.map((n) => (
-              <Row key={n.to} title={n.label} desc={`Jump to ${n.label}`}>
-                <kbd className="rounded border border-border bg-muted px-2 py-1 font-mono text-xs">
-                  {n.shortcut}
-                </kbd>
-              </Row>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="profile">
-          <div className="rounded-2xl border border-border bg-card px-5">
-            <Row title="Industry" desc="Your professional industry">
-              <Input
-                className="w-56 bg-input-background"
-                value={s.industry}
-                onChange={(e) => s.set("industry", e.target.value)}
-                placeholder="e.g. Technology"
-              />
-            </Row>
-            <Row title="Role" desc="Your primary role or title">
-              <Input
-                className="w-56 bg-input-background"
-                value={s.role}
-                onChange={(e) => s.set("role", e.target.value)}
-                placeholder="e.g. Software Engineer"
-              />
-            </Row>
-            <Row title="Goals" desc="Your learning or professional goals">
-              <Input
-                className="w-56 bg-input-background"
-                value={s.goals}
-                onChange={(e) => s.set("goals", e.target.value)}
-                placeholder="e.g. Learn AI"
-              />
-            </Row>
-            <Row title="Interests" desc="Topics you are interested in">
-              <Input
-                className="w-56 bg-input-background"
-                value={s.interests}
-                onChange={(e) => s.set("interests", e.target.value)}
-                placeholder="e.g. Machine Learning"
-              />
-            </Row>
-            <Row title="Learning Preferences" desc="How you prefer to learn">
-              <Input
-                className="w-56 bg-input-background"
-                value={s.learningPreferences}
-                onChange={(e) => s.set("learningPreferences", e.target.value)}
-                placeholder="e.g. Visual, Hands-on"
-              />
-            </Row>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </Page>
-  );
-}
-```
-
-## File: src/app/pages/Differences.tsx
-```typescript
-import { useEffect, useRef } from "react";
-import {
-  Columns2,
-  Copy,
-  Download,
-  Loader2,
-  Sparkles,
-  Trash2,
-  Code,
-  Eye,
-} from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { MarkdownRenderer } from "../components/MarkdownRenderer";
-import { Page, SectionTitle } from "../components/Page";
-import { useDifferencesStore } from "../stores/useDifferencesStore";
-import { cn } from "../components/ui/utils";
-
-export function Differences() {
-  const topic = useDifferencesStore((s) => s.topic);
-  const course = useDifferencesStore((s) => s.course);
-  const document = useDifferencesStore((s) => s.document);
-  const loading = useDifferencesStore((s) => s.loading);
-  const output = useDifferencesStore((s) => s.output);
-  const showRaw = useDifferencesStore((s) => s.showRaw);
-  const suggestions = useDifferencesStore((s) => s.suggestions);
-  const saved = useDifferencesStore((s) => s.saved);
-  const courses = useDifferencesStore((s) => s.courses);
-  const documents = useDifferencesStore((s) => s.documents);
-  const setTopic = useDifferencesStore((s) => s.setTopic);
-  const setCourse = useDifferencesStore((s) => s.setCourse);
-  const setDocument = useDifferencesStore((s) => s.setDocument);
-  const setShowRaw = useDifferencesStore((s) => s.setShowRaw);
-  const generate = useDifferencesStore((s) => s.generate);
-  const fetchSuggestions = useDifferencesStore((s) => s.fetchSuggestions);
-  const fetchSaved = useDifferencesStore((s) => s.fetchSaved);
-  const fetchCoursesAndDocs = useDifferencesStore((s) => s.fetchCoursesAndDocs);
-  const saveTable = useDifferencesStore((s) => s.saveTable);
-  const deleteTable = useDifferencesStore((s) => s.deleteTable);
-  const loadSaved = useDifferencesStore((s) => s.loadSaved);
-
-  const viewerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    fetchSuggestions();
-    fetchSaved();
-    fetchCoursesAndDocs();
-  }, [fetchSuggestions, fetchSaved, fetchCoursesAndDocs]);
-
-  const prevOutput = useRef(output);
-  useEffect(() => {
-    if (output && output !== prevOutput.current) {
-      setTimeout(() => viewerRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
-    }
-    prevOutput.current = output;
-  }, [output]);
-
-  function copyMarkdown() {
-    if (!output) return;
-    navigator.clipboard.writeText(output.content);
-    toast.success("Copied to clipboard");
-  }
-
-  function exportMarkdown() {
-    if (!output) return;
-    const blob = new Blob([output.content], { type: "text/markdown;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${output.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.md`;
-    link.click();
-    URL.revokeObjectURL(url);
-    toast.success("Exported as Markdown");
-  }
-
-  const visibleDocs = course === "none"
-    ? documents
-    : documents.filter((d) => d.course === course);
-
-  const isEmpty = !output && saved.length === 0 && !loading;
-
-  return (
-    <Page>
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-1">
-          <Columns2 className="size-5 text-violet" />
-          <h1 className="text-2xl font-semibold tracking-tight">Difference Tables</h1>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Compare concepts, architectures, algorithms and systems.
-        </p>
-      </div>
-
-      {/* Search + generate */}
-      <div className="flex gap-2 mb-3">
-        <Input
-          placeholder="Compare concepts… e.g. Process vs Thread"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && !loading && generate()}
-          className="flex-1"
-        />
-        <Button onClick={generate} disabled={loading || !topic.trim()}>
-          {loading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Sparkles className="size-4" />
-          )}
-          {loading ? "Generating…" : "Generate Table"}
-        </Button>
-      </div>
-
-      {/* Course + document pickers */}
-      <div className="flex gap-2 mb-6">
-        <Select value={course} onValueChange={setCourse}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="All courses" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">All courses</SelectItem>
-            {courses.map((c) => (
-              <SelectItem key={c.id} value={c.name}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={document ?? "all"}
-          onValueChange={(v) => setDocument(v === "all" ? null : v)}
-        >
-          <SelectTrigger className="w-56">
-            <SelectValue placeholder="All documents" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All documents</SelectItem>
-            {visibleDocs.map((d) => (
-              <SelectItem key={d.id} value={d.id}>
-                {d.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Suggestions */}
-      {suggestions.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-6">
-          {suggestions.map((s) => (
-            <button
-              key={s}
-              onClick={() => setTopic(s)}
-              className="rounded-full border border-border bg-muted/50 px-3 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Viewer */}
-      {output && (
-        <div ref={viewerRef} className="mb-8">
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="font-medium text-foreground">{output.title}</h2>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowRaw(!showRaw)}
-                className="gap-1.5"
-              >
-                {showRaw ? <Eye className="size-3.5" /> : <Code className="size-3.5" />}
-                {showRaw ? "Rendered" : "Raw"}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={copyMarkdown} className="gap-1.5">
-                <Copy className="size-3.5" /> Copy
-              </Button>
-              <Button variant="ghost" size="sm" onClick={exportMarkdown} className="gap-1.5">
-                <Download className="size-3.5" /> Export
-              </Button>
-              <Button size="sm" onClick={saveTable} className="gap-1.5">
-                Save
-              </Button>
-            </div>
-          </div>
-          <div
-            className={cn(
-              "rounded-lg border border-border bg-card p-4",
-              showRaw && "font-mono text-xs",
-            )}
-          >
-            {showRaw ? (
-              <pre className="whitespace-pre-wrap text-foreground">{output.content}</pre>
-            ) : (
-              <MarkdownRenderer content={output.content} />
-            )}
-          </div>
-          {!output.grounded && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Based on general knowledge — upload documents for grounded comparisons.
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Empty state */}
-      {isEmpty && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Columns2 className="size-10 text-muted-foreground/40 mb-3" />
-          <p className="font-medium text-muted-foreground mb-1">Generate your first comparison.</p>
-          <p className="text-sm text-muted-foreground/70">
-            Compare two concepts to create an exam-ready revision table.
-          </p>
-          <div className="flex gap-2 mt-4 flex-wrap justify-center">
-            {["Process vs Thread", "REST vs gRPC", "Monolith vs Microservices"].map((ex) => (
-              <button
-                key={ex}
-                onClick={() => setTopic(ex)}
-                className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              >
-                {ex}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Saved tables */}
-      {saved.length > 0 && (
-        <div>
-          <SectionTitle title="Saved Comparisons" />
-          <div className="space-y-2">
-            {saved.map((item) => (
+            {items.map((m) => (
               <div
-                key={item.id}
+                key={m.id}
+                onClick={() => setActive(m)}
                 className={cn(
-                  "flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 transition-colors",
-                  output?.title === item.title
-                    ? "border-violet/40 bg-violet/5"
-                    : "hover:bg-muted/50",
+                  "group flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-left transition-colors",
+                  active?.id === m.id ? "bg-violet-soft" : "hover:bg-accent/40",
                 )}
               >
-                <button className="flex-1 text-left" onClick={() => loadSaved(item)}>
-                  <p className="text-sm font-medium text-foreground">{item.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                    {item.course && ` · ${item.course}`}
-                  </p>
-                </button>
+                <div
+                  className={cn(
+                    "flex size-9 shrink-0 items-center justify-center rounded-lg",
+                    active?.id === m.id ? "bg-primary text-white" : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  <Network className="size-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{m.title}</div>
+                  <div className="truncate text-xs text-muted-foreground">{m.course}</div>
+                </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => deleteTable(item.id)}
-                  className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
+                  className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void remove(m.id);
+                  }}
                 >
                   <Trash2 className="size-3.5" />
                 </Button>
               </div>
             ))}
           </div>
+        </ScrollArea>
+      </div>
+
+      {/* Main panel */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+        {/* Generate controls */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card/40 px-6 py-3">
+          <Input
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && !loading) generate(); }}
+            placeholder="Topic to map…"
+            className="h-9 max-w-xs flex-1 bg-input-background"
+            disabled={loading}
+          />
+          <Select value={course} onValueChange={setCourse} disabled={loading}>
+            <SelectTrigger className="h-9 w-48 bg-input-background">
+              <SelectValue placeholder="All courses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_COURSES}>All courses</SelectItem>
+              {courses.map((c) => (
+                <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)} disabled={loading}>
+            <SelectTrigger className="h-9 w-48 bg-input-background">
+              <SelectValue placeholder="All documents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All documents</SelectItem>
+              {documents.filter(d => course !== ALL_COURSES ? d.course === course : true).map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button size="sm" onClick={generate} disabled={loading} className="gap-1.5">
+            {loading ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
+            {loading ? "Generating..." : "Generate"}
+          </Button>
+        </div>
+
+        <GenerationSteps
+          steps={["Searching your library", "Mapping concepts", "Building hierarchy", "Assembling tree"]}
+          loading={loading}
+          className="border-b border-border px-6 py-3"
+          interval={2000}
+        />
+
+        {/* Tree viewer */}
+        {active ? (
+          <>
+            <div className="sticky top-0 z-10 flex h-12 items-center gap-2 border-b border-border bg-background/80 px-6 backdrop-blur-xl">
+              <Network className="size-4 text-primary" />
+              <span className="text-sm font-medium">{active.title}</span>
+              <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
+                {nodeCount} {nodeCount === 1 ? "node" : "nodes"}
+              </Badge>
+              <QualityBadge score={active.quality} />
+              <div className="ml-auto flex items-center gap-1">
+                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => exportTree("png")} title="Export PNG">
+                  <ImageDown className="size-3.5" /> PNG
+                </Button>
+                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => exportTree("pdf")} title="Export PDF">
+                  <FileDown className="size-3.5" /> PDF
+                </Button>
+              </div>
+            </div>
+            <ScrollArea className="flex-1">
+              <div className="p-6" ref={treeRef}>
+                {active.course && (
+                  <p className="mb-4 text-xs uppercase tracking-wide text-muted-foreground">
+                    {active.course}
+                  </p>
+                )}
+                <MindMapTree text={active.text} />
+              </div>
+            </ScrollArea>
+          </>
+        ) : (
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-muted-foreground">
+            <Network className="size-8 opacity-40" />
+            <div>
+              <p className="text-sm font-medium text-foreground">No mind map selected</p>
+              <p className="mt-1 text-sm">
+                Enter a topic and press Generate, or select one from the sidebar.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+```
+
+
+## File: src/app/pages/Diagrams.tsx
+```typescript
+import { Component, useEffect, useState, type ReactNode } from "react";
+import { Workflow, Copy, Check, Download, FileImage, FileDown, Code2, Sparkles, Loader2, AlertCircle, Trash2 } from "lucide-react";
+import { GenerationSteps } from "../components/GenerationSteps";
+import { toast } from "sonner";
+import { DiagramViewer } from "../components/DiagramViewer";
+import QualityBadge from "../components/QualityBadge";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Input } from "../components/ui/input";
+import { ScrollArea } from "../components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { api } from "../lib/api";
+import { exportNodeToPdf } from "../lib/export";
+import type { Course, DiagramItem, DocumentItem } from "../lib/types";
+import { useDiagramGenStore } from "../stores/useDiagramGenStore";
+import { cn } from "../components/ui/utils";
+
+const DIAGRAM_TYPES = [
+  { value: "flowchart", label: "Flowchart" },
+  { value: "decision_tree", label: "Decision tree" },
+  { value: "concept_map", label: "Concept map" },
+] as const;
+
+export function Diagrams() {
+  const [items, setItems] = useState<DiagramItem[]>([]);
+  const [active, setActiveState] = useState<DiagramItem | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [showCode, setShowCode] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+
+  // Generation state lives in a global store so an in-flight generation keeps
+  // running (and shows a pending item) when navigating away and back.
+  const { topic, course, document, type, generating, generated, setField, generate } = useDiagramGenStore();
+  const setTopic = (v: string) => setField("topic", v);
+  const setCourse = (v: string) => setField("course", v);
+  const setDocument = (v: string | null) => setField("document", v);
+  const setType = (v: string) => setField("type", v);
+
+  // Selecting a diagram also records its id in the store, so the viewer
+  // restores the same diagram after navigating away and back.
+  const setActive = (d: DiagramItem | null) => {
+    setActiveState(d);
+    setField("activeId", d?.id ?? null);
+  };
+
+  // Absorb the latest generated diagram into the list + select it. Runs on
+  // mount too, so a diagram generated while the page was unmounted shows up.
+  useEffect(() => {
+    if (!generated) return;
+    setItems((prev) => (prev.some((d) => d.id === generated.id) ? prev : [generated, ...prev]));
+    setActive(generated);
+    setShowCode(false);
+  }, [generated]);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .listCourses()
+      .then((cs) => {
+        if (!cancelled) setCourses(cs);
+      })
+      .catch(() => {
+        /* leave course selector with just "No course" */
+      });
+    api.listDocuments().then((ds) => { if (!cancelled) setDocuments(ds); }).catch(() => {});
+    api
+      .listDiagrams()
+      .then((ds) => {
+        if (cancelled) return;
+        setItems(ds);
+        // Restore the previously-open diagram by id; fall back to the first.
+        const storedId = useDiagramGenStore.getState().activeId;
+        setActiveState((cur) => cur ?? ds.find((d) => d.id === storedId) ?? ds[0] ?? null);
+      })
+      .catch(() => {
+        /* empty library */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const remove = async (id: string) => {
+    try {
+      await api.deleteDiagram(id);
+      const next = items.filter((d) => d.id !== id);
+      setItems(next);
+      if (active?.id === id) setActive(next[0] ?? null);
+      toast.success("Diagram deleted");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete diagram");
+    }
+  };
+
+  const copy = () => {
+    if (!active) return;
+    navigator.clipboard.writeText(active.mermaid);
+    setCopied(true);
+    toast.success("Mermaid copied to clipboard");
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  const exportSvg = () => {
+    const svg = document.querySelector("#diagram-container svg");
+    if (!svg) {
+      toast.error("Diagram not found");
+      return;
+    }
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${active?.title || "diagram"}.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Exported as SVG");
+  };
+
+  const exportPng = () => {
+    const svg = document.querySelector("#diagram-container svg") as SVGElement;
+    if (!svg) {
+      toast.error("Diagram not found");
+      return;
+    }
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const rect = svg.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    if (ctx) {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(2, 2);
+    }
+    const img = new Image();
+    img.onload = () => {
+      ctx?.drawImage(img, 0, 0, rect.width, rect.height);
+      const pngUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = pngUrl;
+      link.download = `${active?.title || "diagram"}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Exported as PNG");
+    };
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
+  const exportPdf = async () => {
+    const svg = document.querySelector("#diagram-container svg") as HTMLElement;
+    if (!svg) {
+      toast.error("Diagram not found");
+      return;
+    }
+    const nodeToExport = svg.parentElement || svg;
+    try {
+      await exportNodeToPdf(nodeToExport, active?.title || "diagram");
+      toast.success("Exported as PDF");
+    } catch (err) {
+      toast.error("Failed to export as PDF");
+    }
+  };
+
+  return (
+    <div className="flex h-full">
+      {/* Diagram list */}
+      <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card/40">
+        <div className="border-b border-border px-4 py-3 text-sm font-medium">
+          Diagrams
+        </div>
+        <ScrollArea className="flex-1 [&>[data-radix-scroll-area-viewport]>div]:!block">
+          <div className="space-y-1 p-2 w-full">
+            {generating && (
+              <div className="flex w-full items-center gap-3 rounded-lg border border-dashed border-violet/40 bg-violet-soft/40 p-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-violet">
+                  <Loader2 className="size-4 animate-spin" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{topic.trim() || "Generating…"}</div>
+                  <div className="truncate text-xs text-muted-foreground">Generating…</div>
+                </div>
+              </div>
+            )}
+            {items.length === 0 && !generating && (
+              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+                No diagrams yet. Generate one to get started.
+              </div>
+            )}
+            {items.map((d) => (
+              <div
+                key={d.id}
+                onClick={() => setActive(d)}
+                className={cn(
+                  "group flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-left transition-colors",
+                  active?.id === d.id ? "bg-violet-soft" : "hover:bg-accent/40",
+                )}
+              >
+                <div
+                  className={cn(
+                    "flex size-9 shrink-0 items-center justify-center rounded-lg",
+                    active?.id === d.id ? "bg-primary text-white" : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  <Workflow className="size-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{d.title}</div>
+                  <div className="truncate text-xs text-muted-foreground">{d.kind}</div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void remove(d.id);
+                  }}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Preview */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        {/* Generate control */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card/40 px-6 py-3">
+          <Input
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !generating) generate();
+            }}
+            placeholder="Topic, e.g. TCP handshake"
+            className="h-9 max-w-xs flex-1 bg-input-background"
+          />
+          <Select value={course} onValueChange={setCourse}>
+            <SelectTrigger className="h-9 w-44 bg-input-background">
+              <SelectValue placeholder="No course" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No course</SelectItem>
+              {courses.map((c) => (
+                <SelectItem key={c.id} value={c.name}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
+            <SelectTrigger className="h-9 w-44 bg-input-background">
+              <SelectValue placeholder="All documents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All documents</SelectItem>
+              {documents.filter(d => course !== "none" ? d.course === course : true).map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={type} onValueChange={setType}>
+            <SelectTrigger className="h-9 w-44 bg-input-background">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {DIAGRAM_TYPES.map((dt) => (
+                <SelectItem key={dt.value} value={dt.value}>
+                  {dt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button size="sm" className="gap-1.5" onClick={generate} disabled={generating}>
+            {generating ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="size-3.5" />
+            )}
+            {generating ? "Generating..." : "Generate diagram"}
+          </Button>
+        </div>
+        <GenerationSteps
+          steps={["Searching your library", "Analyzing relationships", "Building diagram structure", "Rendering Mermaid"]}
+          loading={generating}
+          className="border-b border-border px-6 py-3"
+          interval={2200}
+        />
+
+        {active ? (
+          <>
+            <div className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{active.title}</span>
+                <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
+                  {active.kind}
+                </Badge>
+                <QualityBadge score={active.quality} />
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setShowCode((s) => !s)}>
+                  <Code2 className="size-3.5" /> {showCode ? "Hide" : "Show"} code
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={copy}>
+                  {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
+                  Copy Mermaid
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportSvg}>
+                  <Download className="size-3.5" /> SVG
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportPng}>
+                  <FileImage className="size-3.5" /> PNG
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportPdf}>
+                  <FileDown className="size-3.5" /> PDF
+                </Button>
+              </div>
+            </div>
+
+            <div className="relative flex min-h-0 flex-1 flex-col" id="diagram-container">
+              <div className="min-h-0 flex-1 relative">
+                <DiagramErrorBoundary key={active.id} code={active.mermaid}>
+                  <DiagramViewer code={active.mermaid} flush title={active.title || "diagram"} />
+                </DiagramErrorBoundary>
+              </div>
+              {showCode && (
+                <div className="absolute bottom-4 left-4 z-20">
+                  <pre className="max-h-64 max-w-2xl overflow-auto rounded-lg border border-border bg-secondary/95 p-4 font-mono text-[13px] text-foreground/80 shadow-lg backdrop-blur">
+                    {active.mermaid}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="flex h-[60vh] flex-col items-center justify-center gap-3 text-center text-muted-foreground">
+            <div className="flex size-12 items-center justify-center rounded-xl bg-violet-soft text-primary">
+              <Workflow className="size-6" />
+            </div>
+            <div className="text-sm">No diagram selected — generate one above.</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Catches synchronous render errors thrown from DiagramViewer (e.g. invalid
+ * Mermaid that the viewer's internal try/catch doesn't absorb) so a bad
+ * LLM-generated diagram never crashes the whole page. Resets when the code
+ * (and thus the `key`) changes.
+ */
+class DiagramErrorBoundary extends Component<
+  { code: string; children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { code: string; children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch() {
+    toast.error("Couldn't render that diagram — the Mermaid syntax may be invalid");
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex min-h-[400px] w-full flex-col items-center justify-center gap-4 rounded-lg border border-border bg-card p-8 text-center">
+          <div className="flex size-12 items-center justify-center rounded-full bg-danger/10 text-danger">
+            <AlertCircle className="size-6" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold">Diagram Error</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              The mermaid syntax might be invalid. Try the code view or regenerate.
+            </p>
+          </div>
+          <pre className="mt-2 w-full overflow-x-auto rounded-lg border border-border bg-secondary p-3 text-left text-[11px] font-mono text-danger">
+            {this.props.code}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+```
+
+
+## File: src/app/pages/Notebooks.tsx
+```typescript
+import { useMemo, useCallback, useEffect, useRef, useState } from "react";
+import {
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
+  Plus,
+  Search,
+  Hash,
+  FolderClosed,
+  Clock,
+  Sparkles,
+  FileText,
+  ScrollText,
+  Wand2,
+  Layers,
+  ListChecks,
+  Workflow,
+  Quote,
+  Gauge,
+  GripVertical,
+  Lightbulb,
+  Info,
+  TriangleAlert,
+  Check,
+  BookOpen,
+  Loader2,
+  Trash2,
+  Bold,
+  Italic,
+  Code2,
+  Heading1,
+  Heading2,
+  List,
+  ListOrdered,
+  Link2,
+} from "lucide-react";
+import { toast } from "sonner";
+import { applyMarkdown, type MarkdownAction } from "../lib/markdown-format";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "../components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { cn } from "../components/ui/utils";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
+import { DiagramViewer } from "../components/DiagramViewer";
+import { SelectionToolbar } from "../components/SelectionToolbar";
+import { type NotebookBlock } from "../lib/notebook-data";
+import {
+  api,
+  type NotebookMeta,
+  type NotebookFull,
+  type Collection,
+} from "../lib/api";
+import type { Course } from "../lib/types";
+import { useAutoSave } from "../hooks/useAutoSave";
+
+// Deterministic default icon per notebook (no icon field on real notebooks).
+const NOTEBOOK_ICONS = [
+  BookOpen,
+  FileText,
+  Layers,
+  ScrollText,
+  Lightbulb,
+] as const;
+function iconFor(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return NOTEBOOK_ICONS[h % NOTEBOOK_ICONS.length];
+}
+
+const calloutMeta = {
+  note: {
+    icon: Info,
+    cls: "border-border bg-muted/50 text-foreground",
+    iconCls: "text-muted-foreground",
+  },
+  insight: {
+    icon: Lightbulb,
+    cls: "border-violet/30 bg-violet-soft text-foreground",
+    iconCls: "text-violet",
+  },
+  warning: {
+    icon: TriangleAlert,
+    cls: "border-warning/30 bg-warning-soft text-foreground",
+    iconCls: "text-warning",
+  },
+};
+
+export function Notebooks() {
+  const [list, setList] = useState<NotebookMeta[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [active, setActive] = useState<NotebookFull | null>(null);
+  const [blocks, setBlocks] = useState<NotebookBlock[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
+  const [loadingNotebook, setLoadingNotebook] = useState(false);
+  const [assisting, setAssisting] = useState(false);
+
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [rightCollapsed, setRightCollapsed] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Block editing / drag-reorder state.
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
+
+  // Dynamic sidebar sections (collections + tags).
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+
+  // New-notebook dialog state
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newCourse, setNewCourse] = useState<string>("none");
+  const [creating, setCreating] = useState(false);
+
+  // Draft restore banner state
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
+
+  // Auto-save wiring
+  const saveFn = useCallback(
+    async (next: NotebookBlock[]) => {
+      if (!activeId) return;
+      const updated = await api.updateNotebook(activeId, { blocks: next, is_draft: true });
+      setActive(updated);
+      setList((prev) =>
+        prev.map((n) =>
+          n.id === activeId
+            ? { ...n, notes: next.length, lastEdited: "just now" }
+            : n,
+        ),
+      );
+    },
+    [activeId],
+  );
+
+  const { schedule: autoSave, flush: flushSave, saving, lastSaved } = useAutoSave(saveFn);
+
+  // Fetch the dynamic sidebar sections (collections + tags). Called on mount
+  // and again whenever a notebook is created so counts/tags stay fresh.
+  function loadSidebar() {
+    api
+      .listNotebookCollections()
+      .then(setCollections)
+      .catch(() => setCollections([]));
+    api
+      .listNotebookTags()
+      .then(setTags)
+      .catch(() => setTags([]));
+  }
+
+  // Load the notebook list on mount.
+  useEffect(() => {
+    setLoadingList(true);
+    api
+      .listNotebooks()
+      .then((nbs) => {
+        setList(nbs);
+        if (nbs.length > 0) setActiveId(nbs[0].id);
+      })
+      .catch((e) => toast.error(`Failed to load notebooks: ${e.message}`))
+      .finally(() => setLoadingList(false));
+    api
+      .listCourses()
+      .then(setCourses)
+      .catch(() => setCourses([]));
+    loadSidebar();
+  }, []);
+
+  // Load the selected notebook whenever the active id changes.
+  useEffect(() => {
+    if (!activeId) {
+      setActive(null);
+      setBlocks([]);
+      return;
+    }
+    let cancelled = false;
+    setLoadingNotebook(true);
+    api
+      .getNotebook(activeId)
+      .then((nb) => {
+        if (cancelled) return;
+        setActive(nb);
+        setBlocks((nb.blocks ?? []) as NotebookBlock[]);
+        setShowDraftBanner(nb.is_draft === true);
+      })
+      .catch((e) => {
+        if (!cancelled) toast.error(`Failed to open notebook: ${e.message}`);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingNotebook(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeId]);
+
+  // beforeunload: flush any pending debounced save before the tab closes.
+  useEffect(() => {
+    window.addEventListener("beforeunload", flushSave);
+    return () => window.removeEventListener("beforeunload", flushSave);
+  }, [flushSave]);
+
+  // Dismiss the draft-restore banner and mark the notebook as no longer a draft.
+  async function dismissDraftBanner() {
+    flushSave();
+    setShowDraftBanner(false);
+    if (activeId) {
+      await api.updateNotebook(activeId, { is_draft: false }).catch(() => {});
+    }
+  }
+
+  // Persist the given blocks for the active notebook via debounced auto-save.
+  function persistBlocks(next: NotebookBlock[]) {
+    if (!activeId) return;
+    setBlocks(next);
+    autoSave(next);
+  }
+
+  // Append a fresh block of the given type and jump straight into editing it.
+  function addBlock(block: NotebookBlock) {
+    const next = [...blocks, block];
+    persistBlocks(next);
+    setEditingIndex(next.length - 1);
+  }
+
+  function updateBlock(index: number, patch: Partial<NotebookBlock>) {
+    persistBlocks(
+      blocks.map((b, i) =>
+        i === index ? ({ ...b, ...patch } as NotebookBlock) : b,
+      ),
+    );
+  }
+
+  function deleteBlock(index: number) {
+    if (editingIndex === index) setEditingIndex(null);
+    persistBlocks(blocks.filter((_, i) => i !== index));
+  }
+
+  // Reorder via drag handle: pull `from` out, splice it back at `to`.
+  function moveBlock(from: number, to: number) {
+    if (from === to) return;
+    const next = [...blocks];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    persistBlocks(next);
+  }
+
+  async function handleCreate() {
+    const title = newTitle.trim();
+    if (!title) {
+      toast.error("Enter a notebook title");
+      return;
+    }
+    setCreating(true);
+    try {
+      const nb = await api.createNotebook(
+        title,
+        newCourse === "none" ? null : newCourse,
+      );
+      const meta: NotebookMeta = {
+        id: nb.id,
+        name: nb.title,
+        course: nb.course,
+        color: nb.color,
+        notes: nb.blocks?.length ?? 0,
+        lastEdited: "just now",
+      };
+      setList((prev) => [meta, ...prev]);
+      setActiveId(nb.id);
+      setCreateOpen(false);
+      setNewTitle("");
+      setNewCourse("none");
+      loadSidebar();
+      toast.success(`Created “${nb.title}”`);
+    } catch (e: any) {
+      toast.error(`Failed to create notebook: ${e.message}`);
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  // AI assist: run the action on the selected text, then insert the
+  // returned markdown as a new ai-answer block and persist.
+  async function runAssist(
+    action: "explain" | "summarize" | "improve",
+    selected: string,
+  ) {
+    const sel = selected.trim();
+    if (!sel) {
+      toast.error("Select some text first");
+      return;
+    }
+    if (!activeId || assisting) return;
+    const labels: Record<typeof action, string> = {
+      explain: "Explaining selection…",
+      summarize: "Summarizing selection…",
+      improve: "Improving selection…",
+    };
+    setAssisting(true);
+    const toastId = toast.loading(labels[action]);
+    try {
+      const { text } = await api.notebookAssist(
+        action,
+        sel,
+        active?.course ?? null,
+      );
+      const block: NotebookBlock = {
+        type: "ai-answer",
+        question: `${action[0].toUpperCase()}${action.slice(1)}: ${sel.slice(0, 80)}${sel.length > 80 ? "…" : ""}`,
+        answer: text,
+        confidence: 1,
+        sources: 0,
+      };
+      persistBlocks([...blocks, block]);
+      toast.success("AI block added", { id: toastId });
+    } catch (e: any) {
+      toast.error(`AI assist failed: ${e.message}`, { id: toastId });
+    } finally {
+      setAssisting(false);
+    }
+  }
+
+  const actions = [
+    {
+      label: "Explain",
+      icon: Wand2,
+      onSelect: (text: string) => runAssist("explain", text),
+    },
+    {
+      label: "Summarize",
+      icon: ScrollText,
+      onSelect: (text: string) => runAssist("summarize", text),
+    },
+    {
+      label: "Improve",
+      icon: Sparkles,
+      onSelect: (text: string) => runAssist("improve", text),
+    },
+    {
+      label: "Cite",
+      icon: Quote,
+      onSelect: () => toast.success("Citation saved"),
+    },
+  ];
+
+  const activeMeta = list.find((n) => n.id === activeId);
+
+  // Recent notes derived from the already-loaded notebook list (list is kept
+  // in recency order — newly created notebooks are prepended).
+  const recentNotes = list.slice(0, 5).map((n) => ({
+    id: n.id,
+    title: n.name,
+    notebook: n.course || "Notebook",
+  }));
+
+  const dynamicInspector = useMemo(() => {
+    if (!active) return null;
+
+    let wordCount = 0;
+    let aiCount = 0;
+    let diagramCount = 0;
+    let flashcardCount = 0;
+    let quizCount = 0;
+
+    (blocks || []).forEach((b: any) => {
+      if (!b) return;
+      if (b.type === "text" || b.type === "heading" || b.type === "callout") {
+        wordCount += (b.text || "").split(/\s+/).length;
+      } else if (b.type === "ai-answer") {
+        wordCount += (b.answer || "").split(/\s+/).length;
+        aiCount++;
+      } else if (b.type === "mermaid") {
+        diagramCount++;
+      } else if (b.type === "flashdeck") {
+        flashcardCount += b.count || 0;
+      } else if (b.type === "quiz-results") {
+        quizCount++;
+      }
+    });
+
+    const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+
+    const generatedAssets = [
+      { label: "AI Answers", count: aiCount },
+      { label: "Diagrams", count: diagramCount },
+      { label: "Flashcards", count: flashcardCount },
+      { label: "Quizzes", count: quizCount },
+    ].filter((a) => a.count > 0);
+
+    return {
+      details: {
+        notebook: activeMeta?.name ?? active.title,
+        type: active.course || "General Note",
+        created: active.updated || "Unknown",
+      },
+      wordCount,
+      readingTime: `${readingTime} min`,
+      linkedSources: [] as string[],
+      generatedAssets,
+      relatedTopics: [] as string[],
+      revisionStatus: "In progress",
+    };
+  }, [active, activeMeta, blocks]);
+
+  return (
+    <div className="flex h-full overflow-hidden">
+      {/* Left — Notebooks */}
+      <aside
+        className={cn(
+          "hidden shrink-0 flex-col overflow-y-auto border-r border-border bg-card/40 transition-all duration-300 lg:flex",
+          leftCollapsed ? "w-0 border-r-0" : "w-[280px]",
+        )}
+      >
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Notebooks
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              onClick={() => setLeftCollapsed(true)}
+            >
+              <PanelLeftClose className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              onClick={() => setCreateOpen(true)}
+            >
+              <Plus className="size-4" />
+            </Button>
+          </div>
+        </div>
+        <div className="border-b border-border p-3">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search notes…"
+              className="h-8 bg-input-background pl-8 text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1 p-2">
+          {loadingList ? (
+            <div className="flex items-center gap-2 px-2.5 py-3 text-xs text-muted-foreground">
+              <Loader2 className="size-3.5 animate-spin" /> Loading notebooks…
+            </div>
+          ) : list.length === 0 ? (
+            <button
+              onClick={() => setCreateOpen(true)}
+              className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border px-2.5 py-3 text-left text-xs text-muted-foreground hover:border-violet/50 hover:text-violet"
+            >
+              <Plus className="size-3.5" /> Create your first notebook
+            </button>
+          ) : (
+            list.map((n) => {
+              const Icon = iconFor(n.id);
+              return (
+                <button
+                  key={n.id}
+                  onClick={() => setActiveId(n.id)}
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors",
+                    activeId === n.id ? "bg-accent" : "hover:bg-accent/50",
+                  )}
+                >
+                  <div className="flex h-6 w-6 items-center justify-center rounded bg-background/50">
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">{n.name}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {n.notes} notes · {n.lastEdited}
+                    </div>
+                  </div>
+                  <span
+                    className="size-1.5 rounded-full"
+                    style={{ backgroundColor: n.color }}
+                  />
+                </button>
+              );
+            })
+          )}
+        </div>
+
+        <Section label="Collections" icon={FolderClosed}>
+          {collections.length === 0 ? (
+            <div className="px-2.5 py-1.5 text-xs text-muted-foreground">
+              No collections
+            </div>
+          ) : (
+            collections.map((c) => (
+              <div
+                key={c.id}
+                className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50"
+              >
+                <span className="truncate">{c.name}</span>
+                <span className="text-xs text-muted-foreground">{c.count}</span>
+              </div>
+            ))
+          )}
+        </Section>
+
+        <Section label="Tags" icon={Hash}>
+          {tags.length === 0 ? (
+            <div className="px-2.5 py-1.5 text-xs text-muted-foreground">
+              No tags
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-1.5 px-2">
+              {tags.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground"
+                >
+                  #{t}
+                </span>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        <Section label="Recent" icon={Clock}>
+          {recentNotes.length === 0 ? (
+            <div className="px-2.5 py-1.5 text-xs text-muted-foreground">
+              No recent notes
+            </div>
+          ) : (
+            recentNotes.map((r) => (
+              <div
+                key={r.id}
+                className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50"
+              >
+                <FileText className="size-3.5 shrink-0 text-muted-foreground" />
+                <span className="truncate">{r.title}</span>
+              </div>
+            ))
+          )}
+        </Section>
+      </aside>
+
+      {/* Center — Content */}
+      <main className="relative min-w-0 flex-1 overflow-y-auto">
+        <SelectionToolbar containerRef={contentRef} actions={actions} />
+
+        {/* Sidebar Toggles */}
+        <div className="pointer-events-none absolute left-0 top-4 z-10 flex w-full justify-between px-4">
+          <div className="pointer-events-auto">
+            {leftCollapsed && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-8 rounded-full bg-card/80 backdrop-blur shadow-sm"
+                onClick={() => setLeftCollapsed(false)}
+              >
+                <PanelLeftOpen className="size-4" />
+              </Button>
+            )}
+          </div>
+          <div className="pointer-events-auto">
+            {rightCollapsed && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-8 rounded-full bg-card/80 backdrop-blur shadow-sm"
+                onClick={() => setRightCollapsed(false)}
+              >
+                <PanelRightOpen className="size-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div ref={contentRef} className="mx-auto max-w-[900px] px-10 py-12">
+          {loadingNotebook ? (
+            <div className="flex items-center gap-2 py-20 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" /> Loading notebook…
+            </div>
+          ) : !active ? (
+            <div className="flex flex-col items-center gap-4 py-24 text-center text-muted-foreground">
+              <BookOpen className="size-10 opacity-40" />
+              <div>
+                <div className="text-base font-medium text-foreground">
+                  No notebook selected
+                </div>
+                <p className="mt-1 text-sm">
+                  Pick a notebook from the sidebar or create a new one.
+                </p>
+              </div>
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-2 size-4" /> New notebook
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <span>
+                  {activeMeta?.name ?? active.title} · {active.updated}
+                </span>
+                {saving && <Loader2 className="size-3 animate-spin" />}
+              </div>
+              <h1 className="mt-3 text-[2.75rem] leading-[1.1]">
+                {active.title}
+              </h1>
+              {active.subtitle && (
+                <p className="mt-3 font-reading text-lg italic text-muted-foreground">
+                  {active.subtitle}
+                </p>
+              )}
+
+              <div className="mt-8 space-y-5">
+                {showDraftBanner && (
+                  <div className="mb-3 flex items-center justify-between rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+                    <span>Auto-saved changes from your last session have been restored.</span>
+                    <button
+                      className="ml-4 text-xs font-medium underline hover:no-underline"
+                      onClick={dismissDraftBanner}
+                    >
+                      Got it
+                    </button>
+                  </div>
+                )}
+
+                {blocks.length === 0 && (
+                  <div className="rounded-xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
+                    This notebook is empty. Add a block below, or select text
+                    elsewhere and use AI assist.
+                  </div>
+                )}
+
+                {blocks.map((block, i) => (
+                  <BlockView
+                    key={i}
+                    block={block}
+                    index={i}
+                    editing={editingIndex === i}
+                    dragging={dragIndex === i}
+                    dropTarget={
+                      overIndex === i && dragIndex !== null && dragIndex !== i
+                    }
+                    onEdit={() => setEditingIndex(i)}
+                    onSave={(patch) => {
+                      updateBlock(i, patch);
+                      setEditingIndex(null);
+                    }}
+                    onCancel={() => setEditingIndex(null)}
+                    onDelete={() => deleteBlock(i)}
+                    onDragStart={() => setDragIndex(i)}
+                    onDragEnter={() => dragIndex !== null && setOverIndex(i)}
+                    onDragEnd={() => {
+                      if (dragIndex !== null && overIndex !== null)
+                        moveBlock(dragIndex, overIndex);
+                      setDragIndex(null);
+                      setOverIndex(null);
+                    }}
+                  />
+                ))}
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="group flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet">
+                      <Plus className="size-4" /> Add block
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-[300px]">
+                    <DropdownMenuItem
+                      onClick={() =>
+                        addBlock({
+                          type: "text",
+                          text: "New text block. Edit me!",
+                        })
+                      }
+                    >
+                      <FileText className="mr-2 size-4 text-muted-foreground" />{" "}
+                      Text
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        addBlock({
+                          type: "heading",
+                          level: 2,
+                          text: "New Heading",
+                        })
+                      }
+                    >
+                      <Hash className="mr-2 size-4 text-muted-foreground" />{" "}
+                      Heading
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        addBlock({
+                          type: "callout",
+                          tone: "note",
+                          text: "New note callout.",
+                        })
+                      }
+                    >
+                      <Info className="mr-2 size-4 text-muted-foreground" />{" "}
+                      Callout
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        addBlock({
+                          type: "code",
+                          lang: "python",
+                          code: "print('Hello world')",
+                        })
+                      }
+                    >
+                      <Workflow className="mr-2 size-4 text-muted-foreground" />{" "}
+                      Code
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        addBlock({
+                          type: "mermaid",
+                          code: "graph TD\n  A[Start] --> B[End]",
+                        })
+                      }
+                    >
+                      <Workflow className="mr-2 size-4 text-muted-foreground" />{" "}
+                      Diagram
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        addBlock({
+                          type: "table",
+                          headers: ["Column A", "Column B"],
+                          rows: [["", ""]],
+                        })
+                      }
+                    >
+                      <Layers className="mr-2 size-4 text-muted-foreground" />{" "}
+                      Table
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </>
+          )}
+        </div>
+      </main>
+
+      {/* Right — Inspector */}
+      <aside
+        className={cn(
+          "hidden shrink-0 flex-col overflow-y-auto border-l border-border bg-card/40 transition-all duration-300 xl:flex",
+          rightCollapsed ? "w-0 border-l-0" : "w-[300px]",
+        )}
+      >
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => setRightCollapsed(true)}
+          >
+            <PanelRightClose className="size-4" />
+          </Button>
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Inspector
+          </span>
+          <div className="size-7" /> {/* spacer */}
+        </div>
+
+        {dynamicInspector ? (
+          <div className="space-y-5 p-4">
+            <InspectorBlock title="Notebook Details">
+              <MetaRow k="Notebook" v={dynamicInspector.details.notebook} />
+              <MetaRow k="Course" v={dynamicInspector.details.type} />
+              <MetaRow k="Updated" v={dynamicInspector.details.created} />
+            </InspectorBlock>
+
+            <div className="grid grid-cols-2 gap-2">
+              <Stat label="Words" value={dynamicInspector.wordCount} />
+              <Stat label="Reading" value={dynamicInspector.readingTime} />
+            </div>
+
+            {dynamicInspector.linkedSources.length > 0 && (
+              <InspectorBlock title="Linked Sources">
+                {dynamicInspector.linkedSources.map((s) => (
+                  <div
+                    key={s}
+                    className="flex items-start gap-2 py-1 text-sm text-foreground/80"
+                  >
+                    <FileText className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                    <span className="leading-snug">{s}</span>
+                  </div>
+                ))}
+              </InspectorBlock>
+            )}
+
+            {dynamicInspector.generatedAssets.length > 0 && (
+              <InspectorBlock title="Generated Assets">
+                <div className="grid grid-cols-2 gap-2">
+                  {dynamicInspector.generatedAssets.map((a) => (
+                    <div
+                      key={a.label}
+                      className="rounded-lg border border-border bg-card px-3 py-2"
+                    >
+                      <div className="font-display text-xl leading-none">
+                        {a.count}
+                      </div>
+                      <div className="mt-1 text-[11px] text-muted-foreground">
+                        {a.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </InspectorBlock>
+            )}
+
+            {dynamicInspector.relatedTopics.length > 0 && (
+              <InspectorBlock title="Related Topics">
+                <div className="flex flex-wrap gap-1.5">
+                  {dynamicInspector.relatedTopics.map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-foreground/70"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </InspectorBlock>
+            )}
+
+            <InspectorBlock title="Revision Status">
+              <Badge
+                variant="outline"
+                className="gap-1.5 border-warning/40 bg-warning-soft text-warning"
+              >
+                <Gauge className="size-3" /> {dynamicInspector.revisionStatus}
+              </Badge>
+            </InspectorBlock>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground mt-10">
+            <Info className="size-8 opacity-20 mb-3" />
+            <p className="text-sm">Select a notebook to view its details.</p>
+          </div>
+        )}
+      </aside>
+
+      {/* New notebook dialog */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New notebook</DialogTitle>
+            <DialogDescription>
+              Give your notebook a title and optionally link a course.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                Title
+              </label>
+              <Input
+                autoFocus
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !creating) handleCreate();
+                }}
+                placeholder="e.g. Machine Learning"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                Course (optional)
+              </label>
+              <Select value={newCourse} onValueChange={setNewCourse}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="No course" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No course</SelectItem>
+                  {courses.map((c) => (
+                    <SelectItem key={c.id} value={c.name}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCreateOpen(false)}
+              disabled={creating}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreate}
+              disabled={creating || !newTitle.trim()}
+            >
+              {creating && <Loader2 className="mr-2 size-4 animate-spin" />}
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// A block in the document: hover reveals a drag handle (reorder), edit and
+// delete controls. Clicking edit swaps the rendered block for an inline editor.
+function BlockView({
+  block,
+  index,
+  editing,
+  dragging,
+  dropTarget,
+  onEdit,
+  onSave,
+  onCancel,
+  onDelete,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
+}: {
+  block: NotebookBlock;
+  index: number;
+  editing: boolean;
+  dragging: boolean;
+  dropTarget: boolean;
+  onEdit: () => void;
+  onSave: (patch: Partial<NotebookBlock>) => void;
+  onCancel: () => void;
+  onDelete: () => void;
+  onDragStart: () => void;
+  onDragEnter: () => void;
+  onDragEnd: () => void;
+}) {
+  const editable = EDITABLE_TYPES.has(block.type);
+  return (
+    <div
+      onDragOver={(e) => e.preventDefault()}
+      onDragEnter={onDragEnter}
+      className={cn(
+        "group/block relative -mx-3 rounded-lg px-3 py-1 transition-colors hover:bg-accent/20",
+        dragging && "opacity-40",
+        dropTarget &&
+        "before:absolute before:-top-1 before:left-3 before:right-3 before:h-0.5 before:rounded-full before:bg-violet",
+      )}
+    >
+      {!editing && (
+        <div className="absolute -left-3 top-2 flex items-center opacity-0 transition-opacity group-hover/block:opacity-100">
+          <span
+            draggable
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+            className="cursor-grab active:cursor-grabbing"
+            title="Drag to reorder"
+          >
+            <GripVertical className="size-4 text-muted-foreground" />
+          </span>
+        </div>
+      )}
+
+      {!editing && (
+        <div className="absolute -top-1 right-1 z-10 flex items-center gap-0.5 opacity-0 transition-opacity group-hover/block:opacity-100">
+          {editable && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6 bg-card/80 backdrop-blur"
+              onClick={onEdit}
+              title="Edit"
+            >
+              <Wand2 className="size-3.5 text-muted-foreground" />
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6 bg-card/80 backdrop-blur hover:text-destructive"
+            onClick={onDelete}
+            title="Delete"
+          >
+            <Trash2 className="size-3.5 text-muted-foreground hover:text-destructive" />
+          </Button>
+        </div>
+      )}
+
+      {editing ? (
+        <BlockEditor block={block} onSave={onSave} onCancel={onCancel} />
+      ) : (
+        <BlockInner block={block} />
+      )}
+    </div>
+  );
+}
+
+const EDITABLE_TYPES = new Set([
+  "heading",
+  "text",
+  "callout",
+  "code",
+  "mermaid",
+  "ai-answer",
+]);
+
+// Inline editor for the common authorable block types. Commits a typed patch
+// back to the parent on save.
+function BlockEditor({
+  block,
+  onSave,
+  onCancel,
+}: {
+  block: NotebookBlock;
+  onSave: (patch: Partial<NotebookBlock>) => void;
+  onCancel: () => void;
+}) {
+  const [draft, setDraft] = useState<NotebookBlock>(block);
+  const d = draft as any;
+
+  const field = (patch: Record<string, unknown>) =>
+    setDraft({ ...d, ...patch } as NotebookBlock);
+
+  const textRef = useRef<HTMLTextAreaElement>(null);
+  const format = (action: MarkdownAction) => {
+    if (!textRef.current) return;
+    field({ text: applyMarkdown(textRef.current, action) });
+  };
+
+  return (
+    <div className="space-y-3 rounded-xl border border-violet/40 bg-card/60 p-4">
+      {draft.type === "heading" && (
+        <>
+          <div className="flex gap-1.5">
+            {[1, 2].map((lvl) => (
+              <button
+                key={lvl}
+                onClick={() => field({ level: lvl })}
+                className={cn(
+                  "rounded-md border px-2.5 py-1 text-xs",
+                  d.level === lvl
+                    ? "border-violet bg-violet-soft text-violet"
+                    : "border-border text-muted-foreground",
+                )}
+              >
+                H{lvl}
+              </button>
+            ))}
+          </div>
+          <Input
+            value={d.text}
+            onChange={(e) => field({ text: e.target.value })}
+            placeholder="Heading text"
+            autoFocus
+          />
+        </>
+      )}
+
+      {draft.type === "text" && (
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-0.5 rounded-lg border border-border bg-card/60 p-1">
+            {([
+              ["bold", Bold, "Bold"],
+              ["italic", Italic, "Italic"],
+              ["code", Code2, "Code"],
+              ["h1", Heading1, "Heading 1"],
+              ["h2", Heading2, "Heading 2"],
+              ["ul", List, "Bullet list"],
+              ["ol", ListOrdered, "Numbered list"],
+              ["quote", Quote, "Quote"],
+              ["link", Link2, "Link"],
+            ] as [MarkdownAction, typeof Bold, string][]).map(([action, Icon, label]) => (
+              <button
+                key={action}
+                type="button"
+                title={label}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => format(action)}
+                className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              >
+                <Icon className="size-3.5" />
+              </button>
+            ))}
+          </div>
+          <textarea
+            ref={textRef}
+            value={d.text}
+            onChange={(e) => field({ text: e.target.value })}
+            placeholder="Write markdown…"
+            autoFocus
+            rows={5}
+            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 font-reading text-sm leading-relaxed outline-none focus:border-violet"
+          />
+        </div>
+      )}
+
+      {draft.type === "callout" && (
+        <>
+          <div className="flex gap-1.5">
+            {(["note", "insight", "warning"] as const).map((tone) => (
+              <button
+                key={tone}
+                onClick={() => field({ tone })}
+                className={cn(
+                  "rounded-md border px-2.5 py-1 text-xs capitalize",
+                  d.tone === tone
+                    ? "border-violet bg-violet-soft text-violet"
+                    : "border-border text-muted-foreground",
+                )}
+              >
+                {tone}
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={d.text}
+            onChange={(e) => field({ text: e.target.value })}
+            placeholder="Callout text"
+            autoFocus
+            rows={3}
+            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 text-sm outline-none focus:border-violet"
+          />
+        </>
+      )}
+
+      {draft.type === "code" && (
+        <>
+          <Input
+            value={d.lang}
+            onChange={(e) => field({ lang: e.target.value })}
+            placeholder="Language (e.g. python)"
+            className="h-8 max-w-[200px] text-xs"
+          />
+          <textarea
+            value={d.code}
+            onChange={(e) => field({ code: e.target.value })}
+            placeholder="Code…"
+            autoFocus
+            rows={6}
+            spellCheck={false}
+            className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
+          />
+        </>
+      )}
+
+      {draft.type === "mermaid" && (
+        <textarea
+          value={d.code}
+          onChange={(e) => field({ code: e.target.value })}
+          placeholder="Mermaid graph definition…"
+          autoFocus
+          rows={6}
+          spellCheck={false}
+          className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
+        />
+      )}
+
+      {draft.type === "ai-answer" && (
+        <>
+          <Input
+            value={d.question}
+            onChange={(e) => field({ question: e.target.value })}
+            placeholder="Question / prompt"
+            autoFocus
+          />
+          <textarea
+            value={d.answer}
+            onChange={(e) => field({ answer: e.target.value })}
+            placeholder="Answer (markdown)"
+            rows={5}
+            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 text-sm leading-relaxed outline-none focus:border-violet"
+          />
+        </>
+      )}
+
+      <div className="flex justify-end gap-2">
+        <Button variant="ghost" size="sm" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button size="sm" onClick={() => onSave(draft)}>
+          <Check className="mr-1.5 size-3.5" /> Save
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function BlockInner({ block }: { block: NotebookBlock }) {
+  switch (block.type) {
+    case "heading":
+      return block.level === 1 ? (
+        <h1 className="mt-4 text-3xl">{block.text}</h1>
+      ) : (
+        <h2 className="mt-4">{block.text}</h2>
+      );
+    case "text":
+      return <MarkdownRenderer content={block.text} />;
+    case "callout": {
+      const m = calloutMeta[block.tone];
+      return (
+        <div className={cn("flex gap-3 rounded-xl border p-4", m.cls)}>
+          <m.icon className={cn("mt-0.5 size-5 shrink-0", m.iconCls)} />
+          <div className="font-reading leading-relaxed">{block.text}</div>
+        </div>
+      );
+    }
+    case "code":
+      return (
+        <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-4">
+          <code className="font-mono text-[13px] leading-relaxed text-foreground/90">
+            {block.code}
+          </code>
+        </pre>
+      );
+    case "table":
+      return (
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full border-collapse text-sm">
+            <thead className="bg-muted/60">
+              <tr>
+                {block.headers.map((h) => (
+                  <th
+                    key={h}
+                    className="border-b border-border px-4 py-2.5 text-left font-semibold"
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {block.rows.map((row, i) => (
+                <tr key={i}>
+                  {row.map((cell, j) => (
+                    <td
+                      key={j}
+                      className="border-b border-border/60 px-4 py-2.5 text-foreground/80"
+                    >
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    case "ai-answer":
+      return (
+        <div className="overflow-hidden rounded-xl border border-violet/25 bg-violet-soft/40">
+          <div className="flex items-center justify-between border-b border-violet/15 px-4 py-2.5">
+            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-violet">
+              <Sparkles className="size-3.5" /> Saved AI Answer
+            </span>
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Gauge className="size-3" /> {(block.confidence * 100).toFixed(0)}
+              % · {block.sources} sources
+            </span>
+          </div>
+          <div className="px-4 pb-3 pt-3">
+            <div className="mb-2 font-reading text-base font-medium italic text-foreground">
+              {block.question}
+            </div>
+            <MarkdownRenderer content={block.answer} />
+          </div>
+        </div>
+      );
+    case "mermaid":
+      return (
+        <div>
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <Workflow className="size-3.5" /> Diagram
+          </div>
+          <DiagramViewer code={block.code} />
+        </div>
+      );
+    case "flashdeck":
+      return (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="flex items-center gap-2 text-sm font-medium">
+              <Layers className="size-4 text-violet" /> {block.name}
+            </span>
+            <Badge variant="outline" className="text-xs text-muted-foreground">
+              {block.count} cards
+            </Badge>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {block.cards.map((c, i) => (
+              <div
+                key={i}
+                className="rounded-lg border border-border bg-background/50 p-3"
+              >
+                <div className="font-reading text-sm leading-snug">
+                  {c.front}
+                </div>
+                <div className="mt-2 border-t border-border pt-2 text-xs text-muted-foreground">
+                  {c.back}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    case "quiz-results": {
+      const pct = Math.round((block.score / block.total) * 100);
+      return (
+        <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+          <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-xl bg-success-soft text-success">
+            <span className="font-display text-xl leading-none">{pct}%</span>
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <ListChecks className="size-4 text-success" /> {block.title}
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              Scored {block.score} of {block.total} · embedded quiz result
+            </div>
+          </div>
+          <Check className="size-5 text-success" />
+        </div>
+      );
+    }
+    default:
+      return null;
+  }
+}
+
+function Section({
+  label,
+  icon: Icon,
+  children,
+}: {
+  label: string;
+  icon: typeof Hash;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border-t border-border px-2 py-3">
+      <div className="flex items-center gap-1.5 px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <Icon className="size-3" /> {label}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function InspectorBlock({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function MetaRow({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex items-center justify-between py-0.5 text-sm">
+      <span className="text-muted-foreground">{k}</span>
+      <span className="font-medium">{v}</span>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-lg border border-border bg-card px-3 py-2.5">
+      <div className="font-display text-2xl leading-none">{value}</div>
+      <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+```
+
+
+## File: src/app/pages/Flashcards.tsx
+```typescript
+import { useEffect, useState } from "react";
+import {
+  LayoutGrid,
+  List,
+  GraduationCap,
+  RotateCw,
+  Check,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Loader2,
+  Save,
+  Trash2,
+} from "lucide-react";
+import { GenerationSteps } from "../components/GenerationSteps";
+import { motion, AnimatePresence } from "motion/react";
+import { toast } from "sonner";
+import { Page, SectionTitle } from "../components/Page";
+import QualityBadge from "../components/QualityBadge";
+import { FlashcardCard } from "../components/FlashcardCard";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
+import { Progress } from "../components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { api } from "../lib/api";
+import type { DeckOut } from "../lib/api";
+import type { Course, DocumentItem, Flashcard } from "../lib/types";
+import { useFlashcardGenStore } from "../stores/useFlashcardGenStore";
+import { cn } from "../components/ui/utils";
+
+type View = "grid" | "list" | "study";
+
+const NO_GROUNDED_MESSAGE =
+  "No grounded flashcards — try uploading documents or a different topic.";
+
+export function Flashcards() {
+  // Generation state lives in the store so freshly generated (unsaved) cards and
+  // in-flight generations survive navigation.
+  const topic = useFlashcardGenStore((s) => s.topic);
+  const course = useFlashcardGenStore((s) => s.course);
+  const document = useFlashcardGenStore((s) => s.document);
+  const generating = useFlashcardGenStore((s) => s.generating);
+  const genCards = useFlashcardGenStore((s) => s.cards);
+  const genQuality = useFlashcardGenStore((s) => s.quality);
+  const genUngrounded = useFlashcardGenStore((s) => s.ungrounded);
+  const generatedDeckName = useFlashcardGenStore((s) => s.generatedDeckName);
+  const activeDeck = useFlashcardGenStore((s) => s.activeDeck);
+  const setField = useFlashcardGenStore((s) => s.setField);
+  const setGenCards = useFlashcardGenStore((s) => s.setCards);
+  const generate = useFlashcardGenStore((s) => s.generate);
+
+  // View mode persists in the store so it survives navigation.
+  const view = useFlashcardGenStore((s) => s.view);
+  const setView = (v: View) => setField("view", v);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  // Cards loaded from a saved deck (view-only / reviewable) — cheap to refetch,
+  // so they stay page-local. The store holds the generated unsaved set instead.
+  const [savedCards, setSavedCards] = useState<Flashcard[]>([]);
+
+  const [decks, setDecks] = useState<DeckOut[]>([]);
+  const [loadingDecks, setLoadingDecks] = useState(true);
+  const [loadingCards, setLoadingCards] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // When a saved deck is open (activeDeck set) we display its cards; otherwise we
+  // display the generated unsaved set from the store.
+  const cards = activeDeck ? savedCards : genCards;
+  const ungrounded = activeDeck ? false : genUngrounded;
+  // Helper to update whichever card set is currently displayed.
+  const updateActiveCards = (updater: (cs: Flashcard[]) => Flashcard[]) => {
+    if (activeDeck) setSavedCards(updater);
+    else setGenCards(updater(genCards));
+  };
+
+  const loadDecks = async () => {
+    setLoadingDecks(true);
+    try {
+      setDecks(await api.listDecks());
+    } catch {
+      setDecks([]);
+    } finally {
+      setLoadingDecks(false);
+    }
+  };
+
+  useEffect(() => {
+    api.listCourses().then(setCourses).catch(() => setCourses([]));
+    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
+    void loadDecks();
+    // If a saved deck was open before navigating away, re-fetch its cards on
+    // remount (savedCards is local state and would otherwise be empty).
+    const openDeckName = useFlashcardGenStore.getState().activeDeck;
+    if (openDeckName) {
+      setLoadingCards(true);
+      api
+        .listSavedFlashcards(openDeckName)
+        .then(setSavedCards)
+        .catch(() => setField("activeDeck", null))
+        .finally(() => setLoadingCards(false));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // After a successful generation, switch to grid view to show the new cards.
+  const runGenerate = async () => {
+    await generate();
+    if (useFlashcardGenStore.getState().cards.length > 0) setView("grid");
+  };
+
+  const saveDeck = async () => {
+    if (saving || cards.length === 0 || activeDeck) return;
+    const name = (generatedDeckName ?? topic.trim() ?? "").trim() || "Untitled deck";
+    setSaving(true);
+    try {
+      const deck = await api.saveDeck(name, course, cards, undefined, genQuality);
+      toast.success(`Saved "${deck.name}"`);
+      // Mark the generated set as saved and reload from the persisted deck so
+      // card ids become DB ids (reviewable).
+      setField("generatedDeckName", null);
+      await loadDecks();
+      await openDeck(deck);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save deck");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openDeck = async (deck: DeckOut) => {
+    setLoadingCards(true);
+    try {
+      const loaded = await api.listSavedFlashcards(deck.name);
+      setSavedCards(loaded);
+      setField("activeDeck", deck.name);
+      setField("generatedDeckName", null);
+      setField("ungrounded", false);
+      setView("grid");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to load deck");
+    } finally {
+      setLoadingCards(false);
+    }
+  };
+
+  const deleteDeck = async (deck: DeckOut) => {
+    try {
+      await api.deleteDeck(deck.id);
+      toast.success(`Deleted "${deck.name}"`);
+      if (activeDeck === deck.name) {
+        setSavedCards([]);
+        setField("activeDeck", null);
+      }
+      await loadDecks();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete deck");
+    }
+  };
+
+
+
+  const deleteCard = async (card: Flashcard) => {
+    const prev = cards;
+    updateActiveCards((cs) => cs.filter((c) => c.id !== card.id));
+    try {
+      await api.deleteCard(card.id);
+      toast.success("Card deleted");
+      await loadDecks();
+    } catch (err) {
+      updateActiveCards(() => prev);
+      toast.error(err instanceof Error ? err.message : "Failed to delete card");
+    }
+  };
+
+  const reviewCard = async (card: Flashcard, ease: Flashcard["ease"]) => {
+    // Optimistic update on whichever set is shown.
+    updateActiveCards((cs) => cs.map((c) => (c.id === card.id ? { ...c, ease } : c)));
+    if (!activeDeck) return; // Unsaved cards have no DB id to persist against.
+    try {
+      const updated = await api.reviewCard(card.id, ease);
+      setSavedCards((cs) => cs.map((c) => (c.id === card.id ? updated : c)));
+      void loadDecks();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save review");
+    }
+  };
+
+  const hasCards = cards.length > 0;
+  const canSave = hasCards && !activeDeck;
+
+  return (
+    <Page className="space-y-6">
+      {/* Generate flashcards */}
+      <div className="rounded-xl border border-border bg-card p-4">
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <Sparkles className="size-4 text-violet" /> Generate flashcards
+        </div>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Input
+            value={topic}
+            onChange={(e) => setField("topic", e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                void runGenerate();
+              }
+            }}
+            placeholder="Topic, e.g. eigenvalues, SN1 vs SN2…"
+            className="flex-1"
+            disabled={generating}
+          />
+          <Select
+            value={course ?? "all"}
+            onValueChange={(v) => setField("course", v === "all" ? null : v)}
+          >
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="All courses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All courses</SelectItem>
+              {courses.map((c) => (
+                <SelectItem key={c.id} value={c.name}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={document ?? "all"}
+            onValueChange={(v) => setField("document", v === "all" ? null : v)}
+          >
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="All documents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All documents</SelectItem>
+              {documents.filter(d => course ? d.course === course : true).map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={() => void runGenerate()}
+            disabled={!topic.trim() || generating}
+            className="gap-1.5"
+          >
+            {generating ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> Generating…
+              </>
+            ) : (
+              <>
+                <Sparkles className="size-4" /> Generate
+              </>
+            )}
+          </Button>
+        </div>
+        <GenerationSteps
+          steps={["Searching your library", "Extracting key concepts", "Writing cards", "Formatting deck"]}
+          loading={generating}
+          className="mt-3"
+        />
+      </div>
+
+      {/* Decks */}
+      <div>
+        <div className="flex items-center justify-between">
+          <SectionTitle title="Decks" />
+
+        </div>
+        {loadingDecks ? (
+          <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/40 px-4 py-8 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" /> Loading decks…
+          </div>
+        ) : decks.length === 0 ? (
+          <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card/40 px-6 py-10 text-center">
+            <div className="flex size-10 items-center justify-center rounded-xl border border-border bg-card text-violet">
+              <GraduationCap className="size-5" />
+            </div>
+            <h3 className="mt-4 text-sm font-semibold">No saved decks yet</h3>
+            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+              Generate a set of flashcards above and save it as a deck to start
+              building your spaced-repetition library.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {decks.map((d) => (
+              <motion.div
+                key={d.id}
+                whileHover={{ y: -2 }}
+                onClick={() => void openDeck(d)}
+                className={cn(
+                  "group relative cursor-pointer rounded-xl border bg-card p-4 transition-colors",
+                  activeDeck === d.name ? "border-violet/60 ring-1 ring-violet/30" : "border-border hover:border-border",
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex size-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${d.color}22`, color: d.color }}>
+                    <GraduationCap className="size-4" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">{d.cards} cards</span>
+                </div>
+                <div className="mt-3 text-sm font-medium">{d.name}</div>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-xs text-muted-foreground">{d.course}</div>
+                  {d.quality && <QualityBadge score={d.quality} />}
+                </div>
+                <Progress value={d.cards ? (d.mastered / d.cards) * 100 : 0} className="mt-3 h-1.5" />
+                <div className="mt-1.5 text-xs text-muted-foreground">{d.mastered} mastered</div>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void deleteDeck(d);
+                  }}
+                  aria-label={`Delete ${d.name}`}
+                  className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger group-hover:opacity-100"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* View switcher */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold">Cards</h3>
+          {activeDeck && (
+            <Badge variant="outline" className="text-[10px] font-medium">
+              {activeDeck}
+            </Badge>
+          )}
+          {/* Quality of the freshly generated, unsaved set. */}
+          {!activeDeck && hasCards && <QualityBadge score={genQuality} />}
+        </div>
+        <div className="flex items-center gap-2">
+          {canSave && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => void saveDeck()}
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> Saving…
+                </>
+              ) : (
+                <>
+                  <Save className="size-4" /> Save as deck
+                </>
+              )}
+            </Button>
+          )}
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+            {([
+              { id: "grid", icon: LayoutGrid, label: "Grid" },
+              { id: "list", icon: List, label: "List" },
+              { id: "study", icon: RotateCw, label: "Study" },
+            ] as const).map((v) => (
+              <button
+                key={v.id}
+                onClick={() => setView(v.id)}
+                disabled={!hasCards}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors",
+                  view === v.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  !hasCards && "cursor-not-allowed opacity-50",
+                )}
+              >
+                <v.icon className="size-4" /> {v.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {loadingCards ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 px-6 py-14 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" /> Loading cards…
+        </div>
+      ) : !hasCards ? (
+        <EmptyCards ungrounded={ungrounded} />
+      ) : (
+        <>
+          {view === "grid" && (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {cards.map((c) => (
+                <div key={c.id} className="group/card relative">
+                  <FlashcardCard card={c} />
+                  <button
+                    onClick={() => void deleteCard(c)}
+                    aria-label="Delete card"
+                    className="absolute right-2 top-2 z-10 flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground opacity-0 backdrop-blur transition-opacity hover:bg-danger-soft hover:text-danger group-hover/card:opacity-100"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {view === "list" && (
+            <div className="overflow-hidden rounded-xl border border-border bg-card">
+              {cards.map((c, i) => (
+                <div
+                  key={c.id}
+                  className={cn("group/row flex items-center gap-4 px-4 py-3 hover:bg-accent/30", i !== 0 && "border-t border-border")}
+                >
+                  <Badge variant="outline" className="text-[10px] uppercase">{c.type}</Badge>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm">{c.front}</div>
+                    <div className="truncate text-xs text-muted-foreground">{c.back}</div>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{c.deck}</span>
+                  <span className="text-xs text-muted-foreground">{c.due}</span>
+                  <button
+                    onClick={() => void deleteCard(c)}
+                    aria-label="Delete card"
+                    className="flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger group-hover/row:opacity-100"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {view === "study" && (
+            <StudyMode cards={cards} onReview={reviewCard} persisted={!!activeDeck} />
+          )}
+        </>
+      )}
+    </Page>
+  );
+}
+
+function EmptyCards({ ungrounded }: { ungrounded: boolean }) {
+  return (
+    <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card/40 px-6 py-14 text-center">
+      <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-violet">
+        <Sparkles className="size-6" />
+      </div>
+      <h3 className="mt-5 text-sm font-semibold">
+        {ungrounded ? "No grounded flashcards" : "No flashcards yet"}
+      </h3>
+      <p className="mt-2 max-w-md text-sm text-muted-foreground">
+        {ungrounded
+          ? NO_GROUNDED_MESSAGE
+          : "Enter a topic above and generate a set of source-grounded flashcards, or pick a saved deck to start studying."}
+      </p>
+    </div>
+  );
+}
+
+function StudyMode({
+  cards,
+  onReview,
+  persisted,
+}: {
+  cards: Flashcard[];
+  onReview: (card: Flashcard, ease: Flashcard["ease"]) => void;
+  persisted: boolean;
+}) {
+  const [idx, setIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const card = cards[idx % cards.length];
+  const progress = ((idx + 1) / cards.length) * 100;
+
+  const next = () => {
+    setFlipped(false);
+    setIdx((i) => (i + 1) % cards.length);
+  };
+  const prev = () => {
+    setFlipped(false);
+    setIdx((i) => (i - 1 + cards.length) % cards.length);
+  };
+
+  const grade = (ease: Flashcard["ease"]) => {
+    onReview(card, ease);
+    next();
+  };
+
+  return (
+    <div className="mx-auto max-w-2xl">
+      <div className="mb-6 flex items-center gap-4">
+        <Progress value={progress} className="h-1.5 flex-1" />
+        <span className="text-xs font-medium tabular-nums text-muted-foreground">
+          {idx + 1} of {cards.length}
+        </span>
+      </div>
+
+      <AnimatePresence mode="wait">
+        <div key={card.id} className="group relative h-80 w-full [perspective:1000px]">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              rotateY: flipped ? 180 : 0
+            }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{
+              rotateY: { duration: 0.6, type: "spring", stiffness: 260, damping: 20 },
+              opacity: { duration: 0.3 },
+              y: { duration: 0.3 }
+            }}
+            className="relative size-full cursor-pointer [transform-style:preserve-3d]"
+            onClick={() => setFlipped(!flipped)}
+          >
+            {/* Front */}
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-10 text-center [backface-visibility:hidden] [transform:rotateY(0deg)] shadow-sm"
+              style={{ zIndex: flipped ? 0 : 1 }}
+            >
+              <Badge variant="outline" className="mb-8 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                Question · {card.deck}
+              </Badge>
+              <p className="font-serif text-2xl leading-tight text-foreground">{card.front}</p>
+              <div className="mt-8 flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wider opacity-60">
+                <RotateCw className="size-3" /> Tap to reveal
+              </div>
+            </div>
+
+            {/* Back */}
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-violet/30 bg-[#fdfcfa] p-10 text-center [backface-visibility:hidden] [transform:rotateY(180deg)] shadow-sm"
+              style={{ zIndex: flipped ? 1 : 0 }}
+            >
+              <Badge variant="outline" className="mb-8 text-[10px] font-semibold uppercase tracking-widest text-violet">
+                Answer · {card.deck}
+              </Badge>
+              <p className="font-serif text-2xl leading-tight text-foreground">{card.back}</p>
+              <div className="mt-8 flex items-center gap-2 text-xs font-medium text-violet/60 uppercase tracking-wider">
+                <RotateCw className="size-3" /> Tap to see question
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </AnimatePresence>
+
+      <div className="mt-8 flex items-center justify-between">
+        <Button variant="outline" size="icon" className="size-11 rounded-full border-border/60" onClick={prev}>
+          <ChevronLeft className="size-5" />
+        </Button>
+        <div className="flex gap-4">
+          <Button variant="outline" className="h-11 gap-2 rounded-full border-danger/40 px-6 font-medium text-danger hover:bg-danger-soft" onClick={() => grade("learning")}>
+            <X className="size-4" /> Hard
+          </Button>
+          <Button variant="outline" className="h-11 gap-2 rounded-full border-success/40 px-6 font-medium text-success hover:bg-success-soft" onClick={() => grade("mastered")}>
+            <Check className="size-4" /> Easy
+          </Button>
+        </div>
+        <Button variant="outline" size="icon" className="size-11 rounded-full border-border/60" onClick={next}>
+          <ChevronRight className="size-5" />
+        </Button>
+      </div>
+
+      {!persisted && (
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Save this set as a deck to record your reviews.
+        </p>
+      )}
+    </div>
+  );
+}
+
+```
+
+
+## File: src/app/pages/Consistency.tsx
+```typescript
+import { useEffect, useState } from "react";
+import { Loader2, ShieldCheck, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "../components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { Page, SectionTitle } from "../components/Page";
+import { ConsistencyReport } from "../components/ConsistencyReport";
+import { api, type ConsistencyReport as Report } from "../lib/api";
+import type { Course, DocumentItem } from "../lib/types";
+
+export function Consistency() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [course, setCourse] = useState<string>("none");
+  const [document, setDocument] = useState<string>("all"); // document TITLE or "all"
+  const [report, setReport] = useState<Report | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    Promise.all([api.listCourses(), api.listDocuments()])
+      .then(([c, d]) => {
+        setCourses(c);
+        setDocuments(d);
+      })
+      .catch(() => {});
+  }, []);
+
+  const visibleDocs =
+    course === "none" ? documents : documents.filter((d) => d.course === course);
+
+  async function analyze() {
+    if (course === "none") {
+      toast.error("Pick a course to analyze");
+      return;
+    }
+    setLoading(true);
+    try {
+      const doc = document === "all" ? null : document;
+      const result = await api.analyzeLibraryConsistency(course, doc);
+      setReport(result);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to analyze consistency");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Page>
+      <div className="mb-6">
+        <h1 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+          <ShieldCheck className="size-5 text-primary" />
+          Consistency Engine
+        </h1>
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+          Check that your saved artifacts for a course collectively cover the source
+          material, instead of silently dropping concepts. Analysis only — nothing is
+          regenerated or modified. Saved artifacts are linked by course, so analysis is
+          scoped per course (a document only sharpens the concept checklist).
+        </p>
+      </div>
+
+      <div className="mb-6 flex flex-wrap items-end gap-3">
+        <div>
+          <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Course
+          </label>
+          <Select value={course} onValueChange={(v) => { setCourse(v); setDocument("all"); }}>
+            <SelectTrigger className="w-56">
+              <SelectValue placeholder="Pick a course" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Select a course…</SelectItem>
+              {courses.map((c) => (
+                <SelectItem key={c.id} value={c.name}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Document (optional)
+          </label>
+          <Select value={document} onValueChange={setDocument}>
+            <SelectTrigger className="w-56">
+              <SelectValue placeholder="All documents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All documents</SelectItem>
+              {visibleDocs.map((d) => (
+                <SelectItem key={d.id} value={d.title}>
+                  {d.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button className="gap-2" disabled={loading || course === "none"} onClick={() => void analyze()}>
+          {loading ? <Loader2 className="size-4 animate-spin" /> : <ShieldCheck className="size-4" />}
+          Analyze
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex flex-col items-center gap-3 pt-24 text-center text-muted-foreground">
+          <Loader2 className="size-7 animate-spin text-primary" />
+          <p className="text-sm">Extracting concepts and comparing saved artifacts…</p>
+        </div>
+      ) : report ? (
+        <div>
+          <SectionTitle title="Consistency report" />
+          <ConsistencyReport
+            report={report}
+            course={course}
+            onApply={async (artifactType, concepts) => {
+              const result = await api.applyConsistencyFix(course, artifactType, concepts);
+              if (result.applied) {
+                toast.success(`${artifactType} updated`, {
+                  description: result.preview.slice(0, 120) + "…",
+                });
+              } else {
+                toast.error(result.message);
+              }
+            }}
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-3 pt-24 text-center text-muted-foreground">
+          <ShieldCheck className="size-7 opacity-40" />
+          <p className="max-w-sm text-sm">
+            Pick a course and run an analysis to see how well your saved artifacts cover
+            the source material.
+          </p>
+          {course === "none" && (
+            <span className="flex items-center gap-1.5 text-[11px]">
+              <AlertTriangle className="size-3" /> A course is required.
+            </span>
+          )}
         </div>
       )}
     </Page>
   );
 }
+
 ```
+
+
+## File: src/app/pages/PromptLibrary.tsx
+```typescript
+import { useEffect, useState } from "react";
+import { BookMarked, Check, Plus, Trash2, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { api } from "../lib/api";
+import type { PromptItem } from "../lib/types";
+import { toast } from "sonner";
+import { cn } from "../components/ui/utils";
+
+const STYLE_BADGE: Record<string, string> = {
+  Concise: "bg-cyan-soft text-cyan",
+  Comprehensive: "bg-violet-soft text-violet",
+  Socratic: "bg-warning-soft text-warning",
+  "": "bg-muted text-muted-foreground",
+};
+
+export function PromptLibrary() {
+  const [categories, setCategories] = useState<{ key: string; label: string; description: string }[]>([]);
+  const [prompts, setPrompts] = useState<PromptItem[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>("");
+  const [selected, setSelected] = useState<PromptItem | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({ name: "", style: "", body: "" });
+
+  useEffect(() => {
+    api.listPromptCategories().then((cs) => {
+      setCategories(cs);
+      if (cs.length) setActiveCategory(cs[0].key);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!activeCategory) return;
+    api.listPrompts(activeCategory).then((ps) => {
+      setPrompts(ps);
+      setSelected(ps.find((p) => p.active) ?? ps[0] ?? null);
+    });
+  }, [activeCategory]);
+
+  async function activate(p: PromptItem) {
+    await api.activatePrompt(p.id);
+    setPrompts((prev) => prev.map((x) => ({ ...x, active: x.id === p.id })));
+    setSelected({ ...p, active: true });
+    toast.success(`"${p.name}" activated`);
+  }
+
+  async function remove(p: PromptItem) {
+    await api.deletePrompt(p.id);
+    const next = prompts.filter((x) => x.id !== p.id);
+    setPrompts(next);
+    if (selected?.id === p.id) setSelected(next[0] ?? null);
+    toast.success("Prompt deleted");
+  }
+
+  async function save() {
+    if (!form.name.trim() || !form.body.trim()) return;
+    const created = await api.createPrompt({ category: activeCategory, ...form });
+    setPrompts((prev) => [...prev, created]);
+    setSelected(created);
+    setCreating(false);
+    setForm({ name: "", style: "", body: "" });
+    toast.success("Prompt created");
+  }
+
+  const visible = prompts.filter((p) => p.category === activeCategory);
+  const cat = categories.find((c) => c.key === activeCategory);
+
+  return (
+    <div className="flex h-full overflow-hidden">
+      {/* ── Left: category tabs + prompt list ───────────────────────── */}
+      <div className="flex w-64 shrink-0 flex-col border-r border-border bg-sidebar">
+        <div className="border-b border-border px-4 py-4">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <BookMarked className="size-4 text-violet" />
+            Prompt Library
+          </div>
+          <p className="mt-0.5 text-xs text-muted-foreground">Customise AI generation</p>
+        </div>
+
+        {/* category list */}
+        <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
+          {categories.map((c) => (
+            <button
+              key={c.key}
+              onClick={() => setActiveCategory(c.key)}
+              className={cn(
+                "w-full rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                activeCategory === c.key
+                  ? "bg-sidebar-accent text-foreground font-medium"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-foreground"
+              )}
+            >
+              {c.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* ── Middle: prompt list ──────────────────────────────────────── */}
+      <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card/50">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <span className="text-sm font-medium text-foreground">{cat?.label}</span>
+          <button
+            onClick={() => { setCreating(true); setSelected(null); }}
+            className="flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="size-3" /> New
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1 mt-2">
+          {visible.map((p) => (
+              <motion.button
+                key={p.id}
+                layout
+                onClick={() => { setSelected(p); setCreating(false); }}
+                className={cn(
+                  "group w-full rounded-lg px-3 py-2.5 text-left transition-colors",
+                  selected?.id === p.id
+                    ? "bg-sidebar-accent"
+                    : "hover:bg-sidebar-accent/50"
+                )}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 truncate text-sm font-medium text-foreground">
+                      {p.active && <Check className="size-3 shrink-0 text-success" />}
+                      <span className="truncate">{p.name}</span>
+                    </div>
+                    {p.style && (
+                      <span className={cn("mt-0.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-medium", STYLE_BADGE[p.style] ?? STYLE_BADGE[""])}>
+                        {p.style}
+                      </span>
+                    )}
+                  </div>
+                  {!p.built_in && selected?.id === p.id && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); remove(p); }}
+                      className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  )}
+                </div>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+
+      {/* ── Right: editor / viewer / experiments ────────────────────── */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <AnimatePresence mode="wait">
+          {creating ? (
+            <motion.div
+              key="create"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="flex h-full flex-col p-6 gap-4"
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-foreground">New Prompt — {cat?.label}</h2>
+                <button onClick={() => setCreating(false)} className="rounded p-1 hover:bg-muted">
+                  <X className="size-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Name</label>
+                  <input
+                    value={form.name}
+                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    placeholder="My custom prompt"
+                    className="mt-1 w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Style tag (optional)</label>
+                  <input
+                    value={form.style}
+                    onChange={(e) => setForm((f) => ({ ...f, style: e.target.value }))}
+                    placeholder="e.g. Concise"
+                    className="mt-1 w-full rounded-md border border-border bg-input px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">System prompt</label>
+                  <textarea
+                    value={form.body}
+                    onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))}
+                    rows={14}
+                    placeholder="You are a..."
+                    className="mt-1 w-full resize-none rounded-md border border-border bg-input px-3 py-2 font-mono text-sm leading-relaxed outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={save}
+                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setCreating(false)}
+                  className="rounded-md border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          ) : selected ? (
+            <motion.div
+              key={selected.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="flex h-full flex-col p-6 gap-4 overflow-hidden"
+            >
+              <div className="flex items-start justify-between gap-4 shrink-0">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-semibold text-foreground">{selected.name}</h2>
+                    {selected.style && (
+                      <span className={cn("rounded px-2 py-0.5 text-[11px] font-medium", STYLE_BADGE[selected.style] ?? STYLE_BADGE[""])}>
+                        {selected.style}
+                      </span>
+                    )}
+                    {selected.built_in && (
+                      <span className="rounded bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">Built-in</span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{cat?.description}</p>
+                </div>
+                {!selected.active && (
+                  <button
+                    onClick={() => activate(selected)}
+                    className="shrink-0 flex items-center gap-1.5 rounded-md bg-violet px-3 py-1.5 text-xs font-medium text-white hover:bg-violet/90"
+                  >
+                    <Check className="size-3" /> Activate
+                  </button>
+                )}
+                {selected.active && (
+                  <span className="flex items-center gap-1.5 rounded-md bg-success-soft px-3 py-1.5 text-xs font-medium text-success">
+                    <Check className="size-3" /> Active
+                  </span>
+                )}
+              </div>
+
+              <pre className="flex-1 overflow-y-auto rounded-lg border border-border bg-muted/40 p-4 font-mono text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
+                {selected.body}
+              </pre>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="empty"
+              className="flex flex-1 items-center justify-center text-muted-foreground text-sm"
+            >
+              Select a prompt to preview
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+```
+
+
+## File: src/app/pages/AskAI.tsx
+```typescript
+import { useEffect, useRef, useState, useMemo } from "react";
+import { ArrowUp, Gauge, Paperclip, Sparkles, Trash2, BookOpen, MessageSquare, Plus, GraduationCap, ShieldCheck, PanelRight } from "lucide-react";
+import { motion } from "motion/react";
+import { useChatStore } from "../stores/useChatStore";
+import { useSettingsStore } from "../stores/useSettingsStore";
+import { SourcePanel } from "../components/SourcePanel";
+import { AnswerViewer } from "../components/AnswerViewer";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { api } from "../lib/api";
+import type { Course, DocumentItem } from "../lib/types";
+
+export function AskAI() {
+  const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument, sessions, activeSessionId, loadSessions, loadSession, deleteSession, socratic, setSocratic } = useChatStore();
+  const streaming = useSettingsStore((s) => s.streaming);
+  const ragMode = useSettingsStore((s) => s.ragMode);
+  const setSettingsField = useSettingsStore((s) => s.set);
+  const [input, setInput] = useState("");
+  const [activeSource, setActiveSource] = useState<string | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [sessionsPanelOpen, setSessionsPanelOpen] = useState(true);
+  const [sourcesPanelOpen, setSourcesPanelOpen] = useState(true);
+  const [hoveredSessionId, setHoveredSessionId] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    api.listCourses().then(setCourses).catch(() => setCourses([]));
+    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
+    loadSessions();
+  }, []);
+
+  const suggestions = useMemo(() => {
+    const generic = [
+      "Summarize the key concepts across my courses",
+      "What are the most important formulas to remember?",
+    ];
+    if (!documents.length) return generic;
+
+    const dynamic = documents
+      .slice(0, 2)
+      .map((doc) => `Explain the main topics in ${doc.title}`);
+
+    return [...dynamic, ...generic].slice(0, 4);
+  }, [documents]);
+
+  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+  const sources = lastAssistant?.sources ?? [];
+  const confidence = lastAssistant?.confidence;
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  const submit = (q?: string) => {
+    const value = (q ?? input).trim();
+    if (!value || isStreaming) return;
+    ask(value, { stream: streaming, ragMode }).then(() => loadSessions());
+    setInput("");
+  };
+
+  const jumpToSource = (index: number) => {
+    const target = sources[index - 1];
+    if (target) {
+      setActiveSource(target.id);
+      document
+        .getElementById(`source-${index}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  return (
+    <div className="flex h-full">
+      {/* Sessions panel — collapsible, lg+ only */}
+      <div
+        className={`hidden lg:flex flex-col border-r border-border bg-sidebar overflow-hidden transition-all duration-200 ${
+          sessionsPanelOpen ? "w-[220px]" : "w-0"
+        }`}
+      >
+        <div className="flex h-12 shrink-0 items-center justify-between border-b border-border px-3">
+          <span className="text-xs font-medium text-muted-foreground">History</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 gap-1 text-xs"
+            onClick={() => { reset(); }}
+          >
+            <Plus className="size-3.5" /> New
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto py-1">
+          {sessions.length === 0 ? (
+            <p className="px-3 py-4 text-center text-xs text-muted-foreground">No sessions yet</p>
+          ) : (
+            sessions.map((s) => (
+              <div
+                key={s.id}
+                className={`group relative mx-1 flex cursor-pointer items-start gap-2 rounded-md px-3 py-2 text-sm ${
+                  s.id === activeSessionId
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "hover:bg-sidebar-accent/50"
+                }`}
+                onClick={() => loadSession(s.id)}
+                onMouseEnter={() => setHoveredSessionId(s.id)}
+                onMouseLeave={() => setHoveredSessionId(null)}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs font-medium">{s.title}</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    {s.messageCount} msg · {relativeTime(s.updatedAt)}
+                  </div>
+                </div>
+                {hoveredSessionId === s.id && (
+                  <button
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={(e) => { e.stopPropagation(); void deleteSession(s.id); }}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+
+      {/* Answer — flex-1 */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Answer header */}
+        <div className="flex h-12 items-center justify-between border-b border-border px-6">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={() => setSessionsPanelOpen((v) => !v)}
+              title={sessionsPanelOpen ? "Hide history" : "Show history"}
+            >
+              <MessageSquare className="size-4" />
+            </Button>
+            <BookOpen className="size-4 text-muted-foreground" />
+            Answer
+          </div>
+          <div className="flex items-center gap-2">
+            <Select
+              value={course ?? "all"}
+              onValueChange={(v) => setCourse(v === "all" ? null : v)}
+            >
+              <SelectTrigger className="h-8 w-44 bg-input-background text-xs">
+                <SelectValue placeholder="All courses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All courses</SelectItem>
+                {courses.map((c) => (
+                  <SelectItem key={c.id} value={c.name}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={document ?? "all"}
+              onValueChange={(v) => setDocument(v === "all" ? null : v)}
+            >
+              <SelectTrigger className="h-8 w-44 bg-input-background text-xs">
+                <SelectValue placeholder="All documents" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All documents</SelectItem>
+                {documents.filter(d => course ? d.course === course : true).map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {confidence !== undefined && !isStreaming && (
+              <Badge
+                variant="outline"
+                className="gap-1.5 border-success/40 bg-success-soft text-success"
+              >
+                <Gauge className="size-3.5" />
+                {(confidence * 100).toFixed(0)}% confidence
+              </Badge>
+            )}
+            {/* RAG Mode toggle — always visible in header */}
+            <button
+              type="button"
+              onClick={() => setSettingsField("ragMode", ragMode === "strict" ? "fallback" : "strict")}
+              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                ragMode === "strict"
+                  ? "border-amber-500/50 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
+                  : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
+              }`}
+              title={ragMode === "strict" ? "Strict RAG — click to switch to AI Fallback" : "AI Fallback — click to switch to Strict RAG"}
+            >
+              <ShieldCheck className="size-3" />
+              {ragMode === "strict" ? "Strict RAG" : "AI Fallback"}
+            </button>
+            {/* Socratic Mode toggle */}
+            <button
+              type="button"
+              onClick={() => setSocratic(!socratic)}
+              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                socratic
+                  ? "border-violet-500/50 bg-violet-500/10 text-violet-600 hover:bg-violet-500/20"
+                  : "border-border text-muted-foreground hover:border-border hover:text-foreground"
+              }`}
+              title={socratic ? "Socratic Mode ON — AI guides, does not answer" : "Enable Socratic Mode"}
+            >
+              <GraduationCap className="size-3" />
+              Socratic
+            </button>
+            {messages.length > 0 && (
+              <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs" onClick={reset}>
+                <Trash2 className="size-3.5" /> Clear
+              </Button>
+            )}
+            {/* Sources panel toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 hidden lg:inline-flex"
+              onClick={() => setSourcesPanelOpen((v) => !v)}
+              title={sourcesPanelOpen ? "Hide sources" : "Show sources"}
+            >
+              <PanelRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-3xl px-6 py-6">
+            {messages.length === 0 ? (
+              <EmptyAsk onPick={submit} suggestions={suggestions} />
+            ) : (
+              <div className="space-y-4">
+                {messages.map((m) => (
+                  <AnswerViewer key={m.id} message={m} onCitationClick={jumpToSource} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sticky input */}
+        <div className="border-t border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
+          <div className="mx-auto max-w-3xl">
+            <div className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 transition-colors focus-within:border-ring/60">
+              <Button variant="ghost" size="icon" className="size-9 shrink-0 text-muted-foreground">
+                <Paperclip className="size-[18px]" />
+              </Button>
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    submit();
+                  }
+                }}
+                rows={1}
+                placeholder="Ask anything about your materials…"
+                className="max-h-40 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
+              />
+              <Button
+                size="icon"
+                disabled={!input.trim() || isStreaming}
+                onClick={() => submit()}
+                className="size-9 shrink-0 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <ArrowUp className="size-[18px]" />
+              </Button>
+            </div>
+            <div className="mt-2 flex items-center justify-between px-1 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="size-3 text-primary" />
+                Grounded in {courses.length} courses · {streaming ? "Streaming on" : "Streaming off"}
+              </span>
+              <span>
+                <kbd className="rounded border border-border bg-muted px-1 font-mono">Enter</kbd> to send ·{" "}
+                <kbd className="rounded border border-border bg-muted px-1 font-mono">Shift+Enter</kbd> newline
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sources — collapsible right panel, lg+ only */}
+      <div
+        className={`hidden lg:flex flex-col border-l border-border bg-sidebar overflow-hidden transition-all duration-200 ${
+          sourcesPanelOpen ? "w-[25%] min-w-[260px] max-w-[360px]" : "w-0"
+        }`}
+      >
+        <SourcePanel sources={sources} activeId={activeSource} onSelect={setActiveSource} />
+      </div>
+    </div>
+  );
+}
+
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function EmptyAsk({ onPick, suggestions }: { onPick: (q: string) => void; suggestions: string[] }) {
+  return (
+    <div className="flex flex-col items-center pt-12 text-center">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-violet"
+      >
+        <Sparkles className="size-6" />
+      </motion.div>
+      <h1 className="mt-5">Ask your knowledge base</h1>
+      <p className="mt-2 max-w-md text-sm text-muted-foreground">
+        Get source-grounded answers with citations, drawn directly from your documents, notes and lectures.
+      </p>
+      <div className="mt-8 grid w-full max-w-xl gap-2 sm:grid-cols-2">
+        {suggestions.map((s, i) => (
+          <motion.button
+            key={s}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + i * 0.06 }}
+            onClick={() => onPick(s)}
+            className="rounded-xl border border-border bg-card p-3 text-left text-sm text-foreground/90 transition-colors hover:border-primary/50 hover:bg-violet-soft/40"
+          >
+            {s}
+          </motion.button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+```
+
+
+## File: src/app/pages/Quiz.tsx
+```typescript
+import { useEffect, useRef, useState } from "react";
+import {
+  ListChecks,
+  Play,
+  ChevronRight,
+  Check,
+  X,
+  RotateCw,
+  Trophy,
+  Settings2,
+  Loader2,
+  Save,
+  Trash2,
+  Clock,
+} from "lucide-react";
+import { GenerationSteps } from "../components/GenerationSteps";
+import { motion, AnimatePresence } from "motion/react";
+import { toast } from "sonner";
+import { Page } from "../components/Page";
+import QualityBadge from "../components/QualityBadge";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Progress } from "../components/ui/progress";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { api } from "../lib/api";
+import type { Quiz, QuizQuestion, Course, DocumentItem } from "../lib/types";
+import { cn } from "../components/ui/utils";
+import { useQuizStore } from "../stores/useQuizStore";
+import type { Difficulty } from "../stores/useQuizStore";
+
+const difficulties: Difficulty[] = ["Easy", "Medium", "Hard"];
+
+const diffColor: Record<Quiz["difficulty"], string> = {
+  Easy: "border-success/40 bg-success-soft text-success",
+  Medium: "border-warning/40 bg-warning-soft text-warning",
+  Hard: "border-danger/40 bg-danger-soft text-danger",
+};
+
+export function QuizPage() {
+  // Flow state lives in the store so it survives page navigation.
+  const stage = useQuizStore((s) => s.stage);
+  const active = useQuizStore((s) => s.active);
+  const answers = useQuizStore((s) => s.answers);
+  const start = useQuizStore((s) => s.start);
+  const submit = useQuizStore((s) => s.submit);
+  const backToBuilder = useQuizStore((s) => s.backToBuilder);
+
+  const restoreSession = useQuizStore((s) => s.restoreSession);
+  const [pendingRestore, setPendingRestore] = useState<Quiz | null>(null);
+
+  // Page-only ephemeral data that's cheap to refetch stays local.
+  const [saved, setSaved] = useState<Quiz[]>([]);
+  const [loadingSaved, setLoadingSaved] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const refreshSaved = () =>
+    api
+      .listSavedQuizzes()
+      .then(setSaved)
+      .catch(() => setSaved([]))
+      .finally(() => setLoadingSaved(false));
+
+  useEffect(() => {
+    refreshSaved();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const saveQuiz = async (quiz: Quiz) => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await api.saveQuiz({
+        title: quiz.title,
+        course: quiz.course && quiz.course !== "all" ? quiz.course : null,
+        difficulty: quiz.difficulty,
+        questions: quiz.questions,
+        quality: quiz.quality,
+      });
+      await refreshSaved();
+      toast.success("Quiz saved");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to save quiz");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteQuiz = async (id: string) => {
+    try {
+      await api.deleteQuiz(id);
+      setSaved((s) => s.filter((q) => q.id !== id));
+      toast.success("Quiz deleted");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete quiz");
+    }
+  };
+
+  return (
+    <Page className="space-y-6">
+      {stage === "builder" && (
+        <Builder
+          onStart={(q) => {
+            if (q.session_answers && Object.keys(q.session_answers).length > 0) {
+              setPendingRestore(q);
+            } else {
+              start(q);
+            }
+          }}
+          saved={saved}
+          loadingSaved={loadingSaved}
+          onDelete={deleteQuiz}
+        />
+      )}
+      {stage === "player" && active && (
+        <Player
+          quiz={active}
+          onFinish={(a) => submit(a)}
+          onSave={() => saveQuiz(active)}
+          saving={saving}
+        />
+      )}
+      {stage === "results" && active && (
+        <Results
+          quiz={active}
+          answers={answers}
+          onRetry={() => start(active)}
+          onBack={backToBuilder}
+          onSave={() => saveQuiz(active)}
+          saving={saving}
+        />
+      )}
+      {pendingRestore && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-80 rounded-xl border bg-background p-5 shadow-lg">
+            <p className="font-medium">Resume in-progress exam?</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              You have {Object.keys(pendingRestore.session_answers ?? {}).length} answer
+              {Object.keys(pendingRestore.session_answers ?? {}).length !== 1 ? "s" : ""} saved
+              {pendingRestore.session_started_at
+                ? ` from ${new Date(pendingRestore.session_started_at).toLocaleString()}`
+                : ""}.
+            </p>
+            <div className="mt-4 flex gap-2">
+              <button
+                className="flex-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
+                onClick={() => {
+                  restoreSession(pendingRestore);
+                  setPendingRestore(null);
+                }}
+              >
+                Resume
+              </button>
+              <button
+                className="flex-1 rounded-md border px-3 py-1.5 text-sm"
+                onClick={() => {
+                  api.clearQuizSession(pendingRestore.id).catch(() => {});
+                  start(pendingRestore);
+                  setPendingRestore(null);
+                }}
+              >
+                Start fresh
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </Page>
+  );
+}
+
+function Builder({
+  onStart,
+  saved,
+  loadingSaved,
+  onDelete,
+}: {
+  onStart: (q: Quiz) => void;
+  saved: Quiz[];
+  loadingSaved: boolean;
+  onDelete: (id: string) => void;
+}) {
+  // Builder inputs + the in-flight generation flag live in the store so the
+  // selections survive navigation and a running generation keeps going.
+  const topic = useQuizStore((s) => s.topic);
+  const course = useQuizStore((s) => s.course);
+  const document = useQuizStore((s) => s.document);
+  const difficulty = useQuizStore((s) => s.difficulty);
+  const timeLimit = useQuizStore((s) => s.timeLimit);
+  const loading = useQuizStore((s) => s.generating);
+  const setField = useQuizStore((s) => s.setField);
+  const generate = useQuizStore((s) => s.generate);
+
+  const setTopic = (v: string) => setField("topic", v);
+  const setCourse = (v: string) => setField("course", v);
+  const setDocument = (v: string | null) => setField("document", v);
+  const setDifficulty = (v: Difficulty) => setField("difficulty", v);
+
+  // Course list is cheap to refetch — keep it local.
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+
+  useEffect(() => {
+    api.listCourses().then(setCourses).catch(() => setCourses([]));
+    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
+  }, []);
+
+  return (
+    <>
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center gap-2">
+          <Settings2 className="size-4 text-primary" />
+          <h3>Quiz builder</h3>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Generate a quiz from your materials or pick a saved one below.
+        </p>
+        <div className="mt-4 flex flex-wrap items-end gap-3">
+          <div className="flex-1 min-w-48">
+            <label className="mb-1.5 block text-xs text-muted-foreground">Topic</label>
+            <Input
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") generate();
+              }}
+              placeholder="e.g. Neural networks"
+              className="bg-input-background"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-muted-foreground">Course</label>
+            <Select value={course} onValueChange={setCourse}>
+              <SelectTrigger className="w-44 bg-input-background">
+                <SelectValue placeholder="All courses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All courses</SelectItem>
+                {courses.map((c) => (
+                  <SelectItem key={c.id} value={c.name}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-muted-foreground">Document</label>
+            <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
+              <SelectTrigger className="w-44 bg-input-background">
+                <SelectValue placeholder="All documents" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All documents</SelectItem>
+                {documents.filter(d => course !== "all" ? d.course === course : true).map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-muted-foreground">Difficulty</label>
+            <div className="flex gap-2">
+              {difficulties.map((d) => (
+                <Badge
+                  key={d}
+                  variant="outline"
+                  onClick={() => setDifficulty(d)}
+                  className={cn(
+                    "cursor-pointer py-1.5",
+                    difficulty === d
+                      ? diffColor[d]
+                      : "border-border text-muted-foreground hover:border-ring/40",
+                  )}
+                >
+                  {d}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-muted-foreground">Time limit</label>
+            <div className="flex gap-2">
+              {([null, 15, 20, 30, 60] as (number | null)[]).map((t) => (
+                <Badge
+                  key={t ?? "none"}
+                  variant="outline"
+                  onClick={() => setField("timeLimit", t)}
+                  className={cn(
+                    "cursor-pointer py-1.5",
+                    timeLimit === t
+                      ? "border-primary/40 bg-violet-soft text-primary"
+                      : "border-border text-muted-foreground hover:border-ring/40",
+                  )}
+                >
+                  {t === null ? "No limit" : `${t}m`}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          <Button
+            onClick={generate}
+            disabled={loading || !topic.trim()}
+            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> Generating…
+              </>
+            ) : (
+              <>
+                <ListChecks className="size-4" /> Generate quiz
+              </>
+            )}
+          </Button>
+        </div>
+        <GenerationSteps
+          steps={["Searching your library", "Selecting relevant sources", "Writing questions", "Validating answers"]}
+          loading={loading}
+          className="mt-4"
+        />
+      </div>
+
+      {loadingSaved ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card p-8 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" /> Loading saved quizzes…
+        </div>
+      ) : saved.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
+          <div className="mx-auto flex size-10 items-center justify-center rounded-lg bg-violet-soft text-primary">
+            <ListChecks className="size-5" />
+          </div>
+          <h4 className="mt-3">No saved quizzes yet</h4>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Generate a quiz above and save it to find it here later.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {saved.map((q) => (
+            <motion.div key={q.id} whileHover={{ y: -2 }} className="rounded-xl border border-border bg-card p-5">
+              <div className="flex items-start justify-between">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-violet-soft text-primary">
+                  <ListChecks className="size-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className={diffColor[q.difficulty]}>
+                    {q.difficulty}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(q.id)}
+                    aria-label="Delete quiz"
+                    className="size-8 text-muted-foreground hover:text-danger"
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              </div>
+              <h4 className="mt-3">{q.title}</h4>
+              <div className="mt-1 text-sm text-muted-foreground">{q.course}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{q.questions.length} questions</div>
+              <Button onClick={() => onStart(q)} className="mt-4 w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+                <Play className="size-4" /> Start quiz
+              </Button>
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function Player({
+  quiz,
+  onFinish,
+  onSave,
+  saving,
+}: {
+  quiz: Quiz;
+  onFinish: (a: Record<string, string>) => void;
+  onSave: () => void;
+  saving: boolean;
+}) {
+  // Position + answers live in the store so they survive navigation.
+  const idx = useQuizStore((s) => s.idx);
+  const answers = useQuizStore((s) => s.answers);
+  const goTo = useQuizStore((s) => s.goTo);
+  const answer = useQuizStore((s) => s.answer);
+  const deadline = useQuizStore((s) => s.deadline);
+  const q = quiz.questions[idx];
+
+  // Timer — mirrors the Exam session countdown pattern.
+  const secsFromDeadline = () =>
+    deadline ? Math.max(0, Math.ceil((deadline - Date.now()) / 1000)) : 0;
+  const [secsLeft, setSecsLeft] = useState(secsFromDeadline);
+  const autoSubmittedRef = useRef(false);
+
+  useEffect(() => {
+    if (!deadline) return;
+    const tick = () => {
+      const left = secsFromDeadline();
+      setSecsLeft(left);
+      if (left <= 0 && !autoSubmittedRef.current) {
+        autoSubmittedRef.current = true;
+        toast.warning("Time's up — submitting quiz");
+        onFinish(useQuizStore.getState().answers);
+      }
+    };
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deadline]);
+  const progress = ((idx + 1) / quiz.questions.length) * 100;
+  const selected = answers[q.id];
+
+  const choose = (value: string) => answer(q.id, value);
+
+  const advance = () => {
+    if (idx === quiz.questions.length - 1) {
+      onFinish(answers);
+    } else {
+      goTo(idx + 1);
+    }
+  };
+
+  const canAdvance =
+    q.type === "short" ? (selected ?? "").trim().length > 0 : !!selected;
+
+  const mm = String(Math.floor(secsLeft / 60)).padStart(2, "0");
+  const ss = String(secsLeft % 60).padStart(2, "0");
+  const low = secsLeft < 60;
+
+  return (
+    <div className="mx-auto max-w-2xl">
+      <div className="mb-5 flex items-center gap-3">
+        <Progress value={progress} className="h-1.5 flex-1" />
+        <span className="text-xs text-muted-foreground">
+          {idx + 1} / {quiz.questions.length}
+        </span>
+        <QualityBadge score={quiz.quality} />
+        {deadline && (
+          <div
+            className={cn(
+              "flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-sm tabular-nums",
+              low
+                ? "border-danger/40 bg-danger-soft text-danger"
+                : "border-border bg-card",
+            )}
+          >
+            <Clock className="size-4" /> {mm}:{ss}
+          </div>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onSave}
+          disabled={saving}
+          className="gap-1.5"
+        >
+          {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+          Save quiz
+        </Button>
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={q.id}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          className="rounded-2xl border border-border bg-card p-6"
+        >
+          <Badge variant="outline" className="text-[10px] uppercase">
+            {q.type === "mcq" ? "Multiple choice" : q.type === "truefalse" ? "True / False" : "Short answer"}
+          </Badge>
+          <h3 className="mt-3 text-lg leading-relaxed">{q.prompt}</h3>
+
+          <div className="mt-5 space-y-2">
+            {q.type === "short" ? (
+              <Textarea
+                value={selected ?? ""}
+                onChange={(e) => answer(q.id, e.target.value)}
+                placeholder="Type your answer…"
+                rows={4}
+                className="resize-none bg-input-background font-reading"
+              />
+            ) : (
+              q.options?.map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => choose(opt)}
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition-colors",
+                    selected === opt
+                      ? "border-primary bg-violet-soft"
+                      : "border-border bg-background/40 hover:border-ring/40",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex size-5 items-center justify-center rounded-full border text-[10px]",
+                      selected === opt ? "border-primary bg-primary text-white" : "border-border",
+                    )}
+                  >
+                    {selected === opt && <Check className="size-3" />}
+                  </span>
+                  {opt}
+                </button>
+              ))
+            )}
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="mt-5 flex justify-end">
+        <Button
+          onClick={advance}
+          disabled={!canAdvance}
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          {idx === quiz.questions.length - 1 ? "Finish" : "Next"} <ChevronRight className="size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function Results({
+  quiz,
+  answers,
+  onRetry,
+  onBack,
+  onSave,
+  saving,
+}: {
+  quiz: Quiz;
+  answers: Record<string, string>;
+  onRetry: () => void;
+  onBack: () => void;
+  onSave: () => void;
+  saving: boolean;
+}) {
+  const correct = quiz.questions.filter(
+    (q) => answers[q.id]?.trim().toLowerCase() === q.answer.toLowerCase(),
+  ).length;
+  const total = quiz.questions.length;
+  const pct = Math.round((correct / total) * 100);
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-5">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="rounded-2xl border border-border bg-card p-8 text-center"
+      >
+        <div className="mx-auto flex size-14 items-center justify-center rounded-xl border border-border bg-card text-violet">
+          <Trophy className="size-7" />
+        </div>
+        <h1 className="mt-4 text-4xl font-semibold">{pct}%</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          You answered {correct} of {total} correctly
+        </p>
+        <div className="mt-5 flex justify-center gap-2">
+          <Button variant="outline" onClick={onBack}>Back to quizzes</Button>
+          <Button variant="outline" onClick={onSave} disabled={saving} className="gap-2">
+            {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Save quiz
+          </Button>
+          <Button onClick={onRetry} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+            <RotateCw className="size-4" /> Retry
+          </Button>
+        </div>
+      </motion.div>
+
+      <div className="space-y-3">
+        {quiz.questions.map((q: QuizQuestion, i) => {
+          const userAns = answers[q.id] ?? "—";
+          const isCorrect = userAns.trim().toLowerCase() === q.answer.toLowerCase();
+          return (
+            <div key={q.id} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-start gap-3">
+                <span
+                  className={cn(
+                    "flex size-6 shrink-0 items-center justify-center rounded-full",
+                    isCorrect ? "bg-success-soft text-success" : "bg-danger-soft text-danger",
+                  )}
+                >
+                  {isCorrect ? <Check className="size-3.5" /> : <X className="size-3.5" />}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium">
+                    {i + 1}. {q.prompt}
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    Your answer: <span className={isCorrect ? "text-success" : "text-danger"}>{userAns}</span>
+                    {!isCorrect && <> · Correct: <span className="text-success">{q.answer}</span></>}
+                  </div>
+                  {q.explanation.trim() && (
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{q.explanation}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+```
+
+
+## File: src/app/pages/KnowledgeBase.tsx
+```typescript
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ReactFlow,
+  Background,
+  BackgroundVariant,
+  Controls,
+  useNodesState,
+  useEdgesState,
+  type Node,
+  type Edge,
+  type NodeMouseHandler,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import {
+  Search,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
+  SlidersHorizontal,
+  Tag,
+  History,
+  Bookmark,
+  Sparkles,
+  FileText,
+  Layers,
+  ListChecks,
+  Workflow,
+  Network,
+  Notebook,
+  BookOpen,
+  Quote,
+  Gauge,
+  Compass,
+  X,
+  ExternalLink,
+  Loader2,
+  RefreshCw,
+  GitMerge,
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { toast } from "sonner";
+import { cn } from "../components/ui/utils";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { ScrollArea } from "../components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "../components/ui/sheet";
+import { ConceptNode } from "../components/ConceptNode";
+import {
+  savedViews,
+  type ConceptData,
+} from "../lib/graph-data";
+import { useNavigate } from "react-router";
+import { api, type KGGraph, type KGSidebar, type ConceptInspector } from "../lib/api";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
+import { useConceptActionStore } from "../stores/useConceptActionStore";
+import { useKnowledgeBaseStore } from "../stores/useKnowledgeBaseStore";
+import type { Course } from "../lib/types";
+
+// stable node type map — must be outside component
+const nodeTypes = { concept: ConceptNode };
+
+// Map each concept cluster (backend enum) to the sidebar source-type label it
+// most naturally represents. Clusters are hash-assigned so this is approximate,
+// but it gives the source-type checkboxes a real visual effect.
+const CLUSTER_SOURCE: Record<string, string> = {
+  rag: "Documents",
+  agent: "Answers",
+  infra: "Notes",
+  eval: "Quizzes",
+};
+
+// edge styling reused for every backend edge (mirrors the previous mock styling)
+const edgeBase = {
+  type: "smoothstep" as const,
+  style: { stroke: "#c8c2b5", strokeWidth: 1.5 },
+  labelStyle: { fontSize: 9, fill: "#79736a", fontFamily: "Inter, sans-serif" },
+  labelBgStyle: { fill: "#f6f5f1", fillOpacity: 0.9 },
+  labelBgPadding: [3, 2] as [number, number],
+  labelBgBorderRadius: 3,
+};
+
+// ─── deterministic layout ─────────────────────────────────────────────────────
+// The backend provides no x/y. We sort nodes so larger/more-referenced concepts
+// sit toward the center, then place them on concentric rings: the single most
+// important node is the hub at the origin, the rest fan out on rings whose
+// capacity grows with radius. This is stable (no randomness) so the graph looks
+// the same on every load.
+
+const SIZE_WEIGHT: Record<ConceptData["size"], number> = {
+  large: 3,
+  medium: 2,
+  small: 1,
+};
+
+function layoutGraph(graph: KGGraph): {
+  nodes: Node<ConceptData>[];
+  edges: Edge[];
+} {
+  // Most "important" first (size, then refCount) so hubs end up central.
+  const ordered = [...graph.nodes].sort((a, b) => {
+    const w = SIZE_WEIGHT[b.size] - SIZE_WEIGHT[a.size];
+    if (w !== 0) return w;
+    return b.refCount - a.refCount;
+  });
+
+  const CENTER = { x: 560, y: 360 };
+  const RING_GAP = 230;
+
+  const nodes: Node<ConceptData>[] = ordered.map((n, i) => {
+    const data: ConceptData = {
+      label: n.label,
+      description: n.description,
+      size: n.size,
+      refCount: n.refCount,
+      sourceCount: n.sourceCount,
+      // ConceptData.cluster is a narrow union; the backend cluster is a free
+      // string, so coerce it (it is only used as a tag, not switched on here).
+      cluster: n.cluster as ConceptData["cluster"],
+    };
+
+    if (i === 0) {
+      return { id: n.id, type: "concept", position: { ...CENTER }, data };
+    }
+
+    // ring index grows as we run out of room on inner rings:
+    // ring r (1-based) holds up to 6*r slots.
+    let idx = i - 1;
+    let ring = 1;
+    while (idx >= 6 * ring) {
+      idx -= 6 * ring;
+      ring += 1;
+    }
+    const slots = 6 * ring;
+    // offset alternate rings so nodes don't line up radially
+    const angle = (idx / slots) * 2 * Math.PI + (ring % 2 ? 0 : Math.PI / slots);
+    const radius = ring * RING_GAP;
+
+    return {
+      id: n.id,
+      type: "concept",
+      position: {
+        x: CENTER.x + radius * Math.cos(angle),
+        y: CENTER.y + radius * Math.sin(angle),
+      },
+      data,
+    };
+  });
+
+  const edges: Edge[] = graph.edges.map((e) => ({
+    id: e.id,
+    source: e.source,
+    target: e.target,
+    label: e.label,
+    ...edgeBase,
+  }));
+
+  return { nodes, edges };
+}
+
+// ─── main page ───────────────────────────────────────────────────────────────
+
+export function KnowledgeBase() {
+  // Exploration/session state lives in a global store so the research session
+  // (selected concept, search, collection/filters, course, panel layout)
+  // survives navigating away from this page and back.
+  const {
+    selectedId,
+    drawerConceptId,
+    leftCollapsed,
+    rightCollapsed,
+    searchQuery,
+    activeCollection,
+    course,
+    activeFilters,
+    setField,
+    toggleFilter,
+  } = useKnowledgeBaseStore();
+  // Component still works with a Set for membership checks; derive it locally
+  // from the serializable array kept in the store.
+  const activeFilterSet = useMemo(() => new Set(activeFilters), [activeFilters]);
+
+  const setSelectedId = useCallback((v: string | null) => setField("selectedId", v), [setField]);
+  const setDrawerConceptId = useCallback((v: string | null) => setField("drawerConceptId", v), [setField]);
+  const setLeftCollapsed = useCallback((v: boolean) => setField("leftCollapsed", v), [setField]);
+  const setRightCollapsed = useCallback((v: boolean) => setField("rightCollapsed", v), [setField]);
+  const setSearchQuery = useCallback((v: string) => setField("searchQuery", v), [setField]);
+  const setActiveCollection = useCallback((v: string | null) => setField("activeCollection", v), [setField]);
+  const setCourse = useCallback((v: string | null) => setField("course", v), [setField]);
+
+  // graph state — re-fetched on mount, so it stays local (not in the store)
+  const [graph, setGraph] = useState<{ nodes: Node<ConceptData>[]; edges: Edge[] } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [building, setBuilding] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  // explorer side-panel data loaded from the backend
+  const [sidebar, setSidebar] = useState<KGSidebar>({
+    collections: [],
+    recentConcepts: [],
+    sourceFilters: [],
+  });
+
+  const loadSidebar = useCallback(async (c: string | null) => {
+    try {
+      const s = await api.getKnowledgeSidebar(c);
+      setSidebar(s);
+      // Seed "all source-type filters enabled" only on a fresh session. If the
+      // user already picked filters before navigating away, the store holds
+      // them and we must NOT overwrite them on remount.
+      const { initializedFilters } = useKnowledgeBaseStore.getState();
+      if (!initializedFilters) {
+        setField("activeFilters", s.sourceFilters);
+        setField("initializedFilters", true);
+      }
+    } catch {
+      // side-panel is non-critical — fall back to empty state
+      setSidebar({ collections: [], recentConcepts: [], sourceFilters: [] });
+    }
+  }, [setField]);
+
+  const loadGraph = useCallback(async (c: string | null) => {
+    setLoading(true);
+    try {
+      const g = await api.getKnowledgeGraph(c);
+      setGraph(layoutGraph(g));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to load knowledge graph");
+      setGraph({ nodes: [], edges: [] });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadGraph(course);
+    loadSidebar(course);
+  }, [course, loadGraph, loadSidebar]);
+
+  // load courses once for the optional filter
+  useEffect(() => {
+    api.listCourses().then(setCourses).catch(() => {
+      /* filter is optional — ignore failures */
+    });
+  }, []);
+
+  const build = useCallback(async () => {
+    setBuilding(true);
+    toast.info("Building knowledge graph — this runs the LLM over your documents and may take a while…");
+    try {
+      const { concepts, edges } = await api.buildKnowledgeGraph(course);
+      toast.success(`Knowledge graph built — ${concepts} concepts, ${edges} relationships.`);
+      await Promise.all([loadGraph(course), loadSidebar(course)]);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to build knowledge graph");
+    } finally {
+      setBuilding(false);
+    }
+  }, [course, loadGraph, loadSidebar]);
+
+  const isEmpty = !!graph && graph.nodes.length === 0;
+
+  return (
+    <div className="flex h-full overflow-hidden">
+      {/* ── Left panel ── */}
+      <motion.aside
+        animate={{ width: leftCollapsed ? 0 : 280 }}
+        transition={{ type: "spring", stiffness: 340, damping: 36 }}
+        className="relative z-10 hidden shrink-0 flex-col overflow-hidden border-r border-border bg-card/50 lg:flex"
+      >
+        <div className="flex h-full w-[280px] flex-col overflow-hidden">
+          {/* header */}
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <Compass className="size-3.5" /> Knowledge Explorer
+            </div>
+            <Button variant="ghost" size="icon" className="size-7" onClick={() => setLeftCollapsed(true)}>
+              <PanelLeftClose className="size-4" />
+            </Button>
+          </div>
+
+          {/* search */}
+          <div className="border-b border-border p-3">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search concepts…"
+                className="h-8 bg-input-background pl-8 text-xs"
+              />
+            </div>
+          </div>
+
+          <ScrollArea className="min-h-0 flex-1">
+            {/* course filter (real) */}
+            {courses.length > 0 && (
+              <SideSection label="Course" icon={Bookmark}>
+                <div className="space-y-0.5">
+                  <button
+                    onClick={() => setCourse(null)}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                      course === null ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
+                    )}
+                  >
+                    <span>All courses</span>
+                  </button>
+                  {courses.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setCourse(c.name === course ? null : c.name)}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                        course === c.name ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
+                      )}
+                    >
+                      <span>{c.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </SideSection>
+            )}
+
+            {/* source filters (from backend) */}
+            {sidebar.sourceFilters.length > 0 && (
+              <SideSection label="Source Type" icon={SlidersHorizontal}>
+                <div className="space-y-1">
+                  {sidebar.sourceFilters.map((f) => (
+                    <label key={f} className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1 text-sm text-foreground/80 hover:bg-accent/50">
+                      <input
+                        type="checkbox"
+                        checked={activeFilterSet.has(f)}
+                        onChange={() => toggleFilter(f)}
+                        className="accent-violet"
+                      />
+                      {f}
+                    </label>
+                  ))}
+                </div>
+              </SideSection>
+            )}
+
+            {/* collections (from backend, concepts grouped by cluster) */}
+            <SideSection label="Collections" icon={Bookmark}>
+              {sidebar.collections.length === 0 ? (
+                <p className="px-1 text-xs text-muted-foreground">
+                  Build the graph to group concepts into collections.
+                </p>
+              ) : (
+                <div className="space-y-0.5">
+                  {sidebar.collections.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setActiveCollection(c.id === activeCollection ? null : c.id)}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                        activeCollection === c.id ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
+                      )}
+                    >
+                      <span>{c.label}</span>
+                      <span className="text-xs text-muted-foreground">{c.count}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </SideSection>
+
+            {/* recent (from backend) */}
+            <SideSection label="Recent Concepts" icon={History}>
+              {sidebar.recentConcepts.length === 0 ? (
+                <p className="px-1 text-xs text-muted-foreground">
+                  No concepts extracted yet.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5 px-1">
+                  {sidebar.recentConcepts.map((c) => (
+                    <button
+                      key={c}
+                      className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground/70 transition-colors hover:border-violet/40 hover:text-violet"
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </SideSection>
+
+            {/* saved views (mock-only) */}
+            <SideSection label="Saved Views" icon={Tag}>
+              {savedViews.map((v) => (
+                <button
+                  key={v.id}
+                  className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50"
+                >
+                  <v.icon className="size-4 text-muted-foreground" />
+                  <span>{v.label}</span>
+                </button>
+              ))}
+            </SideSection>
+          </ScrollArea>
+        </div>
+      </motion.aside>
+
+      {/* ── Center canvas ── */}
+      <div className="relative min-w-0 flex-1">
+        {/* panel re-open buttons */}
+        {leftCollapsed && (
+          <button
+            onClick={() => setLeftCollapsed(false)}
+            className="absolute left-3 top-3 z-20 flex size-8 items-center justify-center rounded-full border border-border bg-card shadow-sm hover:bg-accent"
+          >
+            <PanelLeftOpen className="size-4" />
+          </button>
+        )}
+        {rightCollapsed && (
+          <button
+            onClick={() => setRightCollapsed(false)}
+            className="absolute right-3 top-3 z-20 flex size-8 items-center justify-center rounded-full border border-border bg-card shadow-sm hover:bg-accent"
+          >
+            <PanelRightOpen className="size-4" />
+          </button>
+        )}
+
+        {/* Rebuild action for non-empty graphs */}
+        {graph && !isEmpty && !loading && (
+          <div className="absolute right-3 top-3 z-20">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 bg-card shadow-sm"
+              onClick={build}
+              disabled={building}
+            >
+              {building ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCw className="size-3.5" />}
+              {building ? "Rebuilding…" : "Rebuild"}
+            </Button>
+          </div>
+        )}
+
+        {loading ? (
+          <GraphLoading />
+        ) : isEmpty ? (
+          <GraphEmpty onBuild={build} building={building} />
+        ) : (
+          <GraphCanvas
+            nodes={graph!.nodes}
+            edges={graph!.edges}
+            selectedId={selectedId}
+            searchQuery={searchQuery}
+            activeFilters={activeFilters}
+            activeCollection={activeCollection}
+            onNodeClick={(id) => setSelectedId(id === selectedId ? null : id)}
+            onNodeDoubleClick={(id) => setDrawerConceptId(id)}
+            onPaneClick={() => setSelectedId(null)}
+          />
+        )}
+
+        {/* Bottom canvas legend */}
+        {!loading && !isEmpty && (
+          <div className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2">
+            <div className="flex items-center gap-4 rounded-full border border-border bg-card/80 px-4 py-2 text-[11px] text-muted-foreground backdrop-blur">
+              <LegendDot cls="size-4 border-2 border-foreground bg-card" label="Large (hub)" />
+              <LegendDot cls="size-3 border border-foreground/60 bg-card" label="Medium" />
+              <LegendDot cls="size-2.5 border border-foreground/40 bg-card" label="Small (rare)" />
+              <span className="h-3 w-px bg-border" />
+              <span className="flex items-center gap-1">Click to inspect · Double-click for details</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Right inspector ── */}
+      <motion.aside
+        animate={{ width: rightCollapsed ? 0 : 320 }}
+        transition={{ type: "spring", stiffness: 340, damping: 36 }}
+        className="relative z-10 hidden shrink-0 flex-col overflow-hidden border-l border-border bg-card/50 xl:flex"
+      >
+        <div className="flex h-full w-[320px] flex-col overflow-hidden">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Inspector</span>
+            <Button variant="ghost" size="icon" className="size-7" onClick={() => setRightCollapsed(true)}>
+              <PanelRightClose className="size-4" />
+            </Button>
+          </div>
+          <ScrollArea className="min-h-0 flex-1">
+            {selectedId ? (
+              <InspectorContent
+                key={selectedId}
+                conceptId={selectedId}
+                onOpenDrawer={() => setDrawerConceptId(selectedId)}
+              />
+            ) : (
+              <EmptyInspector />
+            )}
+          </ScrollArea>
+        </div>
+      </motion.aside>
+
+      {/* ── Concept drawer (Sheet) ── */}
+      <Sheet open={!!drawerConceptId} onOpenChange={(o) => !o && setDrawerConceptId(null)}>
+        <SheetContent side="right" className="w-[540px] max-w-full overflow-y-auto p-0 sm:max-w-[540px]">
+          {drawerConceptId && (
+            <ConceptDrawerContent
+              key={drawerConceptId}
+              conceptId={drawerConceptId}
+              onClose={() => setDrawerConceptId(null)}
+              onRefresh={() => Promise.all([loadGraph(course), loadSidebar(course)])}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
+
+// ─── data hook ────────────────────────────────────────────────────────────────
+
+function useConcept(conceptId: string) {
+  const [concept, setConcept] = useState<ConceptInspector | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setConcept(null);
+    api
+      .getConcept(conceptId)
+      .then((c) => {
+        if (!cancelled) setConcept(c);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          toast.error(err instanceof Error ? err.message : "Failed to load concept");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [conceptId]);
+
+  return { concept, loading };
+}
+
+// ─── graph states ─────────────────────────────────────────────────────────────
+
+function GraphLoading() {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 bg-background text-muted-foreground">
+      <Loader2 className="size-6 animate-spin text-violet" />
+      <span className="text-sm">Loading knowledge graph…</span>
+    </div>
+  );
+}
+
+function GraphEmpty({ onBuild, building }: { onBuild: () => void; building: boolean }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center bg-background px-6 text-center">
+      <div className="flex size-14 items-center justify-center rounded-2xl border border-border bg-card text-muted-foreground">
+        <Network className="size-7" />
+      </div>
+      <h3 className="mt-5 text-lg font-semibold">No knowledge graph yet</h3>
+      <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+        Build your knowledge graph to discover how concepts across your indexed documents
+        connect. This runs the LLM over your documents and may take a while.
+      </p>
+      <Button className="mt-6 gap-2" onClick={onBuild} disabled={building}>
+        {building ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+        {building ? "Building knowledge graph…" : "Build knowledge graph"}
+      </Button>
+      {building && (
+        <p className="mt-3 text-xs text-muted-foreground">
+          Extracting concepts and relationships — this can take a minute or two.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ─── graph canvas ─────────────────────────────────────────────────────────────
+
+function GraphCanvas({
+  nodes: sourceNodes,
+  edges: sourceEdges,
+  selectedId,
+  searchQuery,
+  activeFilters,
+  activeCollection,
+  onNodeClick,
+  onNodeDoubleClick,
+  onPaneClick,
+}: {
+  nodes: Node<ConceptData>[];
+  edges: Edge[];
+  selectedId: string | null;
+  searchQuery: string;
+  activeFilters: string[];
+  activeCollection: string | null;
+  onNodeClick: (id: string) => void;
+  onNodeDoubleClick: (id: string) => void;
+  onPaneClick: () => void;
+}) {
+  const q = searchQuery.toLowerCase().trim();
+
+  const styledNodes = useMemo(
+    () =>
+      sourceNodes.map((n) => {
+        const cluster = n.data.cluster as string;
+
+        // Search match: dim if query doesn't match label
+        const searchMatch = !q || n.data.label.toLowerCase().includes(q);
+
+        // Collection filter: dim if a specific collection is active and this node isn't in it
+        const collectionMatch = !activeCollection || `col-${cluster}` === activeCollection;
+
+        // Source type filter: dim if this node's mapped source type is unchecked
+        const nodeSourceType = CLUSTER_SOURCE[cluster];
+        const sourceMatch = !nodeSourceType || activeFilters.includes(nodeSourceType);
+
+        const visible = searchMatch && collectionMatch && sourceMatch;
+
+        return {
+          ...n,
+          selected: n.id === selectedId,
+          style: { opacity: visible ? 1 : 0.12, transition: "opacity 0.2s" },
+        };
+      }),
+    [sourceNodes, selectedId, q, activeFilters, activeCollection],
+  );
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(styledNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(sourceEdges);
+
+  // keep ReactFlow's internal state in sync when graph/selection/search change
+  useEffect(() => {
+    setNodes(styledNodes);
+  }, [styledNodes, setNodes]);
+  useEffect(() => {
+    setEdges(sourceEdges);
+  }, [sourceEdges, setEdges]);
+
+  const handleNodeClick: NodeMouseHandler = useCallback(
+    (_, node) => onNodeClick(node.id),
+    [onNodeClick],
+  );
+  const handleDblClick: NodeMouseHandler = useCallback(
+    (_, node) => onNodeDoubleClick(node.id),
+    [onNodeDoubleClick],
+  );
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      nodeTypes={nodeTypes}
+      onNodeClick={handleNodeClick}
+      onNodeDoubleClick={handleDblClick}
+      onPaneClick={onPaneClick}
+      fitView
+      fitViewOptions={{ padding: 0.22 }}
+      proOptions={{ hideAttribution: true }}
+      minZoom={0.3}
+      maxZoom={3}
+      className="bg-background"
+      defaultEdgeOptions={{
+        type: "smoothstep",
+        style: { stroke: "#c8c2b5", strokeWidth: 1.5 },
+      }}
+    >
+      <Background variant={BackgroundVariant.Dots} gap={28} size={1} color="#ddd8cc" />
+      <Controls
+        showInteractive={false}
+        className="!border-border !bg-card [&_button]:!border-border [&_button]:!bg-card [&_button]:!fill-foreground [&_button:hover]:!bg-accent"
+      />
+    </ReactFlow>
+  );
+}
+
+// ─── inspector content ────────────────────────────────────────────────────────
+
+function InspectorContent({
+  conceptId,
+  onOpenDrawer,
+}: {
+  conceptId: string;
+  onOpenDrawer: () => void;
+}) {
+  const { concept, loading } = useConcept(conceptId);
+  const navigate = useNavigate();
+  const [discoveries, setDiscoveries] = useState<string[] | null>(null);
+  const [discovering, setDiscovering] = useState(false);
+  // AI-action state lives in a global store so an in-flight action and its
+  // result panel survive navigating away from the Knowledge page and back.
+  const { running, runningConceptId, result, resultConceptId, clearResult, runAction } =
+    useConceptActionStore();
+  const showResult = result && resultConceptId === conceptId;
+
+  const onDiscover = useCallback(async () => {
+    setDiscovering(true);
+    try {
+      const list = await api.discoverConcepts(conceptId);
+      setDiscoveries(list);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to discover related concepts");
+    } finally {
+      setDiscovering(false);
+    }
+  }, [conceptId]);
+
+  if (loading || !concept) {
+    return (
+      <div className="flex flex-col items-center gap-3 px-6 pt-20 text-muted-foreground">
+        <Loader2 className="size-5 animate-spin text-violet" />
+        <span className="text-sm">Loading concept…</span>
+      </div>
+    );
+  }
+
+  const ri = concept.referencedIn ?? {};
+  const refInRows = [
+    { label: "Documents", icon: FileText, count: ri.documents ?? 0 },
+    { label: "Notebook Notes", icon: Notebook, count: ri.notes ?? 0 },
+    { label: "Flashcards", icon: Layers, count: ri.flashcards ?? 0 },
+    { label: "Quizzes", icon: ListChecks, count: ri.quizzes ?? 0 },
+    { label: "Saved Answers", icon: Sparkles, count: ri.answers ?? 0 },
+    { label: "Diagrams", icon: Workflow, count: ri.diagrams ?? 0 },
+  ];
+
+  const aiActions = [
+    { label: "Explain Concept", icon: Sparkles },
+    { label: "Generate Summary", icon: FileText },
+    { label: "Generate Flashcards", icon: Layers },
+    { label: "Generate Quiz", icon: ListChecks },
+    { label: "Generate Diagram", icon: Workflow },
+    { label: "Generate Mind Map", icon: Network },
+    { label: "Add To Notebook", icon: Notebook },
+  ];
+
+  return (
+    <div className="space-y-0 divide-y divide-border">
+      {/* Concept header */}
+      <div className="p-5">
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="font-display text-2xl leading-tight">{concept.name}</h2>
+          <Button variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={onOpenDrawer}>
+            <ExternalLink className="size-3.5" /> Full page
+          </Button>
+        </div>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{concept.description}</p>
+
+        <div className="mt-4 flex gap-3">
+          <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-center">
+            <div className="font-display text-2xl leading-none">{(concept.confidence * 100).toFixed(0)}%</div>
+            <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Confidence</div>
+          </div>
+          <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-center">
+            <div className="font-display text-2xl leading-none">{concept.refCount}</div>
+            <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">References</div>
+          </div>
+          <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-center">
+            <div className="font-display text-2xl leading-none">{concept.sourceCount}</div>
+            <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Sources</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Related concepts */}
+      <div className="p-4">
+        <InspectorBlock title="Related Concepts">
+          <div className="flex flex-wrap gap-1.5">
+            {concept.relatedConcepts.map((c) => (
+              <span key={c} className="cursor-pointer rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground/80 hover:border-violet/40 hover:text-violet">
+                {c}
+              </span>
+            ))}
+          </div>
+        </InspectorBlock>
+      </div>
+
+      {/* Referenced in */}
+      <div className="p-4">
+        <InspectorBlock title="Referenced In">
+          <div className="space-y-1">
+            {refInRows.map((r) => (
+              <div key={r.label} className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-accent/50">
+                <span className="flex items-center gap-2 text-sm text-foreground/80">
+                  <r.icon className="size-3.5 text-muted-foreground" /> {r.label}
+                </span>
+                <Badge variant="outline" className="text-xs">{r.count}</Badge>
+              </div>
+            ))}
+          </div>
+        </InspectorBlock>
+      </div>
+
+      {/* Citations */}
+      <div className="p-4">
+        <InspectorBlock title="Source Citations">
+          <div className="space-y-2">
+            {concept.citations.map((c, i) => (
+              <div key={i} className="rounded-lg border border-border bg-card px-3 py-2">
+                <div className="flex items-start gap-2">
+                  <Quote className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                  <div>
+                    <div className="text-sm font-medium">{c.source}</div>
+                    <div className="text-[11px] text-muted-foreground">{c.detail}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </InspectorBlock>
+      </div>
+
+      {/* Generated assets */}
+      <div className="p-4">
+        <InspectorBlock title="Generated Assets">
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { label: "Open Flashcards", icon: Layers, to: "/flashcards" },
+              { label: "Open Quiz", icon: ListChecks, to: "/quiz" },
+              { label: "Open Diagram", icon: Workflow, to: "/diagrams" },
+              { label: "Open Mind Map", icon: Network, to: "/mindmaps" },
+              { label: "Open Notebook", icon: Notebook, to: "/notebooks" },
+            ].map((a) => (
+              <button
+                key={a.label}
+                onClick={() => navigate(a.to)}
+                className="flex items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-2 text-[12px] font-medium text-foreground/80 transition-colors hover:border-violet/40 hover:text-violet"
+              >
+                <a.icon className="size-3.5" /> {a.label}
+              </button>
+            ))}
+          </div>
+        </InspectorBlock>
+      </div>
+
+      {/* AI Actions */}
+      <div className="p-4">
+        <InspectorBlock title="AI Actions">
+          <div className="space-y-1">
+            {aiActions.map((a) => {
+              const isRunning = running === a.label && runningConceptId === conceptId;
+              return (
+                <button
+                  key={a.label}
+                  onClick={() => concept && runAction(concept, conceptId, a.label, navigate)}
+                  disabled={running !== null}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground/80 transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
+                >
+                  {isRunning ? (
+                    <Loader2 className="size-4 animate-spin text-violet" />
+                  ) : (
+                    <a.icon className="size-4 text-violet" />
+                  )}
+                  {isRunning ? `${a.label}…` : a.label}
+                </button>
+              );
+            })}
+          </div>
+          <AnimatePresence>
+            {showResult && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-3 overflow-hidden rounded-lg border border-border bg-card"
+              >
+                <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                  <span className="text-xs font-medium">{result!.title}</span>
+                  <button onClick={clearResult} className="text-muted-foreground hover:text-foreground">
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+                <div className="max-h-80 overflow-y-auto p-3">
+                  {result!.mono ? (
+                    <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-foreground/80">{result!.body}</pre>
+                  ) : (
+                    <MarkdownRenderer content={result!.body} />
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </InspectorBlock>
+      </div>
+
+      {/* Semantic discovery */}
+      <div className="p-4">
+        <Button
+          onClick={onDiscover}
+          variant="outline"
+          disabled={discovering}
+          className="w-full gap-2 border-violet/30 text-violet hover:bg-violet-soft"
+        >
+          {discovering ? <Loader2 className="size-4 animate-spin" /> : <Compass className="size-4" />}
+          {discovering ? "Discovering…" : "Discover Related Concepts"}
+        </Button>
+        <AnimatePresence>
+          {discoveries && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-3 overflow-hidden"
+            >
+              <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <Sparkles className="size-3 text-violet" /> AI Suggestions
+              </div>
+              {discoveries.length === 0 ? (
+                <p className="mt-2 text-xs text-muted-foreground">No related concepts found.</p>
+              ) : (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {discoveries.map((d) => (
+                    <button
+                      key={d}
+                      className="rounded-full border border-violet/30 bg-violet-soft px-2.5 py-1 text-[11px] text-violet"
+                    >
+                      + {d}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+function EmptyInspector() {
+  return (
+    <div className="flex flex-col items-center px-6 pt-20 text-center">
+      <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
+        <Network className="size-6" />
+      </div>
+      <h3 className="mt-4 text-base font-semibold">Explore your knowledge base</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Click any concept in the graph to inspect its sources, references, and generated assets.
+      </p>
+      <Button
+        variant="outline"
+        className="mt-6 gap-2"
+        onClick={() => toast.info("Browsing all concepts…")}
+      >
+        <Compass className="size-4" /> Browse Concepts
+      </Button>
+      <div className="mt-8 w-full rounded-xl border border-border bg-card p-4 text-left">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">How it works</div>
+        <p className="mt-2 text-xs leading-relaxed text-foreground/80">
+          ScholarAI automatically discovers relationships between concepts across your documents, notes, flashcards, quizzes and AI answers — building your personal knowledge graph.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── concept drawer ───────────────────────────────────────────────────────────
+
+function ConceptDrawerContent({
+  conceptId,
+  onClose,
+  onRefresh,
+}: {
+  conceptId: string;
+  onClose: () => void;
+  onRefresh?: () => void;
+}) {
+  const { concept, loading } = useConcept(conceptId);
+  const navigate = useNavigate();
+  const [adding, setAdding] = useState(false);
+
+  // ── merge state ──────────────────────────────────────────────────────────
+  const [mergeQuery, setMergeQuery] = useState("");
+  const [allConcepts, setAllConcepts] = useState<{ id: string; name: string }[]>([]);
+  const [conceptsLoaded, setConceptsLoaded] = useState(false);
+  const [selectedMerge, setSelectedMerge] = useState<{ id: string; name: string } | null>(null);
+  const [merging, setMerging] = useState(false);
+
+  // Lazy-load the full concept list when the user first interacts with the merge input
+  const ensureConceptsLoaded = async () => {
+    if (conceptsLoaded) return;
+    try {
+      const g = await api.getKnowledgeGraph(null);
+      setAllConcepts(g.nodes.map((n) => ({ id: n.id, name: n.label })));
+      setConceptsLoaded(true);
+    } catch {
+      // non-critical — user can try again
+    }
+  };
+
+  // Debounced filter: derive candidates from allConcepts when mergeQuery changes
+  const mergeCandidates = mergeQuery.trim().length < 1
+    ? []
+    : allConcepts.filter(
+        (c) =>
+          c.id !== conceptId &&
+          c.name.toLowerCase().includes(mergeQuery.toLowerCase()),
+      ).slice(0, 8);
+
+  const handleMerge = async () => {
+    if (!selectedMerge || merging) return;
+    setMerging(true);
+    try {
+      await api.mergeConcepts(Number(conceptId), Number(selectedMerge.id));
+      toast.success(`Merged "${selectedMerge.name}" into "${concept?.name ?? conceptId}"`);
+      onRefresh?.();
+      onClose();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to merge concepts");
+    } finally {
+      setMerging(false);
+    }
+  };
+
+  const addToNotebook = async () => {
+    if (!concept || adding) return;
+    setAdding(true);
+    try {
+      const ex = await api.ask(`Explain the concept: ${concept.name}`);
+      const nb = await api.createNotebook(concept.name);
+      await api.updateNotebook(nb.id, {
+        blocks: [
+          { type: "heading", level: 1, text: concept.name },
+          { type: "ai-answer", question: `Explain ${concept.name}`, answer: ex.content, confidence: 1, sources: 0 },
+        ],
+      });
+      toast.success("Added to notebook", { action: { label: "Open", onClick: () => navigate("/notebooks") } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to add to notebook");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  if (loading || !concept) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
+        <Loader2 className="size-6 animate-spin text-violet" />
+        <span className="text-sm">Loading concept…</span>
+      </div>
+    );
+  }
+
+  const ri = concept.referencedIn ?? {};
+  const refInRows = [
+    { label: "Documents", icon: FileText, count: ri.documents ?? 0 },
+    { label: "Notes", icon: Notebook, count: ri.notes ?? 0 },
+    { label: "Flashcards", icon: Layers, count: ri.flashcards ?? 0 },
+    { label: "Quizzes", icon: ListChecks, count: ri.quizzes ?? 0 },
+    { label: "Answers", icon: Sparkles, count: ri.answers ?? 0 },
+    { label: "Diagrams", icon: Workflow, count: ri.diagrams ?? 0 },
+  ];
+
+  return (
+    <div className="flex h-full flex-col">
+      {/* Drawer header */}
+      <SheetHeader className="border-b border-border px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-[10px] text-muted-foreground">Concept</Badge>
+              <Badge variant="outline" className="border-success/40 bg-success-soft text-[10px] text-success">
+                <Gauge className="mr-1 size-2.5" /> {(concept.confidence * 100).toFixed(0)}%
+              </Badge>
+            </div>
+            <SheetTitle className="mt-1 font-display text-2xl">{concept.name}</SheetTitle>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose}><X className="size-4" /></Button>
+        </div>
+      </SheetHeader>
+
+      <ScrollArea className="min-h-0 flex-1">
+        <div className="space-y-8 px-6 py-6">
+          {/* Definition */}
+          <DrawerBlock title="Definition">
+            <p className="font-reading text-[16px] leading-relaxed text-foreground/90">{concept.definition}</p>
+          </DrawerBlock>
+
+          {/* AI Summary */}
+          <DrawerBlock title="AI Summary">
+            <div className="rounded-xl border border-violet/25 bg-violet-soft/40 p-4">
+              <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-violet">
+                <Sparkles className="size-3" /> ScholarAI
+              </div>
+              <p className="font-reading text-[15px] leading-relaxed text-foreground/90">{concept.aiSummary}</p>
+            </div>
+          </DrawerBlock>
+
+          {/* Source References */}
+          <DrawerBlock title="Source References">
+            <div className="space-y-2">
+              {concept.citations.map((c, i) => (
+                <div key={i} className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3">
+                  <Quote className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                  <div>
+                    <div className="text-sm font-medium">{c.source}</div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{c.detail}</div>
+                  </div>
+                  <ExternalLink className="ml-auto size-3.5 shrink-0 text-muted-foreground" />
+                </div>
+              ))}
+            </div>
+          </DrawerBlock>
+
+          {/* Related Concepts */}
+          <DrawerBlock title="Related Concepts">
+            <div className="flex flex-wrap gap-2">
+              {concept.relatedConcepts.map((c) => (
+                <span key={c} className="cursor-pointer rounded-full border border-border bg-card px-3 py-1.5 text-sm text-foreground/80 hover:border-violet/40 hover:text-violet">
+                  {c}
+                </span>
+              ))}
+            </div>
+          </DrawerBlock>
+
+          {/* Referenced In */}
+          <DrawerBlock title="Referenced In">
+            <div className="grid grid-cols-2 gap-2">
+              {refInRows.map((r) => (
+                <div key={r.label} className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2.5">
+                  <r.icon className="size-4 shrink-0 text-muted-foreground" />
+                  <div className="min-w-0">
+                    <div className="font-display text-lg leading-none">{r.count}</div>
+                    <div className="text-[10px] text-muted-foreground">{r.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DrawerBlock>
+
+          {/* Generated Assets */}
+          <DrawerBlock title="Generated Assets">
+            <div className="space-y-1">
+              {[
+                { label: "Open Flashcard Deck", icon: Layers, onClick: () => navigate("/flashcards") },
+                { label: "Open Quiz", icon: ListChecks, onClick: () => navigate("/quiz") },
+                { label: "Open Diagram", icon: Workflow, onClick: () => navigate("/diagrams") },
+                { label: "Open Mind Map", icon: Network, onClick: () => navigate("/mindmaps") },
+                { label: "Add To Notebook", icon: Notebook, onClick: addToNotebook },
+                { label: "View in Reading Mode", icon: BookOpen, onClick: () => navigate("/reading") },
+              ].map((a) => (
+                <button
+                  key={a.label}
+                  onClick={a.onClick}
+                  disabled={a.label === "Add To Notebook" && adding}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground/80 transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
+                >
+                  {a.label === "Add To Notebook" && adding ? (
+                    <Loader2 className="size-4 animate-spin text-violet" />
+                  ) : (
+                    <a.icon className="size-4 text-violet" />
+                  )}
+                  {a.label}
+                  <ExternalLink className="ml-auto size-3.5 text-muted-foreground" />
+                </button>
+              ))}
+            </div>
+          </DrawerBlock>
+
+          {/* Recent Activity */}
+          <DrawerBlock title="Recent Activity">
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex justify-between py-1">
+                <span>Generated flashcard deck</span><span>2h ago</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span>Saved AI answer</span><span>Yesterday</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span>Added to Notebook</span><span>3d ago</span>
+              </div>
+            </div>
+          </DrawerBlock>
+
+          {/* Merge Concept */}
+          <DrawerBlock title="Merge Concept">
+            <p className="mb-3 text-xs text-muted-foreground">
+              Merge another concept into this one. The other concept is deleted and its connections are transferred here.
+            </p>
+            <div className="space-y-3">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={mergeQuery}
+                  onChange={(e) => {
+                    setMergeQuery(e.target.value);
+                    if (selectedMerge) setSelectedMerge(null);
+                  }}
+                  onFocus={ensureConceptsLoaded}
+                  placeholder="Search concept to merge in…"
+                  className="h-8 bg-input-background pl-8 text-xs"
+                />
+              </div>
+
+              {/* Candidates list */}
+              {mergeCandidates.length > 0 && !selectedMerge && (
+                <div className="flex flex-wrap gap-1.5">
+                  {mergeCandidates.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => {
+                        setSelectedMerge(c);
+                        setMergeQuery(c.name);
+                      }}
+                      className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground/80 transition-colors hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Selected badge */}
+              {selectedMerge && (
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full border border-destructive/40 bg-destructive/10 px-3 py-1 text-xs text-destructive">
+                    {selectedMerge.name}
+                  </span>
+                  <button
+                    onClick={() => { setSelectedMerge(null); setMergeQuery(""); }}
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label="Clear selection"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+              )}
+
+              <Button
+                size="sm"
+                variant="destructive"
+                disabled={!selectedMerge || merging}
+                onClick={handleMerge}
+                className="gap-1.5"
+              >
+                {merging ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <GitMerge className="size-3.5" />
+                )}
+                {merging ? "Merging…" : "Merge (keep current)"}
+              </Button>
+            </div>
+          </DrawerBlock>
+        </div>
+      </ScrollArea>
+    </div>
+  );
+}
+
+// ─── small shared components ──────────────────────────────────────────────────
+
+function SideSection({ label, icon: Icon, children }: { label: string; icon: React.ElementType; children: React.ReactNode }) {
+  return (
+    <div className="border-b border-border px-3 py-3">
+      <div className="mb-1.5 flex items-center gap-1.5 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <Icon className="size-3" /> {label}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function InspectorBlock({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function DrawerBlock({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function LegendDot({ cls, label }: { cls: string; label: string }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className={cn("shrink-0 rounded-full", cls)} />
+      {label}
+    </span>
+  );
+}
+
+```
+
 
 ## File: src/app/pages/onboarding/OnboardingHero.tsx
 ```typescript
@@ -20005,7 +28341,9 @@ export function OnboardingHero() {
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/pages/onboarding/OnboardingImport.tsx
 ```typescript
@@ -20215,7 +28553,9 @@ export function OnboardingImport() {
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/pages/onboarding/OnboardingAnalyzing.tsx
 ```typescript
@@ -20468,7 +28808,9 @@ export function OnboardingAnalyzing() {
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/pages/onboarding/OnboardingReady.tsx
 ```typescript
@@ -20680,7 +29022,9 @@ export function OnboardingReady() {
     </div>
   );
 }
+
 ```
+
 
 ## File: src/app/stores/useUIStore.ts
 ```typescript
@@ -20699,274 +29043,9 @@ export const useUIStore = create<UIState>((set) => ({
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   setCommandOpen: (open) => set({ commandOpen: open }),
 }));
+
 ```
 
-## File: src/app/stores/useChatStore.ts
-```typescript
-import { create } from "zustand";
-import { toast } from "sonner";
-import type { ChatMessage } from "../lib/types";
-import { api } from "../lib/api";
-
-interface ChatState {
-  messages: ChatMessage[];
-  isStreaming: boolean;
-  course: string | null;
-  document: string | null;
-  setCourse: (course: string | null) => void;
-  setDocument: (document: string | null) => void;
-  ask: (question: string, opts?: { stream?: boolean }) => Promise<void>;
-  reset: () => void;
-}
-
-let controller: AbortController | null = null;
-
-export const useChatStore = create<ChatState>((set, get) => ({
-  messages: [],
-  isStreaming: false,
-  course: null,
-  document: null,
-  setCourse: (course) => set({ course }),
-  setDocument: (document) => set({ document }),
-  reset: () => {
-    controller?.abort();
-    controller = null;
-    set({ messages: [], isStreaming: false });
-  },
-  ask: async (question: string, opts?: { stream?: boolean }) => {
-    if (get().isStreaming) return;
-    const stream = opts?.stream ?? true;
-    const course = get().course;
-    const document = get().document;
-
-    const userMsg: ChatMessage = {
-      id: `u-${Date.now()}`,
-      role: "user",
-      content: question,
-    };
-    const assistantId = `a-${Date.now()}`;
-    const assistantMsg: ChatMessage = {
-      id: assistantId,
-      role: "assistant",
-      content: "",
-      sources: [],
-      streaming: true,
-    };
-    set((s) => ({
-      messages: [...s.messages, userMsg, assistantMsg],
-      isStreaming: true,
-    }));
-
-    const patch = (fields: Partial<ChatMessage>) =>
-      set((s) => ({
-        messages: s.messages.map((m) => (m.id === assistantId ? { ...m, ...fields } : m)),
-      }));
-
-    try {
-      if (stream) {
-        controller = new AbortController();
-        let acc = "";
-        await api.askStream(question, course, document, {
-          signal: controller.signal,
-          onToken: (chunk) => {
-            acc += chunk;
-            patch({ content: acc, streaming: true });
-          },
-          onDone: (meta) => {
-            patch({
-              content: acc,
-              streaming: false,
-              sources: meta.sources,
-              confidence: meta.confidence ?? undefined,
-            });
-          },
-          onError: (msg) => {
-            patch({ content: acc || `⚠️ ${msg}`, streaming: false });
-            toast.error("Answer failed", { description: msg });
-          },
-        });
-      } else {
-        const res = await api.ask(question, course, document);
-        patch({
-          content: res.content,
-          streaming: false,
-          sources: res.sources,
-          confidence: res.confidence ?? undefined,
-        });
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Request failed";
-      patch({ content: `⚠️ ${msg}`, streaming: false });
-      toast.error("Answer failed", { description: msg });
-    } finally {
-      controller = null;
-      set({ isStreaming: false });
-    }
-  },
-}));
-```
-
-## File: src/app/stores/useRevisionStore.ts
-```typescript
-import { create } from "zustand";
-import { toast } from "sonner";
-import { api } from "../lib/api";
-
-export type RevisionFormat = "notes" | "concepts" | "formulas" | "summary";
-
-export interface SavedRevision {
-  id: string;
-  title: string;
-  topic: string;
-  course: string;
-  format: RevisionFormat;
-  content: string;
-  timestamp: number;
-}
-
-/** Heuristic: detect a backend "this topic isn't in your documents" message. */
-function looksNotCovered(markdown: string): boolean {
-  const text = markdown.trim().toLowerCase();
-  if (!text) return true;
-  return (
-    text.includes("not covered") ||
-    text.includes("no relevant") ||
-    text.includes("couldn't find") ||
-    text.includes("could not find") ||
-    text.includes("no information") ||
-    text.includes("not found in")
-  );
-}
-
-interface RevisionState {
-  // Inputs (kept in the store so selections survive navigation too).
-  format: RevisionFormat;
-  topic: string;
-  course: string; // "none" or a course name
-  document: string | null;
-  // Generation state — lives in the store, NOT the component, so an in-flight
-  // generation keeps running and its result is preserved across page changes.
-  loading: boolean;
-  output: string | null;
-  title: string | null;
-  ungrounded: boolean;
-  savedRevisions: SavedRevision[];
-  setField: <K extends keyof RevisionState>(key: K, value: RevisionState[K]) => void;
-  generate: () => Promise<void>;
-  stop: () => void;
-  saveRevision: (auto?: boolean) => void;
-  loadRevision: (id: string) => void;
-}
-
-// Module-scoped so the stream survives component unmount (page navigation).
-let controller: AbortController | null = null;
-
-export const useRevisionStore = create<RevisionState>((set, get) => ({
-  format: "notes",
-  topic: "",
-  course: "none",
-  document: null,
-  loading: false,
-  output: null,
-  title: null,
-  ungrounded: false,
-  savedRevisions: [],
-  setField: (key, value) => set({ [key]: value } as Partial<RevisionState>),
-  stop: () => {
-    controller?.abort();
-    controller = null;
-    set({ loading: false });
-  },
-  saveRevision: (auto = false) => {
-    const { output, title, topic, course, format, savedRevisions } = get();
-    if (!output) return;
-    
-    // Prevent duplicate saves if we just auto-saved this output
-    if (auto && savedRevisions.length > 0 && savedRevisions[0].content === output) {
-      return;
-    }
-
-    const newRev: SavedRevision = {
-      id: Date.now().toString(),
-      title: title || "Untitled Revision",
-      topic,
-      course,
-      format,
-      content: output,
-      timestamp: Date.now(),
-    };
-    set({ savedRevisions: [newRev, ...savedRevisions] });
-    if (!auto) {
-      toast.success("Revision saved");
-    }
-  },
-  loadRevision: (id: string) => {
-    const { savedRevisions } = get();
-    const rev = savedRevisions.find((r) => r.id === id);
-    if (rev) {
-      set({
-        output: rev.content,
-        title: rev.title,
-        topic: rev.topic,
-        course: rev.course,
-        format: rev.format,
-        ungrounded: false,
-      });
-      toast.success("Revision loaded");
-    }
-  },
-  generate: async () => {
-    const { topic, course, document, format, loading } = get();
-    if (loading) return;
-    const t = topic.trim();
-    const selectedCourse = course === "none" ? null : course;
-    if (!t && !selectedCourse) {
-      toast.error("Enter a topic or pick a course to generate a study sheet");
-      return;
-    }
-
-    controller?.abort();
-    const ctrl = new AbortController();
-    controller = ctrl;
-
-    set({ loading: true, output: null, title: null, ungrounded: false });
-
-    let streamed = "";
-    try {
-      await api.revisionStream(
-        { topic: t || undefined, course: selectedCourse, document, format },
-        {
-          signal: ctrl.signal,
-          onToken: (chunk) => {
-            streamed += chunk;
-            set({ output: streamed });
-          },
-          onDone: ({ grounded, title }) => {
-            const notCovered = !grounded || looksNotCovered(streamed);
-            set({ title: title || null, ungrounded: notCovered });
-            if (notCovered) {
-              toast.warning("This topic may not be covered by your uploaded documents");
-            } else {
-              toast.success("Study sheet generated and auto-saved");
-            }
-            get().saveRevision(true);
-          },
-          onError: (msg) => {
-            toast.error(msg || "Failed to generate study sheet");
-          },
-        },
-      );
-    } catch (err) {
-      if ((err as any)?.name !== "AbortError") {
-        toast.error(err instanceof Error ? err.message : "Failed to generate study sheet");
-      }
-    } finally {
-      if (controller === ctrl) controller = null;
-      set({ loading: false });
-    }
-  },
-}));
-```
 
 ## File: src/app/stores/useMindmapStore.ts
 ```typescript
@@ -21005,7 +29084,8 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
     }
     set({ loading: true });
     try {
-      const result = await api.generateMindmap(trimmed, course === ALL_COURSES ? null : course, document);
+      const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
+      const result = await api.generateMindmap(trimmed, course === ALL_COURSES ? null : course, document, ragMode);
       if (!result.grounded || !result.text?.trim()) {
         toast.error("No grounded mind map could be generated for this topic");
         set({ mindmap: null });
@@ -21020,100 +29100,9 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
     }
   },
 }));
+
 ```
 
-## File: src/app/stores/useQuizStore.ts
-```typescript
-import { create } from "zustand";
-import { toast } from "sonner";
-import type { Quiz } from "../lib/types";
-import { api } from "../lib/api";
-
-export type QuizStage = "builder" | "player" | "results";
-export type Difficulty = Quiz["difficulty"];
-
-const GROUNDED_ERROR =
-  "Couldn't generate a grounded quiz — try a different topic or upload documents";
-
-interface QuizState {
-  // Flow state — lives in the store so it survives page navigation.
-  stage: QuizStage;
-  active: Quiz | null;
-  // Player progress.
-  idx: number;
-  answers: Record<string, string>;
-  // Generation flag — kept in the store, NOT the component, so an in-flight
-  // generation keeps running and its result is preserved across unmount.
-  generating: boolean;
-  // Builder inputs — persisted so the user returns to the same selections.
-  topic: string;
-  course: string; // "all" or a course name
-  document: string | null;
-  difficulty: Difficulty;
-
-  setField: <K extends keyof QuizState>(key: K, value: QuizState[K]) => void;
-  generate: () => Promise<void>;
-  start: (quiz: Quiz) => void;
-  answer: (qid: string, value: string) => void;
-  goTo: (idx: number) => void;
-  submit: (answers: Record<string, string>) => void;
-  backToBuilder: () => void;
-  reset: () => void;
-}
-
-export const useQuizStore = create<QuizState>((set, get) => ({
-  stage: "builder",
-  active: null,
-  idx: 0,
-  answers: {},
-  generating: false,
-  topic: "",
-  course: "all",
-  document: null,
-  difficulty: "Medium",
-
-  setField: (key, value) => set({ [key]: value } as Partial<QuizState>),
-
-  generate: async () => {
-    const { topic, course, document, difficulty, generating } = get();
-    if (generating) return;
-    const value = topic.trim();
-    if (!value) return;
-
-    set({ generating: true });
-    try {
-      const quiz = await api.generateQuiz(
-        value,
-        course === "all" ? null : course,
-        document,
-        difficulty,
-      );
-      if (!quiz.grounded || quiz.questions.length === 0) {
-        toast.error(GROUNDED_ERROR);
-        return;
-      }
-      set({ active: quiz, answers: {}, idx: 0, stage: "player" });
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to generate quiz");
-    } finally {
-      set({ generating: false });
-    }
-  },
-
-  start: (quiz) => set({ active: quiz, answers: {}, idx: 0, stage: "player" }),
-
-  answer: (qid, value) =>
-    set((s) => ({ answers: { ...s.answers, [qid]: value } })),
-
-  goTo: (idx) => set({ idx }),
-
-  submit: (answers) => set({ answers, stage: "results" }),
-
-  backToBuilder: () => set({ stage: "builder" }),
-
-  reset: () => set({ stage: "builder", active: null, answers: {}, idx: 0 }),
-}));
-```
 
 ## File: src/app/stores/useConceptActionStore.ts
 ```typescript
@@ -21206,159 +29195,9 @@ export const useConceptActionStore = create<ConceptActionState>((set, get) => ({
     }
   },
 }));
+
 ```
 
-## File: src/app/stores/useFlashcardGenStore.ts
-```typescript
-import { create } from "zustand";
-import { toast } from "sonner";
-import type { Flashcard } from "../lib/types";
-import { api } from "../lib/api";
-
-const NO_GROUNDED_MESSAGE =
-  "No grounded flashcards — try uploading documents or a different topic.";
-
-type View = "grid" | "list" | "study";
-
-interface FlashcardGenState {
-  // View mode + generation inputs kept in the store so they survive navigation.
-  view: View;
-  topic: string;
-  course: string | null; // null = all courses
-  document: string | null;
-  // Generation state — lives in the store, NOT the component, so an in-flight
-  // generation keeps running and its result is preserved across page changes.
-  generating: boolean;
-  // The freshly generated (unsaved) cards. The empty array means "no generated
-  // set is currently active".
-  cards: Flashcard[];
-  ungrounded: boolean;
-  // The deck name proposed by the generate flow (used as default save name).
-  generatedDeckName: string | null;
-  // Name of the deck the generated cards were saved as, or null while unsaved.
-  // Kept here so the page can distinguish an unsaved generated set from a saved
-  // one even after navigation.
-  activeDeck: string | null;
-  setField: <K extends keyof FlashcardGenState>(key: K, value: FlashcardGenState[K]) => void;
-  setCards: (cards: Flashcard[]) => void;
-  generate: () => Promise<void>;
-  clearGenerated: () => void;
-}
-
-export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
-  view: "grid",
-  topic: "",
-  course: null,
-  document: null,
-  generating: false,
-  cards: [],
-  ungrounded: false,
-  generatedDeckName: null,
-  activeDeck: null,
-  setField: (key, value) => set({ [key]: value } as Partial<FlashcardGenState>),
-  setCards: (cards) => set({ cards }),
-  clearGenerated: () =>
-    set({ cards: [], ungrounded: false, generatedDeckName: null, activeDeck: null }),
-  generate: async () => {
-    const { topic, course, document, generating } = get();
-    const value = topic.trim();
-    if (!value || generating) return;
-    set({ generating: true, ungrounded: false });
-    try {
-      const result = await api.generateFlashcards(value, course, document);
-      if (!result.grounded || result.cards.length === 0) {
-        set({
-          cards: [],
-          activeDeck: null,
-          generatedDeckName: null,
-          ungrounded: true,
-        });
-        toast.error(NO_GROUNDED_MESSAGE);
-        return;
-      }
-      set({
-        cards: result.cards,
-        activeDeck: null,
-        generatedDeckName: result.deck,
-        ungrounded: false,
-      });
-      toast.success(`Generated ${result.cards.length} flashcards`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate flashcards");
-    } finally {
-      set({ generating: false });
-    }
-  },
-}));
-```
-
-## File: src/app/stores/useDiagramGenStore.ts
-```typescript
-import { create } from "zustand";
-import { toast } from "sonner";
-import { api } from "../lib/api";
-import type { DiagramItem } from "../lib/types";
-
-interface DiagramGenState {
-  // Generation inputs + in-flight flag + last produced diagram live in the
-  // store, so a generation started here keeps running and its result is
-  // preserved when navigating away from the page and back.
-  topic: string;
-  course: string; // "none" or a course name
-  document: string | null;
-  type: string;
-  generating: boolean;
-  generated: DiagramItem | null; // most recent successful generation
-  activeId: string | null; // id of the diagram open in the viewer (survives nav)
-  setField: <K extends keyof DiagramGenState>(key: K, value: DiagramGenState[K]) => void;
-  generate: () => Promise<DiagramItem | null>;
-}
-
-export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
-  topic: "",
-  course: "none",
-  document: null,
-  type: "flowchart",
-  generating: false,
-  generated: null,
-  activeId: null,
-  setField: (key, value) => set({ [key]: value } as Partial<DiagramGenState>),
-  generate: async () => {
-    const { topic, course, document, type, generating } = get();
-    if (generating) return null;
-    const t = topic.trim();
-    if (!t) {
-      toast.error("Enter a topic to generate a diagram");
-      return null;
-    }
-    set({ generating: true });
-    try {
-      const result = await api.generateDiagram(t, course === "none" ? null : course, document, type);
-      if (!result.grounded || !result.mermaid?.trim()) {
-        toast.error(
-          !result.grounded ? "Couldn't ground a diagram for that topic" : "The generated diagram was empty",
-        );
-        return null;
-      }
-      const diagram: DiagramItem = {
-        id: result.id,
-        title: result.title,
-        course: result.course,
-        kind: result.kind,
-        mermaid: result.mermaid,
-      };
-      set({ generated: diagram, activeId: diagram.id });
-      toast.success("Diagram generated");
-      return diagram;
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate diagram");
-      return null;
-    } finally {
-      set({ generating: false });
-    }
-  },
-}));
-```
 
 ## File: src/app/stores/useKnowledgeBaseStore.ts
 ```typescript
@@ -21406,7 +29245,9 @@ export const useKnowledgeBaseStore = create<KnowledgeBaseState>((set) => ({
         : [...state.activeFilters, name],
     })),
 }));
+
 ```
+
 
 ## File: src/app/stores/useExamStore.ts
 ```typescript
@@ -21588,127 +29429,96 @@ export const useExamStore = create<ExamState>((set, get) => ({
       pyqCourse: null,
     }),
 }));
+
 ```
 
-## File: src/app/stores/usePyqStore.ts
+
+## File: src/app/stores/useSettingsStore.ts
 ```typescript
 import { create } from "zustand";
-import { toast } from "sonner";
-import { api, type PyqAnalysis, type PyqDifferenceSuggestion, type PyqPaper, type PyqQuestion } from "../lib/api";
+import { api, type BackendSettings } from "../lib/api";
 
-export interface PyqFilters {
-  year?: number;
-  topic?: string;
-  difficulty?: string;
-  type?: string;
-  q?: string;
+interface SettingsState {
+  fastModel: string;
+  reasoningModel: string;
+  embeddingModel: string;
+  visionModel: string;
+  temperature: number;
+  topK: number;
+  similarityThreshold: number;
+  streaming: boolean;
+  citationsInline: boolean;
+  accent: "violet" | "cyan" | "green";
+  density: "comfortable" | "compact";
+  industry: string;
+  role: string;
+  goals: string;
+  interests: string;
+  learningPreferences: string;
+  ragMode: "strict" | "fallback";
+  hydrated: boolean;
+  set: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void;
+  hydrate: () => Promise<void>;
 }
 
-interface PyqState {
-  course: string; // selected course (never "all" — analysis is per-course)
-  analysis: PyqAnalysis | null;
-  papers: PyqPaper[];
-  questions: PyqQuestion[];
-  differences: PyqDifferenceSuggestion[];
-  filters: PyqFilters;
+const PERSISTED: (keyof BackendSettings)[] = [
+  "fastModel",
+  "reasoningModel",
+  "embeddingModel",
+  "visionModel",
+  "temperature",
+  "topK",
+  "similarityThreshold",
+  "streaming",
+  "citationsInline",
+  "accent",
+  "density",
+  "industry",
+  "role",
+  "goals",
+  "interests",
+  "learningPreferences",
+  "ragMode",
+];
 
-  // UI
-  selectedTopic: string | null;
-  selectedPattern: string | null;
-
-  // in-flight
-  loading: boolean;
-  uploading: boolean;
-
-  setField: <K extends keyof PyqState>(key: K, value: PyqState[K]) => void;
-  setFilter: <K extends keyof PyqFilters>(key: K, value: PyqFilters[K]) => void;
-  selectCourse: (course: string) => Promise<void>;
-  refresh: () => Promise<void>;
-  fetchQuestions: () => Promise<void>;
-  uploadPaper: (file: File, year?: number | null) => Promise<void>;
-  deletePaper: (id: number) => Promise<void>;
-}
-
-export const usePyqStore = create<PyqState>((set, get) => ({
-  course: "",
-  analysis: null,
-  papers: [],
-  questions: [],
-  differences: [],
-  filters: {},
-  selectedTopic: null,
-  selectedPattern: null,
-  loading: false,
-  uploading: false,
-
-  setField: (key, value) => set({ [key]: value } as Partial<PyqState>),
-  setFilter: (key, value) =>
-    set((s) => ({ filters: { ...s.filters, [key]: value || undefined } })),
-
-  selectCourse: async (course) => {
-    set({ course, analysis: null, papers: [], questions: [], differences: [], filters: {}, selectedTopic: null, selectedPattern: null });
-    if (course) await get().refresh();
-  },
-
-  refresh: async () => {
-    const { course } = get();
-    if (!course) return;
-    set({ loading: true });
-    try {
-      const [analysis, papers, differences] = await Promise.all([
-        api.getPyqAnalysis(course),
-        api.listPyqPapers(course),
-        api.getPyqDifferenceSuggestions(course),
-      ]);
-      set({ analysis, papers, differences });
-      await get().fetchQuestions();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to load PYQ analysis");
-    } finally {
-      set({ loading: false });
+export const useSettingsStore = create<SettingsState>((set) => ({
+  fastModel: "qwen3:8b",
+  reasoningModel: "gemma4:12b",
+  embeddingModel: "qwen3-embedding:0.6b",
+  visionModel: "qwen2.5vl:3b",
+  temperature: 0.4,
+  topK: 5,
+  similarityThreshold: 0.45,
+  streaming: true,
+  citationsInline: true,
+  accent: "violet",
+  density: "comfortable",
+  industry: "",
+  role: "",
+  goals: "",
+  interests: "",
+  learningPreferences: "",
+  ragMode: "fallback",
+  hydrated: false,
+  set: (key, value) => {
+    set({ [key]: value } as Partial<SettingsState>);
+    // Persist the single changed field to the backend (fire-and-forget).
+    if (PERSISTED.includes(key as keyof BackendSettings)) {
+      api.updateSettings({ [key]: value } as Partial<BackendSettings>).catch(() => {});
     }
   },
-
-  fetchQuestions: async () => {
-    const { course, filters } = get();
-    if (!course) return;
+  hydrate: async () => {
     try {
-      const questions = await api.listPyqQuestions(course, filters);
-      set({ questions });
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to load questions");
-    }
-  },
-
-  uploadPaper: async (file, year) => {
-    const { course } = get();
-    if (!course) {
-      toast.error("Select a course first");
-      return;
-    }
-    set({ uploading: true });
-    try {
-      const res = await api.uploadPyqPaper(file, course, year);
-      toast.success(`Extracted ${res.extracted} questions from ${res.paper.title}`);
-      await get().refresh();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Upload failed");
-    } finally {
-      set({ uploading: false });
-    }
-  },
-
-  deletePaper: async (id) => {
-    try {
-      await api.deletePyqPaper(id);
-      toast.success("Paper removed");
-      await get().refresh();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to delete paper");
+      const remote = await api.getSettings();
+      set({ ...remote, accent: remote.accent as SettingsState["accent"], density: remote.density as SettingsState["density"], hydrated: true });
+    } catch {
+      set({ hydrated: true });
     }
   },
 }));
+
 ```
+
 
 ## File: src/app/stores/useTeachStore.ts
 ```typescript
@@ -21721,6 +29531,7 @@ import {
   type GeneratedDiagram,
   type GeneratedMindmap,
   type GeneratedRevision,
+  type ConsistencyReport,
 } from "../lib/api";
 import type { GeneratedDifference, Source, Course, DocumentItem } from "../lib/types";
 
@@ -21729,7 +29540,7 @@ export type Depth = "quick" | "standard" | "deep";
 // The lazily-generated artifacts (Overview + Sources are handled separately).
 export type ArtifactKey = "notes" | "flashcards" | "quiz" | "mindmap" | "diagram" | "difference";
 
-export type ViewKey = "overview" | ArtifactKey | "sources";
+export type ViewKey = "overview" | ArtifactKey | "sources" | "consistency";
 
 export type SlotStatus = "idle" | "queued" | "loading" | "done" | "error";
 
@@ -21789,6 +29600,10 @@ interface TeachState {
 
   artifacts: Record<ArtifactKey, ArtifactSlot>;
 
+  // Cross-artifact consistency analysis (on-demand).
+  consistency: ConsistencyReport | null;
+  consistencyStatus: SlotStatus;
+
   // Live progress for the "what's generating now" UI.
   generating: boolean;
   currentTask: ViewKey | null;
@@ -21799,6 +29614,7 @@ interface TeachState {
   toggleArtifact: (key: ArtifactKey) => void;
   startGenerate: () => Promise<void>;
   retryArtifact: (key: ArtifactKey) => Promise<void>;
+  runConsistency: () => Promise<void>;
   openView: (view: ViewKey) => void;
   savePackage: () => Promise<void>;
   loadPackage: (id: string) => Promise<void>;
@@ -21835,6 +29651,9 @@ export const useTeachStore = create<TeachState>((set, get) => ({
   sources: [],
 
   artifacts: freshArtifacts(),
+
+  consistency: null,
+  consistencyStatus: "idle",
 
   generating: false,
   currentTask: null,
@@ -21911,6 +29730,31 @@ export const useTeachStore = create<TeachState>((set, get) => ({
     await generateArtifact(key, set, get);
   },
 
+  runConsistency: async () => {
+    const { overview, sources, artifacts, consistencyStatus } = get();
+    if (consistencyStatus === "loading") return;
+    // Canonical source = overview + retrieved source snippets.
+    const sourceText = [overview?.markdown ?? "", ...sources.map((s) => s.snippet)]
+      .filter(Boolean)
+      .join("\n\n");
+    if (!sourceText.trim()) {
+      toast.error("Generate the package first");
+      return;
+    }
+    const payload: Record<string, unknown> = {};
+    for (const key of ARTIFACT_KEYS) {
+      if (artifacts[key].data) payload[key] = artifacts[key].data;
+    }
+    set({ consistencyStatus: "loading" });
+    try {
+      const report = await api.analyzeConsistency(sourceText, payload);
+      set({ consistency: report, consistencyStatus: "done" });
+    } catch (err) {
+      set({ consistencyStatus: "error" });
+      toast.error(err instanceof Error ? err.message : "Failed to analyze consistency");
+    }
+  },
+
   openView: (view) => {
     set({ activeView: view });
   },
@@ -21978,6 +29822,8 @@ export const useTeachStore = create<TeachState>((set, get) => ({
         sources: pkg.sources ?? [],
         artifacts,
         selected,
+        consistency: null,
+        consistencyStatus: "idle",
         generating: false,
         currentTask: null,
       });
@@ -21995,6 +29841,8 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       overviewStatus: "idle",
       sources: [],
       artifacts: freshArtifacts(),
+      consistency: null,
+      consistencyStatus: "idle",
       generating: false,
       currentTask: null,
     }),
@@ -22042,89 +29890,173 @@ async function generateArtifact(
     setSlot({ status: "error", error: err instanceof Error ? err.message : "Generation failed" });
   }
 }
+
 ```
 
-## File: src/app/stores/useSettingsStore.ts
+
+## File: src/app/stores/useFlashcardGenStore.ts
 ```typescript
 import { create } from "zustand";
-import { api, type BackendSettings } from "../lib/api";
+import { toast } from "sonner";
+import type { Flashcard, QualityScore } from "../lib/types";
+import { api } from "../lib/api";
 
-interface SettingsState {
-  fastModel: string;
-  reasoningModel: string;
-  embeddingModel: string;
-  visionModel: string;
-  temperature: number;
-  topK: number;
-  similarityThreshold: number;
-  streaming: boolean;
-  citationsInline: boolean;
-  accent: "violet" | "cyan" | "green";
-  density: "comfortable" | "compact";
-  industry: string;
-  role: string;
-  goals: string;
-  interests: string;
-  learningPreferences: string;
-  hydrated: boolean;
-  set: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void;
-  hydrate: () => Promise<void>;
+const NO_GROUNDED_MESSAGE =
+  "No grounded flashcards — try uploading documents or a different topic.";
+
+type View = "grid" | "list" | "study";
+
+interface FlashcardGenState {
+  // View mode + generation inputs kept in the store so they survive navigation.
+  view: View;
+  topic: string;
+  course: string | null; // null = all courses
+  document: string | null;
+  // Generation state — lives in the store, NOT the component, so an in-flight
+  // generation keeps running and its result is preserved across page changes.
+  generating: boolean;
+  // The freshly generated (unsaved) cards. The empty array means "no generated
+  // set is currently active".
+  cards: Flashcard[];
+  // Objective quality estimate for the freshly generated (unsaved) set.
+  quality?: QualityScore;
+  ungrounded: boolean;
+  // The deck name proposed by the generate flow (used as default save name).
+  generatedDeckName: string | null;
+  // Name of the deck the generated cards were saved as, or null while unsaved.
+  // Kept here so the page can distinguish an unsaved generated set from a saved
+  // one even after navigation.
+  activeDeck: string | null;
+  setField: <K extends keyof FlashcardGenState>(key: K, value: FlashcardGenState[K]) => void;
+  setCards: (cards: Flashcard[]) => void;
+  generate: () => Promise<void>;
+  clearGenerated: () => void;
 }
 
-const PERSISTED: (keyof BackendSettings)[] = [
-  "fastModel",
-  "reasoningModel",
-  "embeddingModel",
-  "visionModel",
-  "temperature",
-  "topK",
-  "similarityThreshold",
-  "streaming",
-  "citationsInline",
-  "accent",
-  "density",
-  "industry",
-  "role",
-  "goals",
-  "interests",
-  "learningPreferences",
-];
-
-export const useSettingsStore = create<SettingsState>((set) => ({
-  fastModel: "qwen3:8b",
-  reasoningModel: "gemma4:12b",
-  embeddingModel: "qwen3-embedding:0.6b",
-  visionModel: "qwen2.5vl:3b",
-  temperature: 0.4,
-  topK: 5,
-  similarityThreshold: 0.45,
-  streaming: true,
-  citationsInline: true,
-  accent: "violet",
-  density: "comfortable",
-  industry: "",
-  role: "",
-  goals: "",
-  interests: "",
-  learningPreferences: "",
-  hydrated: false,
-  set: (key, value) => {
-    set({ [key]: value } as Partial<SettingsState>);
-    // Persist the single changed field to the backend (fire-and-forget).
-    if (PERSISTED.includes(key as keyof BackendSettings)) {
-      api.updateSettings({ [key]: value } as Partial<BackendSettings>).catch(() => {});
-    }
-  },
-  hydrate: async () => {
+export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
+  view: "grid",
+  topic: "",
+  course: null,
+  document: null,
+  generating: false,
+  cards: [],
+  quality: undefined,
+  ungrounded: false,
+  generatedDeckName: null,
+  activeDeck: null,
+  setField: (key, value) => set({ [key]: value } as Partial<FlashcardGenState>),
+  setCards: (cards) => set({ cards }),
+  clearGenerated: () =>
+    set({ cards: [], quality: undefined, ungrounded: false, generatedDeckName: null, activeDeck: null }),
+  generate: async () => {
+    const { topic, course, document, generating } = get();
+    const value = topic.trim();
+    if (!value || generating) return;
+    set({ generating: true, ungrounded: false });
     try {
-      const remote = await api.getSettings();
-      set({ ...remote, accent: remote.accent as SettingsState["accent"], density: remote.density as SettingsState["density"], hydrated: true });
-    } catch {
-      set({ hydrated: true });
+      const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
+      const result = await api.generateFlashcards(value, course, document, 8, ragMode);
+      if (!result.grounded || result.cards.length === 0) {
+        set({
+          cards: [],
+          quality: undefined,
+          activeDeck: null,
+          generatedDeckName: null,
+          ungrounded: true,
+        });
+        toast.error(NO_GROUNDED_MESSAGE);
+        return;
+      }
+      set({
+        cards: result.cards,
+        quality: result.quality,
+        activeDeck: null,
+        generatedDeckName: result.deck,
+        ungrounded: false,
+      });
+      toast.success(`Generated ${result.cards.length} flashcards`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate flashcards");
+    } finally {
+      set({ generating: false });
     }
   },
 }));
+
 ```
+
+
+## File: src/app/stores/useDiagramGenStore.ts
+```typescript
+import { create } from "zustand";
+import { toast } from "sonner";
+import { api } from "../lib/api";
+import type { DiagramItem } from "../lib/types";
+
+interface DiagramGenState {
+  // Generation inputs + in-flight flag + last produced diagram live in the
+  // store, so a generation started here keeps running and its result is
+  // preserved when navigating away from the page and back.
+  topic: string;
+  course: string; // "none" or a course name
+  document: string | null;
+  type: string;
+  generating: boolean;
+  generated: DiagramItem | null; // most recent successful generation
+  activeId: string | null; // id of the diagram open in the viewer (survives nav)
+  setField: <K extends keyof DiagramGenState>(key: K, value: DiagramGenState[K]) => void;
+  generate: () => Promise<DiagramItem | null>;
+}
+
+export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
+  topic: "",
+  course: "none",
+  document: null,
+  type: "flowchart",
+  generating: false,
+  generated: null,
+  activeId: null,
+  setField: (key, value) => set({ [key]: value } as Partial<DiagramGenState>),
+  generate: async () => {
+    const { topic, course, document, type, generating } = get();
+    if (generating) return null;
+    const t = topic.trim();
+    if (!t) {
+      toast.error("Enter a topic to generate a diagram");
+      return null;
+    }
+    set({ generating: true });
+    try {
+      const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
+      const result = await api.generateDiagram(t, course === "none" ? null : course, document, type, ragMode);
+      if (!result.grounded || !result.mermaid?.trim()) {
+        toast.error(
+          !result.grounded ? "Couldn't ground a diagram for that topic" : "The generated diagram was empty",
+        );
+        return null;
+      }
+      const diagram: DiagramItem = {
+        id: result.id,
+        title: result.title,
+        course: result.course,
+        kind: result.kind,
+        mermaid: result.mermaid,
+        quality: result.quality,
+      };
+      set({ generated: diagram, activeId: diagram.id });
+      toast.success("Diagram generated");
+      return diagram;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate diagram");
+      return null;
+    } finally {
+      set({ generating: false });
+    }
+  },
+}));
+
+```
+
 
 ## File: src/app/stores/useDifferencesStore.ts
 ```typescript
@@ -22222,7 +30154,7 @@ export const useDifferencesStore = create<DifferencesState>((set, get) => ({
     if (!output) return;
     const selectedCourse = course === "none" ? null : course;
     try {
-      const item = await api.saveDifference(output.title, output.content, selectedCourse);
+      const item = await api.saveDifference(output.title, output.content, selectedCourse, output.quality);
       set({ saved: [item, ...get().saved] });
       toast.success("Saved");
     } catch {
@@ -22242,12 +30174,685 @@ export const useDifferencesStore = create<DifferencesState>((set, get) => ({
 
   loadSaved: (item) => {
     set({
-      output: { title: item.title, content: item.content, grounded: true },
+      output: { title: item.title, content: item.content, grounded: true, quality: item.quality },
       topic: item.title,
     });
   },
 }));
+
 ```
+
+
+## File: src/app/stores/useRevisionStore.ts
+```typescript
+import { create } from "zustand";
+import { toast } from "sonner";
+import { api, type SavedRevision } from "../lib/api";
+import type { QualityScore } from "../lib/types";
+
+export type RevisionFormat = "notes" | "concepts" | "formulas" | "summary";
+
+/** Heuristic: detect a backend "this topic isn't in your documents" message. */
+function looksNotCovered(markdown: string): boolean {
+  const text = markdown.trim().toLowerCase();
+  if (!text) return true;
+  return (
+    text.includes("not covered") ||
+    text.includes("no relevant") ||
+    text.includes("couldn't find") ||
+    text.includes("could not find") ||
+    text.includes("no information") ||
+    text.includes("not found in")
+  );
+}
+
+interface RevisionState {
+  // Inputs (kept in the store so selections survive navigation too).
+  format: RevisionFormat;
+  topic: string;
+  course: string; // "none" or a course name
+  document: string | null;
+  // Generation state — lives in the store, NOT the component, so an in-flight
+  // generation keeps running and its result is preserved across page changes.
+  loading: boolean;
+  output: string | null;
+  title: string | null;
+  // Objective quality estimate from the stream's `done` event.
+  quality?: QualityScore;
+  ungrounded: boolean;
+  savedRevisions: SavedRevision[];
+  setField: <K extends keyof RevisionState>(key: K, value: RevisionState[K]) => void;
+  generate: () => Promise<void>;
+  stop: () => void;
+  fetchRevisions: () => Promise<void>;
+  saveRevision: (auto?: boolean) => Promise<void>;
+  deleteRevision: (id: string) => Promise<void>;
+  loadRevision: (id: string) => void;
+}
+
+// Module-scoped so the stream survives component unmount (page navigation).
+let controller: AbortController | null = null;
+
+export const useRevisionStore = create<RevisionState>((set, get) => ({
+  format: "notes",
+  topic: "",
+  course: "none",
+  document: null,
+  loading: false,
+  output: null,
+  title: null,
+  quality: undefined,
+  ungrounded: false,
+  savedRevisions: [],
+  setField: (key, value) => set({ [key]: value } as Partial<RevisionState>),
+  stop: () => {
+    controller?.abort();
+    controller = null;
+    set({ loading: false });
+  },
+  fetchRevisions: async () => {
+    try {
+      const revs = await api.listRevisions();
+      set({ savedRevisions: revs as SavedRevision[] });
+    } catch (err) {
+      console.error("Failed to load revisions", err);
+    }
+  },
+  saveRevision: async (auto = false) => {
+    const { output, title, topic, course, format, quality, savedRevisions } = get();
+    if (!output) return;
+    
+    // Prevent duplicate saves if we just auto-saved this output
+    if (auto && savedRevisions.length > 0 && savedRevisions[0].content === output) {
+      return;
+    }
+
+    try {
+      const newRev = await api.saveRevision({
+        title: title || "Untitled Revision",
+        topic,
+        course: course === "none" ? null : course,
+        format,
+        content: output,
+        quality,
+      });
+      // @ts-ignore
+      set({ savedRevisions: [newRev, ...get().savedRevisions] });
+      if (!auto) {
+        toast.success("Revision saved");
+      }
+    } catch (err) {
+      toast.error("Failed to save revision");
+    }
+  },
+  deleteRevision: async (id: string) => {
+    try {
+      await api.deleteRevision(id);
+      set((state) => ({
+        savedRevisions: state.savedRevisions.filter((r) => r.id !== id),
+      }));
+      toast.success("Revision deleted");
+    } catch (err) {
+      toast.error("Failed to delete revision");
+    }
+  },
+  loadRevision: (id: string) => {
+    const { savedRevisions } = get();
+    const rev = savedRevisions.find((r) => r.id === id);
+    if (rev) {
+      set({
+        output: rev.content,
+        title: rev.title,
+        topic: rev.topic,
+        course: rev.course,
+        format: rev.format,
+        quality: undefined,
+        ungrounded: false,
+      });
+      toast.success("Revision loaded");
+    }
+  },
+  generate: async () => {
+    const { topic, course, document, format, loading } = get();
+    if (loading) return;
+    const t = topic.trim();
+    const selectedCourse = course === "none" ? null : course;
+    if (!t && !selectedCourse) {
+      toast.error("Enter a topic or pick a course to generate a study sheet");
+      return;
+    }
+
+    controller?.abort();
+    const ctrl = new AbortController();
+    controller = ctrl;
+
+    set({ loading: true, output: null, title: null, quality: undefined, ungrounded: false });
+
+    let streamed = "";
+    try {
+      const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
+      await api.revisionStream(
+        { topic: t || undefined, course: selectedCourse, document, format, ragMode },
+        {
+          signal: ctrl.signal,
+          onToken: (chunk) => {
+            streamed += chunk;
+            set({ output: streamed });
+          },
+          onDone: ({ grounded, title, quality }) => {
+            const notCovered = !grounded || looksNotCovered(streamed);
+            set({ title: title || null, quality, ungrounded: notCovered });
+            if (notCovered) {
+              toast.warning("This topic may not be covered by your uploaded documents");
+            } else {
+              toast.success("Study sheet generated and auto-saved");
+            }
+            get().saveRevision(true);
+          },
+          onError: (msg) => {
+            toast.error(msg || "Failed to generate study sheet");
+          },
+        },
+      );
+    } catch (err) {
+      if ((err as any)?.name !== "AbortError") {
+        toast.error(err instanceof Error ? err.message : "Failed to generate study sheet");
+      }
+    } finally {
+      if (controller === ctrl) controller = null;
+      set({ loading: false });
+    }
+  },
+}));
+
+```
+
+
+## File: src/app/stores/usePyqStore.ts
+```typescript
+import { create } from "zustand";
+import { toast } from "sonner";
+import { api, type PyqAnalysis, type PyqDifferenceSuggestion, type PyqPaper, type PyqQuestion } from "../lib/api";
+
+export interface PyqFilters {
+  year?: number;
+  topic?: string;
+  difficulty?: string;
+  type?: string;
+  q?: string;
+}
+
+interface PyqState {
+  course: string; // selected course (never "all" — analysis is per-course)
+  analysis: PyqAnalysis | null;
+  papers: PyqPaper[];
+  questions: PyqQuestion[];
+  differences: PyqDifferenceSuggestion[];
+  filters: PyqFilters;
+
+  // UI
+  selectedTopic: string | null;
+  selectedPattern: string | null;
+
+  // in-flight
+  loading: boolean;
+  uploading: boolean;
+
+  setField: <K extends keyof PyqState>(key: K, value: PyqState[K]) => void;
+  setFilter: <K extends keyof PyqFilters>(key: K, value: PyqFilters[K]) => void;
+  selectCourse: (course: string) => Promise<void>;
+  refresh: () => Promise<void>;
+  fetchQuestions: () => Promise<void>;
+  uploadPaper: (file: File, year?: number | null) => Promise<void>;
+  deletePaper: (id: number) => Promise<void>;
+  updateQuestion: (id: number, patch: Partial<Omit<PyqQuestion, 'id'>>) => Promise<void>;
+  deleteQuestion: (id: number) => Promise<void>;
+}
+
+export const usePyqStore = create<PyqState>((set, get) => ({
+  course: "",
+  analysis: null,
+  papers: [],
+  questions: [],
+  differences: [],
+  filters: {},
+  selectedTopic: null,
+  selectedPattern: null,
+  loading: false,
+  uploading: false,
+
+  setField: (key, value) => set({ [key]: value } as Partial<PyqState>),
+  setFilter: (key, value) =>
+    set((s) => ({ filters: { ...s.filters, [key]: value || undefined } })),
+
+  selectCourse: async (course) => {
+    set({ course, analysis: null, papers: [], questions: [], differences: [], filters: {}, selectedTopic: null, selectedPattern: null });
+    if (course) await get().refresh();
+  },
+
+  refresh: async () => {
+    const { course } = get();
+    if (!course) return;
+    set({ loading: true });
+    try {
+      const [analysis, papers, differences] = await Promise.all([
+        api.getPyqAnalysis(course),
+        api.listPyqPapers(course),
+        api.getPyqDifferenceSuggestions(course),
+      ]);
+      set({ analysis, papers, differences });
+      await get().fetchQuestions();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to load PYQ analysis");
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  fetchQuestions: async () => {
+    const { course, filters } = get();
+    if (!course) return;
+    try {
+      const questions = await api.listPyqQuestions(course, filters);
+      set({ questions });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to load questions");
+    }
+  },
+
+  uploadPaper: async (file, year) => {
+    const { course } = get();
+    if (!course) {
+      toast.error("Select a course first");
+      return;
+    }
+    set({ uploading: true });
+    try {
+      const res = await api.uploadPyqPaper(file, course, year);
+      toast.success(`Extracted ${res.extracted} questions from ${res.paper.title}`);
+      await get().refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      set({ uploading: false });
+    }
+  },
+
+  deletePaper: async (id) => {
+    try {
+      await api.deletePyqPaper(id);
+      toast.success("Paper removed");
+      await get().refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete paper");
+    }
+  },
+
+  updateQuestion: async (id, patch) => {
+    try {
+      const updated = await api.patchPyqQuestion(id, patch);
+      set((s) => ({ questions: s.questions.map((q) => (q.id === id ? updated : q)) }));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update question");
+    }
+  },
+
+  deleteQuestion: async (id) => {
+    try {
+      await api.deletePyqQuestion(id);
+      set((s) => ({ questions: s.questions.filter((q) => q.id !== id) }));
+      toast.success("Question removed");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete question");
+    }
+  },
+}));
+
+```
+
+
+## File: src/app/stores/useChatStore.ts
+```typescript
+import { create } from "zustand";
+import { toast } from "sonner";
+import type { ChatMessage } from "../lib/types";
+import { api } from "../lib/api";
+import type { ChatSessionMeta } from "../lib/api";
+
+interface ChatState {
+  messages: ChatMessage[];
+  isStreaming: boolean;
+  course: string | null;
+  document: string | null;
+  sessions: ChatSessionMeta[];
+  activeSessionId: string | null;
+  socratic: boolean;
+  setCourse: (course: string | null) => void;
+  setDocument: (document: string | null) => void;
+  setSocratic: (v: boolean) => void;
+  ask: (question: string, opts?: { stream?: boolean; ragMode?: string }) => Promise<void>;
+  reset: () => void;
+  loadSessions: () => Promise<void>;
+  loadSession: (id: string) => Promise<void>;
+  deleteSession: (id: string) => Promise<void>;
+}
+
+let controller: AbortController | null = null;
+
+export const useChatStore = create<ChatState>((set, get) => ({
+  messages: [],
+  isStreaming: false,
+  course: null,
+  document: null,
+  sessions: [],
+  activeSessionId: null,
+  socratic: false,
+  setCourse: (course) => set({ course }),
+  setDocument: (document) => set({ document }),
+  setSocratic: (v) => set({ socratic: v }),
+  reset: () => {
+    controller?.abort();
+    controller = null;
+    set({ messages: [], isStreaming: false, activeSessionId: null });
+  },
+  loadSessions: async () => {
+    try {
+      const sessions = await api.listChatSessions();
+      set({ sessions });
+    } catch {
+      // silently ignore — sidebar is optional
+    }
+  },
+  loadSession: async (id: string) => {
+    try {
+      const full = await api.getChatSession(id);
+      const messages: ChatMessage[] = full.messages.map((row) => ({
+        id: row.id,
+        role: row.role,
+        content: row.content,
+        sources: row.sources,
+        streaming: false,
+      }));
+      set({ messages, activeSessionId: id });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to load session";
+      toast.error("Load failed", { description: msg });
+    }
+  },
+  deleteSession: async (id: string) => {
+    try {
+      await api.deleteChatSession(id);
+      set((s) => ({
+        sessions: s.sessions.filter((sess) => sess.id !== id),
+        activeSessionId: s.activeSessionId === id ? null : s.activeSessionId,
+        messages: s.activeSessionId === id ? [] : s.messages,
+      }));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to delete session";
+      toast.error("Delete failed", { description: msg });
+    }
+  },
+  ask: async (question: string, opts?: { stream?: boolean; ragMode?: string }) => {
+    if (get().isStreaming) return;
+    const stream = opts?.stream ?? true;
+    const ragMode = opts?.ragMode ?? "fallback";
+    const course = get().course;
+    const document = get().document;
+    const socratic = get().socratic;
+
+    // Auto-create a session on first message of a new conversation.
+    let sessionId = get().activeSessionId;
+    if (!sessionId) {
+      try {
+        const sess = await api.createChatSession(course ?? undefined);
+        sessionId = sess.id;
+        set({ activeSessionId: sessionId });
+        const sessions = await api.listChatSessions();
+        set({ sessions });
+      } catch {
+        sessionId = null;
+      }
+    }
+
+    const userMsg: ChatMessage = {
+      id: `u-${Date.now()}`,
+      role: "user",
+      content: question,
+    };
+    const assistantId = `a-${Date.now()}`;
+    const assistantMsg: ChatMessage = {
+      id: assistantId,
+      role: "assistant",
+      content: "",
+      sources: [],
+      streaming: true,
+    };
+    set((s) => ({
+      messages: [...s.messages, userMsg, assistantMsg],
+      isStreaming: true,
+    }));
+
+    const patch = (fields: Partial<ChatMessage>) =>
+      set((s) => ({
+        messages: s.messages.map((m) => (m.id === assistantId ? { ...m, ...fields } : m)),
+      }));
+
+    try {
+      if (stream) {
+        controller = new AbortController();
+        let acc = "";
+        await api.askStream(question, course, document, {
+          signal: controller.signal,
+          onToken: (chunk) => {
+            acc += chunk;
+            patch({ content: acc, streaming: true });
+          },
+          onDone: (meta) => {
+            patch({
+              content: acc,
+              streaming: false,
+              sources: meta.sources,
+              confidence: meta.confidence ?? undefined,
+            });
+          },
+          onError: (msg) => {
+            patch({ content: acc || `⚠️ ${msg}`, streaming: false });
+            toast.error("Answer failed", { description: msg });
+          },
+        }, sessionId, ragMode, socratic);
+      } else {
+        const res = await api.ask(question, course, document, sessionId, ragMode, socratic);
+        patch({
+          content: res.content,
+          streaming: false,
+          sources: res.sources,
+          confidence: res.confidence ?? undefined,
+        });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Request failed";
+      patch({ content: `⚠️ ${msg}`, streaming: false });
+      toast.error("Answer failed", { description: msg });
+    } finally {
+      controller = null;
+      set({ isStreaming: false });
+      try {
+        const sessions = await api.listChatSessions();
+        set({ sessions });
+      } catch { /* ignore */ }
+    }
+  },
+}));
+
+
+```
+
+
+## File: src/app/stores/useQuizStore.ts
+```typescript
+import { create } from "zustand";
+import { toast } from "sonner";
+import type { Quiz } from "../lib/types";
+import { api } from "../lib/api";
+
+let _sessionTimer: ReturnType<typeof setTimeout> | null = null;
+
+export type QuizStage = "builder" | "player" | "results";
+export type Difficulty = Quiz["difficulty"];
+
+const GROUNDED_ERROR =
+  "Couldn't generate a grounded quiz — try a different topic or upload documents";
+
+interface QuizState {
+  // Flow state — lives in the store so it survives page navigation.
+  stage: QuizStage;
+  active: Quiz | null;
+  // Player progress.
+  idx: number;
+  answers: Record<string, string>;
+  // Generation flag — kept in the store, NOT the component, so an in-flight
+  // generation keeps running and its result is preserved across unmount.
+  generating: boolean;
+  // Builder inputs — persisted so the user returns to the same selections.
+  topic: string;
+  course: string; // "all" or a course name
+  document: string | null;
+  difficulty: Difficulty;
+  // Time limit selected in builder (minutes); null = untimed.
+  timeLimit: number | null;
+  // Absolute deadline timestamp (ms). Set at quiz start, cleared on submit/back.
+  deadline: number | null;
+
+  setField: <K extends keyof QuizState>(key: K, value: QuizState[K]) => void;
+  generate: () => Promise<void>;
+  start: (quiz: Quiz) => void;
+  answer: (qid: string, value: string) => void;
+  goTo: (idx: number) => void;
+  submit: (answers: Record<string, string>) => void;
+  backToBuilder: () => void;
+  reset: () => void;
+  restoreSession: (quiz: Quiz) => void;
+}
+
+export const useQuizStore = create<QuizState>((set, get) => ({
+  stage: "builder",
+  active: null,
+  idx: 0,
+  answers: {},
+  generating: false,
+  topic: "",
+  course: "all",
+  document: null,
+  difficulty: "Medium",
+  timeLimit: null,
+  deadline: null,
+
+  setField: (key, value) => set({ [key]: value } as Partial<QuizState>),
+
+  generate: async () => {
+    const { topic, course, document, difficulty, generating } = get();
+    if (generating) return;
+    const value = topic.trim();
+    if (!value) return;
+
+    set({ generating: true });
+    try {
+      const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
+      const quiz = await api.generateQuiz(
+        value,
+        course === "all" ? null : course,
+        document,
+        difficulty,
+        ragMode,
+      );
+      if (!quiz.grounded || quiz.questions.length === 0) {
+        toast.error(GROUNDED_ERROR);
+        return;
+      }
+      const { timeLimit } = get();
+      set({
+        active: quiz,
+        answers: {},
+        idx: 0,
+        stage: "player",
+        deadline: timeLimit ? Date.now() + timeLimit * 60 * 1000 : null,
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to generate quiz");
+    } finally {
+      set({ generating: false });
+    }
+  },
+
+  start: (quiz) => {
+    const { timeLimit } = get();
+    set({
+      active: quiz,
+      answers: {},
+      idx: 0,
+      stage: "player",
+      deadline: timeLimit ? Date.now() + timeLimit * 60 * 1000 : null,
+    });
+  },
+
+  answer: (qid, value) => {
+    set((s) => ({ answers: { ...s.answers, [qid]: value } }));
+    const { active, idx } = get();
+    if (active && !isNaN(Number(active.id))) {
+      if (_sessionTimer) clearTimeout(_sessionTimer);
+      _sessionTimer = setTimeout(() => {
+        const { answers: latest, idx: currentIdx } = get();
+        api.patchQuizSession(active.id, {
+          session_answers: latest,
+          session_current_question: currentIdx,
+        }).catch(() => {});
+        _sessionTimer = null;
+      }, 2000);
+    }
+  },
+
+  goTo: (idx) => {
+    set({ idx });
+    const { active } = get();
+    if (active && !isNaN(Number(active.id))) {
+      if (_sessionTimer) clearTimeout(_sessionTimer);
+      _sessionTimer = setTimeout(() => {
+        const { answers: latest, idx: currentIdx } = get();
+        api.patchQuizSession(active.id, {
+          session_answers: latest,
+          session_current_question: currentIdx,
+        }).catch(() => {});
+        _sessionTimer = null;
+      }, 2000);
+    }
+  },
+
+  submit: (answers) => {
+    const { active } = get();
+    if (active && !isNaN(Number(active.id))) {
+      if (_sessionTimer) clearTimeout(_sessionTimer);
+      api.clearQuizSession(active.id).catch(() => {});
+    }
+    set({ answers, stage: "results", deadline: null });
+  },
+
+  backToBuilder: () => set({ stage: "builder", deadline: null }),
+
+  reset: () => set({ stage: "builder", active: null, answers: {}, idx: 0, deadline: null }),
+
+  restoreSession: (quiz) => {
+    set({
+      active: quiz,
+      answers: (quiz.session_answers as Record<string, string>) ?? {},
+      idx: quiz.session_current_question ?? 0,
+      stage: "player",
+      deadline: null, // don't restore a timer for resumed sessions
+    });
+  },
+}));
+
+```
+
 
 ## File: src/app/context/OnboardingContext.tsx
 ```typescript
@@ -22346,14 +30951,69 @@ export function useOnboarding() {
   if (!ctx) throw new Error("useOnboarding must be used within OnboardingProvider");
   return ctx;
 }
+
 ```
+
+
+## File: src/app/hooks/useAutoSave.ts
+```typescript
+import { useCallback, useEffect, useRef, useState } from "react";
+
+export function useAutoSave<T>(
+  saveFn: (data: T) => Promise<void>,
+  delay = 2000,
+): { schedule: (data: T) => void; flush: () => void; saving: boolean; lastSaved: string } {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingRef = useRef<T | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<string>("");
+
+  const schedule = useCallback(
+    (data: T) => {
+      pendingRef.current = data;
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(async () => {
+        setSaving(true);
+        try {
+          await saveFn(data);
+          setLastSaved("just now");
+        } finally {
+          setSaving(false);
+        }
+      }, delay);
+    },
+    [saveFn, delay],
+  );
+
+  const flush = useCallback(() => {
+    if (timerRef.current && pendingRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+      saveFn(pendingRef.current).catch(() => {});
+      pendingRef.current = null;
+    }
+  }, [saveFn]);
+
+  useEffect(() => {
+    return () => {
+      flush();
+    };
+  }, [flush]);
+
+  return { schedule, flush, saving, lastSaved };
+}
+
+```
+
 
 ## File: src/styles/index.css
 ```css
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
 ```
+
 
 ## File: src/styles/tailwind.css
 ```css
@@ -22361,12 +31021,16 @@ export function useOnboarding() {
 @source '../**/*.{js,ts,jsx,tsx}';
 
 @import 'tw-animate-css';
+
 ```
+
 
 ## File: src/styles/fonts.css
 ```css
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400..600&family=JetBrains+Mono:wght@400;500&display=swap');
+
 ```
+
 
 ## File: src/styles/theme.css
 ```css
@@ -22651,12 +31315,15 @@ export function useOnboarding() {
     background-size: 20px 20px;
   }
 }
+
 ```
+
 
 ## File: src/styles/globals.css
 ```css
 
 ```
+
 
 ## File: guidelines/Guidelines.md
 ```md
@@ -22721,5 +31388,5 @@ or initiating processes. They communicate interactivity and should have clear, a
   * Visual Style : Text-only with no border, using primary color
   * Usage : For actions that should be available but not emphasized
 -->
-```
 
+```
