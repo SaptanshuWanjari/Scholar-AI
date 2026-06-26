@@ -52,9 +52,11 @@ def build(course: str | None = None, max_documents: int = 8) -> dict:
     """
     session = get_session()
     try:
-        docs = session.query(Document).all()
+        from scholarcli.storage.models import Course
+        q = session.query(Document)
         if course:
-            docs = [d for d in docs if d.course and d.course.name == course]
+            q = q.join(Course).filter(Course.name == course)
+        docs = q.all()
         docs = docs[:max_documents]
 
         # Aggregate concepts across documents.

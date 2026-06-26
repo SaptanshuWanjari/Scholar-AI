@@ -46,30 +46,6 @@ def _summarize(markdown: str) -> str:
         return ""
 
 
-def extract_tables(page) -> list[TableArtifact]:
-    """Return structured table artifacts found on a PyMuPDF page."""
-    if not get_settings().ingest.tables_enabled:
-        return []
-    try:
-        finder = page.find_tables()
-    except Exception as exc:  # noqa: BLE001 — PyMuPDF table finder is heuristic
-        logger.warning("find_tables failed on page: %s", exc)
-        return []
-
-    artifacts: list[TableArtifact] = []
-    for tbl in getattr(finder, "tables", []) or []:
-        try:
-            md = tbl.to_markdown().strip()
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("table to_markdown failed: %s", exc)
-            continue
-        # Skip trivial/degenerate detections (a single row/cell isn't a table).
-        if not md or md.count("\n") < 2:
-            continue
-        artifacts.append(TableArtifact(markdown=md, summary=_summarize(md)))
-    return artifacts
-
-
 def extract_table_markdowns(page) -> list[str]:
     """Return raw markdown strings for all tables on a page (PyMuPDF only, no LLM).
 

@@ -78,7 +78,15 @@ def _schema_is_current(tbl) -> bool:
     return _REQUIRED_COLUMNS.issubset(names)
 
 
-def add_chunks(rows: list[dict]) -> None:
+def rebuild_fts_index() -> None:
+    if not _has_table():
+        return
+    try:
+        _open_table().create_fts_index(["text"], replace=True)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("FTS index creation failed: %s", exc)
+
+def add_chunks(rows: list[dict], rebuild_fts: bool = True) -> None:
     """Insert chunk rows. Creates the table from the first batch's schema.
 
     Required keys: id, document_id, course, title, page, heading,
@@ -106,10 +114,11 @@ def add_chunks(rows: list[dict]) -> None:
         # First batch — create the table so the vector dimension is correct.
         tbl = db.create_table(TABLE_NAME, data=rows)
 
-    try:
-        tbl.create_fts_index(["text"], replace=True)
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("FTS index creation failed (hybrid search disabled): %s", exc)
+    if rebuild_fts:
+        try:
+            tbl.create_fts_index(["text"], replace=True)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("FTS index creation failed (hybrid search disabled): %s", exc)
 
 
 def search(query_vector: list[float], top_k: int = 5, course: str | None = None, document_id: int | None = None) -> list[dict]:

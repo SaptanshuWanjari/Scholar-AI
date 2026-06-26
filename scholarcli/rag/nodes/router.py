@@ -12,18 +12,8 @@ from scholarcli.llm import get_llm
 from scholarcli.rag.prompts import ROUTER_SYSTEM
 from scholarcli.rag.state import GraphState
 
-# All task labels that have working downstream paths.
-_WIRED = {
-    "quick_qa",
-    "flashcards",
-    "quiz",
-    "mermaid",
-    "mindmap",
-    "study_notes",
-    "deep_analysis",
-    "differences",
-    "learning_path",
-}
+from scholarcli.rag.nodes.generator import _ROUTE_PROMPTS
+_WIRED = set(_ROUTE_PROMPTS.keys())
 
 
 def route_query(state: GraphState) -> GraphState:

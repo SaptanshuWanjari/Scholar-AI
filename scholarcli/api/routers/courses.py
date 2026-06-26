@@ -61,7 +61,7 @@ def update_course(course_id: int, payload: CourseCreate) -> CourseOut:
         raise HTTPException(status_code=400, detail="Course name is required")
     session = get_session()
     try:
-        course = session.query(Course).get(course_id)
+        course = session.get(Course, course_id)
         if not course:
             raise HTTPException(status_code=404, detail="Course not found")
         existing = session.query(Course).filter(Course.name == name).first()
@@ -78,7 +78,7 @@ def update_course(course_id: int, payload: CourseCreate) -> CourseOut:
 def delete_course(course_id: int) -> None:
     session = get_session()
     try:
-        course = session.query(Course).get(course_id)
+        course = session.get(Course, course_id)
         if not course:
             raise HTTPException(status_code=404, detail="Course not found")
         session.delete(course)
@@ -91,7 +91,7 @@ def delete_course(course_id: int) -> None:
 def get_course_stats(course_id: int) -> CourseStats:
     session = get_session()
     try:
-        course = session.query(Course).get(course_id)
+        course = session.get(Course, course_id)
         if not course:
             raise HTTPException(status_code=404, detail="Course not found")
         cname = course.name
@@ -99,11 +99,12 @@ def get_course_stats(course_id: int) -> CourseStats:
         docs = course.documents
         doc_count = len(docs)
 
+        from sqlalchemy import func
+        flashcard_count = session.query(func.count(Card.id))\
+            .join(Deck, Card.deck_id == Deck.id)\
+            .filter(Deck.course == cname)\
+            .scalar() or 0
         decks = session.query(Deck).filter(Deck.course == cname).all()
-        flashcard_count = sum(
-            session.query(Card).filter(Card.deck_id == d.id).count()
-            for d in decks
-        )
         quiz_count = session.query(SavedQuiz).filter(SavedQuiz.course == cname).count()
         notebook_count = session.query(Notebook).filter(Notebook.course == cname).count()
         diagram_count = session.query(Diagram).filter(Diagram.course == cname).count()
@@ -153,7 +154,7 @@ def get_course_artifacts(
 ) -> list[ArtifactItem]:
     session = get_session()
     try:
-        course = session.query(Course).get(course_id)
+        course = session.get(Course, course_id)
         if not course:
             raise HTTPException(status_code=404, detail="Course not found")
         cname = course.name
@@ -253,7 +254,7 @@ def _reindex_bg(doc_paths: list[tuple[int, str, str]], course_name: str, job_id:
 def reindex_course(course_id: int, background_tasks: BackgroundTasks) -> JobOut:
     session = get_session()
     try:
-        course = session.query(Course).get(course_id)
+        course = session.get(Course, course_id)
         if not course:
             raise HTTPException(status_code=404, detail="Course not found")
         doc_paths = [(d.id, d.path, d.title) for d in course.documents]
@@ -280,7 +281,7 @@ def reindex_course(course_id: int, background_tasks: BackgroundTasks) -> JobOut:
 async def generate_course_package(course_id: int) -> PackageMeta:
     session = get_session()
     try:
-        course = session.query(Course).get(course_id)
+        course = session.get(Course, course_id)
         if not course:
             raise HTTPException(status_code=404, detail="Course not found")
         cname = course.name

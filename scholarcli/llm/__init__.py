@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import json
 
+import functools
+
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 
 from scholarcli.config import get_settings
@@ -25,33 +27,36 @@ def _active_model(task: str) -> str:
     1. ui_settings.json  (fastModel / reasoningModel written by the Settings UI)
     2. config/default.toml  [models.routing] table  (static TOML config)
     """
-    s = get_settings()
-    ui_path = s.paths.resolved_data_dir() / "ui_settings.json"
-    if ui_path.exists():
-        try:
-            ui = json.loads(ui_path.read_text())
-            if task in _REASONING_TASKS:
-                tag = ui.get("reasoningModel") or ui.get("fastModel")
-            else:
-                tag = ui.get("fastModel")
-            if tag:
-                return tag
-        except (json.JSONDecodeError, OSError):
-            pass
+    from scholarcli.api.routers.settings import _load as load_settings
+    ui = load_settings()
+    if task in _REASONING_TASKS:
+        tag = ui.get("reasoningModel") or ui.get("fastModel")
+    else:
+        tag = ui.get("fastModel")
+    if tag:
+        return tag
     # Fall back to TOML routing.
-    return s.models.model_for(task)
+    return get_settings().models.model_for(task)
 
+
+@functools.lru_cache(maxsize=16)
+def _get_llm_cached(tag: str, temperature: float, base_url: str) -> ChatOllama:
+    return ChatOllama(model=tag, temperature=temperature, base_url=base_url)
 
 def get_llm(task: str = "quick_qa", *, temperature: float = 0.0) -> ChatOllama:
     """Return a ``ChatOllama`` for the given task label."""
     s = get_settings()
     tag = _active_model(task)
-    return ChatOllama(model=tag, temperature=temperature, base_url=s.ollama.base_url)
+    return _get_llm_cached(tag, temperature, s.ollama.base_url)
 
+
+@functools.lru_cache(maxsize=4)
+def _get_embeddings_cached(model: str, base_url: str) -> OllamaEmbeddings:
+    return OllamaEmbeddings(model=model, base_url=base_url)
 
 def get_embeddings() -> OllamaEmbeddings:
     s = get_settings()
-    return OllamaEmbeddings(model=s.models.embedding, base_url=s.ollama.base_url)
+    return _get_embeddings_cached(s.models.embedding, s.ollama.base_url)
 
 
 def _active_vision_model() -> str:
@@ -59,22 +64,12 @@ def _active_vision_model() -> str:
 
     Priority: ui_settings.json ``visionModel`` → config ``models.vision``.
     """
-    s = get_settings()
-    ui_path = s.paths.resolved_data_dir() / "ui_settings.json"
-    if ui_path.exists():
-        try:
-            ui = json.loads(ui_path.read_text())
-            tag = ui.get("visionModel")
-            if tag:
-                return tag
-        except (json.JSONDecodeError, OSError):
-            pass
-    return s.models.vision
+    from scholarcli.api.routers.settings import _load as load_settings
+    ui = load_settings()
+    return ui.get("visionModel") or get_settings().models.vision
 
 
 def get_vision_llm(*, temperature: float = 0.0) -> ChatOllama:
     """Return a ``ChatOllama`` bound to the vision-capable model."""
     s = get_settings()
-    return ChatOllama(
-        model=_active_vision_model(), temperature=temperature, base_url=s.ollama.base_url
-    )
+    return _get_llm_cached(_active_vision_model(), temperature, s.ollama.base_url)

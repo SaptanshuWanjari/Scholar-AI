@@ -48,10 +48,9 @@ def test_ocr_page_bytes_calls_vision_on_miss(db):
 
     fake_png = b"fake png data"
     with patch("scholarcli.ingest.vision.transcribe", return_value="extracted text") as mock_t:
-        text, conf = ocr.ocr_page_bytes(fake_png, cache_enabled=True)
+        text = ocr.ocr_page_bytes(fake_png, cache_enabled=True)
 
     assert text == "extracted text"
-    assert conf is None
     mock_t.assert_called_once_with(fake_png)
 
 
@@ -64,7 +63,7 @@ def test_ocr_page_bytes_cache_hit_skips_vision(db):
     store_ocr(h, "cached result")
 
     with patch("scholarcli.ingest.vision.transcribe") as mock_t:
-        text, conf = ocr.ocr_page_bytes(fake_png, cache_enabled=True)
+        text = ocr.ocr_page_bytes(fake_png, cache_enabled=True)
 
     assert text == "cached result"
     mock_t.assert_not_called()

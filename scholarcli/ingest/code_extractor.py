@@ -53,9 +53,8 @@ def extract_code_examples(text_chunk: str, course_name: str) -> list[dict[str, A
     # Quick heuristic check: only run LLM if we see signs of code (braces, indents, keywords, monospace hints)
     # This avoids expensive LLM calls on pure prose pages.
     code_hints = [
-        "```", "def ", "class ", "public ", "void ", "int ", "SELECT ",
-        "{", "}", "function ", "import ", "#include", "<html", "Algorithm:",
-        "Begin", "End", "if ", "while ", "for "
+        "```", "def ", "class ", "public class", "public void ", "SELECT * FROM",
+        "function ", "import ", "#include", "const ", "let ", "=>"
     ]
     if not any(hint in text_chunk for hint in code_hints):
         return []
