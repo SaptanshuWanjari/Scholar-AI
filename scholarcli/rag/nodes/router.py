@@ -21,6 +21,8 @@ _WIRED = {
     "mindmap",
     "study_notes",
     "deep_analysis",
+    "differences",
+    "learning_path",
 }
 
 

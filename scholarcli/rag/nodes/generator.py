@@ -67,6 +67,9 @@ def generate(state: GraphState) -> GraphState:
 
     # ponytail: user's active_body overrides hard-coded default
     system_prompt = active_body(route) or _ROUTE_PROMPTS.get(route, GENERATOR_SYSTEM)
+    if state.get("socratic"):
+        from scholarcli.api.rag_service import _SOCRATIC_PREFIX
+        system_prompt = _SOCRATIC_PREFIX + system_prompt
 
     response = llm.invoke(
         [SystemMessage(content=system_prompt), HumanMessage(content=prompt)]
