@@ -62,6 +62,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/teach" element={<Teach />} />
             <Route path="/learning-path" element={<LearningPath />} />
+            <Route path="/learning-path/:id" element={<LearningPath />} />
             <Route path="/knowledge" element={<KnowledgeBase />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/ask" element={<AskAI />} />

@@ -1005,8 +1005,8 @@ export const api = {
   },
 
   // ---- Onboarding ----
-  onboardingAnalysis(): Promise<{ documents: number; pages: number; topics: string[]; concepts: string[]; sources: number }> {
-    return request("/api/onboarding/analysis");
+  onboardingAnalysis(): Promise<import('./../context/OnboardingContext').OnboardingAnalysis> {
+    return request<import('./../context/OnboardingContext').OnboardingAnalysis>("/api/onboarding/analysis");
   },
 
   // ---- Settings / models ----
