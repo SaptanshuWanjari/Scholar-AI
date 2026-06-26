@@ -1,14 +1,27 @@
 """Document loaders. PDF via PyMuPDF, Markdown via heading-aware splitting.
 
+PDF loading is split into two phases to enable parallelism without PyMuPDF
+thread-safety issues:
+
+  Phase 1 (main thread): all fitz.Document / fitz.Page operations — text
+    extraction, page rendering, table markdown extraction, image byte reads.
+
+  Phase 2 (ThreadPoolExecutor): all LLM calls — vision transcription, image
+    description, table summarisation. Workers operate on plain Python data
+    (bytes, dicts, strings) passed from Phase 1.
+
 Each loader returns a list of ``Page`` namedtuples. A ``Page`` may be native
 text, OCR output, a table, or an image/diagram description — distinguished by
-``source_type``. The orchestrator in :func:`load_pdf` decides which extractors
-run per page based on :func:`scholarcli.ingest.analyze.analyze_page`.
+``source_type``. The ``bbox`` field carries the union bounding-box of all text
+blocks for native-text pages (useful for UI source-highlighting); it is None
+for OCR, table, and image pages.
 """
 
 from __future__ import annotations
 
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import NamedTuple
 
@@ -26,10 +39,28 @@ class Page(NamedTuple):
     text: str
     source_type: str = "text"  # text | ocr | table | image | diagram
     image_url: str = ""  # served URL for image/diagram artifacts
+    bbox: tuple[float, float, float, float] | None = None  # union bbox of text blocks
+
+
+@dataclass
+class _PageJob:
+    """Intermediate data extracted from a single PDF page in the main thread.
+
+    Carries all data needed by _process_job so worker threads never touch fitz.
+    """
+
+    page_num: int
+    heading: str
+    is_scanned: bool
+    has_images: bool  # from PageInfo — used to route OCR engine
+    page_area: float  # page.rect.width * page.rect.height — for background-image filter
+    png_bytes: bytes | None  # rendered PNG; set only when is_scanned is True
+    text_blocks: list[dict] = field(default_factory=list)  # from page.get_text("dict")
+    table_markdowns: list[str] = field(default_factory=list)  # pre-extracted by main thread
 
 
 # ---------------------------------------------------------------------------
-# public entry point
+# Public entry point
 # ---------------------------------------------------------------------------
 
 def load_document(path: Path, content_hash: str) -> tuple[list[Page], str]:
@@ -51,86 +82,186 @@ def load_document(path: Path, content_hash: str) -> tuple[list[Page], str]:
 def load_pdf(path: Path, content_hash: str) -> list[Page]:
     """Orchestrate multimodal extraction for a PDF.
 
-    Per page: scanned pages go through OCR; otherwise native text is extracted
-    (with images described inline + as separate retrievable chunks) and tables
-    are pulled out as their own markdown chunks. Every optional stage degrades
-    gracefully so a failure never aborts ingestion.
+    Phase 1 (main thread): PyMuPDF extraction.
+    Phase 2 (ThreadPoolExecutor): LLM calls in parallel.
     """
     from scholarcli.config import get_settings
     from scholarcli.ingest.analyze import analyze_page
+    from scholarcli.ingest.ocr import _page_image_png
+    from scholarcli.ingest.tables import extract_table_markdowns
 
     cfg = get_settings().ingest
     images_dir = get_settings().paths.resolved_data_dir() / "images" / content_hash
 
     doc = fitz.open(path)
     title = _pdf_title(doc, path)
-    pages: list[Page] = []
+
+    # --- Phase 1: PyMuPDF extraction (main thread) --------------------------
+    jobs: list[_PageJob] = []
     for i, page in enumerate(doc):
         page_num = i + 1
         info = analyze_page(page, page_num)
         heading = _pdf_page_heading(page)
+        page_area = page.rect.width * page.rect.height
 
-        # --- Scanned / image-only page → OCR ---------------------------------
         if cfg.ocr_enabled and info.is_scanned:
-            from scholarcli.ingest.ocr import ocr_page
-
             try:
-                ocr_text, _conf = ocr_page(page)
+                png = _page_image_png(page)
             except Exception as exc:  # noqa: BLE001
-                logger.warning("OCR failed on page %d: %s", page_num, exc)
-                ocr_text = ""
-            if ocr_text.strip():
-                pages.append(
-                    Page(page_num, title, heading, ocr_text.strip(), source_type="ocr")
-                )
-            continue  # OCR covers the whole page; skip native/image passes
-
-        # --- Native text + inline/embedded images ----------------------------
-        text_parts: list[str] = []
-        for b_idx, b in enumerate(page.get_text("dict", sort=True).get("blocks", [])):
-            if b.get("type") == 0:
-                lines = [
-                    "".join(span.get("text", "") for span in line.get("spans", []))
-                    for line in b.get("lines", [])
-                ]
-                block_text = "\n".join(lines).strip()
-                if block_text:
-                    text_parts.append(block_text)
-            elif b.get("type") == 1:
-                seg = _handle_image_block(
-                    b, i, b_idx, page, content_hash, images_dir, title, heading, cfg, pages
-                )
-                if seg:
-                    text_parts.append(seg)
-
-        text = "\n\n".join(text_parts).strip()
-        if text:
-            pages.append(Page(page_num, title, heading, text, source_type="text"))
-
-        # --- Tables (structured markdown chunks) -----------------------------
-        if cfg.tables_enabled:
-            from scholarcli.ingest.tables import extract_tables
-
-            for t in extract_tables(page):
-                pages.append(
-                    Page(page_num, title, heading, t.chunk_text, source_type="table")
-                )
+                logger.warning("page render failed p%d: %s — skipping OCR", page_num, exc)
+                png = b""
+            jobs.append(_PageJob(
+                page_num=page_num,
+                heading=heading,
+                is_scanned=True,
+                has_images=info.has_images,
+                page_area=page_area,
+                png_bytes=png,
+            ))
+        else:
+            blocks = page.get_text("dict", sort=True).get("blocks", [])
+            table_mds = extract_table_markdowns(page)
+            jobs.append(_PageJob(
+                page_num=page_num,
+                heading=heading,
+                is_scanned=False,
+                has_images=info.has_images,
+                page_area=page_area,
+                png_bytes=None,
+                text_blocks=blocks,
+                table_markdowns=table_mds,
+            ))
 
     doc.close()
+
+    # --- Phase 2: LLM calls (thread pool) -----------------------------------
+    pages_by_num: dict[int, list[Page]] = {}
+    with ThreadPoolExecutor(max_workers=cfg.ocr_workers) as executor:
+        future_to_page_num = {
+            executor.submit(_process_job, job, title, content_hash, images_dir, cfg): job.page_num
+            for job in jobs
+        }
+        for future in as_completed(future_to_page_num):
+            page_num = future_to_page_num[future]
+            try:
+                pages_by_num[page_num] = future.result()
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("processing failed for page %d: %s", page_num, exc)
+                pages_by_num[page_num] = []
+
+    return [p for page_num in sorted(pages_by_num) for p in pages_by_num[page_num]]
+
+
+def _process_job(
+    job: _PageJob,
+    title: str,
+    content_hash: str,
+    images_dir: Path,
+    cfg,
+) -> list[Page]:
+    """Process one page's pre-extracted data; called from a worker thread.
+
+    No PyMuPDF access here — only LLM calls and plain data manipulation.
+    """
+    pages: list[Page] = []
+
+    # --- Scanned page: OCR ---------------------------------------------------
+    if job.is_scanned:
+        if not job.png_bytes:
+            return pages
+
+        ocr_text = ""
+        # Route to Tesseract for pure-text scans (no embedded images/diagrams)
+        if cfg.tesseract_fallback and not job.has_images:
+            try:
+                from scholarcli.ingest.ocr import ocr_page_tesseract_bytes
+                ocr_text, _ = ocr_page_tesseract_bytes(job.png_bytes)
+            except Exception as exc:  # noqa: BLE001 — tesseract not installed or failed
+                logger.warning("Tesseract failed p%d: %s — falling back to vision", job.page_num, exc)
+
+        if not ocr_text:  # vision model (primary for image-heavy pages, or Tesseract fallback)
+            from scholarcli.ingest.ocr import ocr_page_bytes
+            ocr_text, _ = ocr_page_bytes(job.png_bytes, cache_enabled=cfg.ocr_cache_enabled)
+
+        if ocr_text.strip():
+            pages.append(
+                Page(job.page_num, title, job.heading, ocr_text.strip(), source_type="ocr")
+            )
+        return pages
+
+    # --- Native text + inline images -----------------------------------------
+    text_parts: list[str] = []
+    bbox_union: list[float] | None = None
+
+    for b_idx, b in enumerate(job.text_blocks):
+        if b.get("type") == 0:  # text block
+            lines = [
+                "".join(span.get("text", "") for span in line.get("spans", []))
+                for line in b.get("lines", [])
+            ]
+            block_text = "\n".join(lines).strip()
+            if block_text:
+                text_parts.append(block_text)
+                bx0, by0, bx1, by1 = b["bbox"]
+                if bbox_union is None:
+                    bbox_union = [bx0, by0, bx1, by1]
+                else:
+                    bbox_union[0] = min(bbox_union[0], bx0)
+                    bbox_union[1] = min(bbox_union[1], by0)
+                    bbox_union[2] = max(bbox_union[2], bx1)
+                    bbox_union[3] = max(bbox_union[3], by1)
+        elif b.get("type") == 1:  # image block
+            seg = _handle_image_block(
+                b, job.page_num - 1, b_idx, job.page_area,
+                content_hash, images_dir, title, job.heading, cfg, pages,
+            )
+            if seg:
+                text_parts.append(seg)
+
+    text = "\n\n".join(text_parts).strip()
+    if text:
+        bbox_tuple: tuple[float, float, float, float] | None = (
+            (bbox_union[0], bbox_union[1], bbox_union[2], bbox_union[3])
+            if bbox_union else None
+        )
+        pages.append(
+            Page(job.page_num, title, job.heading, text, source_type="text", bbox=bbox_tuple)
+        )
+
+    # --- Tables (LLM summarisation in worker thread) -------------------------
+    if job.table_markdowns:
+        from scholarcli.ingest.tables import _summarize, TableArtifact
+        for md in job.table_markdowns:
+            summary = _summarize(md)
+            artifact = TableArtifact(markdown=md, summary=summary)
+            pages.append(
+                Page(job.page_num, title, job.heading, artifact.chunk_text, source_type="table")
+            )
+
     return pages
 
 
 def _handle_image_block(
-    b, page_idx, b_idx, page, content_hash, images_dir, title, heading, cfg, pages
+    b: dict,
+    page_idx: int,
+    b_idx: int,
+    page_area: float,
+    content_hash: str,
+    images_dir: Path,
+    title: str,
+    heading: str,
+    cfg,
+    pages: list[Page],
 ) -> str | None:
     """Save an image block, describe it (if enabled), and append an image chunk.
 
     Returns the inline markdown to embed in the page's text (so it renders in
-    Reading mode), or ``None`` for background/unsaveable images.
+    Reading mode), or None for background/unsaveable images.
+
+    page_area: pre-extracted from main thread (page.rect.width * height).
     """
-    page_area = page.rect.width * page.rect.height
     bbox = b.get("bbox")
-    if bbox:
+    if bbox and page_area > 0:
         w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
         if w * h > 0.8 * page_area:
             return None  # full-page background image
@@ -148,12 +279,10 @@ def _handle_image_block(
     source_type = "image"
     if cfg.vision_enabled:
         from scholarcli.ingest import vision
-
         result = vision.describe_image(image_bytes, ext)
         description = result.get("description", "")
         source_type = "diagram" if result.get("type") == "diagram" else "image"
 
-    # Separate retrievable chunk carrying the description + a thumbnail URL.
     if description:
         pages.append(
             Page(
@@ -166,7 +295,6 @@ def _handle_image_block(
             )
         )
 
-    # Inline markdown for Reading mode; alt text doubles as a caption.
     alt = description.replace("]", " ").replace("\n", " ")[:200] if description else "Image"
     return f"![{alt}]({url})"
 
@@ -175,7 +303,6 @@ def _pdf_title(doc, path: Path) -> str:
     meta = doc.metadata
     if meta and meta.get("title"):
         return meta["title"]
-    # Fall back to the first line of the first page.
     if doc.page_count:
         first_text = doc[0].get_text(sort=True).strip()
         if first_text:
@@ -209,9 +336,6 @@ def load_markdown(path: Path, content_hash: str) -> list[Page]:
     title = path.stem
     pages: list[Page] = []
 
-    # Split on top-level headings (## and ### in the spec, but we also
-    # treat # as a major boundary).  We use a simple line-by-line scanner
-    # so we can track the heading stack.
     heading = ""
     page_text: list[str] = []
     page_num = 1
