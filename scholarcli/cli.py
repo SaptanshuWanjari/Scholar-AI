@@ -88,22 +88,25 @@ def courses() -> None:
     """List all courses and their ingested documents."""
     init_db()
     session = get_session()
-    rows = (
-        session.query(Course)
-        .order_by(Course.name)
-        .all()
-    )
-    if not rows:
-        console.print("[dim]No courses found. Use 'scholar ingest' first.[/dim]")
-        return
+    try:
+        rows = (
+            session.query(Course)
+            .order_by(Course.name)
+            .all()
+        )
+        if not rows:
+            console.print("[dim]No courses found. Use 'scholar ingest' first.[/dim]")
+            return
 
-    table = Table(title="Courses")
-    table.add_column("ID", style="dim")
-    table.add_column("Name")
-    table.add_column("Documents", justify="right")
-    for c in rows:
-        table.add_row(str(c.id), c.name, str(len(c.documents)))
-    console.print(table)
+        table = Table(title="Courses")
+        table.add_column("ID", style="dim")
+        table.add_column("Name")
+        table.add_column("Documents", justify="right")
+        for c in rows:
+            table.add_row(str(c.id), c.name, str(len(c.documents)))
+        console.print(table)
+    finally:
+        session.close()
 
 
 # ---------------------------------------------------------------------------

@@ -34,7 +34,12 @@ _DECK_COLORS = ["#4f4d7a", "#3f6b6f", "#3f7a4e", "#a3771f", "#6b3f6f", "#9f3a36"
 
 def _quality(stored: dict | None) -> QualityScore | None:
     """Map a persisted quality_score JSON blob back to a QualityScore."""
-    return QualityScore(**stored) if stored else None
+    if not stored:
+        return None
+    try:
+        return QualityScore(**stored)
+    except Exception:
+        return None
 
 
 # ---------------------------------------------------------------------------

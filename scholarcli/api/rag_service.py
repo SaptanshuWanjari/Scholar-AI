@@ -139,7 +139,8 @@ def run_ask(
     socratic: bool = False,
 ) -> dict:
     """One-shot RAG answer. Returns answer, sources, confidence, grounded, route."""
-    state: GraphState = {"query": question, "course": course, "document": document}
+    doc_id = int(document) if document and document.isdigit() else None
+    state: GraphState = {"query": question, "course": course, "document_id": doc_id}
     if search_query:
         state["search_query"] = search_query
     if route:
@@ -216,7 +217,8 @@ def stream_ask(
       {"type": "token", "value": str}
       {"type": "done", "sources": [...], "confidence": float|None, "grounded": bool, "route": str}
     """
-    state: GraphState = {"query": question, "course": course, "document": document}
+    doc_id = int(document) if document and document.isdigit() else None
+    state: GraphState = {"query": question, "course": course, "document_id": doc_id}
     if search_query:
         state["search_query"] = search_query
     if route:

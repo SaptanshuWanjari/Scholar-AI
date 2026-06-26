@@ -73,6 +73,13 @@ export function Documents() {
     const t = toast.loading(`Indexing ${file.name}…`);
     try {
       const doc = await api.uploadDocument(file, target);
+      if (doc.jobId) {
+        refresh(); // show "processing" stub immediately
+        const job = await api.pollJobUntilDone(doc.jobId);
+        if (job.status === "failed") {
+          throw new Error(job.error ?? "Indexing failed");
+        }
+      }
       toast.success("Document indexed", { id: t, description: doc.title });
       refresh();
     } catch (err) {

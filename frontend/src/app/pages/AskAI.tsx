@@ -71,7 +71,7 @@ export function AskAI() {
     const target = sources[index - 1];
     if (target) {
       setActiveSource(target.id);
-      document
+      window.document
         .getElementById(`source-${index}`)
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
     }

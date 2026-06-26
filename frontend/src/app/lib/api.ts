@@ -1113,6 +1113,22 @@ export const api = {
   getJob(id: string): Promise<JobItem> {
     return request<JobItem>(`/api/jobs/${id}`);
   },
+  pollJobUntilDone(id: string, intervalMs = 1000): Promise<JobItem> {
+    return new Promise((resolve, reject) => {
+      const tick = () => {
+        request<JobItem>(`/api/jobs/${id}`)
+          .then((job) => {
+            if (job.status === "done" || job.status === "failed") {
+              resolve(job);
+            } else {
+              setTimeout(tick, intervalMs);
+            }
+          })
+          .catch(reject);
+      };
+      tick();
+    });
+  },
 
 
   // ---- Trace analytics ----

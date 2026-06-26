@@ -12,7 +12,8 @@ import shutil
 import logging
 
 import httpx
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 from scholarcli.api.schemas import ModelsList, SettingsOut, SettingsPatch
 from scholarcli.config import get_settings
@@ -114,8 +115,13 @@ def list_models() -> ModelsList:
     )
 from scholarcli.storage import reset_engine
 
+class NukeRequest(BaseModel):
+    confirm: str
+
 @router.delete("/settings/nuke")
-def nuke_data():
+def nuke_data(req: NukeRequest):
+    if req.confirm != "DELETE_ALL_DATA":
+        raise HTTPException(status_code=400, detail="Confirmation string mismatch")
     s = get_settings()
     data_dir = s.paths.resolved_data_dir()
     

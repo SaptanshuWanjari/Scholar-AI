@@ -35,14 +35,19 @@ def _ensure_course(name: str, session: Session) -> Course:
 
 
 def ingest_file(
-    path: Path,
-    course_name: str,
-    *,
-    embeddings: Embeddings | None = None,
+    path: Path, course_name: str, *, embeddings: Embeddings | None = None,
 ) -> str:
     """Ingest a single file. Returns a status string (e.g. 'indexed', 'up-to-date')."""
     init_db()
     session = get_session()
+    try:
+        return _ingest_file_inner(path, course_name, session, embeddings=embeddings)
+    finally:
+        session.close()
+
+def _ingest_file_inner(
+    path: Path, course_name: str, session: Session, *, embeddings: Embeddings | None = None,
+) -> str:
     if embeddings is None:
         embeddings = get_embeddings()
 
@@ -201,31 +206,29 @@ def ingest_file(
 
 
 def reindex_all() -> list[str]:
-    """Re-ingest every known document (rebuilds the vector store).
-
-    Use after the chunks-table schema changes (e.g. the multimodal upgrade):
-    ``add_chunks`` recreates the table on the first insert, then this re-embeds
-    every document from its source file. Returns ``"title: status"`` strings.
-    """
+    """Re-ingest every known document (rebuilds the vector store)."""
     init_db()
     session = get_session()
-    embeddings = get_embeddings()
-    results: list[str] = []
-    docs = session.query(Document).all()
-    for doc in docs:
-        course = session.get(Course, doc.course_id)
-        course_name = course.name if course else ""
-        src = Path(doc.path)
-        if not src.exists():
-            results.append(f"{doc.title}: missing-file")
-            continue
-        delete_document(doc.id)  # clear stale vectors before re-embedding
-        try:
-            status = ingest_file(src, course_name, embeddings=embeddings)
-        except Exception as exc:  # noqa: BLE001
-            status = f"failed ({exc})"
-        results.append(f"{doc.title}: {status}")
-    return results
+    try:
+        embeddings = get_embeddings()
+        results: list[str] = []
+        docs = session.query(Document).all()
+        for doc in docs:
+            course = session.get(Course, doc.course_id)
+            course_name = course.name if course else ""
+            src = Path(doc.path)
+            if not src.exists():
+                results.append(f"{doc.title}: missing-file")
+                continue
+            delete_document(doc.id)  # clear stale vectors before re-embedding
+            try:
+                status = ingest_file(src, course_name, embeddings=embeddings)
+            except Exception as exc:  # noqa: BLE001
+                status = f"failed ({exc})"
+            results.append(f"{doc.title}: {status}")
+        return results
+    finally:
+        session.close()
 
 
 def ingest_path(path: Path, course_name: str) -> list[str]:
