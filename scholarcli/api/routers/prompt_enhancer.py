@@ -130,7 +130,8 @@ async def analyze_prompt(req: AnalyzeRequest) -> AnalyzeResponse:
     if not should_enhance:
         return AnalyzeResponse(score=score, label=label, should_enhance=False)
 
-    suggested, improvements = _build_suggestion(topic, req.course)
+    from starlette.concurrency import run_in_threadpool
+    suggested, improvements = await run_in_threadpool(_build_suggestion, topic, req.course)
     return AnalyzeResponse(
         score=score,
         label=label,

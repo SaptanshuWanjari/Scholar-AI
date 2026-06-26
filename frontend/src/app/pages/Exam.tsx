@@ -44,6 +44,11 @@ import { api, type ExamResult } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 import { formulaSheet, type ExamQuestion } from "../lib/exam-data";
 import { useExamStore } from "../stores/useExamStore";
+import { useNavigate } from "react-router";
+import { useFlashcardGenStore } from "../stores/useFlashcardGenStore";
+import { useQuizStore } from "../stores/useQuizStore";
+import { useRevisionStore } from "../stores/useRevisionStore";
+import { useMindmapStore } from "../stores/useMindmapStore";
 
 const DIFFICULTIES = ["Easy", "Medium", "Hard", "Adaptive"];
 const COVERAGE = [
@@ -741,6 +746,31 @@ function Results() {
   const weak = topicPerformance.filter((t) => t.score < 70);
   const strong = topicPerformance.filter((t) => t.score >= 70);
 
+  const navigate = useNavigate();
+  const examCourse = useExamStore((s) => s.course);
+  const weakTopics = weak.map(t => t.topic);
+
+  const handleRevisionAction = (label: string) => {
+    const combinedTopic = weakTopics.join(", ") || "General Revision";
+    if (label === "Study Sheet") {
+      useRevisionStore.getState().setField("topic", combinedTopic);
+      useRevisionStore.getState().setField("course", examCourse);
+      navigate("/revision");
+    } else if (label === "Flashcards") {
+      useFlashcardGenStore.getState().setTopic(combinedTopic);
+      useFlashcardGenStore.getState().setCourse(examCourse);
+      navigate("/flashcards");
+    } else if (label === "Quiz") {
+      useQuizStore.getState().setField("topic", combinedTopic);
+      useQuizStore.getState().setField("course", examCourse);
+      navigate("/quiz");
+    } else if (label === "Mind Map") {
+      useMindmapStore.getState().setField("topic", combinedTopic);
+      useMindmapStore.getState().setField("course", examCourse);
+      navigate("/mindmaps");
+    }
+  };
+
   const revisionActions = [
     { label: "Study Sheet", icon: NotebookPen },
     { label: "Flashcards", icon: Layers3 },
@@ -899,7 +929,7 @@ function Results() {
           {revisionActions.map((a) => (
             <button
               key={a.label}
-              onClick={() => toast.success(`Generating ${a.label}…`)}
+              onClick={() => handleRevisionAction(a.label)}
               className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card py-2.5 text-sm font-medium transition-colors hover:border-violet/50 hover:text-violet"
             >
               <a.icon className="size-4" /> {a.label}

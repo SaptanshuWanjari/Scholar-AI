@@ -23,6 +23,10 @@ def global_search(q: str, filter: str = "all", limit: int = 10) -> list[SearchRe
         return []
 
     results: list[SearchResultOut] = []
+    if filter not in ("all", "documents"):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Filter type not yet supported")
+
     if filter in ("all", "documents"):
         emb = scholarcli.llm.get_embeddings()
         vector = emb.embed_query(query)

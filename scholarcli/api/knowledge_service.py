@@ -14,8 +14,9 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from scholarcli.llm import get_llm
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Concept, ConceptEdge, Document
-from scholarcli.storage.vectors import get_document_chunks
+from scholarcli.storage.models import Concept, ConceptEdge, Document, Notebook, Card, SavedQuiz, Diagram
+from sqlalchemy import func
+from scholarcli.storage.vectors import get_document_chunks, search
 
 _CLUSTERS = ["rag", "agent", "infra", "eval"]
 
@@ -209,6 +210,20 @@ def inspector(concept_id: int) -> dict | None:
                 if pc:
                     related.append(pc.name)
         confidence = round(min(0.99, 0.7 + c.ref_count * 0.03), 2)
+        notes_count = session.query(func.count(Notebook.id)).filter(Notebook.content.ilike(f"%{c.name}%")).scalar() or 0
+        flashcards_count = session.query(func.count(Card.id)).filter((Card.front.ilike(f"%{c.name}%")) | (Card.back.ilike(f"%{c.name}%"))).scalar() or 0
+        quizzes_count = session.query(func.count(SavedQuiz.id)).filter(SavedQuiz.title.ilike(f"%{c.name}%")).scalar() or 0
+        diagrams_count = session.query(func.count(Diagram.id)).filter((Diagram.title.ilike(f"%{c.name}%")) | (Diagram.code.ilike(f"%{c.name}%"))).scalar() or 0
+
+        import scholarcli.llm
+        emb = scholarcli.llm.get_embeddings()
+        vec = emb.embed_query(c.name)
+        raw_cites = search(vec, top_k=5, course=c.course)
+        citations = [
+            {"id": str(i), "title": r.get("title", "Source"), "snippet": r.get("text", "")[:150]}
+            for i, r in enumerate(raw_cites)
+        ]
+
         return {
             "id": str(c.id),
             "name": c.name,
@@ -223,13 +238,13 @@ def inspector(concept_id: int) -> dict | None:
             "relatedConcepts": related[:8],
             "referencedIn": {
                 "documents": c.source_count,
-                "notes": 0,
-                "flashcards": 0,
-                "quizzes": 0,
+                "notes": notes_count,
+                "flashcards": flashcards_count,
+                "quizzes": quizzes_count,
                 "answers": 0,
-                "diagrams": 0,
+                "diagrams": diagrams_count,
             },
-            "citations": [],
+            "citations": citations,
         }
     finally:
         session.close()
