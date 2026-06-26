@@ -46,33 +46,11 @@ def generate(state: GraphState) -> GraphState:
     llm = get_llm(route)
     chunks = state["retrieved"]
 
-    # Build context block with source tags.
-    context_parts: list[str] = []
-    citations: list[str] = []
-    seen = set()
-    for ch in chunks:
-        st = ch.get("source_type", "text")
-        kind = "" if st in ("text", None) else f", {st}"
-        ctx = f"[Source: {ch['title']}, p.{ch['page']}{kind}]\n{ch['text']}"
-        context_parts.append(ctx)
-        cite = f"[{ch['title']}, p.{ch['page']}]"
-        if cite not in seen:
-            seen.add(cite)
-            citations.append(cite)
-
-    context = "\n\n---\n\n".join(context_parts)
-    prompt = QA_PROMPT_TEMPLATE.format(context=context, query=state["query"])
-    # Prepend citation list so the model knows what sources to reference.
-    prompt = f"Available sources: {', '.join(citations)}\n\n{prompt}"
-
-    # ponytail: user's active_body overrides hard-coded default
-    system_prompt = active_body(route) or _ROUTE_PROMPTS.get(route, GENERATOR_SYSTEM)
-    if state.get("socratic"):
-        from scholarcli.api.rag_service import _SOCRATIC_PREFIX
-        system_prompt = _SOCRATIC_PREFIX + system_prompt
+    from scholarcli.api.rag_service import _build_generation_prompt
+    system_prompt, user_prompt = _build_generation_prompt(state, socratic=state.get("socratic", False))
 
     response = llm.invoke(
-        [SystemMessage(content=system_prompt), HumanMessage(content=prompt)]
+        [SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)]
     )
     # response is an AIMessage; .content is str.
     answer: str = response.content if hasattr(response, "content") else str(response)

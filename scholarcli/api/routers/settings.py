@@ -52,6 +52,9 @@ def _defaults() -> dict:
     }
 
 
+import functools
+
+@functools.lru_cache(maxsize=1)
 def _load() -> dict:
     data = _defaults()
     path = _settings_file()
@@ -74,6 +77,13 @@ def update_ui_settings(patch: SettingsPatch) -> SettingsOut:
     patch_dict = patch.model_dump(exclude_unset=True)
     current.update(patch_dict)
     _settings_file().write_text(json.dumps(current, indent=2))
+    _load.cache_clear()
+    
+    # Invalidate LLM cache if tags changed
+    import scholarcli.llm
+    if hasattr(scholarcli.llm._get_llm_cached, "cache_clear"):
+        scholarcli.llm._get_llm_cached.cache_clear()
+        
     return SettingsOut(**current)
 
 
@@ -133,6 +143,7 @@ def nuke_data(req: NukeRequest):
         if data_dir.exists():
             shutil.rmtree(data_dir.as_posix(), ignore_errors=True)
             data_dir.mkdir(parents=True, exist_ok=True)
+        _load.cache_clear()
         return {"status": "nuked"}
     except Exception as e:
         logger.error(f"Failed to nuke data: {e}")

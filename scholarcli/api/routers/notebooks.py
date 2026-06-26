@@ -109,12 +109,11 @@ def notebook_tags() -> list[str]:
     """Distinct tags across all notebooks."""
     session = get_session()
     try:
-        seen: list[str] = []
+        seen = set()
         for nb in session.query(Notebook).all():
             for t in (nb.tags or []):
-                if t not in seen:
-                    seen.append(t)
-        return seen
+                seen.add(t)
+        return sorted(list(seen))
     finally:
         session.close()
 

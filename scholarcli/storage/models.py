@@ -35,6 +35,10 @@ def get_or_create_course(session: Session, name: str) -> "Course":
             return True
         return False
 
+    exact = session.query(Course).filter(func.lower(Course.name) == name.lower().strip()).first()
+    if exact:
+        return exact
+
     for existing in session.query(Course).all():
         if is_similar(name, existing.name):
             return existing

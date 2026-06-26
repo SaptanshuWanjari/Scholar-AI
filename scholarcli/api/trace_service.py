@@ -66,8 +66,15 @@ def record_feedback(chunk_id: str, source: str, query: str = "", similarity: flo
 def analytics(limit: int = 20) -> dict:
     """Aggregate feedback per source: how often each shows up in weak answers."""
     session = get_session()
+    from sqlalchemy import func
     try:
-        rows = session.query(ChunkFeedback).all()
+        rows = session.query(
+            func.coalesce(ChunkFeedback.source, "Untitled").label("source"),
+            ChunkFeedback.verdict,
+            func.count().label("count"),
+            func.avg(ChunkFeedback.similarity).label("avg_sim")
+        ).group_by(func.coalesce(ChunkFeedback.source, "Untitled"), ChunkFeedback.verdict).all()
+        total_flags = sum(r.count for r in rows)
     finally:
         session.close()
 
@@ -75,13 +82,13 @@ def analytics(limit: int = 20) -> dict:
         lambda: {"weak": 0, "down": 0, "simSum": 0.0, "n": 0}
     )
     for r in rows:
-        agg = by_source[r.source or "Untitled"]
-        agg["n"] += 1
-        agg["simSum"] += r.similarity
+        agg = by_source[r.source]
+        agg["n"] += r.count
+        agg["simSum"] += r.avg_sim * r.count
         if r.verdict == "down":
-            agg["down"] += 1
+            agg["down"] += r.count
         else:
-            agg["weak"] += 1
+            agg["weak"] += r.count
 
     items = [
         {
@@ -96,6 +103,6 @@ def analytics(limit: int = 20) -> dict:
     # Worst offenders first: most flags, then lowest similarity.
     items.sort(key=lambda x: (-(x["weakCount"] + x["downCount"]), x["avgSimilarity"]))
     return {
-        "totalFlags": len(rows),
+        "totalFlags": total_flags,
         "sources": items[:limit],
     }

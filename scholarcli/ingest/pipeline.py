@@ -35,18 +35,18 @@ def _ensure_course(name: str, session: Session) -> Course:
 
 
 def ingest_file(
-    path: Path, course_name: str, *, embeddings: Embeddings | None = None,
+    path: Path, course_name: str, *, embeddings: Embeddings | None = None, rebuild_fts: bool = True,
 ) -> str:
     """Ingest a single file. Returns a status string (e.g. 'indexed', 'up-to-date')."""
     init_db()
     session = get_session()
     try:
-        return _ingest_file_inner(path, course_name, session, embeddings=embeddings)
+        return _ingest_file_inner(path, course_name, session, embeddings=embeddings, rebuild_fts=rebuild_fts)
     finally:
         session.close()
 
 def _ingest_file_inner(
-    path: Path, course_name: str, session: Session, *, embeddings: Embeddings | None = None,
+    path: Path, course_name: str, session: Session, *, embeddings: Embeddings | None = None, rebuild_fts: bool = True,
 ) -> str:
     if embeddings is None:
         embeddings = get_embeddings()
@@ -125,7 +125,7 @@ def _ingest_file_inner(
             }
         )
 
-    add_chunks(rows)
+    add_chunks(rows, rebuild_fts=rebuild_fts)
 
     # Optional LLM metadata extraction (summary, tags, topics).
     cfg = get_settings().ingest
@@ -141,7 +141,7 @@ def _ingest_file_inner(
                 doc_row.topics = meta["topics"] or None
                 session.commit()
 
-    if getattr(cfg, "code_extraction_enabled", False) and chunks:
+    if cfg.code_extraction_enabled and chunks:
         from scholarcli.ingest.code_extractor import extract_code_examples
         from scholarcli.storage.models import CodeExample
         
@@ -194,7 +194,7 @@ def _ingest_file_inner(
             code_vecs = embeddings.embed_documents(code_texts)
             for r, vec in zip(extracted_rows, code_vecs):
                 r["vector"] = vec
-            add_chunks(extracted_rows)
+            add_chunks(extracted_rows, rebuild_fts=rebuild_fts)
 
     # Clear any previous error on successful re-index.
     doc_row = session.get(Document, doc_id)
@@ -222,10 +222,12 @@ def reindex_all() -> list[str]:
                 continue
             delete_document(doc.id)  # clear stale vectors before re-embedding
             try:
-                status = ingest_file(src, course_name, embeddings=embeddings)
+                status = ingest_file(src, course_name, embeddings=embeddings, rebuild_fts=False)
             except Exception as exc:  # noqa: BLE001
                 status = f"failed ({exc})"
             results.append(f"{doc.title}: {status}")
+        from scholarcli.storage.vectors import rebuild_fts_index
+        rebuild_fts_index()
         return results
     finally:
         session.close()
@@ -248,6 +250,8 @@ def ingest_path(path: Path, course_name: str) -> list[str]:
 
     results: list[str] = []
     for fp in files:
-        st = ingest_file(fp, course_name)
+        st = ingest_file(fp, course_name, rebuild_fts=False)
         results.append(f"{fp}: {st}")
+    from scholarcli.storage.vectors import rebuild_fts_index
+    rebuild_fts_index()
     return results

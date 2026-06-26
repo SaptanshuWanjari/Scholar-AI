@@ -100,8 +100,9 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
     jobs: list[_PageJob] = []
     for i, page in enumerate(doc):
         page_num = i + 1
-        info = analyze_page(page, page_num)
-        heading = _pdf_page_heading(page)
+        page_dict = page.get_text("dict", sort=True)
+        info = analyze_page(page, page_num, page_dict)
+        heading = _pdf_page_heading(page_dict)
         page_area = page.rect.width * page.rect.height
 
         if cfg.ocr_enabled and info.is_scanned:
@@ -119,7 +120,7 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
                 png_bytes=png,
             ))
         else:
-            blocks = page.get_text("dict", sort=True).get("blocks", [])
+            blocks = page_dict.get("blocks", [])
             table_mds = extract_table_markdowns(page)
             jobs.append(_PageJob(
                 page_num=page_num,
@@ -177,14 +178,14 @@ def _process_job(
         if use_tesseract:
             try:
                 from scholarcli.ingest.ocr import ocr_page_tesseract_bytes
-                ocr_text, _ = ocr_page_tesseract_bytes(job.png_bytes)
+                ocr_text = ocr_page_tesseract_bytes(job.png_bytes)
             except Exception as exc:  # noqa: BLE001 — tesseract not installed or failed
                 logger.warning("Tesseract failed p%d: %s — falling back to vision", job.page_num, exc)
                 use_tesseract = False  # mark failed so vision handles it
 
         if not use_tesseract:  # vision model: primary for image-heavy pages, or Tesseract fallback
             from scholarcli.ingest.ocr import ocr_page_bytes
-            ocr_text, _ = ocr_page_bytes(job.png_bytes, cache_enabled=cfg.ocr_cache_enabled)
+            ocr_text = ocr_page_bytes(job.png_bytes, cache_enabled=cfg.ocr_cache_enabled)
 
         if ocr_text.strip():
             pages.append(
@@ -313,9 +314,9 @@ def _pdf_title(doc, path: Path) -> str:
     return path.stem
 
 
-def _pdf_page_heading(page) -> str:
+def _pdf_page_heading(page_dict: dict) -> str:
     """Heuristic: largest font-size text block on page (its first line)."""
-    blocks = page.get_text("dict", sort=True).get("blocks", [])
+    blocks = page_dict.get("blocks", [])
     best = ""
     best_size = 0.0
     for b in blocks:

@@ -19,17 +19,24 @@ class PageInfo(NamedTuple):
     is_scanned: bool  # little/no native text but rendered content present
 
 
-def _has_foreground_image(page) -> bool:
-    blocks = page.get_text("dict", sort=True).get("blocks", [])
+def _has_foreground_image(page_dict: dict) -> bool:
+    blocks = page_dict.get("blocks", [])
     return any(b.get("type") == 1 for b in blocks)
 
 
-def analyze_page(page, page_number: int) -> PageInfo:
+def analyze_page(page, page_number: int, page_dict: dict) -> PageInfo:
     """Classify a PyMuPDF page for the ingest orchestrator."""
     min_chars = get_settings().ingest.scanned_min_chars
-    text = page.get_text("text").strip()
+    
+    text_parts = []
+    for b in page_dict.get("blocks", []):
+        if b.get("type") == 0:
+            for line in b.get("lines", []):
+                text_parts.append("".join(s.get("text", "") for s in line.get("spans", [])))
+    text = "\n".join(text_parts).strip()
+    
     has_text = len(text) >= min_chars
-    has_images = _has_foreground_image(page)
+    has_images = _has_foreground_image(page_dict)
 
     try:
         has_drawings = bool(page.get_drawings())
