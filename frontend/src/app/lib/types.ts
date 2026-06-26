@@ -20,6 +20,7 @@ export interface DocumentItem {
   pages: number;
   addedAt: string;
   status: DocStatus;
+  jobId?: string;
 }
 
 export type SourceType = "text" | "ocr" | "table" | "image" | "diagram";

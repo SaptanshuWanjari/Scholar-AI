@@ -10,7 +10,7 @@ import scholarcli.llm
 from scholarcli.api import job_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import serialize_chunks
-from scholarcli.api.schemas import DocumentOut, DocumentPatch, SourceOut
+from scholarcli.api.schemas import DocumentOut, DocumentPatch, DocumentUploadOut, SourceOut
 from scholarcli.config import get_settings
 from scholarcli.ingest.pipeline import ingest_file
 from scholarcli.storage import get_session
@@ -52,7 +52,7 @@ def list_documents(course: str | None = None, search: str | None = None) -> list
         session.close()
 
 
-@router.post("/documents/upload", response_model=DocumentOut, status_code=201)
+@router.post("/documents/upload", response_model=DocumentUploadOut, status_code=201)
 async def upload_document(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
@@ -116,7 +116,7 @@ async def upload_document(
         "ingest", label=f"Ingesting {filename}", payload={"documentId": doc_id, "course": course_name}
     )
     background_tasks.add_task(_ingest_bg, dest, course_name, doc_id, job_id)
-    return stub_out
+    return DocumentUploadOut(**stub_out.model_dump(), jobId=job_id)
 
 
 def _ingest_bg(path: Path, course_name: str, doc_id: int, job_id: str) -> None:
@@ -128,6 +128,7 @@ def _ingest_bg(path: Path, course_name: str, doc_id: int, job_id: str) -> None:
             _set_doc_status(doc_id, "failed", "No extractable text in document")
             job_service.mark_failed(job_id, "No extractable text in document")
         else:
+            _set_doc_status(doc_id, "indexed")
             record_activity("document", f"Indexed {path.name}", course_name)
             job_service.mark_done(job_id, {"documentId": doc_id, "status": status})
     except Exception as exc:  # noqa: BLE001
@@ -209,7 +210,9 @@ from fastapi.responses import FileResponse
 @router.get("/documents/images/{content_hash}/{filename}")
 def get_document_image(content_hash: str, filename: str) -> FileResponse:
     images_dir = get_settings().paths.resolved_data_dir() / "images" / content_hash
-    image_path = images_dir / filename
+    image_path = (images_dir / filename).resolve()
+    if not image_path.is_relative_to(images_dir.resolve()):
+        raise HTTPException(status_code=400, detail="Invalid path")
     if not image_path.exists():
         raise HTTPException(status_code=404, detail="Image not found")
     return FileResponse(image_path)

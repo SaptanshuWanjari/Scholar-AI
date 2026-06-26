@@ -22,10 +22,10 @@ def retrieve(state: GraphState) -> GraphState:
             query_vector=query_vector,
             top_k=s.retrieval.top_k,
             course=course,
-            document=state.get("document"),
+            document_id=state.get("document_id"),
         )
     else:
-        results = search(query_vector, top_k=s.retrieval.top_k, course=course, document=state.get("document"))
+        results = search(query_vector, top_k=s.retrieval.top_k, course=course, document_id=state.get("document_id"))
 
     state["retrieved"] = results
     return state

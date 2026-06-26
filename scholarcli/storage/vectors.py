@@ -112,7 +112,7 @@ def add_chunks(rows: list[dict]) -> None:
         logger.warning("FTS index creation failed (hybrid search disabled): %s", exc)
 
 
-def search(query_vector: list[float], top_k: int = 5, course: str | None = None, document: str | None = None) -> list[dict]:
+def search(query_vector: list[float], top_k: int = 5, course: str | None = None, document_id: int | None = None) -> list[dict]:
     """Return nearest chunks as dicts, closest first.
 
     Result includes ``_distance`` key (LanceDB cosine; lower = closer).
@@ -126,8 +126,8 @@ def search(query_vector: list[float], top_k: int = 5, course: str | None = None,
     filters = []
     if course:
         filters.append(f"course = '{course}'")
-    if document:
-        filters.append(f"document_id = {document}")
+    if document_id is not None:
+        filters.append(f"document_id = {document_id}")
         
     if filters:
         q = q.where(" AND ".join(filters), prefilter=True)
@@ -180,7 +180,7 @@ def hybrid_search(
     query_vector: list[float],
     top_k: int = 5,
     course: str | None = None,
-    document: str | None = None,
+    document_id: int | None = None,
 ) -> list[dict]:
     """Blend BM25 keyword and vector similarity via Reciprocal Rank Fusion.
 
@@ -193,8 +193,8 @@ def hybrid_search(
     filters = []
     if course:
         filters.append(f"course = '{course}'")
-    if document:
-        filters.append(f"document_id = {document}")
+    if document_id is not None:
+        filters.append(f"document_id = {document_id}")
     where_clause = " AND ".join(filters) if filters else None
 
     fetch_n = top_k * 3
@@ -215,7 +215,7 @@ def hybrid_search(
             fq = fq.where(where_clause)
         bm25_results = fq.to_list()
     except Exception:
-        return search(query_vector, top_k=top_k, course=course, document=document)
+        return search(query_vector, top_k=top_k, course=course, document_id=document_id)
 
     # Reciprocal Rank Fusion (k=60 is a standard default).
     K = 60
@@ -231,6 +231,7 @@ def hybrid_search(
         rid = str(row.get("id", ""))
         scores[rid] = scores.get(rid, 0.0) + 1.0 / (K + rank + 1)
         if rid not in id_to_row:
+            row["_distance"] = None  # ponytail: BM25 has no distance
             id_to_row[rid] = row
 
     ranked = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)

@@ -131,6 +131,10 @@ class DocumentOut(BaseModel):
     status: str  # indexed | processing | failed
 
 
+class DocumentUploadOut(DocumentOut):
+    jobId: str
+
+
 class DocumentPatch(BaseModel):
     course: str | None = None
 

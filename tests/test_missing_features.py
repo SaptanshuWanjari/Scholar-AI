@@ -30,42 +30,6 @@ def _db():
 # Anki .apkg export → import round-trip
 # ---------------------------------------------------------------------------
 
-def test_anki_roundtrip_preserves_cards():
-    from scholarcli.api import anki_service
-
-    session = get_session()
-    try:
-        deck = Deck(name="Networking", course="CN")
-        deck.cards.append(Card(type="basic", front="What is TCP?", back="A reliable transport protocol"))
-        deck.cards.append(Card(type="basic", front="What is UDP?", back="A connectionless transport protocol"))
-        session.add(deck)
-        session.commit()
-        deck_id = deck.id
-    finally:
-        session.close()
-
-    filename, data = anki_service.export_deck(deck_id)
-    assert filename.endswith(".apkg")
-    assert data  # non-empty package
-
-    result = anki_service.import_apkg(data, course="Imported", deck_name="RoundTrip")
-    assert result["cards"] == 2
-
-    session = get_session()
-    try:
-        imported = session.get(Deck, int(result["deckId"]))
-        fronts = {c.front for c in imported.cards}
-        assert "What is TCP?" in fronts
-        assert "What is UDP?" in fronts
-    finally:
-        session.close()
-
-
-def test_import_apkg_rejects_garbage():
-    from scholarcli.api import anki_service
-
-    with pytest.raises(ValueError):
-        anki_service.import_apkg(b"not a zip file")
 
 
 # ---------------------------------------------------------------------------

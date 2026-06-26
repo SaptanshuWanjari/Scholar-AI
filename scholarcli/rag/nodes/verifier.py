@@ -21,6 +21,6 @@ def verify(state: GraphState) -> GraphState:
         state["grounded"] = False
         return state
 
-    best = min(ch["_distance"] for ch in chunks)
+    best = min(ch.get("_distance", 1.0) for ch in chunks)
     state["grounded"] = best <= max_dist
     return state

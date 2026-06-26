@@ -7,6 +7,13 @@ from sqlalchemy.orm import Session
 
 from scholarcli.api.schemas import PaginatedResponse
 from scholarcli.storage import get_session
+
+def get_db():
+    session = get_session()
+    try:
+        yield session
+    finally:
+        session.close()
 from scholarcli.storage.models import CodeExample, Document
 
 router = APIRouter(prefix="/code-examples", tags=["library", "code"])
@@ -22,7 +29,7 @@ def list_code_examples(
     sort_by: str = Query("recent", description="recent | alphabetical"),
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    session: Session = Depends(get_session),
+    session: Session = Depends(get_db),
 ) -> dict:
     """List and filter extracted code examples."""
     q = session.query(CodeExample)
@@ -79,7 +86,7 @@ def list_code_examples(
 
 @router.get("/{example_id}")
 def get_code_example(
-    example_id: int, session: Session = Depends(get_session)
+    example_id: int, session: Session = Depends(get_db)
 ) -> dict:
     """Get a specific code example by ID."""
     ex = session.get(CodeExample, example_id)

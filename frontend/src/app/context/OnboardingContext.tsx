@@ -70,7 +70,13 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       );
 
       try {
-        await api.uploadDocument(item.file, "Library");
+        const doc = await api.uploadDocument(item.file, "Library");
+        if (doc.jobId) {
+          const job = await api.pollJobUntilDone(doc.jobId);
+          if (job.status === "failed") {
+            throw new Error(job.error ?? "Indexing failed");
+          }
+        }
         setFiles((prev) =>
           prev.map((f) => (f.id === item.id ? { ...f, status: "completed" } : f)),
         );
