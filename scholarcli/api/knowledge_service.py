@@ -199,7 +199,10 @@ def inspector(concept_id: int) -> dict | None:
             return None
         # Related concept names via edges in either direction.
         related: list[str] = []
-        for e in session.query(ConceptEdge).all():
+        edges = session.query(ConceptEdge).filter(
+            (ConceptEdge.source_id == c.id) | (ConceptEdge.target_id == c.id)
+        ).all()
+        for e in edges:
             peer = None
             if e.source_id == c.id:
                 peer = e.target_id
@@ -331,7 +334,10 @@ def merge_concepts(keep_id: int, drop_id: int) -> dict | None:
 
         # Repoint edges from drop → keep, dropping self-loops and duplicates.
         existing: set[tuple[int, int]] = {
-            (e.source_id, e.target_id) for e in session.query(ConceptEdge).all()
+            (e.source_id, e.target_id) for e in session.query(ConceptEdge).filter(
+                ConceptEdge.source_id.in_([keep_id, drop_id]) |
+                ConceptEdge.target_id.in_([keep_id, drop_id])
+            ).all()
         }
         for edge in session.query(ConceptEdge).filter(
             (ConceptEdge.source_id == drop_id) | (ConceptEdge.target_id == drop_id)
