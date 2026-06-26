@@ -109,7 +109,7 @@ export function OnboardingAnalyzing() {
         setStepStates((prev) => prev.map((s, i) => (i <= 4 ? "done" : i === 5 ? "active" : "pending")));
 
         const topTopic = result.topics.length > 0 ? result.topics[0] : "Comprehensive Roadmap";
-        const topCourse = result.courses.length > 0 ? result.courses[0] : null;
+        const topCourse = null;
 
         const path = await api.generateLearningPath({
           topic: topTopic,
@@ -265,7 +265,7 @@ export function OnboardingAnalyzing() {
                 className="grid grid-cols-2 gap-4 rounded-2xl border border-border bg-card p-5"
               >
                 <StatCounter label="Documents" value={analysis.documents} />
-                <StatCounter label="Courses" value={analysis.courses.length} />
+                <StatCounter label="Pages" value={analysis.pages} />
                 <StatCounter label="Concepts" value={analysis.concepts.length} />
                 <StatCounter label="Topics" value={analysis.topics.length} />
               </motion.div>
