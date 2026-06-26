@@ -208,6 +208,14 @@ def get_course_artifacts(
                     created_at=r.created_at.isoformat() if r.created_at else "",
                 ))
 
+        if type is None or type == "learning_path":
+            from scholarcli.storage.models import LearningPath
+            for lp in session.query(LearningPath).filter(LearningPath.course == cname).all():
+                items.append(ArtifactItem(
+                    id=str(lp.id), title=lp.title, type="learning_path",
+                    created_at=lp.created_at.isoformat() if lp.created_at else "",
+                ))
+
         items.sort(key=lambda x: x.created_at, reverse=True)
         return items
     finally:

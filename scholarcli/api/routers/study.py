@@ -157,6 +157,7 @@ async def generate_mindmap(req: GenerateMindmapRequest) -> MindmapOut:
         finally:
             session.close()
 
+    record_activity("diagram", f"Generated mindmap: {topic}", req.course or "")
     return MindmapOut(
         id=mindmap_id,
         title=topic,
