@@ -141,6 +141,7 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
             executor.submit(_process_job, job, title, content_hash, images_dir, cfg): job.page_num
             for job in jobs
         }
+        jobs.clear()  # release PNG bytes held in _PageJob list
         for future in as_completed(future_to_page_num):
             page_num = future_to_page_num[future]
             try:
@@ -148,6 +149,7 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
             except Exception as exc:  # noqa: BLE001
                 logger.warning("processing failed for page %d: %s", page_num, exc)
                 pages_by_num[page_num] = []
+            del future_to_page_num[future]  # release completed future's captured PNG bytes
 
     return [p for page_num in sorted(pages_by_num) for p in pages_by_num[page_num]]
 
@@ -171,15 +173,16 @@ def _process_job(
             return pages
 
         ocr_text = ""
-        # Route to Tesseract for pure-text scans (no embedded images/diagrams)
-        if cfg.tesseract_fallback and not job.has_images:
+        use_tesseract = cfg.tesseract_fallback and not job.has_images
+        if use_tesseract:
             try:
                 from scholarcli.ingest.ocr import ocr_page_tesseract_bytes
                 ocr_text, _ = ocr_page_tesseract_bytes(job.png_bytes)
             except Exception as exc:  # noqa: BLE001 — tesseract not installed or failed
                 logger.warning("Tesseract failed p%d: %s — falling back to vision", job.page_num, exc)
+                use_tesseract = False  # mark failed so vision handles it
 
-        if not ocr_text:  # vision model (primary for image-heavy pages, or Tesseract fallback)
+        if not use_tesseract:  # vision model: primary for image-heavy pages, or Tesseract fallback
             from scholarcli.ingest.ocr import ocr_page_bytes
             ocr_text, _ = ocr_page_bytes(job.png_bytes, cache_enabled=cfg.ocr_cache_enabled)
 
