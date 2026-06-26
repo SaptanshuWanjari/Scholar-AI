@@ -68,12 +68,13 @@ def _job_out(job: BackgroundJob) -> dict:
     }
 
 
-def list_jobs(limit: int = 50) -> list[dict]:
+def list_jobs(limit: int = 50, offset: int = 0) -> list[dict]:
     session = get_session()
     try:
         rows = (
             session.query(BackgroundJob)
             .order_by(BackgroundJob.created_at.desc())
+            .offset(offset)
             .limit(limit)
             .all()
         )
@@ -87,5 +88,16 @@ def get_job(job_id: str) -> dict | None:
     try:
         job = session.get(BackgroundJob, job_id)
         return _job_out(job) if job else None
+    finally:
+        session.close()
+
+
+def delete_job(job_id: str) -> None:
+    session = get_session()
+    try:
+        job = session.get(BackgroundJob, job_id)
+        if job:
+            session.delete(job)
+            session.commit()
     finally:
         session.close()

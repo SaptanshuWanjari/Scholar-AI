@@ -19,6 +19,10 @@ from scholarcli.api.schemas import (
     ReadingDocOut,
     ReadingSectionOut,
 )
+from pydantic import BaseModel
+
+class ProgressUpdate(BaseModel):
+    progress: float
 from scholarcli.llm import get_llm
 from scholarcli.storage import get_session
 from scholarcli.storage.models import Document, ReadingState
@@ -141,6 +145,42 @@ def add_bookmark(document_id: int, payload: BookmarkCreate) -> ReadingDocOut:
         bms = list(state.bookmarks or [])
         bms.append({"id": f"bm{len(bms) + 1}", "section": payload.section, "note": payload.note})
         state.bookmarks = bms
+        session.commit()
+        return get_reading(document_id)
+    finally:
+        session.close()
+
+
+@router.delete("/{document_id}/highlights/{highlight_id}", status_code=204)
+def remove_highlight(document_id: int, highlight_id: str) -> None:
+    session = get_session()
+    try:
+        state = _get_state(session, document_id)
+        hls = list(state.highlights or [])
+        state.highlights = [h for h in hls if h.get("id") != highlight_id]
+        session.commit()
+    finally:
+        session.close()
+
+
+@router.delete("/{document_id}/bookmarks/{bookmark_id}", status_code=204)
+def remove_bookmark(document_id: int, bookmark_id: str) -> None:
+    session = get_session()
+    try:
+        state = _get_state(session, document_id)
+        bms = list(state.bookmarks or [])
+        state.bookmarks = [b for b in bms if b.get("id") != bookmark_id]
+        session.commit()
+    finally:
+        session.close()
+
+
+@router.patch("/{document_id}/progress", response_model=ReadingDocOut)
+def update_progress(document_id: int, payload: ProgressUpdate) -> ReadingDocOut:
+    session = get_session()
+    try:
+        state = _get_state(session, document_id)
+        state.progress = payload.progress
         session.commit()
         return get_reading(document_id)
     finally:
