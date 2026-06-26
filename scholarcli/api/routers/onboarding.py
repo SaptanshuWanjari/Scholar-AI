@@ -44,12 +44,9 @@ Ensure all document IDs are placed into at least one course. Do not hallucinate 
 Output valid JSON only — no prose, no markdown fences.\
 """
 
-def _do_background_prep():
-    # Placeholder for async prep (e.g. caching, hierarchy gen).
-    pass
 
 @router.get("/onboarding/analysis")
-def library_analysis(background_tasks: BackgroundTasks) -> dict:
+def library_analysis() -> dict:
     session = get_session()
     try:
         docs = session.query(Document).filter(Document.status == "indexed").all()
@@ -138,7 +135,7 @@ def library_analysis(background_tasks: BackgroundTasks) -> dict:
                 {"type": "Teach Me", "label": "Explore workspace features"}
             ]
 
-        background_tasks.add_task(_do_background_prep)
+
 
         return result
     finally:
