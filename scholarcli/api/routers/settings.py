@@ -71,7 +71,8 @@ def get_ui_settings() -> SettingsOut:
 @router.put("/settings", response_model=SettingsOut)
 def update_ui_settings(patch: SettingsPatch) -> SettingsOut:
     current = _load()
-    current.update({k: v for k, v in patch.model_dump().items() if v is not None})
+    patch_dict = patch.model_dump(exclude_unset=True)
+    current.update(patch_dict)
     _settings_file().write_text(json.dumps(current, indent=2))
     return SettingsOut(**current)
 
