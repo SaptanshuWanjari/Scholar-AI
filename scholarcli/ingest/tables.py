@@ -68,3 +68,29 @@ def extract_tables(page) -> list[TableArtifact]:
             continue
         artifacts.append(TableArtifact(markdown=md, summary=_summarize(md)))
     return artifacts
+
+
+def extract_table_markdowns(page) -> list[str]:
+    """Return raw markdown strings for all tables on a page (PyMuPDF only, no LLM).
+
+    Call this from the main thread before handing off to workers. Combine with
+    _summarize() in a worker thread to produce TableArtifact objects.
+    """
+    if not get_settings().ingest.tables_enabled:
+        return []
+    try:
+        finder = page.find_tables()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("find_tables failed: %s", exc)
+        return []
+
+    markdowns: list[str] = []
+    for tbl in getattr(finder, "tables", []) or []:
+        try:
+            md = tbl.to_markdown().strip()
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("table to_markdown failed: %s", exc)
+            continue
+        if md and md.count("\n") >= 2:
+            markdowns.append(md)
+    return markdowns
