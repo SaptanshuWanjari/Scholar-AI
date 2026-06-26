@@ -91,7 +91,7 @@ class Document(Base):
     )
 
     course_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("courses.id"), nullable=False
+        Integer, ForeignKey("courses.id"), nullable=False, index=True
     )
     course: Mapped["Course"] = relationship(back_populates="documents")
 
@@ -111,7 +111,7 @@ class Deck(Base):
     color: Mapped[str] = mapped_column(String(16), nullable=False, default="#4f4d7a")
     # Dependency-engine link for exact mastery rollup (null = unlinked).
     concept_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("dep_concepts.id"), nullable=True
+        Integer, ForeignKey("dep_concepts.id"), nullable=True, index=True
     )
     quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -127,7 +127,7 @@ class Card(Base):
     __tablename__ = "cards"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    deck_id: Mapped[int] = mapped_column(Integer, ForeignKey("decks.id"), nullable=False)
+    deck_id: Mapped[int] = mapped_column(Integer, ForeignKey("decks.id"), nullable=False, index=True)
     type: Mapped[str] = mapped_column(String(16), nullable=False, default="basic")
     front: Mapped[str] = mapped_column(Text, nullable=False)
     back: Mapped[str] = mapped_column(Text, nullable=False)
@@ -223,7 +223,7 @@ class SavedRevision(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     # Dependency-engine link for exact mastery rollup (null = unlinked).
     concept_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("dep_concepts.id"), nullable=True
+        Integer, ForeignKey("dep_concepts.id"), nullable=True, index=True
     )
     quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -273,8 +273,8 @@ class ConceptEdge(Base):
     __table_args__ = (UniqueConstraint("source_id", "target_id"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    source_id: Mapped[int] = mapped_column(Integer, ForeignKey("concepts.id"), nullable=False)
-    target_id: Mapped[int] = mapped_column(Integer, ForeignKey("concepts.id"), nullable=False)
+    source_id: Mapped[int] = mapped_column(Integer, ForeignKey("concepts.id"), nullable=False, index=True)
+    target_id: Mapped[int] = mapped_column(Integer, ForeignKey("concepts.id"), nullable=False, index=True)
     relation: Mapped[str] = mapped_column(String(64), nullable=False, default="related")
 
 
@@ -308,8 +308,8 @@ class DependencyEdge(Base):
     __table_args__ = (UniqueConstraint("prereq_id", "concept_id"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    prereq_id: Mapped[int] = mapped_column(Integer, ForeignKey("dep_concepts.id"), nullable=False)
-    concept_id: Mapped[int] = mapped_column(Integer, ForeignKey("dep_concepts.id"), nullable=False)
+    prereq_id: Mapped[int] = mapped_column(Integer, ForeignKey("dep_concepts.id"), nullable=False, index=True)
+    concept_id: Mapped[int] = mapped_column(Integer, ForeignKey("dep_concepts.id"), nullable=False, index=True)
     reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
     confidence: Mapped[float] = mapped_column(Float, nullable=False, default=0.5)
 
@@ -319,7 +319,7 @@ class ReadingState(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     document_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("documents.id"), unique=True, nullable=False
+        Integer, ForeignKey("documents.id"), unique=True, nullable=False, index=True
     )
     highlights: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     bookmarks: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
@@ -353,7 +353,7 @@ class PYQQuestion(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     paper_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("question_papers.id"), nullable=False
+        Integer, ForeignKey("question_papers.id"), nullable=False, index=True
     )
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     year: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -381,7 +381,7 @@ class TopicStat(Base):
     topic: Mapped[str] = mapped_column(String(256), nullable=False)
     # Dependency-engine link for exact mastery rollup (null = unlinked).
     concept_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("dep_concepts.id"), nullable=True
+        Integer, ForeignKey("dep_concepts.id"), nullable=True, index=True
     )
     correct: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     total: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -404,7 +404,7 @@ class LearningPackage(Base):
     depth: Mapped[str] = mapped_column(String(16), nullable=False, default="standard")  # quick|standard|deep
     # Dependency-engine link for exact mastery rollup (null = unlinked).
     concept_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("dep_concepts.id"), nullable=True
+        Integer, ForeignKey("dep_concepts.id"), nullable=True, index=True
     )
     overview: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)  # {markdown, grounded}
     artifacts: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)  # {notes, flashcards, quiz, mindmap, diagram, difference}
@@ -470,9 +470,9 @@ class Activity(Base):
     __tablename__ = "activities"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    kind: Mapped[str] = mapped_column(String(32), nullable=False)  # ask|flashcard|quiz|document|diagram|exam|note
+    kind: Mapped[str] = mapped_column(String(32), nullable=False, index=True)  # ask|flashcard|quiz|document|diagram|exam|note
     text: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="", index=True)
     minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     cards: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(
@@ -507,7 +507,7 @@ class ChatMessage(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     session_id: Mapped[str] = mapped_column(
-        String(64), ForeignKey("chat_sessions.id"), nullable=False
+        String(64), ForeignKey("chat_sessions.id"), nullable=False, index=True
     )
     role: Mapped[str] = mapped_column(String(16), nullable=False)  # user|assistant
     content: Mapped[str] = mapped_column(Text, nullable=False, default="")
