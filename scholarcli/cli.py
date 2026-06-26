@@ -66,7 +66,9 @@ def ask(
 ) -> None:
     """Ask a question grounded in your uploaded materials."""
     from scholarcli.config import get_settings
-    get_settings().models.override_model = model
+    get_settings.cache_clear()
+    settings = get_settings()
+    settings.models.override_model = model
     init_db()
     rag = build_rag()
     result = rag.invoke({"query": query, "course": course})
