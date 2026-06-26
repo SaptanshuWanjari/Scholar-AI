@@ -210,10 +210,11 @@ def inspector(concept_id: int) -> dict | None:
                 if pc:
                     related.append(pc.name)
         confidence = round(min(0.99, 0.7 + c.ref_count * 0.03), 2)
-        notes_count = session.query(func.count(Notebook.id)).filter(Notebook.content.ilike(f"%{c.name}%")).scalar() or 0
+        from sqlalchemy import cast, String
+        notes_count = session.query(func.count(Notebook.id)).filter(cast(Notebook.blocks, String).ilike(f"%{c.name}%")).scalar() or 0
         flashcards_count = session.query(func.count(Card.id)).filter((Card.front.ilike(f"%{c.name}%")) | (Card.back.ilike(f"%{c.name}%"))).scalar() or 0
         quizzes_count = session.query(func.count(SavedQuiz.id)).filter(SavedQuiz.title.ilike(f"%{c.name}%")).scalar() or 0
-        diagrams_count = session.query(func.count(Diagram.id)).filter((Diagram.title.ilike(f"%{c.name}%")) | (Diagram.code.ilike(f"%{c.name}%"))).scalar() or 0
+        diagrams_count = session.query(func.count(Diagram.id)).filter((Diagram.title.ilike(f"%{c.name}%")) | (Diagram.mermaid.ilike(f"%{c.name}%"))).scalar() or 0
 
         import scholarcli.llm
         emb = scholarcli.llm.get_embeddings()

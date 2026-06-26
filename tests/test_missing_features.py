@@ -19,6 +19,7 @@ from scholarcli.storage.models import (
     Deck,
     ExamSession,
 )
+from unittest.mock import patch
 
 
 @pytest.fixture(autouse=True)
@@ -36,7 +37,8 @@ def _db():
 # Concept prune / merge
 # ---------------------------------------------------------------------------
 
-def test_merge_concepts_repoints_edges_and_deletes_drop():
+@patch("scholarcli.llm.get_embeddings")
+def test_merge_concepts_repoints_edges_and_deletes_drop(mock_get_embeddings):
     from scholarcli.api import knowledge_service
 
     session = get_session()
