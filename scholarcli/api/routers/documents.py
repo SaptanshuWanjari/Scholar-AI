@@ -72,7 +72,9 @@ async def upload_document(
 
     uploads_dir = get_settings().paths.resolved_data_dir() / "uploads"
     uploads_dir.mkdir(parents=True, exist_ok=True)
-    dest = uploads_dir / filename
+    import uuid
+    unique_prefix = uuid.uuid4().hex[:8]
+    dest = uploads_dir / f"{unique_prefix}_{filename}"
     dest.write_bytes(await file.read())
 
     # Create a stub Document row immediately so the frontend can show status.
@@ -158,6 +160,12 @@ def delete_document_endpoint(document_id: int) -> None:
         if not doc:
             raise HTTPException(status_code=404, detail="Document not found")
         delete_document(doc.id)
+        
+        if doc.content_hash:
+            import shutil
+            images_dir = get_settings().paths.resolved_data_dir() / "images" / doc.content_hash
+            shutil.rmtree(images_dir, ignore_errors=True)
+            
         session.delete(doc)
         session.commit()
     finally:
