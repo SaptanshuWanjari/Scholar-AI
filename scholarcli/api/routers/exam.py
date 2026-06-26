@@ -180,7 +180,7 @@ Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'optio
         db.add(ExamSession(
             id=session_id,
             topic=subject,
-            course=req.pyqCourse,
+            course=req.course or req.pyqCourse,
             questions=stored,
             started_at=now,
             duration_minutes=duration,
@@ -261,7 +261,7 @@ async def submit_exam(session_id: str, payload: ExamSubmitRequest) -> ExamResult
                 expected = (q.get("answer") or "").strip()
                 prompt += f'ID: {q["id"]}\nQuestion: {q["prompt"]}\nExpected: {expected}\nGiven: {given}\n\n'
             try:
-                res = await run_in_threadpool(run_ask, prompt, None, None, "study")
+                res = await run_in_threadpool(run_ask, prompt, None, None, "quick_qa")
                 json_str = res["content"]
                 fence = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', json_str, re.DOTALL | re.IGNORECASE)
                 if fence:
