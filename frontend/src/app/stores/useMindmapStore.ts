@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { api, type GeneratedMindmap } from "../lib/api";
+import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
 
 export const ALL_COURSES = "__all__";
 
@@ -31,10 +32,19 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
       toast.error("Enter a topic to generate a mind map");
       return;
     }
+    const enhResult = await usePromptEnhancerStore.getState().analyze(trimmed, course === ALL_COURSES ? null : course, "mindmap");
+    if (enhResult.action === "edit") {
+      set({ topic: enhResult.prompt });
+      return;
+    }
+    if (enhResult.action === "use_suggested") {
+      set({ topic: enhResult.prompt });
+    }
+    const finalTopic = get().topic.trim();
     set({ loading: true });
     try {
       const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
-      const result = await api.generateMindmap(trimmed, course === ALL_COURSES ? null : course, document, ragMode);
+      const result = await api.generateMindmap(finalTopic, course === ALL_COURSES ? null : course, document, ragMode);
       if (!result.grounded || !result.text?.trim()) {
         toast.error("No grounded mind map could be generated for this topic");
         set({ mindmap: null });

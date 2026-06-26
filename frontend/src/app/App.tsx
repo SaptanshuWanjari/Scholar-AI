@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import { BrowserRouter, Routes, Route, useNavigate, Navigate } from "react-router";
 import { AppLayout } from "./components/layout/AppLayout";
 import { Toaster } from "./components/ui/sonner";
+import { PromptCoachModal } from "./components/PromptCoachModal";
 import { Dashboard } from "./pages/Dashboard";
 import { KnowledgeBase } from "./pages/KnowledgeBase";
 import { Documents } from "./pages/Documents";
@@ -86,6 +87,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Toaster position="bottom-right" theme="light" />
+        <PromptCoachModal />
       </OnboardingProvider>
     </BrowserRouter>
   );

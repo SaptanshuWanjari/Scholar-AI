@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import { api } from "../lib/api";
 import type { Course, DifferenceTableItem, DocumentItem, GeneratedDifference } from "../lib/types";
+import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
 
 interface DifferencesState {
   topic: string;
@@ -76,9 +77,18 @@ export const useDifferencesStore = create<DifferencesState>((set, get) => ({
     const t = topic.trim();
     if (!t || loading) return;
     const selectedCourse = course === "none" ? null : course;
+    const enhResult = await usePromptEnhancerStore.getState().analyze(t, selectedCourse, "differences");
+    if (enhResult.action === "edit") {
+      set({ topic: enhResult.prompt });
+      return;
+    }
+    if (enhResult.action === "use_suggested") {
+      set({ topic: enhResult.prompt });
+    }
+    const finalTopic = get().topic.trim();
     set({ loading: true, output: null });
     try {
-      const result = await api.generateDifference(t, selectedCourse, document);
+      const result = await api.generateDifference(finalTopic, selectedCourse, document);
       set({ output: result });
     } catch {
       toast.error("Failed to generate comparison");

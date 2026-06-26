@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import type { Flashcard, QualityScore } from "../lib/types";
 import { api } from "../lib/api";
+import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
 
 const NO_GROUNDED_MESSAGE =
   "No grounded flashcards — try uploading documents or a different topic.";
@@ -54,10 +55,19 @@ export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
     const { topic, course, document, generating } = get();
     const value = topic.trim();
     if (!value || generating) return;
+    const enhResult = await usePromptEnhancerStore.getState().analyze(value, course, "flashcards");
+    if (enhResult.action === "edit") {
+      set({ topic: enhResult.prompt });
+      return;
+    }
+    if (enhResult.action === "use_suggested") {
+      set({ topic: enhResult.prompt });
+    }
+    const finalTopic = get().topic.trim();
     set({ generating: true, ungrounded: false });
     try {
       const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
-      const result = await api.generateFlashcards(value, course, document, 8, ragMode);
+      const result = await api.generateFlashcards(finalTopic, course, document, 8, ragMode);
       if (!result.grounded || result.cards.length === 0) {
         set({
           cards: [],
