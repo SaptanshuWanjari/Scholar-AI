@@ -315,6 +315,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
         overview: { markdown: overview.markdown, grounded: overview.grounded },
         artifacts: artifactPayload,
         sources,
+        course: get().course === "none" ? null : get().course,
       });
       set({ packageId: saved.id });
       toast.success("Learning package saved");

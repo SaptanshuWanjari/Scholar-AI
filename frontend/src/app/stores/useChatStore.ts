@@ -92,6 +92,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       finalQuestion = enhResult.prompt;
     } else if (enhResult.action === "edit") {
       // Can't set topic in chat store — just return, user's input field stays
+      toast.info("Prompt needs refinement — please review the suggestion above");
       return;
     }
 

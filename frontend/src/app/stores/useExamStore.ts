@@ -116,6 +116,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
         count,
         types,
         pyqCourse,
+        durationMinutes: minutes,
       });
       if (!session.grounded || session.questions.length === 0) {
         toast.error(
