@@ -365,7 +365,7 @@ async def submit_exam(session_id: str, payload: ExamSubmitRequest) -> ExamResult
             "Do not include introductory text."
         )
         try:
-            result = await run_in_threadpool(run_ask, rev_prompt, None, None, "study")
+            result = await run_in_threadpool(run_ask, rev_prompt, None, None, "quick_qa")
             lines = [line.strip() for line in result["content"].split("\n")]
             for line in lines:
                 if line.startswith(("- ", "* ")):
