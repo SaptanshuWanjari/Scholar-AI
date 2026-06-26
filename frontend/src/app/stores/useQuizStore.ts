@@ -117,7 +117,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   answer: (qid, value) => {
     set((s) => ({ answers: { ...s.answers, [qid]: value } }));
     const { active, idx } = get();
-    if (active && !isNaN(Number(active.id))) {
+    if (active) {
       if (_sessionTimer) clearTimeout(_sessionTimer);
       _sessionTimer = setTimeout(() => {
         const { answers: latest, idx: currentIdx } = get();
@@ -133,7 +133,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   goTo: (idx) => {
     set({ idx });
     const { active } = get();
-    if (active && !isNaN(Number(active.id))) {
+    if (active) {
       if (_sessionTimer) clearTimeout(_sessionTimer);
       _sessionTimer = setTimeout(() => {
         const { answers: latest, idx: currentIdx } = get();
@@ -148,7 +148,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
 
   submit: (answers) => {
     const { active } = get();
-    if (active && !isNaN(Number(active.id))) {
+    if (active) {
       if (_sessionTimer) clearTimeout(_sessionTimer);
       api.clearQuizSession(active.id).catch(() => {});
     }
