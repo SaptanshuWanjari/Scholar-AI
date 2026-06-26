@@ -70,6 +70,9 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       );
 
       try {
+        try {
+          await api.createCourse("Library");
+        } catch { /* ignore */ }
         const doc = await api.uploadDocument(item.file, "Library");
         if (doc.jobId) {
           const job = await api.pollJobUntilDone(doc.jobId);
