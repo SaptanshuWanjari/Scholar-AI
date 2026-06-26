@@ -9,6 +9,8 @@ from __future__ import annotations
 import hashlib
 import logging
 
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+
 from scholarcli.storage import get_session
 from scholarcli.storage.models import PageOcrCache
 
@@ -31,12 +33,14 @@ def get_cached_ocr(img_hash: str) -> str | None:
 
 
 def store_ocr(img_hash: str, text: str) -> None:
-    """Store OCR text. No-op if the hash already exists."""
+    """Store OCR text. No-op if the hash already exists (INSERT OR IGNORE)."""
     session = get_session()
     try:
-        if session.get(PageOcrCache, img_hash) is None:
-            session.add(PageOcrCache(image_hash=img_hash, ocr_text=text))
-            session.commit()
+        stmt = sqlite_insert(PageOcrCache).values(
+            image_hash=img_hash, ocr_text=text
+        ).on_conflict_do_nothing(index_elements=["image_hash"])
+        session.execute(stmt)
+        session.commit()
     except Exception:
         session.rollback()
         logger.warning("Failed to store OCR cache for hash %s", img_hash)

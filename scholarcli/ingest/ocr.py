@@ -78,8 +78,8 @@ def ocr_page_tesseract_bytes(png: bytes) -> tuple[str, None]:
     tmp_path: str | None = None
     try:
         with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
-            f.write(png)
             tmp_path = f.name
+            f.write(png)
         text = _pytesseract.image_to_string(tmp_path, config="--psm 6")
     finally:
         if tmp_path and os.path.exists(tmp_path):

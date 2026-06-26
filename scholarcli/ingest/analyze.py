@@ -20,18 +20,8 @@ class PageInfo(NamedTuple):
 
 
 def _has_foreground_image(page) -> bool:
-    page_area = page.rect.width * page.rect.height
     blocks = page.get_text("dict", sort=True).get("blocks", [])
-    for b in blocks:
-        if b.get("type") != 1:
-            continue
-        bbox = b.get("bbox")
-        if bbox:
-            w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-            if w * h > 0.8 * page_area:
-                continue  # full-page background image, not a figure
-        return True
-    return False
+    return any(b.get("type") == 1 for b in blocks)
 
 
 def analyze_page(page, page_number: int) -> PageInfo:
