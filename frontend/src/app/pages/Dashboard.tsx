@@ -89,7 +89,7 @@ export function Dashboard() {
                   <p className="text-sm font-medium uppercase tracking-wide text-primary mb-1">Continue Learning</p>
                   <h2 className="text-2xl font-bold text-foreground">{activePathDetails.title}</h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {Math.round((activePathDetails.progress.completedConcepts / Math.max(1, activePathDetails.progress.totalConcepts)) * 100)}% completed
+                    {Math.round((activePathDetails.progress.conceptsDone / Math.max(1, activePathDetails.progress.conceptsTotal)) * 100)}% completed
                   </p>
                 </div>
                 <div className="flex size-12 items-center justify-center rounded-xl bg-primary/20 text-primary">
