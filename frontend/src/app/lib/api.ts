@@ -1058,8 +1058,8 @@ export const api = {
   },
 
   // ---- Teach Me ----
-  generateOverview(topic: string, depth: "quick" | "standard" | "deep" = "standard"): Promise<TeachOverview> {
-    return request<TeachOverview>("/api/teach/overview", json({ topic, depth }));
+  generateOverview(topic: string, depth: "quick" | "standard" | "deep" = "standard", course?: string | null, document?: string | null): Promise<TeachOverview> {
+    return request<TeachOverview>("/api/teach/overview", json({ topic, depth, course: course ?? null, document: document ?? null }));
   },
   listPackages(): Promise<PackageMeta[]> {
     return request<PackageMeta[]>("/api/teach/packages");
