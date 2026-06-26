@@ -180,5 +180,5 @@ async def assist(req: NotebookAssistRequest) -> NotebookAssistResponse:
         "summarize": f"Summarize the following concisely:\n\n{text}",
         "improve": f"Improve the clarity and structure of the following notes:\n\n{text}",
     }[req.action]
-    result = await run_in_threadpool(run_ask, instruction, req.course, "study_notes")
+    result = await run_in_threadpool(run_ask, instruction, req.course, None, "study_notes")
     return NotebookAssistResponse(text=result["content"])

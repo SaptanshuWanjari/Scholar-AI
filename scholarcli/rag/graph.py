@@ -58,6 +58,11 @@ def build_graph() -> StateGraph:
     return builder
 
 
+_compiled_app = None
+
 def get_rag_app():
     """Return a compiled LangGraph runnable (cached per process)."""
-    return build_graph().compile()
+    global _compiled_app
+    if _compiled_app is None:
+        _compiled_app = build_graph().compile()
+    return _compiled_app
