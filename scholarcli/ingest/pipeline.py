@@ -78,7 +78,8 @@ def _ingest_file_inner(
     # If the file was previously indexed with different content, clear old.
     if existing:
         delete_document(existing.id)
-        existing.version += 1
+        if existing.content_hash:
+            existing.version += 1
         existing.content_hash = content_hash
         existing.title = title
         existing.file_type = file_type

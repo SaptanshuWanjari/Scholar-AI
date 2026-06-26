@@ -9,7 +9,7 @@ ScholarCLI is a local-first AI study assistant with a Python FastAPI/Typer backe
 ### Architecture
 - **Backend**: Python 3.12, FastAPI (REST API), Typer (CLI), SQLAlchemy (SQLite), LangGraph (RAG orchestration). Located in `scholarcli/`.
 - **Frontend**: React 18+, Vite, TypeScript, Tailwind CSS v4, shadcn/ui, Zustand.
-- **LLM Integration**: Ollama (local models). Task-specific model routing via `config/models.toml`.
+- **LLM Integration**: Ollama (local models). Task-specific model routing via `config/default.toml`.
 - **Storage**: SQLite (metadata/artifacts in `.data/scholar.db`), LanceDB (vector search in `.data/lancedb/`).
 
 ### Key Directories
@@ -18,7 +18,7 @@ ScholarCLI is a local-first AI study assistant with a Python FastAPI/Typer backe
 - `scholarcli/storage/`: Database models, session management, LanceDB integration
 - `scholarcli/ingest/`: Document chunking and ingestion pipeline
 - `scholarcli/llm/`: Ollama model factory and task routing
-- `config/`: Model configuration (models.toml)
+- `config/`: Model configuration (default.toml)
 - `.data/`: Local database and vector store (git-ignored)
 - `frontend/`: React application (separate dev server)
 
@@ -88,7 +88,7 @@ Test fixtures in `tests/fixtures/` and `tests/conftest.py` for database setup.
 
 ## Configuration
 
-### Ollama Models (config/models.toml)
+### Ollama Models (config/default.toml)
 Task-specific model routing. Before running, ensure models are pulled:
 ```bash
 ollama pull qwen3:8b         # Main reasoning/generation model
@@ -96,7 +96,7 @@ ollama pull gemma4:12b       # Alternate reasoning model
 ollama pull nomic-embed-text # Embeddings model
 ```
 
-Model assignments in `config/models.toml` control which model handles which task (e.g., RAG retrieval vs. quiz generation).
+Model assignments in `config/default.toml` control which model handles which task (e.g., RAG retrieval vs. quiz generation).
 
 ## Common Tasks
 
@@ -141,4 +141,4 @@ Documents → Chunking (recursive) → Embedding (Ollama) → LanceDB (vector + 
 - Keep components focused; split large RAG flows into separate LangGraph nodes
 - Ensure FastAPI endpoints return proper CORS headers for frontend dev servers
 - Test database interactions with actual SQLite (not mocks) to catch schema issues
-- Commit model changes to `config/models.toml` carefully — affects all RAG tasks
+- Commit model changes to `config/default.toml` carefully — affects all RAG tasks
