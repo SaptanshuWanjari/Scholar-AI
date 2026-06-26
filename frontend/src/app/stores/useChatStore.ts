@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import type { ChatMessage } from "../lib/types";
 import { api } from "../lib/api";
 import type { ChatSessionMeta } from "../lib/api";
+import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
 
 interface ChatState {
   messages: ChatMessage[];
@@ -85,6 +86,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const document = get().document;
     const socratic = get().socratic;
 
+    const enhResult = await usePromptEnhancerStore.getState().analyze(question, course, "quick_qa");
+    let finalQuestion = question;
+    if (enhResult.action === "use_suggested") {
+      finalQuestion = enhResult.prompt;
+    } else if (enhResult.action === "edit") {
+      // Can't set topic in chat store — just return, user's input field stays
+      return;
+    }
+
     // Auto-create a session on first message of a new conversation.
     let sessionId = get().activeSessionId;
     if (!sessionId) {
@@ -102,7 +112,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       role: "user",
-      content: question,
+      content: finalQuestion,
     };
     const assistantId = `a-${Date.now()}`;
     const assistantMsg: ChatMessage = {
@@ -126,7 +136,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (stream) {
         controller = new AbortController();
         let acc = "";
-        await api.askStream(question, course, document, {
+        await api.askStream(finalQuestion, course, document, {
           signal: controller.signal,
           onToken: (chunk) => {
             acc += chunk;
@@ -146,7 +156,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           },
         }, sessionId, ragMode, socratic);
       } else {
-        const res = await api.ask(question, course, document, sessionId, ragMode, socratic);
+        const res = await api.ask(finalQuestion, course, document, sessionId, ragMode, socratic);
         patch({
           content: res.content,
           streaming: false,

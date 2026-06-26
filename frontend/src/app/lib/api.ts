@@ -44,6 +44,14 @@ export interface ArtifactRecommendation {
   reason: string;
 }
 
+export interface PromptAnalysis {
+  score: number;
+  label: "poor" | "fair" | "good" | "excellent";
+  should_enhance: boolean;
+  suggested_prompt: string | null;
+  improvements: string[] | null;
+}
+
 export interface SavedRevision {
   id: string;
   title: string;
@@ -1165,5 +1173,10 @@ export const api = {
   // ---- System ----
   checkSystemHealth(): Promise<{ reasoning: string, vision: string, embedding: string, ocr: string }> {
     return request<{ reasoning: string, vision: string, embedding: string, ocr: string }>("/api/system/health");
+  },
+
+  // ---- Prompt Enhancer ----
+  analyzePrompt(topic: string, course?: string | null, route?: string | null): Promise<PromptAnalysis> {
+    return request<PromptAnalysis>("/api/prompt/analyze", json({ topic, course: course ?? null, route: route ?? null }));
   },
 };

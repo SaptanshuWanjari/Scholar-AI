@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import { api, type SavedRevision } from "../lib/api";
 import type { QualityScore } from "../lib/types";
+import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
 
 export type RevisionFormat = "notes" | "concepts" | "formulas" | "summary";
 
@@ -135,6 +136,18 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       return;
     }
 
+    if (t) {
+      const enhResult = await usePromptEnhancerStore.getState().analyze(t, selectedCourse, "study_notes");
+      if (enhResult.action === "edit") {
+        set({ topic: enhResult.prompt });
+        return;
+      }
+      if (enhResult.action === "use_suggested") {
+        set({ topic: enhResult.prompt });
+      }
+    }
+    const finalTopic = get().topic.trim();
+
     controller?.abort();
     const ctrl = new AbortController();
     controller = ctrl;
@@ -145,7 +158,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
     try {
       const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
       await api.revisionStream(
-        { topic: t || undefined, course: selectedCourse, document, format, ragMode },
+        { topic: finalTopic || undefined, course: selectedCourse, document, format, ragMode },
         {
           signal: ctrl.signal,
           onToken: (chunk) => {

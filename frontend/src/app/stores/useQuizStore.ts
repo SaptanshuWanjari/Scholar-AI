@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import type { Quiz } from "../lib/types";
 import { api } from "../lib/api";
+import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
 
 let _sessionTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -63,11 +64,21 @@ export const useQuizStore = create<QuizState>((set, get) => ({
     const value = topic.trim();
     if (!value) return;
 
+    const enhResult = await usePromptEnhancerStore.getState().analyze(value, course === "all" ? null : course, "quiz");
+    if (enhResult.action === "edit") {
+      set({ topic: enhResult.prompt });
+      return;
+    }
+    if (enhResult.action === "use_suggested") {
+      set({ topic: enhResult.prompt });
+    }
+    const finalTopic = get().topic.trim();
+
     set({ generating: true });
     try {
       const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
       const quiz = await api.generateQuiz(
-        value,
+        finalTopic,
         course === "all" ? null : course,
         document,
         difficulty,

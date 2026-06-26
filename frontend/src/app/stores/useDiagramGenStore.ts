@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import { api } from "../lib/api";
 import type { DiagramItem } from "../lib/types";
+import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
 
 interface DiagramGenState {
   // Generation inputs + in-flight flag + last produced diagram live in the
@@ -35,10 +36,19 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
       toast.error("Enter a topic to generate a diagram");
       return null;
     }
+    const enhResult = await usePromptEnhancerStore.getState().analyze(t, course === "none" ? null : course, "mermaid");
+    if (enhResult.action === "edit") {
+      set({ topic: enhResult.prompt });
+      return null;
+    }
+    if (enhResult.action === "use_suggested") {
+      set({ topic: enhResult.prompt });
+    }
+    const finalTopic = get().topic.trim();
     set({ generating: true });
     try {
       const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
-      const result = await api.generateDiagram(t, course === "none" ? null : course, document, type, ragMode);
+      const result = await api.generateDiagram(finalTopic, course === "none" ? null : course, document, type, ragMode);
       if (!result.grounded || !result.mermaid?.trim()) {
         toast.error(
           !result.grounded ? "Couldn't ground a diagram for that topic" : "The generated diagram was empty",

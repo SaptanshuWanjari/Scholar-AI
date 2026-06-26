@@ -11,6 +11,7 @@ import {
   type ArtifactRecommendation,
 } from "../lib/api";
 import type { GeneratedDifference, Source, Course, DocumentItem } from "../lib/types";
+import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
 
 export type Depth = "quick" | "standard" | "deep";
 
@@ -209,6 +210,16 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       return;
     }
 
+    const enhResult = await usePromptEnhancerStore.getState().analyze(trimmed, get().course === "none" ? null : get().course, "teach");
+    if (enhResult.action === "edit") {
+      set({ topic: enhResult.prompt });
+      return;
+    }
+    if (enhResult.action === "use_suggested") {
+      set({ topic: enhResult.prompt });
+    }
+    const finalTopic = get().topic.trim();
+
     // Seed the workspace: overview loading, selected artifacts queued.
     const artifacts = freshArtifacts();
     for (const key of ARTIFACT_KEYS) {
@@ -229,7 +240,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
     // 1) Overview (and the sources that drive the Sources view).
     try {
       const selectedCourse = get().course === "none" ? null : get().course;
-      const result = await api.generateOverview(trimmed, depth, selectedCourse, get().document);
+      const result = await api.generateOverview(finalTopic, depth, selectedCourse, get().document);
       set({
         overview: { title: result.title, markdown: result.markdown, grounded: result.grounded },
         sources: result.sources,

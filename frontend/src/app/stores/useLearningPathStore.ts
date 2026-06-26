@@ -7,6 +7,7 @@ import {
   type ConceptStatus,
 } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
+import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
 
 interface LearningPathState {
   phase: "input" | "roadmap";
@@ -72,10 +73,19 @@ export const useLearningPathStore = create<LearningPathState>((set, get) => ({
       toast.error("Enter a topic to generate a learning path");
       return;
     }
+    const enhResult = await usePromptEnhancerStore.getState().analyze(t, course === "none" ? null : course, "learning_path");
+    if (enhResult.action === "edit") {
+      set({ topic: enhResult.prompt });
+      return;
+    }
+    if (enhResult.action === "use_suggested") {
+      set({ topic: enhResult.prompt });
+    }
+    const finalTopic = get().topic.trim();
     set({ generating: true });
     try {
       const path = await api.generateLearningPath({
-        topic: t,
+        topic: finalTopic,
         course: course === "none" ? null : course,
         document,
       });
