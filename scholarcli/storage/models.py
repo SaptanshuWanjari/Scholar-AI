@@ -18,8 +18,10 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
     func,
 )
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 import re
 
@@ -39,9 +41,13 @@ def get_or_create_course(session: Session, name: str) -> "Course":
     
     course = Course(name=name)
     session.add(course)
-    session.commit()
-    session.refresh(course)
-    return course
+    try:
+        session.commit()
+        session.refresh(course)
+        return course
+    except IntegrityError:
+        session.rollback()
+        return session.query(Course).filter(Course.name == name).one()
 
 class Base(DeclarativeBase):
     pass
@@ -60,6 +66,9 @@ class Course(Base):
 
 class Document(Base):
     __tablename__ = "documents"
+    __table_args__ = (
+        UniqueConstraint("path", "course_id", name="uq_document_path_course"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     path: Mapped[str] = mapped_column(Text, nullable=False)
@@ -261,6 +270,7 @@ class Concept(Base):
 
 class ConceptEdge(Base):
     __tablename__ = "concept_edges"
+    __table_args__ = (UniqueConstraint("source_id", "target_id"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     source_id: Mapped[int] = mapped_column(Integer, ForeignKey("concepts.id"), nullable=False)
@@ -277,6 +287,9 @@ class ConceptEdge(Base):
 
 class DepConcept(Base):
     __tablename__ = "dep_concepts"
+    __table_args__ = (
+        UniqueConstraint("name", "course", name="uq_dep_concept_name_course"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(256), nullable=False)
@@ -292,6 +305,7 @@ class DependencyEdge(Base):
     """A directed prerequisite link: prereq_id must be learned before concept_id."""
 
     __tablename__ = "dependency_edges"
+    __table_args__ = (UniqueConstraint("prereq_id", "concept_id"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     prereq_id: Mapped[int] = mapped_column(Integer, ForeignKey("dep_concepts.id"), nullable=False)
@@ -358,6 +372,9 @@ class TopicStat(Base):
     """Accumulated per-topic answer accuracy for a course (the feedback loop)."""
 
     __tablename__ = "topic_stats"
+    __table_args__ = (
+        UniqueConstraint("course", "topic", name="uq_topic_stat_course_topic"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
