@@ -11,6 +11,7 @@ question and output ONLY one of these task labels:
 - mindmap     — request to generate a mind-map / concept tree
 - study_notes — request to generate study notes or a summary
 - differences — request to compare or contrast two concepts
+- learning_path — request to generate a roadmap or learning path
 - deep_analysis — request requiring deep cross-topic reasoning
 
 Return exactly the label, nothing else.\

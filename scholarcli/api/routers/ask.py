@@ -31,7 +31,7 @@ async def ask(payload: AskRequest) -> AskResponse:
         chat_service.append_message(payload.sessionId, "user", question)
     result = await run_in_threadpool(
         rag_service.run_ask, question, payload.course, payload.document, payload.route,
-        None, payload.rag_mode, payload.socratic
+        payload.search_query, payload.rag_mode, payload.socratic
     )
     record_activity("ask", f"Asked: {question}", payload.course or "")
     if payload.sessionId:
@@ -64,7 +64,7 @@ async def ask_stream(payload: AskRequest) -> StreamingResponse:
         try:
             for event in rag_service.stream_ask(
                 question, payload.course, payload.document, payload.route,
-                None, payload.rag_mode, payload.socratic
+                payload.search_query, payload.rag_mode, payload.socratic
             ):
                 if event.get("type") == "token":
                     parts.append(event.get("value", ""))

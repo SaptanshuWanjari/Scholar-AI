@@ -54,6 +54,7 @@ class AskRequest(BaseModel):
     course: str | None = None
     document: str | None = None
     route: str | None = None  # force a study mode; None = let the router decide
+    search_query: str | None = None
     sessionId: str | None = None  # persist this turn into a chat session
     rag_mode: str = "fallback"  # "strict" = only ingested docs; "fallback" = AI fills gaps
     socratic: bool = False  # guide user step-by-step instead of direct answer

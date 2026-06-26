@@ -145,6 +145,8 @@ def run_ask(
         state["search_query"] = search_query
     if route:
         state["route"] = route
+    if socratic:
+        state["socratic"] = True
     result = get_rag_app().invoke(state)
 
     retrieved = result.get("retrieved", []) or []
@@ -223,6 +225,8 @@ def stream_ask(
         state["search_query"] = search_query
     if route:
         state["route"] = route
+    if socratic:
+        state["socratic"] = True
 
     # Router (LLM classify unless route forced) → retrieve → rerank → verify.
     state = route_query(state)
