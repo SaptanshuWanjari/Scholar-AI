@@ -585,3 +585,15 @@ class CodeExample(Base):
     )
     
     document: Mapped["Document"] = relationship(backref="code_examples")
+
+
+class PageOcrCache(Base):
+    """Per-page OCR cache keyed on sha256 of the rendered PNG bytes."""
+
+    __tablename__ = "page_ocr_cache"
+
+    image_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    ocr_text: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
