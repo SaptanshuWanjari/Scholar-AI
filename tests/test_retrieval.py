@@ -49,13 +49,16 @@ def test_search_returns_chunks(mock_pipe_emb, mock_llm_emb, sample_pdf):
     assert any("Slow Start" in t for t in texts)
 
 
+@patch("scholarcli.rag.nodes.router.get_llm")
 @patch("scholarcli.llm.get_embeddings")
 @patch("scholarcli.ingest.pipeline.get_embeddings")
-def test_grounding_off_topic(mock_pipe_emb, mock_llm_emb, sample_pdf):
+def test_grounding_off_topic(mock_pipe_emb, mock_llm_emb, mock_router_llm, sample_pdf):
     """A query unrelated to any chunk returns grounded=False."""
     m = _MockEmbeddings()
     mock_pipe_emb.return_value = m
     mock_llm_emb.return_value = m
+    
+    mock_router_llm.return_value.invoke.return_value.content = "quick_qa"
 
     ingest_file(sample_pdf, "Networks", embeddings=m)
 

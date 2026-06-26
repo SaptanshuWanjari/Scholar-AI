@@ -257,9 +257,6 @@ export function AskAI() {
         <div className="border-t border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
           <div className="mx-auto max-w-3xl">
             <div className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 transition-colors focus-within:border-ring/60">
-              <Button variant="ghost" size="icon" className="size-9 shrink-0 text-muted-foreground">
-                <Paperclip className="size-[18px]" />
-              </Button>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

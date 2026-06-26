@@ -27,9 +27,11 @@ def clean_config(monkeypatch):
     from scholarcli.storage import reset_engine
 
     with tempfile.TemporaryDirectory() as td:
+        get_settings.cache_clear()
         reset_engine()
         # Patch the data dir to the temp location.
         s = get_settings()
         monkeypatch.setattr(s.paths, "data_dir", td)
         yield
         reset_engine()
+        get_settings.cache_clear()

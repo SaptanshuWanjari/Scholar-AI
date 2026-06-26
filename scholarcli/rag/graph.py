@@ -16,16 +16,7 @@ from scholarcli.rag.state import GraphState
 
 def _should_retrieve(state: GraphState) -> str:
     """After routing: only proceed to retrieval if the route is wired."""
-    # The router already sets grounded=False and a stub answer for
-    # unwired routes. If answer is already set, short-circuit to generate.
-    if state.get("answer") is not None:
-        return "generate"
     return "retrieve"
-
-
-def _ground_check(state: GraphState) -> str:
-    """After verification: generate answer or skip."""
-    return "generate"
 
 
 def build_graph() -> StateGraph:
