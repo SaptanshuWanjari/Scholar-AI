@@ -21,6 +21,7 @@ mermaid       = "gemma4:12b"
 mindmap       = "gemma4:12b"
 study_notes   = "gemma4:12b"
 deep_analysis = "gemma4:12b"
+differences   = "gemma4:12b"
 
 [chunking]
 # token-ish budget (approx 4 chars/token); structural boundaries preferred

@@ -85,7 +85,7 @@ def library_analysis(background_tasks: BackgroundTasks) -> dict:
             return result
 
         try:
-            llm = get_llm("fastModel")
+            llm = get_llm("quick_qa")
             resp = llm.invoke([
                 SystemMessage(content=_SYSTEM),
                 HumanMessage(content=f"Documents:\n{doc_list_str}")
