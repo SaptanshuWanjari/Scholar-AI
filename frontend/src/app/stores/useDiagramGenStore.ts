@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { api } from "../lib/api";
 import type { DiagramItem } from "../lib/types";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
+import { useNotificationStore } from "./useNotificationStore";
 
 interface DiagramGenState {
   // Generation inputs + in-flight flag + last produced diagram live in the
@@ -50,9 +51,9 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
       const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
       const result = await api.generateDiagram(finalTopic, course === "none" ? null : course, document, type, ragMode);
       if (!result.grounded || !result.mermaid?.trim()) {
-        toast.error(
-          !result.grounded ? "Couldn't ground a diagram for that topic" : "The generated diagram was empty",
-        );
+        const errMsg = !result.grounded ? "Couldn't ground a diagram for that topic" : "The generated diagram was empty";
+        toast.error(errMsg);
+        useNotificationStore.getState().add({ title: "Diagram generation failed", status: "error", message: errMsg });
         return null;
       }
       const diagram: DiagramItem = {
@@ -65,9 +66,12 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
       };
       set({ generated: diagram, activeId: diagram.id });
       toast.success("Diagram generated");
+      useNotificationStore.getState().add({ title: "Diagram generated", status: "success" });
       return diagram;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate diagram");
+      const errMsg = err instanceof Error ? err.message : "Failed to generate diagram";
+      toast.error(errMsg);
+      useNotificationStore.getState().add({ title: "Diagram generation failed", status: "error", message: errMsg });
       return null;
     } finally {
       set({ generating: false });

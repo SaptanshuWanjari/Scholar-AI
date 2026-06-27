@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import type { Quiz } from "../lib/types";
 import { api } from "../lib/api";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
+import { useNotificationStore } from "./useNotificationStore";
 
 let _sessionTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -86,6 +87,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       );
       if (!quiz.grounded || quiz.questions.length === 0) {
         toast.error(GROUNDED_ERROR);
+        useNotificationStore.getState().add({ title: "Quiz generation failed", status: "error", message: GROUNDED_ERROR });
         return;
       }
       const { timeLimit } = get();
@@ -96,8 +98,11 @@ export const useQuizStore = create<QuizState>((set, get) => ({
         stage: "player",
         deadline: timeLimit ? Date.now() + timeLimit * 60 * 1000 : null,
       });
+      useNotificationStore.getState().add({ title: `Quiz ready — ${quiz.questions.length} questions`, status: "success" });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to generate quiz");
+      const errMsg = e instanceof Error ? e.message : "Failed to generate quiz";
+      toast.error(errMsg);
+      useNotificationStore.getState().add({ title: "Quiz generation failed", status: "error", message: errMsg });
     } finally {
       set({ generating: false });
     }
