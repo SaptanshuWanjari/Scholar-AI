@@ -8,6 +8,7 @@ import {
 } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
+import { useNotificationStore } from "./useNotificationStore";
 
 interface LearningPathState {
   phase: "input" | "roadmap";
@@ -90,10 +91,13 @@ export const useLearningPathStore = create<LearningPathState>((set, get) => ({
         document,
       });
       set({ path, phase: "roadmap", generating: false });
+      useNotificationStore.getState().add({ title: "Learning path generated", status: "success" });
       get().fetchSaved();
     } catch (err) {
       set({ generating: false });
-      toast.error(err instanceof Error ? err.message : "Couldn't generate learning path");
+      const errMsg = err instanceof Error ? err.message : "Couldn't generate learning path";
+      toast.error(errMsg);
+      useNotificationStore.getState().add({ title: "Learning path generation failed", status: "error", message: errMsg });
     }
   },
 

@@ -12,6 +12,7 @@ import {
 } from "../lib/api";
 import type { GeneratedDifference, Source, Course, DocumentItem } from "../lib/types";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
+import { useNotificationStore } from "./useNotificationStore";
 
 export type Depth = "quick" | "standard" | "deep";
 
@@ -260,6 +261,12 @@ export const useTeachStore = create<TeachState>((set, get) => ({
     }
 
     set({ generating: false, currentTask: null });
+    const { overviewStatus } = get();
+    if (overviewStatus === "done") {
+      useNotificationStore.getState().add({ title: `"${finalTopic}" package generated`, status: "success" });
+    } else {
+      useNotificationStore.getState().add({ title: "Learning package generation failed", status: "error" });
+    }
   },
 
   retryArtifact: async (key) => {

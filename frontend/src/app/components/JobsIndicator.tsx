@@ -13,12 +13,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "./ui/popover";
+import { useNotificationStore, type AppNotification } from "../stores/useNotificationStore";
 
 const POLL_INTERVAL_MS = 4000;
-const MAX_DISPLAYED = 8;
+const MAX_DISPLAYED = 12;
 
-function elapsedLabel(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
+function elapsedLabel(ms: number): string {
+  const diff = Date.now() - ms;
   const secs = Math.floor(diff / 1000);
   if (secs < 60) return `${secs}s ago`;
   const mins = Math.floor(secs / 60);
@@ -51,7 +52,6 @@ function StatusChip({ status }: { status: JobItem["status"] }) {
       </span>
     );
   }
-  // failed
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
       <XCircle className="size-3" />
@@ -60,9 +60,32 @@ function StatusChip({ status }: { status: JobItem["status"] }) {
   );
 }
 
+function NotifChip({ status }: { status: AppNotification["status"] }) {
+  if (status === "success") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+        <CheckCircle2 className="size-3" />
+        done
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
+      <XCircle className="size-3" />
+      failed
+    </span>
+  );
+}
+
+type DisplayItem =
+  | { _kind: "job"; data: JobItem }
+  | { _kind: "notif"; data: AppNotification };
+
 export function JobsIndicator() {
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const notifications = useNotificationStore((s) => s.notifications);
+  const clearAll = useNotificationStore((s) => s.clearAll);
 
   const hasActive = jobs.some(
     (j) => j.status === "queued" || j.status === "running"
@@ -71,7 +94,6 @@ export function JobsIndicator() {
   const fetchJobs = async () => {
     try {
       const data = await api.listJobs();
-      // Sort by most-recent first, keep last MAX_DISPLAYED
       const sorted = [...data].sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -90,7 +112,6 @@ export function JobsIndicator() {
     };
   }, []);
 
-  // Stop polling when all jobs are settled; resume only on re-mount
   useEffect(() => {
     if (!hasActive && timerRef.current) {
       clearInterval(timerRef.current);
@@ -103,6 +124,25 @@ export function JobsIndicator() {
   const activeCount = jobs.filter(
     (j) => j.status === "queued" || j.status === "running"
   ).length;
+
+  const merged: DisplayItem[] = [
+    ...jobs.map((j): DisplayItem => ({ _kind: "job", data: j })),
+    ...notifications.map((n): DisplayItem => ({ _kind: "notif", data: n })),
+  ]
+    .sort((a, b) => {
+      const ta =
+        a._kind === "job"
+          ? new Date(a.data.createdAt).getTime()
+          : a.data.timestamp;
+      const tb =
+        b._kind === "job"
+          ? new Date(b.data.createdAt).getTime()
+          : b.data.timestamp;
+      return tb - ta;
+    })
+    .slice(0, MAX_DISPLAYED);
+
+  const isEmpty = merged.length === 0;
 
   return (
     <Popover>
@@ -117,40 +157,69 @@ export function JobsIndicator() {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
-        <div className="border-b border-border px-4 py-3">
-          <p className="text-sm font-semibold">Background Jobs</p>
-          {activeCount > 0 && (
-            <p className="text-xs text-muted-foreground">
-              {activeCount} job{activeCount !== 1 ? "s" : ""} in progress
-            </p>
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div>
+            <p className="text-sm font-semibold">Notifications</p>
+            {activeCount > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {activeCount} job{activeCount !== 1 ? "s" : ""} in progress
+              </p>
+            )}
+          </div>
+          {notifications.length > 0 && (
+            <button
+              onClick={clearAll}
+              className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Clear all
+            </button>
           )}
         </div>
 
-        {jobs.length === 0 ? (
+        {isEmpty ? (
           <div className="flex flex-col items-center gap-2 px-4 py-8 text-center text-sm text-muted-foreground">
             <Bell className="size-6 opacity-40" />
-            No background jobs
+            No notifications
           </div>
         ) : (
           <ul className="divide-y divide-border">
-            {jobs.map((job) => (
-              <li key={job.id} className="flex items-start gap-3 px-4 py-3">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium leading-tight">
-                    {job.label}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {elapsedLabel(job.createdAt)}
-                  </p>
-                  {job.error && (
-                    <p className="mt-1 truncate text-[11px] text-destructive">
-                      {job.error}
+            {merged.map((item) =>
+              item._kind === "job" ? (
+                <li key={`job-${item.data.id}`} className="flex items-start gap-3 px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium leading-tight">
+                      {item.data.label}
                     </p>
-                  )}
-                </div>
-                <StatusChip status={job.status} />
-              </li>
-            ))}
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      {elapsedLabel(new Date(item.data.createdAt).getTime())}
+                    </p>
+                    {item.data.error && (
+                      <p className="mt-1 truncate text-[11px] text-destructive">
+                        {item.data.error}
+                      </p>
+                    )}
+                  </div>
+                  <StatusChip status={item.data.status} />
+                </li>
+              ) : (
+                <li key={`notif-${item.data.id}`} className="flex items-start gap-3 px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium leading-tight">
+                      {item.data.title}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      {elapsedLabel(item.data.timestamp)}
+                    </p>
+                    {item.data.message && (
+                      <p className="mt-1 truncate text-[11px] text-destructive">
+                        {item.data.message}
+                      </p>
+                    )}
+                  </div>
+                  <NotifChip status={item.data.status} />
+                </li>
+              )
+            )}
           </ul>
         )}
       </PopoverContent>

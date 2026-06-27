@@ -4,6 +4,7 @@ import type { ChatMessage } from "../lib/types";
 import { api } from "../lib/api";
 import type { ChatSessionMeta } from "../lib/api";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
+import { useNotificationStore } from "./useNotificationStore";
 
 interface ChatState {
   messages: ChatMessage[];
@@ -154,6 +155,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           onError: (msg) => {
             patch({ content: acc || `⚠️ ${msg}`, streaming: false });
             toast.error("Answer failed", { description: msg });
+            useNotificationStore.getState().add({ title: "Chat answer failed", status: "error", message: msg });
           },
         }, sessionId, ragMode, socratic);
       } else {
@@ -169,6 +171,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const msg = err instanceof Error ? err.message : "Request failed";
       patch({ content: `⚠️ ${msg}`, streaming: false });
       toast.error("Answer failed", { description: msg });
+      useNotificationStore.getState().add({ title: "Chat answer failed", status: "error", message: msg });
     } finally {
       controller = null;
       set({ isStreaming: false });

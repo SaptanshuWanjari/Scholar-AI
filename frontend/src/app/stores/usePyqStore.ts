@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { api, type PyqAnalysis, type PyqDifferenceSuggestion, type PyqPaper, type PyqQuestion } from "../lib/api";
+import { useNotificationStore } from "./useNotificationStore";
 
 export interface PyqFilters {
   year?: number;
@@ -97,10 +98,14 @@ export const usePyqStore = create<PyqState>((set, get) => ({
     set({ uploading: true });
     try {
       const res = await api.uploadPyqPaper(file, course, year);
-      toast.success(`Extracted ${res.extracted} questions from ${res.paper.title}`);
+      const successMsg = `Extracted ${res.extracted} questions from ${res.paper.title}`;
+      toast.success(successMsg);
+      useNotificationStore.getState().add({ title: successMsg, status: "success" });
       await get().refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Upload failed");
+      const errMsg = e instanceof Error ? e.message : "Upload failed";
+      toast.error(errMsg);
+      useNotificationStore.getState().add({ title: "PYQ upload failed", status: "error", message: errMsg });
     } finally {
       set({ uploading: false });
     }

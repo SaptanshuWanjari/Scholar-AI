@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { api, type ExamResult, type ExamSession } from "../lib/api";
+import { useNotificationStore } from "./useNotificationStore";
 
 export type ExamStage = "builder" | "session" | "results";
 
@@ -119,12 +120,14 @@ export const useExamStore = create<ExamState>((set, get) => ({
         durationMinutes: minutes,
       });
       if (!session.grounded || session.questions.length === 0) {
-        toast.error(
-          "Couldn't generate a grounded exam from your materials. Try another topic or course.",
-        );
+        const errMsg = "Couldn't generate a grounded exam from your materials. Try another topic or course.";
+        toast.error(errMsg);
+        useNotificationStore.getState().add({ title: "Exam generation failed", status: "error", message: errMsg });
         return;
       }
-      toast.success(`Generated ${session.questions.length} questions`);
+      const successMsg = `Generated ${session.questions.length} questions`;
+      toast.success(successMsg);
+      useNotificationStore.getState().add({ title: successMsg, status: "success" });
       set({
         sessionId: session.sessionId,
         questions: session.questions,
@@ -138,7 +141,9 @@ export const useExamStore = create<ExamState>((set, get) => ({
         stage: "session",
       });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate exam");
+      const errMsg = err instanceof Error ? err.message : "Failed to generate exam";
+      toast.error(errMsg);
+      useNotificationStore.getState().add({ title: "Exam generation failed", status: "error", message: errMsg });
     } finally {
       set({ generating: false });
     }
@@ -174,6 +179,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
       visited: [],
       deadline: null,
       submitting: false,
+      generating: false,
       pyqCourse: null,
     }),
 }));

@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import { api, type SavedRevision } from "../lib/api";
 import type { QualityScore } from "../lib/types";
-import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
+import { useNotificationStore } from "./useNotificationStore";
 
 export type RevisionFormat = "notes" | "concepts" | "formulas" | "summary";
 
@@ -136,17 +136,7 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
       return;
     }
 
-    if (t) {
-      const enhResult = await usePromptEnhancerStore.getState().analyze(t, selectedCourse, "study_notes");
-      if (enhResult.action === "edit") {
-        set({ topic: enhResult.prompt });
-        return;
-      }
-      if (enhResult.action === "use_suggested") {
-        set({ topic: enhResult.prompt });
-      }
-    }
-    const finalTopic = get().topic.trim();
+    const finalTopic = t;
 
     controller?.abort();
     const ctrl = new AbortController();
@@ -170,19 +160,25 @@ export const useRevisionStore = create<RevisionState>((set, get) => ({
             set({ title: title || null, quality, ungrounded: notCovered });
             if (notCovered) {
               toast.warning("This topic may not be covered by your uploaded documents");
+              useNotificationStore.getState().add({ title: "Study sheet generated (may not be grounded)", status: "success" });
             } else {
               toast.success("Study sheet generated and auto-saved");
+              useNotificationStore.getState().add({ title: "Study sheet generated and auto-saved", status: "success" });
             }
             get().saveRevision(true);
           },
           onError: (msg) => {
-            toast.error(msg || "Failed to generate study sheet");
+            const errMsg = msg || "Failed to generate study sheet";
+            toast.error(errMsg);
+            useNotificationStore.getState().add({ title: "Study sheet generation failed", status: "error", message: errMsg });
           },
         },
       );
     } catch (err) {
       if ((err as any)?.name !== "AbortError") {
-        toast.error(err instanceof Error ? err.message : "Failed to generate study sheet");
+        const errMsg = err instanceof Error ? err.message : "Failed to generate study sheet";
+        toast.error(errMsg);
+        useNotificationStore.getState().add({ title: "Study sheet generation failed", status: "error", message: errMsg });
       }
     } finally {
       if (controller === ctrl) controller = null;

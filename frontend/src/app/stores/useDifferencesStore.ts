@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { api } from "../lib/api";
 import type { Course, DifferenceTableItem, DocumentItem, GeneratedDifference } from "../lib/types";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
+import { useNotificationStore } from "./useNotificationStore";
 
 interface DifferencesState {
   topic: string;
@@ -90,8 +91,10 @@ export const useDifferencesStore = create<DifferencesState>((set, get) => ({
     try {
       const result = await api.generateDifference(finalTopic, selectedCourse, document);
       set({ output: result });
+      useNotificationStore.getState().add({ title: "Comparison table generated", status: "success" });
     } catch {
       toast.error("Failed to generate comparison");
+      useNotificationStore.getState().add({ title: "Comparison generation failed", status: "error" });
     } finally {
       set({ loading: false });
     }

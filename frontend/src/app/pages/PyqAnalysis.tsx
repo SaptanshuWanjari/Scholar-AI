@@ -108,8 +108,11 @@ export function PyqAnalysis() {
     useExamStore.getState().setField("pyqCourse", course);
     useExamStore.getState().setField("difficulty", analysis.summary.avgDifficulty || "Medium");
     useExamStore.getState().setField("types", ["mcq", "short"]);
-    toast.message("Mock exam configured from PYQ trends", { description: "Press Generate to start." });
+    toast.message("Generating Mock Exam", { description: "Configured from PYQ trends." });
     navigate("/exam");
+    setTimeout(() => {
+      useExamStore.getState().generate();
+    }, 100);
   };
   const genQuiz = (topic: string) => {
     useQuizStore.getState().setField("topic", topic);

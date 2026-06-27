@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import type { Flashcard, QualityScore } from "../lib/types";
 import { api } from "../lib/api";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
+import { useNotificationStore } from "./useNotificationStore";
 
 const NO_GROUNDED_MESSAGE =
   "No grounded flashcards — try uploading documents or a different topic.";
@@ -77,6 +78,7 @@ export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
           ungrounded: true,
         });
         toast.error(NO_GROUNDED_MESSAGE);
+        useNotificationStore.getState().add({ title: "Flashcard generation failed", status: "error", message: NO_GROUNDED_MESSAGE });
         return;
       }
       set({
@@ -86,9 +88,13 @@ export const useFlashcardGenStore = create<FlashcardGenState>((set, get) => ({
         generatedDeckName: result.deck,
         ungrounded: false,
       });
-      toast.success(`Generated ${result.cards.length} flashcards`);
+      const successMsg = `Generated ${result.cards.length} flashcards`;
+      toast.success(successMsg);
+      useNotificationStore.getState().add({ title: successMsg, status: "success" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate flashcards");
+      const errMsg = err instanceof Error ? err.message : "Failed to generate flashcards";
+      toast.error(errMsg);
+      useNotificationStore.getState().add({ title: "Flashcard generation failed", status: "error", message: errMsg });
     } finally {
       set({ generating: false });
     }

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import { api, type GeneratedMindmap } from "../lib/api";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
+import { useNotificationStore } from "./useNotificationStore";
 
 export const ALL_COURSES = "__all__";
 
@@ -46,14 +47,19 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
       const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
       const result = await api.generateMindmap(finalTopic, course === ALL_COURSES ? null : course, document, ragMode);
       if (!result.grounded || !result.text?.trim()) {
-        toast.error("No grounded mind map could be generated for this topic");
+        const errMsg = "No grounded mind map could be generated for this topic";
+        toast.error(errMsg);
+        useNotificationStore.getState().add({ title: "Mind map generation failed", status: "error", message: errMsg });
         set({ mindmap: null });
         return;
       }
       set({ mindmap: result });
       toast.success("Mind map generated");
+      useNotificationStore.getState().add({ title: "Mind map generated", status: "success" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate mind map");
+      const errMsg = err instanceof Error ? err.message : "Failed to generate mind map";
+      toast.error(errMsg);
+      useNotificationStore.getState().add({ title: "Mind map generation failed", status: "error", message: errMsg });
     } finally {
       set({ loading: false });
     }
