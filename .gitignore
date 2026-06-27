@@ -17,3 +17,7 @@ pdfs/
 docs/
 .data/
 bak/
+.claude/
+.superpowers/
+.claude/worktrees/
+.claude/
