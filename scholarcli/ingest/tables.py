@@ -63,9 +63,14 @@ def extract_table_markdowns(page) -> list[str]:
     markdowns: list[str] = []
     for tbl in getattr(finder, "tables", []) or []:
         try:
+            extracted = tbl.extract()
+            non_empty = [c for row in extracted for c in row if c is not None and str(c).strip()]
+            if len(non_empty) < 4:
+                continue
+            
             md = tbl.to_markdown().strip()
         except Exception as exc:  # noqa: BLE001
-            logger.warning("table to_markdown failed: %s", exc)
+            logger.warning("table extraction failed: %s", exc)
             continue
         if md and md.count("\n") >= 2:
             markdowns.append(md)

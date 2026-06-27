@@ -98,6 +98,9 @@ class Document(Base):
         Integer, ForeignKey("courses.id"), nullable=False, index=True
     )
     course: Mapped["Course"] = relationship(back_populates="documents")
+    code_examples: Mapped[list["CodeExample"]] = relationship(
+        back_populates="document", cascade="all, delete-orphan"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -605,7 +608,7 @@ class CodeExample(Base):
         DateTime(timezone=True), server_default=func.now()
     )
     
-    document: Mapped["Document"] = relationship(backref="code_examples")
+    document: Mapped["Document"] = relationship(back_populates="code_examples")
 
 
 class PageOcrCache(Base):

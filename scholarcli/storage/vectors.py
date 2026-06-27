@@ -82,7 +82,7 @@ def rebuild_fts_index() -> None:
     if not _has_table():
         return
     try:
-        _open_table().create_fts_index(["text"], replace=True)
+        _open_table().create_fts_index("text", replace=True)
     except Exception as exc:  # noqa: BLE001
         logger.warning("FTS index creation failed: %s", exc)
 
@@ -116,7 +116,7 @@ def add_chunks(rows: list[dict], rebuild_fts: bool = True) -> None:
 
     if rebuild_fts:
         try:
-            tbl.create_fts_index(["text"], replace=True)
+            tbl.create_fts_index("text", replace=True)
         except Exception as exc:  # noqa: BLE001
             logger.warning("FTS index creation failed (hybrid search disabled): %s", exc)
 

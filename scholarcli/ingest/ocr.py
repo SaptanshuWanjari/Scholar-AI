@@ -27,8 +27,8 @@ except ImportError:
     logger.debug("pytesseract not installed; Tesseract OCR fallback disabled")
 
 
-def _page_image_png(page, dpi: int = 200) -> bytes:
-    """Render a PyMuPDF page to PNG bytes. Call from main thread only."""
+def _page_image_png(page, dpi: int = 300) -> bytes:
+    """Render a fitz.Page to a PNG byte string for Vision APIs."""
     pix = page.get_pixmap(dpi=dpi)
     return pix.tobytes("png")
 
