@@ -40,6 +40,7 @@ class Page(NamedTuple):
     source_type: str = "text"  # text | ocr | table | image | diagram
     image_url: str = ""  # served URL for image/diagram artifacts
     bbox: tuple[float, float, float, float] | None = None  # union bbox of text blocks
+    original_payload: str | None = None  # raw content (e.g. markdown table) preserved for retrieval
 
 
 @dataclass
@@ -361,12 +362,16 @@ def _process_job(
 
     # --- Tables (LLM summarisation in worker thread) -------------------------
     if job.table_markdowns:
-        from scholarcli.ingest.tables import _summarize, TableArtifact
+        from scholarcli.ingest.tables import _summarize
         for md in job.table_markdowns:
             summary = _summarize(md)
-            artifact = TableArtifact(markdown=md, summary=summary)
             pages.append(
-                Page(job.page_num, title, job.heading, artifact.chunk_text, source_type="table")
+                Page(
+                    job.page_num, title, job.heading,
+                    text=summary if summary else md,
+                    source_type="table",
+                    original_payload=md,
+                )
             )
 
     return pages
