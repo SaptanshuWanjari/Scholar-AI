@@ -5,7 +5,7 @@ import rehypeRaw from "rehype-raw";
 import katex from "katex";
 import { CitationBadge } from "./CitationBadge";
 import { DiagramViewer } from "./DiagramViewer";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger, DialogClose } from "./ui/dialog";
 import { cn } from "./ui/utils";
 
 interface MarkdownRendererProps {
@@ -146,13 +146,18 @@ export function MarkdownRenderer({
                     className="mx-auto max-h-[28rem] cursor-zoom-in rounded-lg border border-border object-contain transition-opacity hover:opacity-90"
                   />
                 </DialogTrigger>
-                <DialogContent className="max-w-[95vw] sm:max-w-[95vw] border-none bg-transparent p-0 shadow-none">
+                <DialogContent className="max-w-[95vw] sm:max-w-[95vw] h-[95vh] border-none bg-transparent p-0 shadow-none">
                   <DialogTitle className="sr-only">{alt ?? "Image view"}</DialogTitle>
-                  <img
-                    src={typeof src === "string" ? src : ""}
-                    alt={alt ?? ""}
-                    className="h-auto max-h-[95vh] w-auto max-w-full m-auto rounded-lg object-contain"
-                  />
+                  <DialogClose asChild>
+                    <div className="w-full h-full flex items-center justify-center cursor-zoom-out">
+                      <img
+                        src={typeof src === "string" ? src : ""}
+                        alt={alt ?? ""}
+                        className="h-auto max-h-[95vh] w-auto max-w-full rounded-lg object-contain cursor-default"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </DialogClose>
                 </DialogContent>
               </Dialog>
               {alt && alt !== "Image" && (
