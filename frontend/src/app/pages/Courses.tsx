@@ -475,7 +475,7 @@ function CourseWorkspace({
       setStats(s);
       setDocuments(docs);
       setArtifacts(arts);
-    } catch {}
+    } catch (e) { toast.error(String(e)); }
     setLoadingStats(false);
   }, [course.id, course.name]);
 
@@ -605,9 +605,9 @@ function CourseWorkspace({
         {/* Stats row */}
         {stats && (
           <div className="mt-8 border-y border-border py-5">
-            <div className="flex flex-wrap items-center justify-between gap-y-6 gap-x-4 px-2 lg:gap-x-8">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-y-6 gap-x-6 px-2 lg:gap-x-8">
               {STAT_CARDS.map((sc) => (
-                <div key={sc.label} className="flex flex-col items-center gap-2 flex-1 min-w-[80px]">
+                <div key={sc.label} className="flex flex-col items-center gap-2 min-w-[90px]">
                   <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground font-medium flex items-center gap-1.5 whitespace-nowrap">
                     <sc.icon className="size-3" style={{ color: sc.color }} /> {sc.label}
                   </span>
@@ -743,7 +743,7 @@ export function Courses() {
       setCreating(false);
       await loadCourses();
       selectCourse(c.id);
-    } catch {}
+    } catch (e) { toast.error(String(e)); }
   };
 
   const handleUpdate = async (id: string) => {
@@ -752,7 +752,7 @@ export function Courses() {
       await api.updateCourse(id, editName);
       setEditingId(null);
       loadCourses();
-    } catch {}
+    } catch (e) { toast.error(String(e)); }
   };
 
   const confirmDelete = async () => {
@@ -764,7 +764,7 @@ export function Courses() {
         setSearchParams({});
       }
       loadCourses();
-    } catch {}
+    } catch (e) { toast.error(String(e)); }
     setDeletingId(null);
   };
 
