@@ -17,6 +17,7 @@ import {
   Search,
   FolderOpen,
   Settings,
+  BookOpen as GuideIcon,
   BookMarked,
   FileSearch,
   ShieldCheck,
@@ -61,5 +62,6 @@ export const navItems: NavItem[] = [
   // System
   { label: "Search", to: "/search", icon: Search, shortcut: "S", group: "system" },
   { label: "Prompts", to: "/prompts", icon: BookMarked, shortcut: "P", group: "system" },
+  { label: "Guide", to: "/guide", icon: GuideIcon, shortcut: "H", group: "system" },
   { label: "Settings", to: "/settings", icon: Settings, shortcut: ",", group: "system" },
 ];

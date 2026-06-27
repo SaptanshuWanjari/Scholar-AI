@@ -155,7 +155,7 @@ export function AskAI() {
               value={course ?? "all"}
               onValueChange={(v) => setCourse(v === "all" ? null : v)}
             >
-              <SelectTrigger className="h-8 w-44 bg-input-background text-xs">
+              <SelectTrigger data-tour="ask-scope" className="h-8 w-44 bg-input-background text-xs">
                 <SelectValue placeholder="All courses" />
               </SelectTrigger>
               <SelectContent>
@@ -256,7 +256,7 @@ export function AskAI() {
         {/* Sticky input */}
         <div className="border-t border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
           <div className="mx-auto max-w-3xl">
-            <div className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 transition-colors focus-within:border-ring/60">
+            <div data-tour="ask-input" className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 transition-colors focus-within:border-ring/60">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -271,6 +271,7 @@ export function AskAI() {
                 className="max-h-40 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
               />
               <Button
+                data-tour="ask-send"
                 size="icon"
                 disabled={!input.trim() || isStreaming}
                 onClick={() => submit()}
@@ -295,6 +296,7 @@ export function AskAI() {
 
       {/* Sources — collapsible right panel, lg+ only */}
       <div
+        data-tour="ask-sources"
         className={`hidden lg:flex flex-col border-l border-border bg-sidebar overflow-hidden transition-all duration-200 ${
           sourcesPanelOpen ? "w-[25%] min-w-[260px] max-w-[360px]" : "w-0"
         }`}

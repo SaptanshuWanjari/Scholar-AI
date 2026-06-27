@@ -275,6 +275,7 @@ export function KnowledgeBase() {
     <div className="flex h-full overflow-hidden">
       {/* ── Left panel ── */}
       <motion.aside
+        data-tour="knowledge-sidebar"
         animate={{ width: leftCollapsed ? 0 : 280 }}
         transition={{ type: "spring", stiffness: 340, damping: 36 }}
         className="relative z-10 hidden shrink-0 flex-col overflow-hidden border-r border-border bg-card/50 lg:flex"
@@ -414,7 +415,7 @@ export function KnowledgeBase() {
       </motion.aside>
 
       {/* ── Center canvas ── */}
-      <div className="relative min-w-0 flex-1">
+      <div data-tour="knowledge-graph" className="relative min-w-0 flex-1">
         {/* panel re-open buttons */}
         {leftCollapsed && (
           <button
@@ -483,6 +484,7 @@ export function KnowledgeBase() {
 
       {/* ── Right inspector ── */}
       <motion.aside
+        data-tour="knowledge-inspector"
         animate={{ width: rightCollapsed ? 0 : 320 }}
         transition={{ type: "spring", stiffness: 340, damping: 36 }}
         className="relative z-10 hidden shrink-0 flex-col overflow-hidden border-l border-border bg-card/50 xl:flex"

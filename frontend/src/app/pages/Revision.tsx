@@ -124,7 +124,7 @@ export function Revision() {
         </p>
 
         <div className="mt-6 space-y-5">
-          <div>
+          <div data-tour="revision-format">
             <Label className="mb-2 block">Format</Label>
             <div className="grid grid-cols-2 gap-2">
               {formats.map((f) => (
@@ -152,7 +152,7 @@ export function Revision() {
             </div>
           </div>
 
-          <div>
+          <div data-tour="revision-source">
             <Label className="mb-2 block">Topic</Label>
             <Input
               value={topic}
@@ -199,6 +199,7 @@ export function Revision() {
           </div>
 
           <Button
+            data-tour="revision-generate"
             onClick={loading ? stop : generate}
             className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
@@ -284,7 +285,7 @@ export function Revision() {
 
       {/* Preview */}
       <div className="min-w-0 flex-1 overflow-y-auto">
-        <div className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
+        <div data-tour="revision-preview" className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">{title ?? "Preview"}</span>
             {!loading && <QualityBadge score={quality} />}

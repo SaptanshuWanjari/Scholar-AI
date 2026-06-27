@@ -14,6 +14,7 @@ import {
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { Page } from "../components/Page";
+import { ContextualTip } from "../guidance/components/ContextualTip";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
@@ -128,6 +129,7 @@ export function Documents() {
 
       {/* Upload zone */}
       <motion.div
+        data-tour="documents-upload"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl border border-dashed border-border bg-card p-8 text-center transition-colors hover:border-primary/50"
@@ -156,8 +158,13 @@ export function Documents() {
         </Button>
       </motion.div>
 
+      <ContextualTip id="documents-formats">
+        Drag &amp; drop straight onto the box above, or upload PDFs, Markdown and
+        plain text. Everything you add becomes searchable across the whole app.
+      </ContextualTip>
+
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div data-tour="documents-toolbar" className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-56">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -184,7 +191,7 @@ export function Documents() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div data-tour="documents-list" className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className="grid grid-cols-[1fr_140px_90px_70px_120px_40px] gap-4 border-b border-border bg-muted/40 px-5 py-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           <span>Name</span>
           <span>Course</span>

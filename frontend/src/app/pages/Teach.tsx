@@ -223,6 +223,7 @@ function InputPhase() {
 
           <div className="mt-8 rounded-2xl border border-border bg-card p-5">
             <Input
+              data-tour="teach-input"
               value={topic}
               onChange={(e) => handleTopicChange(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") void handleGenerate(); }}
@@ -303,7 +304,7 @@ function InputPhase() {
             </div>
 
             {/* Artifacts */}
-            <div className="mt-5">
+            <div className="mt-5" data-tour="teach-artifacts">
               <div className="mb-2 flex items-center justify-between">
                 <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Artifacts
@@ -364,7 +365,7 @@ function InputPhase() {
               </div>
             </div>
 
-            <Button onClick={handleGenerate} disabled={checking} className="mt-6 w-full gap-2">
+            <Button data-tour="teach-generate" onClick={handleGenerate} disabled={checking} className="mt-6 w-full gap-2">
               {checking ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
               {checking ? "Checking prerequisites…" : "Generate learning package"}
             </Button>

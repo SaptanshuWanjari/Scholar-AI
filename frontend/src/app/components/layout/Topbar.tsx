@@ -5,6 +5,7 @@ import { useUIStore } from "../../stores/useUIStore";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { JobsIndicator } from "../JobsIndicator";
+import { HelpMenu } from "../../guidance/components/HelpMenu";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   "/": { title: "Dashboard", subtitle: "Your learning at a glance" },
@@ -62,6 +63,10 @@ const titles: Record<string, { title: string; subtitle: string }> = {
     title: "Prompts",
     subtitle: "Manage your system prompts",
   },
+  "/guide": {
+    title: "Guide",
+    subtitle: "How to get the most out of ScholarAI",
+  },
   "/settings": {
     title: "Settings",
     subtitle: "Configure models and preferences",
@@ -92,6 +97,7 @@ export function Topbar() {
 
       <button
         onClick={() => setCommandOpen(true)}
+        data-tour="global-search"
         className="ml-auto hidden h-9 w-72 items-center gap-2 rounded-lg border border-border bg-input-background px-3 text-sm text-muted-foreground transition-colors hover:border-ring/50 md:flex"
       >
         <Command className="size-4" />
@@ -102,6 +108,8 @@ export function Topbar() {
       </button>
 
       <JobsIndicator />
+
+      <HelpMenu />
 
       <Button
         onClick={() => toast.success("New item created")}

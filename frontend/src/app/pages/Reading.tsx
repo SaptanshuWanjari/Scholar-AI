@@ -228,7 +228,7 @@ export function Reading() {
           </div>
 
           {/* Document picker */}
-          <div className="border-b border-border p-3">
+          <div data-tour="reading-doc" className="border-b border-border p-3">
             <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               <FileText className="size-3" /> Document
             </div>
@@ -294,7 +294,7 @@ export function Reading() {
         </aside>
 
         {/* Center — Reader */}
-        <main className="relative min-w-0 flex-1 overflow-y-auto" ref={scrollRef}>
+        <main data-tour="reading-reader" className="relative min-w-0 flex-1 overflow-y-auto" ref={scrollRef}>
           <SelectionToolbar containerRef={readerRef} actions={actions} />
 
           {/* Sidebar Toggles & View Mode */}
@@ -419,7 +419,7 @@ export function Reading() {
           )}
 
           {/* Academic Lens */}
-          <div className="border-b border-border p-4">
+          <div data-tour="reading-lens" className="border-b border-border p-4">
             <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               <GraduationCap className="size-3.5" /> Academic Lens
             </div>
@@ -439,7 +439,7 @@ export function Reading() {
             </div>
           </div>
 
-          <div className="flex-1 space-y-5 p-4">
+          <div data-tour="reading-context" className="flex-1 space-y-5 p-4">
             <AnimatePresence mode="wait">
               {selected ? (
                 <motion.div
