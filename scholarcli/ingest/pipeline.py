@@ -122,6 +122,7 @@ def _ingest_file_inner(
                 "text": ch["text"],
                 "source_type": ch.get("source_type", "text"),
                 "image_url": ch.get("image_url", ""),
+                "original_payload": ch.get("original_payload"),
                 "vector": vec,
             }
         )

@@ -16,7 +16,7 @@ def chunk_pages(pages: list[Page]) -> list[dict]:
     """Convert pages into chunk dicts ready for embedding + storage.
 
     Returns a list of dicts with keys:
-        page, heading, chunk_index, text, source_type, image_url
+        page, heading, chunk_index, text, source_type, image_url, original_payload
     """
     s = get_settings()
     budget = s.chunking.chunk_size
@@ -26,6 +26,7 @@ def chunk_pages(pages: list[Page]) -> list[dict]:
     for page in pages:
         source_type = getattr(page, "source_type", "text")
         image_url = getattr(page, "image_url", "")
+        original_payload = getattr(page, "original_payload", None)
 
         # Non-text artifacts (tables, image/diagram descriptions, OCR) are kept
         # whole: splitting a markdown table or a caption mid-way destroys it.
@@ -45,6 +46,7 @@ def chunk_pages(pages: list[Page]) -> list[dict]:
                     "text": chunk_text,
                     "source_type": source_type,
                     "image_url": image_url,
+                    "original_payload": original_payload,
                 }
             )
 
