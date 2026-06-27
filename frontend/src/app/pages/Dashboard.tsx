@@ -56,7 +56,7 @@ export function Dashboard() {
             Good evening, Student.
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2" data-tour="dashboard-actions">
           <Button
             onClick={() => navigate("/ask")}
             className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
@@ -139,7 +139,7 @@ export function Dashboard() {
           )}
 
           {/* Metrics Row */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-tour="dashboard-metrics">
             <MetricCard label="Documents" value={metrics?.documents ?? documents.length} icon={FileText} accent="#8b5cf6" hint={`${courses.length} courses`} />
             <MetricCard label="Flashcards" value={metrics?.flashcards ?? 0} icon={Layers} accent="#06b6d4" hint="across all decks" />
             <MetricCard label="Quizzes" value={metrics?.quizzesTaken ?? 0} icon={ListChecks} accent="#22c55e" />
@@ -147,7 +147,7 @@ export function Dashboard() {
           </div>
 
           {/* Recent documents */}
-          <div>
+          <div data-tour="dashboard-recent">
             <SectionTitle
               title="Recent documents"
               action={

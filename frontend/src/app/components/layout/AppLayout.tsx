@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router";
 import { AppSidebar } from "./AppSidebar";
 import { Topbar } from "./Topbar";
 import { CommandMenu } from "../CommandMenu";
+import { TourAutoStart } from "../../guidance/components/TourAutoStart";
 import { navItems } from "../../lib/nav";
 
 export function AppLayout() {
@@ -37,6 +38,7 @@ export function AppLayout() {
         </main>
       </div>
       <CommandMenu />
+      <TourAutoStart />
     </div>
   );
 }

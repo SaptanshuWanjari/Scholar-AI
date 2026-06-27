@@ -119,6 +119,9 @@ importers:
       date-fns:
         specifier: 3.6.0
         version: 3.6.0
+      driver.js:
+        specifier: ^1.6.0
+        version: 1.6.0
       embla-carousel-react:
         specifier: 8.6.0
         version: 8.6.0(react@18.3.1)
@@ -2071,6 +2074,9 @@ packages:
 
   dompurify@3.4.11:
     resolution: {integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==}
+
+  driver.js@1.6.0:
+    resolution: {integrity: sha512-gryo9QS7AZhz8J0bmdf42dwaTzcd1BgSJLnaSM7cPJbu8bTW8wIEuiGDy4MoCvB4Sr8wA9g5o2G9EFNVYZGeVQ==}
 
   electron-to-chromium@1.5.376:
     resolution: {integrity: sha512-cUVA7/RvbFTEuw/i3obUwDTRIXojaxkResf+ibByPFxjc6XK3VNtcQXV0NSbAlJ0FMjcJGgftVVB4Qo184EXvA==}
@@ -4937,6 +4943,8 @@ snapshots:
   dompurify@3.4.11:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
+
+  driver.js@1.6.0: {}
 
   electron-to-chromium@1.5.376: {}
 

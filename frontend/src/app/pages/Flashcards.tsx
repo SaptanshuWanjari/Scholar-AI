@@ -199,7 +199,7 @@ export function Flashcards() {
   return (
     <Page className="space-y-6">
       {/* Generate flashcards */}
-      <div className="rounded-xl border border-border bg-card p-4">
+      <div data-tour="flashcards-generate" className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <Sparkles className="size-4 text-violet" /> Generate flashcards
         </div>
@@ -273,7 +273,7 @@ export function Flashcards() {
       </div>
 
       {/* Decks */}
-      <div>
+      <div data-tour="flashcards-decks">
         <div className="flex items-center justify-between">
           <SectionTitle title="Decks" />
 
@@ -367,7 +367,7 @@ export function Flashcards() {
               )}
             </Button>
           )}
-          <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+          <div data-tour="flashcards-views" className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
             {([
               { id: "grid", icon: LayoutGrid, label: "Grid" },
               { id: "list", icon: List, label: "List" },
@@ -558,7 +558,7 @@ function StudyMode({
         <Button variant="outline" size="icon" className="size-11 rounded-full border-border/60" onClick={prev}>
           <ChevronLeft className="size-5" />
         </Button>
-        <div className="flex gap-4">
+        <div data-tour="flashcards-rate" className="flex gap-4">
           <Button variant="outline" className="h-11 gap-2 rounded-full border-danger/40 px-6 font-medium text-danger hover:bg-danger-soft" onClick={() => grade("learning")}>
             <X className="size-4" /> Hard
           </Button>

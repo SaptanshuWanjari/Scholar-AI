@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Cpu, Boxes, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router";
+import { Cpu, Boxes, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass } from "lucide-react";
 import { Page } from "../components/Page";
+import { useGuidanceStore } from "../guidance/useGuidanceStore";
 import {
   Tabs,
   TabsContent,
@@ -71,6 +73,11 @@ function Row({
 
 export function SettingsPage() {
   const s = useSettingsStore();
+  const navigate = useNavigate();
+  const toursEnabled = useGuidanceStore((g) => g.prefs.toursEnabled);
+  const tipsEnabled = useGuidanceStore((g) => g.prefs.tipsEnabled);
+  const setGuidancePref = useGuidanceStore((g) => g.setPref);
+  const resetGuidance = useGuidanceStore((g) => g.resetAll);
   const [models, setModels] = useState<ModelsList>({
     fastModels: [],
     reasoningModels: [],
@@ -89,6 +96,7 @@ export function SettingsPage() {
     } catch (e) {
       console.error(e);
     }
+    resetGuidance();
     localStorage.clear();
     sessionStorage.clear();
     try {
@@ -129,6 +137,9 @@ export function SettingsPage() {
           </TabsTrigger>
           <TabsTrigger value="shortcuts" className="gap-1.5">
             <Keyboard className="size-4" /> Shortcuts
+          </TabsTrigger>
+          <TabsTrigger value="guidance" className="gap-1.5">
+            <LifeBuoy className="size-4" /> Help &amp; Guidance
           </TabsTrigger>
           <TabsTrigger value="data" className="gap-1.5">
             <Database className="size-4" /> Data
@@ -349,6 +360,61 @@ export function SettingsPage() {
                 </kbd>
               </Row>
             ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="guidance">
+          <div className="rounded-2xl border border-border bg-card px-5">
+            <Row
+              title="Interactive tours"
+              desc="Show a guided walkthrough the first time you visit a page"
+            >
+              <Switch
+                checked={toursEnabled}
+                onCheckedChange={(v) => setGuidancePref("toursEnabled", v)}
+              />
+            </Row>
+            <Row
+              title="Contextual tips"
+              desc="Show small, dismissible tips during normal use"
+            >
+              <Switch
+                checked={tipsEnabled}
+                onCheckedChange={(v) => setGuidancePref("tipsEnabled", v)}
+              />
+            </Row>
+            <Row
+              title="Reset all walkthroughs"
+              desc="Clear seen tours and dismissed tips so guidance appears again"
+            >
+              <Button variant="outline" className="gap-2" onClick={resetGuidance}>
+                <RotateCcw className="size-4" /> Reset
+              </Button>
+            </Row>
+            <Row
+              title="Replay onboarding"
+              desc="Go through the initial setup walkthrough again"
+            >
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => navigate("/onboarding")}
+              >
+                <Compass className="size-4" /> Replay
+              </Button>
+            </Row>
+            <Row
+              title="Open the Guide"
+              desc="Read the full ScholarAI documentation"
+            >
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => navigate("/guide")}
+              >
+                <BookOpen className="size-4" /> Open Guide
+              </Button>
+            </Row>
           </div>
         </TabsContent>
 

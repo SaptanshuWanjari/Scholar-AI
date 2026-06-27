@@ -127,7 +127,7 @@ function Builder() {
         </p>
       </div>
 
-      <div className="space-y-5">
+      <div className="space-y-5" data-tour="exam-setup">
         <Field
           icon={ListChecks}
           title="Topic"
@@ -145,6 +145,7 @@ function Builder() {
           icon={FileStack}
           title="Source Material"
           desc="Choose the course the exam draws from"
+          tourId="exam-source"
         >
           <Select value={course} onValueChange={setCourse}>
             <SelectTrigger className="w-full bg-input-background">
@@ -222,7 +223,10 @@ function Builder() {
           </select>
         </Field>
 
-        <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
+        <div
+          className="flex items-center justify-between rounded-xl border border-border bg-card p-4"
+          data-tour="exam-generate"
+        >
           <div className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">
               {count} questions
@@ -991,14 +995,16 @@ function Field({
   title,
   desc,
   children,
+  tourId,
 }: {
   icon: typeof FileStack;
   title: string;
   desc?: string;
   children: React.ReactNode;
+  tourId?: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-xl border border-border bg-card p-4" data-tour={tourId}>
       <div className="mb-3 flex items-center gap-2">
         <Icon className="size-4 text-muted-foreground" />
         <span className="text-sm font-medium">{title}</span>
