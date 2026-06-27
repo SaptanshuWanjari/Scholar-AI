@@ -41,7 +41,7 @@ def _active_model(task: str) -> str:
 
 @functools.lru_cache(maxsize=16)
 def _get_llm_cached(tag: str, temperature: float, base_url: str) -> ChatOllama:
-    return ChatOllama(model=tag, temperature=temperature, base_url=base_url)
+    return ChatOllama(model=tag, temperature=temperature, base_url=base_url, keep_alive="5m", num_ctx=8192)
 
 def get_llm(task: str = "quick_qa", *, temperature: float = 0.0) -> ChatOllama:
     """Return a ``ChatOllama`` for the given task label."""

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any, Iterator
 
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from scholarcli.config import get_settings
 from scholarcli.llm import get_llm
@@ -70,6 +70,7 @@ def serialize_chunks(retrieved: list[dict]) -> list[dict]:
                 "similarity": _similarity(ch.get("_distance")),
                 "sourceType": ch.get("source_type", "text") or "text",
                 "imageUrl": ch.get("image_url", "") or "",
+                "text": text,
             }
         )
     return sources
@@ -137,10 +138,18 @@ def run_ask(
     search_query: str | None = None,
     rag_mode: str = "fallback",
     socratic: bool = False,
+    session_id: str | None = None,
 ) -> dict:
     """One-shot RAG answer. Returns answer, sources, confidence, grounded, route."""
     doc_id = int(document) if document and document.isdigit() else None
     state: GraphState = {"query": question, "course": course, "document_id": doc_id}
+    if session_id:
+        state["session_id"] = session_id
+        from scholarcli.api.chat_service import get_session_detail
+        detail = get_session_detail(session_id)
+        if detail and detail.get("messages"):
+            state["chat_history"] = detail["messages"]
+            
     if search_query:
         state["search_query"] = search_query
     if route:
@@ -178,30 +187,53 @@ def run_ask(
     }
 
 
-def _build_generation_prompt(state: GraphState, socratic: bool = False) -> tuple[str, str]:
-    """Mirror generator.generate's prompt assembly. Returns (system, user)."""
+def _build_generation_prompt(state: GraphState, socratic: bool = False) -> list:
+    """Assemble LangChain messages statically pinned for KV cache."""
     route = state.get("route", "quick_qa")
-    chunks = state["retrieved"]
+    history = state.get("chat_history", [])
+    
+    first_assistant = next((m for m in history if m["role"] == "assistant"), None)
+    if first_assistant and first_assistant.get("sources"):
+        chunks = first_assistant["sources"]
+    else:
+        chunks = state.get("retrieved", [])
 
     context_parts: list[str] = []
     citations: list[str] = []
     seen: set[str] = set()
     for ch in chunks:
-        st = ch.get("source_type", "text")
+        st = ch.get("source_type", "text") or ch.get("sourceType", "text")
+        title = ch.get("title", "Untitled")
+        page = ch.get("page", 0)
+        text = ch.get("text", "")
+        if not text and ch.get("snippet"):
+            text = ch.get("snippet")
+            
         kind = "" if st in ("text", None) else f", {st}"
-        context_parts.append(f"[Source: {ch['title']}, p.{ch['page']}{kind}]\n{ch['text']}")
-        cite = f"[{ch['title']}, p.{ch['page']}]"
+        context_parts.append(f"[Source: {title}, p.{page}{kind}]\n{text}")
+        cite = f"[{title}, p.{page}]"
         if cite not in seen:
             seen.add(cite)
             citations.append(cite)
 
     context = "\n\n---\n\n".join(context_parts)
-    user = QA_PROMPT_TEMPLATE.format(context=context, query=state["query"])
-    user = f"Available sources: {', '.join(citations)}\n\n{user}"
+    
     system = active_body(route) or _ROUTE_PROMPTS.get(route, GENERATOR_SYSTEM)
     if socratic:
         system = _SOCRATIC_PREFIX + system
-    return system, user
+        
+    system += f"\n\nContext from your uploaded materials:\n{context}"
+    messages = [SystemMessage(content=system)]
+    
+    for msg in history:
+        if msg["role"] == "user":
+            messages.append(HumanMessage(content=msg["content"]))
+        elif msg["role"] == "assistant":
+            messages.append(AIMessage(content=msg["content"]))
+            
+    user_query = f"Available sources: {', '.join(citations)}\n\nStudent's question: {state['query']}\n\nAnswer:"
+    messages.append(HumanMessage(content=user_query))
+    return messages
 
 
 def stream_ask(
@@ -212,6 +244,7 @@ def stream_ask(
     search_query: str | None = None,
     rag_mode: str = "fallback",
     socratic: bool = False,
+    session_id: str | None = None,
 ) -> Iterator[dict]:
     """Yield streaming events for the Ask endpoint.
 
@@ -221,6 +254,13 @@ def stream_ask(
     """
     doc_id = int(document) if document and document.isdigit() else None
     state: GraphState = {"query": question, "course": course, "document_id": doc_id}
+    if session_id:
+        state["session_id"] = session_id
+        from scholarcli.api.chat_service import get_session_detail
+        detail = get_session_detail(session_id)
+        if detail and detail.get("messages"):
+            state["chat_history"] = detail["messages"]
+            
     if search_query:
         state["search_query"] = search_query
     if route:
@@ -258,11 +298,9 @@ def stream_ask(
         }
         return
 
-    system, user = _build_generation_prompt(state, socratic=socratic)
+    messages = _build_generation_prompt(state, socratic=socratic)
     llm = get_llm(used_route or "quick_qa")
-    for chunk in llm.stream(
-        [SystemMessage(content=system), HumanMessage(content=user)]
-    ):
+    for chunk in llm.stream(messages):
         piece = getattr(chunk, "content", "") or ""
         if piece:
             yield {"type": "token", "value": piece}

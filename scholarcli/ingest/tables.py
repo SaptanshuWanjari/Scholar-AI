@@ -29,6 +29,7 @@ _SUMMARY_SYSTEM = (
 class TableArtifact(NamedTuple):
     markdown: str  # the original table as GFM markdown
     summary: str  # one-line retrieval summary (may be "")
+    csv_path: str | None = None
 
     @property
     def chunk_text(self) -> str:
@@ -48,8 +49,8 @@ def _summarize(markdown: str) -> str:
         return ""
 
 
-def extract_table_markdowns(page) -> list[str]:
-    """Return raw markdown strings for all tables on a page (PyMuPDF only, no LLM).
+def extract_tables(page, content_hash: str) -> list[dict]:
+    """Return raw markdown strings and csv paths for all tables on a page.
 
     Call this from the main thread before handing off to workers. Combine with
     _summarize() in a worker thread to produce TableArtifact objects.
@@ -62,8 +63,10 @@ def extract_table_markdowns(page) -> list[str]:
         logger.warning("find_tables failed: %s", exc)
         return []
 
-    markdowns: list[str] = []
-    for tbl in getattr(finder, "tables", []) or []:
+    import csv
+    import hashlib
+    tables: list[dict] = []
+    for idx, tbl in enumerate(getattr(finder, "tables", []) or []):
         try:
             extracted = tbl.extract()
             non_empty = [c for row in extracted for c in row if c is not None and str(c).strip()]
@@ -71,9 +74,20 @@ def extract_table_markdowns(page) -> list[str]:
                 continue
             
             md = tbl.to_markdown().strip()
+            
+            if md and md.count("\n") >= 2:
+                # Save as CSV
+                tables_dir = get_settings().paths.tables_dir
+                md_hash = hashlib.md5(md.encode("utf-8")).hexdigest()[:8]
+                csv_filename = f"{content_hash}_{page.number}_{idx}_{md_hash}.csv"
+                csv_path = tables_dir / csv_filename
+                
+                with csv_path.open("w", newline="", encoding="utf-8") as f:
+                    writer = csv.writer(f)
+                    writer.writerows(extracted)
+                
+                tables.append({"markdown": md, "csv_path": str(csv_path)})
         except Exception as exc:  # noqa: BLE001
             logger.warning("table extraction failed: %s", exc)
             continue
-        if md and md.count("\n") >= 2:
-            markdowns.append(md)
-    return markdowns
+    return tables

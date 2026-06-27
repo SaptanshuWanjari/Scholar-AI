@@ -20,6 +20,7 @@ from scholarcli.rag.prompts import (
     QA_PROMPT_TEMPLATE,
     QUIZ_SYSTEM,
     STUDY_NOTES_SYSTEM,
+    DATA_QA_SYSTEM,
 )
 from scholarcli.rag.state import GraphState
 
@@ -34,6 +35,7 @@ _ROUTE_PROMPTS: dict[str, str] = {
     "study_notes": STUDY_NOTES_SYSTEM,
     "differences": DIFFERENCES_SYSTEM,
     "learning_path": LEARNING_PATH_SYSTEM,
+    "data_qa": DATA_QA_SYSTEM,
 }
 
 
@@ -43,15 +45,18 @@ def generate(state: GraphState) -> GraphState:
         return state
 
     route = state.get("route", "quick_qa")
+    
+    if route == "data_qa":
+        from scholarcli.rag.nodes.data_analyzer import analyze_data
+        return analyze_data(state)
+
     llm = get_llm(route)
     chunks = state["retrieved"]
 
     from scholarcli.api.rag_service import _build_generation_prompt
-    system_prompt, user_prompt = _build_generation_prompt(state, socratic=state.get("socratic", False))
+    messages = _build_generation_prompt(state, socratic=state.get("socratic", False))
 
-    response = llm.invoke(
-        [SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)]
-    )
+    response = llm.invoke(messages)
     # response is an AIMessage; .content is str.
     answer: str = response.content if hasattr(response, "content") else str(response)
     state["answer"] = answer.strip()

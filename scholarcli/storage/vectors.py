@@ -30,7 +30,7 @@ TABLE_NAME = "chunks"
 # Columns that an up-to-date chunks table must carry. A pre-multimodal table
 # lacks these, so the first insert recreates it (chunks are rebuildable from
 # the source files under data/uploads via reindex_all()).
-_REQUIRED_COLUMNS = {"source_type", "image_url", "original_payload"}
+_REQUIRED_COLUMNS = {"source_type", "image_url", "original_payload", "csv_path"}
 
 
 def _db():
@@ -120,6 +120,28 @@ def add_chunks(rows: list[dict], rebuild_fts: bool = True) -> None:
             tbl.create_fts_index("text", replace=True)
         except Exception as exc:  # noqa: BLE001
             logger.warning("FTS index creation failed (hybrid search disabled): %s", exc)
+
+    s = get_settings()
+    if s.retrieval.pq_enabled:
+        try:
+            try:
+                count = len(tbl)
+            except Exception:
+                count = tbl.count_rows()
+            
+            if count > s.retrieval.pq_training_threshold:
+                dim = len(rows[0]["vector"])
+                num_sub_vectors = dim // 16
+                if num_sub_vectors < 1:
+                    num_sub_vectors = 1
+                tbl.create_index(
+                    metric="cosine",
+                    vector_column_name="vector",
+                    num_partitions=256,
+                    num_sub_vectors=num_sub_vectors
+                )
+        except Exception as exc:
+            logger.warning("PQ index creation failed: %s", exc)
 
 
 def search(query_vector: list[float], top_k: int = 5, course: str | None = None, document_id: int | None = None) -> list[dict]:
