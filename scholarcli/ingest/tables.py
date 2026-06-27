@@ -18,9 +18,11 @@ from scholarcli.llm import get_llm
 logger = logging.getLogger(__name__)
 
 _SUMMARY_SYSTEM = (
-    "You summarise tables from study material. Given a markdown table, reply "
-    "with ONE plain sentence (no markdown) stating what the table compares or "
-    "lists and its key columns. No preamble."
+    "You summarise tables from study material. Given a markdown table, write a "
+    "detailed semantic description (2-4 sentences) covering: (1) the table's purpose "
+    "and what it compares or lists, (2) its key columns and what each measures, "
+    "(3) any notable trends, ranges, or relationships visible in the data. "
+    "Reply in plain text only, no markdown formatting."
 )
 
 
@@ -36,7 +38,7 @@ class TableArtifact(NamedTuple):
 def _summarize(markdown: str) -> str:
     """One-line summary of a markdown table via the fast LLM. "" on failure."""
     try:
-        llm = get_llm("study_notes")
+        llm = get_llm("quick_qa")
         resp = llm.invoke(
             [SystemMessage(content=_SUMMARY_SYSTEM), HumanMessage(content=markdown)]
         )
