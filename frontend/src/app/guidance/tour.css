@@ -16,6 +16,20 @@
   color: var(--foreground);
 }
 
+/* Icon + text title (see tourIcons.ts). */
+.driver-popover-title .tour-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.driver-popover-title .tour-title svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
 .driver-popover-description {
   font-size: 13px;
   line-height: 1.5;

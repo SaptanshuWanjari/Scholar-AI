@@ -2,17 +2,16 @@ import type { DriveStep } from "driver.js";
 import { dashboardTour } from "./tours/dashboard.tour";
 import { documentsTour } from "./tours/documents.tour";
 import { askTour } from "./tours/ask.tour";
-import { flashcardsTour } from "./tours/flashcards.tour";
-import { readingTour } from "./tours/reading.tour";
 import { knowledgeTour } from "./tours/knowledge.tour";
-import { examTour } from "./tours/exam.tour";
-import { revisionTour } from "./tours/revision.tour";
-import { teachTour } from "./tours/teach.tour";
 
 /**
  * A page tour. `id` doubles as the route path so first-visit auto-start can look
  * a tour up by location with zero per-page wiring. Adding a tour to a new page =
  * create a `*.tour.ts`, add `data-tour` attrs to the page, register it here.
+ *
+ * Tours are intentionally lean: they only highlight things that aren't
+ * self-evident from the UI. Obvious controls (inputs, send buttons, the main
+ * content area) are deliberately left out.
  */
 export interface TourDef {
   id: string;
@@ -38,12 +37,7 @@ export const tours: Record<string, TourDef> = {
   "/": def("/", "Dashboard tour", dashboardTour),
   "/documents": def("/documents", "Documents tour", documentsTour),
   "/ask": def("/ask", "Ask AI tour", askTour),
-  "/flashcards": def("/flashcards", "Flashcards tour", flashcardsTour),
-  "/reading": def("/reading", "Reading tour", readingTour),
   "/knowledge": def("/knowledge", "Knowledge Explorer tour", knowledgeTour),
-  "/exam": def("/exam", "Exam tour", examTour),
-  "/revision": def("/revision", "Revision tour", revisionTour),
-  "/teach": def("/teach", "Teach Me tour", teachTour),
 };
 
 /** Find the tour registered for an exact route path, if any. */
