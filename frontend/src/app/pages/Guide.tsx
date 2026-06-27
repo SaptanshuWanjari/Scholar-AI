@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
+import { useLocation, useNavigate } from "react-router";
 import { Search, BookOpen } from "lucide-react";
 import {
   Accordion,
@@ -7,36 +8,51 @@ import {
   AccordionContent,
 } from "../components/ui/accordion";
 import { Input } from "../components/ui/input";
+import { Card } from "../components/ui/card";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { guideSections, type GuideArticle } from "../guidance/guideContent";
 
-function scrollToArticle(id: string) {
-  document
-    .getElementById(`guide-${id}`)
-    ?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-/** Layer 4 — the comprehensive in-app Guide. Searchable, with a section/article
- *  sidebar, expandable sections, internal cross-links, and markdown bodies. */
 export function Guide() {
   const [query, setQuery] = useState("");
-  // Briefly flash a freshly-navigated article's title to draw the eye to it.
-  const [highlightId, setHighlightId] = useState<string | null>(null);
-  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const goToArticle = (id: string) => {
-    scrollToArticle(id);
-    setHighlightId(id);
-    if (flashTimer.current) clearTimeout(flashTimer.current);
-    flashTimer.current = setTimeout(() => setHighlightId(null), 1400);
+  // Active section management via hash
+  const activeSectionId = useMemo(() => {
+    const hash = location.hash.slice(1);
+    if (hash) {
+      // Check if hash matches a section
+      const section = guideSections.find((s) => s.id === hash);
+      if (section) return section.id;
+      // Check if hash matches an article, if so find its parent section
+      const parentSection = guideSections.find((s) =>
+        s.articles.some((a) => a.id === hash)
+      );
+      if (parentSection) return parentSection.id;
+    }
+    return guideSections[0].id;
+  }, [location.hash]);
+
+  const activeArticleId = useMemo(() => {
+    const hash = location.hash.slice(1);
+    const isArticle = guideSections.some((s) =>
+      s.articles.some((a) => a.id === hash)
+    );
+    return isArticle ? hash : null;
+  }, [location.hash]);
+
+  const goToSection = (id: string) => {
+    navigate(`#${id}`);
+    document.getElementById("guide-content-scroll")?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  useEffect(
-    () => () => {
-      if (flashTimer.current) clearTimeout(flashTimer.current);
-    },
-    []
-  );
+  const goToArticle = (id: string) => {
+    navigate(`#${id}`);
+    // Delay scroll slightly to allow React to render the target article if we just switched sections
+    setTimeout(() => {
+      document.getElementById(`guide-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
 
   const q = query.trim().toLowerCase();
   const filtered = useMemo(() => {
@@ -50,20 +66,27 @@ export function Guide() {
       .filter((s) => s.articles.length > 0);
   }, [q]);
 
-  // Intercept internal `#article-id` links inside rendered markdown so they
-  // scroll within the Guide's own scroll container.
+  const activeSection = filtered.find((s) => s.id === activeSectionId) || filtered[0];
+
   const onContentClick = (e: MouseEvent<HTMLDivElement>) => {
     const anchor = (e.target as HTMLElement).closest("a");
     const href = anchor?.getAttribute("href");
     if (href?.startsWith("#")) {
       e.preventDefault();
-      goToArticle(href.slice(1));
+      const targetId = href.slice(1);
+      
+      const isSection = guideSections.some(s => s.id === targetId);
+      if (isSection) {
+        goToSection(targetId);
+      } else {
+        goToArticle(targetId);
+      }
     }
   };
 
   return (
     <div className="flex h-full min-h-0">
-      {/* Sidebar: search + section/article navigation */}
+      {/* Sidebar Navigation */}
       <aside className="hidden w-72 shrink-0 flex-col border-r border-border md:flex">
         <div className="border-b border-border p-4">
           <div className="relative">
@@ -79,9 +102,7 @@ export function Guide() {
         </div>
         <nav className="min-h-0 flex-1 overflow-y-auto p-2">
           {filtered.length === 0 ? (
-            <p className="px-2 py-4 text-sm text-muted-foreground">
-              No matches.
-            </p>
+            <p className="px-2 py-4 text-sm text-muted-foreground">No matches.</p>
           ) : (
             <Accordion
               type="multiple"
@@ -93,21 +114,37 @@ export function Guide() {
                   value={section.id}
                   className="border-none"
                 >
-                  <AccordionTrigger className="px-2 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:no-underline">
-                    {section.title}
+                  <AccordionTrigger 
+                    className="px-2 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:no-underline"
+                    onClick={(e) => {
+                      // If user clicks the trigger, we don't just toggle accordion, we navigate to the section
+                      e.preventDefault();
+                      goToSection(section.id);
+                    }}
+                  >
+                    <span className={activeSectionId === section.id ? "text-violet font-bold" : ""}>
+                      {section.title}
+                    </span>
                   </AccordionTrigger>
                   <AccordionContent className="pb-1">
                     <ul className="space-y-0.5">
-                      {section.articles.map((a) => (
-                        <li key={a.id}>
-                          <button
-                            onClick={() => goToArticle(a.id)}
-                            className="w-full rounded-md px-2 py-1.5 text-left text-sm text-foreground/80 transition-colors hover:bg-accent/50 hover:text-foreground"
-                          >
-                            {a.title}
-                          </button>
-                        </li>
-                      ))}
+                      {section.articles.map((a) => {
+                        const isActive = activeArticleId === a.id;
+                        return (
+                          <li key={a.id}>
+                            <button
+                              onClick={() => goToArticle(a.id)}
+                              className={`w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent/50 ${
+                                isActive
+                                  ? "bg-violet-soft text-violet font-medium"
+                                  : "text-foreground/80 hover:text-foreground"
+                              }`}
+                            >
+                              {a.title}
+                            </button>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
@@ -117,26 +154,27 @@ export function Guide() {
         </nav>
       </aside>
 
-      {/* Content */}
+      {/* Content Area */}
       <div
-        className="min-h-0 flex-1 overflow-y-auto scroll-smooth"
+        id="guide-content-scroll"
+        className="min-h-0 flex-1 overflow-y-auto scroll-smooth bg-background/50"
         onClick={onContentClick}
       >
-        <div className="mx-auto w-full max-w-3xl px-6 py-8">
-          <header className="mb-8 flex items-center gap-3 border-b border-border pb-6">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-violet-soft text-primary">
-              <BookOpen className="size-5" />
-            </div>
-            <div>
+        <div className="mx-auto w-full max-w-4xl px-6 py-8 md:py-12">
+          <header className="mb-10 flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-violet-soft text-primary shadow-sm">
+                <BookOpen className="size-5 text-violet" />
+              </div>
               <h1 className="text-3xl font-display font-semibold">ScholarAI Guide</h1>
-              <p className="text-base font-book text-muted-foreground">
-                Everything you need to study smarter — searchable and organized.
-              </p>
             </div>
+            <p className="text-base font-book text-muted-foreground ml-13">
+              Everything you need to study smarter — searchable and organized.
+            </p>
           </header>
 
           {/* Mobile search */}
-          <div className="relative mb-6 md:hidden">
+          <div className="relative mb-8 md:hidden">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={query}
@@ -147,45 +185,85 @@ export function Guide() {
             />
           </div>
 
-          {filtered.length === 0 ? (
+          {filtered.length === 0 || !activeSection ? (
             <p className="py-12 text-center text-sm text-muted-foreground">
               No results for “{query}”.
             </p>
-          ) : (
-            <div className="space-y-12">
-              {filtered.map((section) => (
-                <section key={section.id} id={`guide-section-${section.id}`}>
-                  <h2 className="mb-6 text-3xl font-display font-bold uppercase tracking-widest text-muted-foreground/80">
-                    {section.title}
-                  </h2>
-                  <div className="space-y-8">
-                    {section.articles.map((a) => (
-                      <article
-                        key={a.id}
-                        id={`guide-${a.id}`}
-                        className="scroll-mt-6"
-                      >
-                        <h3
-                          className={
-                            "mb-3 -mx-2 rounded-md px-2 text-2xl font-display font-semibold text-foreground transition-colors duration-700 " +
-                            (highlightId === a.id
-                              ? "bg-violet-soft text-primary"
-                              : "bg-transparent")
-                          }
-                        >
-                          {a.title}
-                        </h3>
-                        <MarkdownRenderer
-                          content={a.body}
-                          className="text-lg font-book leading-relaxed text-muted-foreground"
-                        />
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
-          )}
+          ) : (() => {
+            const activeIndex = filtered.findIndex((s) => s.id === activeSection.id);
+            const prevSection = activeIndex > 0 ? filtered[activeIndex - 1] : null;
+            const nextSection = activeIndex >= 0 && activeIndex < filtered.length - 1 ? filtered[activeIndex + 1] : null;
+            return (
+            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="mb-8 text-4xl font-display font-bold text-foreground border-b border-border pb-4">
+                {activeSection.title}
+              </h2>
+              
+              <div className="space-y-12">
+                {activeSection.articles.map((a) => (
+                  <article 
+                    key={a.id} 
+                    id={`guide-${a.id}`} 
+                    className={`scroll-mt-6 flex flex-col transition-all ${
+                      activeArticleId === a.id ? "ring-2 ring-violet ring-offset-4 ring-offset-background rounded-md p-4 -m-4 bg-muted/10" : ""
+                    }`}
+                  >
+                    <h3 className="mb-4 text-2xl font-display font-semibold text-foreground">
+                      {a.title}
+                    </h3>
+                    <div className="w-full">
+                      <MarkdownRenderer
+                        content={a.body}
+                        className="
+                          text-lg font-book leading-relaxed text-muted-foreground
+                          prose-p:mb-5 last:prose-p:mb-0
+                          prose-strong:font-semibold prose-strong:text-foreground
+                          prose-a:text-violet prose-a:font-medium hover:prose-a:underline
+                          prose-blockquote:border-l-4 prose-blockquote:border-violet 
+                          prose-blockquote:bg-violet-soft/30 prose-blockquote:py-3 prose-blockquote:px-5 
+                          prose-blockquote:rounded-r-md prose-blockquote:my-5 prose-blockquote:not-italic
+                          prose-blockquote:text-foreground/90 prose-blockquote:shadow-sm
+                        "
+                      />
+                    </div>
+                  </article>
+                ))}
+              </div>
+              
+              {(prevSection || nextSection) && (
+                <div className="mt-20 pt-10 border-t border-border grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {prevSection ? (
+                    <button
+                      onClick={() => goToSection(prevSection.id)}
+                      className="group block rounded-xl border border-border bg-card p-6 text-left transition-all hover:border-violet/30 hover:bg-violet-soft/10 hover:shadow-sm"
+                    >
+                      <h4 className="mb-2 text-xl font-semibold text-foreground group-hover:text-violet">
+                        <span className="mr-1 inline-block transition-transform group-hover:-translate-x-1">&larr;</span> {prevSection.title}
+                      </h4>
+                      <p className="text-sm font-book text-muted-foreground line-clamp-1">
+                        {prevSection.articles.map(a => a.title).join(", ")}
+                      </p>
+                    </button>
+                  ) : <div />}
+                  
+                  {nextSection ? (
+                    <button
+                      onClick={() => goToSection(nextSection.id)}
+                      className="group block rounded-xl border border-border bg-card p-6 text-right transition-all hover:border-violet/30 hover:bg-violet-soft/10 hover:shadow-sm"
+                    >
+                      <h4 className="mb-2 text-xl font-semibold text-foreground group-hover:text-violet">
+                        {nextSection.title} <span className="ml-1 inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
+                      </h4>
+                      <p className="text-sm font-book text-muted-foreground line-clamp-1">
+                        {nextSection.articles.map(a => a.title).join(", ")}
+                      </p>
+                    </button>
+                  ) : <div />}
+                </div>
+              )}
+            </section>
+            );
+          })()}
         </div>
       </div>
     </div>
