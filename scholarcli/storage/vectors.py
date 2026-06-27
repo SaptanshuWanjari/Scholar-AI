@@ -10,9 +10,9 @@ Table schema (inferred from first batch):
   - chunk_index : int
   - text        : str
   - source_type : str   (text | ocr | table | image | diagram)
-  - image_url   : str   (served URL for image/diagram artifacts, else "")
-  - original_payload : str | null  (raw markdown table for table chunks; null for all others)
-  - vector      : list[float]  (dimension inferred from first real embedding)
+  - image_url        : str        (served URL for image/diagram artifacts, else "")
+  - original_payload : str | null (raw markdown table for table chunks; null for all others)
+  - vector           : list[float]  (dimension inferred from first real embedding)
 """
 
 from __future__ import annotations

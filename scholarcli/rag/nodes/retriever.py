@@ -27,5 +27,11 @@ def retrieve(state: GraphState) -> GraphState:
     else:
         results = search(query_vector, top_k=s.retrieval.top_k, course=course, document_id=state.get("document_id"))
 
+    # MVR payload swap: table chunks were embedded using their LLM summary, but
+    # the generation LLM should receive the raw Markdown table instead.
+    for r in results:
+        if r.get("source_type") == "table" and r.get("original_payload"):
+            r["text"] = r["original_payload"]
+
     state["retrieved"] = results
     return state
