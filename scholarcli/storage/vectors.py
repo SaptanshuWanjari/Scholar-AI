@@ -10,8 +10,9 @@ Table schema (inferred from first batch):
   - chunk_index : int
   - text        : str
   - source_type : str   (text | ocr | table | image | diagram)
-  - image_url   : str   (served URL for image/diagram artifacts, else "")
-  - vector      : list[float]  (dimension inferred from first real embedding)
+  - image_url        : str        (served URL for image/diagram artifacts, else "")
+  - original_payload : str | null (raw markdown table for table chunks; null for all others)
+  - vector           : list[float]  (dimension inferred from first real embedding)
 """
 
 from __future__ import annotations
@@ -29,7 +30,7 @@ TABLE_NAME = "chunks"
 # Columns that an up-to-date chunks table must carry. A pre-multimodal table
 # lacks these, so the first insert recreates it (chunks are rebuildable from
 # the source files under data/uploads via reindex_all()).
-_REQUIRED_COLUMNS = {"source_type", "image_url"}
+_REQUIRED_COLUMNS = {"source_type", "image_url", "original_payload"}
 
 
 def _db():
