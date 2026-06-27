@@ -17,3 +17,4 @@ class GraphState(TypedDict, total=False):
     grounded: bool  # True if at least one chunk passes the verifier gate
     answer: str  # final answer with citations
     socratic: bool  # guide step-by-step
+    loop_count: int  # number of retrieval attempts

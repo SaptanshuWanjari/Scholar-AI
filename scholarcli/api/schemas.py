@@ -496,6 +496,7 @@ class ReadingSectionOut(BaseModel):
     number: str
     title: str
     paragraphs: list[str]
+    block_ids: list[str] = []  # parallel to paragraphs; stable content anchors for highlights
 
 
 class ReadingDocOut(BaseModel):
@@ -513,6 +514,7 @@ class ReadingDocOut(BaseModel):
 class HighlightCreate(BaseModel):
     text: str
     section: str = ""
+    block_id: str = ""  # permanent content anchor; preferred over section when set
 
 
 class BookmarkCreate(BaseModel):
