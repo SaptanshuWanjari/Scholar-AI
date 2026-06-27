@@ -11,12 +11,22 @@ from scholarcli.rag.nodes.reranker import rerank
 from scholarcli.rag.nodes.retriever import retrieve
 from scholarcli.rag.nodes.router import route_query
 from scholarcli.rag.nodes.verifier import verify
+from scholarcli.rag.nodes.rewriter import rewrite
 from scholarcli.rag.state import GraphState
 
 
 def _should_retrieve(state: GraphState) -> str:
     """After routing: only proceed to retrieval if the route is wired."""
     return "retrieve"
+
+
+def _should_generate(state: GraphState) -> str:
+    """After verification: decide whether to rewrite query or generate."""
+    if state.get("grounded"):
+        return "generate"
+    if state.get("loop_count", 0) < 3:
+        return "rewrite"
+    return "generate"
 
 
 def build_graph() -> StateGraph:
@@ -30,6 +40,7 @@ def build_graph() -> StateGraph:
     builder.add_node("retrieve", retrieve)
     builder.add_node("rerank", rerank)
     builder.add_node("verify", verify)
+    builder.add_node("rewrite", rewrite)
     builder.add_node("generate", generate)
 
     builder.set_entry_point("router")
@@ -43,7 +54,15 @@ def build_graph() -> StateGraph:
 
     builder.add_edge("retrieve", "rerank")
     builder.add_edge("rerank", "verify")
-    builder.add_edge("verify", "generate")
+    
+    # Verification CRAG loop
+    builder.add_conditional_edges(
+        "verify",
+        _should_generate,
+        {"generate": "generate", "rewrite": "rewrite"},
+    )
+    builder.add_edge("rewrite", "retrieve")
+    
     builder.add_edge("generate", END)
 
     return builder

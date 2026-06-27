@@ -248,3 +248,31 @@ Rules:
 5. Keep titles short (2-5 words). Make estimates realistic for a student.
 6. Output valid JSON only.\
 """
+
+CRAG_VERIFIER_SYSTEM = """\
+You are a retrieval evaluator. Given a student's query and a retrieved context chunk, evaluate how relevant the chunk is for answering the query.
+Score the relevance from 0 (completely irrelevant) to 10 (highly relevant/contains exact answer).
+
+Output ONLY a JSON object in this format:
+{"score": 8, "reasoning": "brief explanation"}
+
+No prose, no markdown fences.\
+"""
+
+CRAG_REFINER_SYSTEM = """\
+You are a noise filter for study materials. Given a user query and a numbered list of sentences from a context chunk, score each sentence's relevance to the query from 0 to 10.
+Keep sentences that provide useful context or direct answers. Discard filler, headers, or irrelevant text.
+
+Output ONLY a JSON object mapping the sentence index to its integer score.
+Example: {"0": 9, "1": 2, "2": 5}
+
+No prose, no markdown fences.\
+"""
+
+CRAG_REWRITER_SYSTEM = """\
+You are a search query rewriting expert. The previous retrieval attempt for the user's query failed to find relevant context.
+Your task is to rewrite the query to improve retrieval from a vector database (LanceDB).
+Use synonyms, break down complex concepts, or generalize specific terms.
+
+Output ONLY the rewritten search query. No preamble, no quotes.\
+"""

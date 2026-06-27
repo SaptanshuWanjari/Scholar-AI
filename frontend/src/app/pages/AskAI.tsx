@@ -136,105 +136,121 @@ export function AskAI() {
       {/* Answer — flex-1 */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Answer header */}
-        <div className="flex h-12 items-center justify-between border-b border-border px-6">
-          <div className="flex items-center gap-2 text-sm font-medium">
+        {/* Answer header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border px-4 py-2 sm:py-0 sm:h-12 gap-2">
+          {/* Left / Top group: Navigation & Filter Context */}
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <Button
               variant="ghost"
               size="icon"
-              className="size-8"
+              className="size-8 shrink-0"
               onClick={() => setSessionsPanelOpen((v) => !v)}
               title={sessionsPanelOpen ? "Hide history" : "Show history"}
             >
               <MessageSquare className="size-4" />
             </Button>
-            <BookOpen className="size-4 text-muted-foreground" />
-            Answer
-          </div>
-          <div className="flex items-center gap-2">
-            <Select
-              value={course ?? "all"}
-              onValueChange={(v) => setCourse(v === "all" ? null : v)}
-            >
-              <SelectTrigger data-tour="ask-scope" className="h-8 w-44 bg-input-background text-xs">
-                <SelectValue placeholder="All courses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All courses</SelectItem>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={document ?? "all"}
-              onValueChange={(v) => setDocument(v === "all" ? null : v)}
-            >
-              <SelectTrigger className="h-8 w-44 bg-input-background text-xs">
-                <SelectValue placeholder="All documents" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All documents</SelectItem>
-                {documents.filter(d => course ? d.course === course : true).map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
-                    {d.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {confidence !== undefined && !isStreaming && (
-              <Badge
-                variant="outline"
-                className="gap-1.5 border-success/40 bg-success-soft text-success"
+            <div className="flex items-center gap-1.5 text-sm font-medium mr-1 shrink-0">
+              <BookOpen className="size-4 text-muted-foreground" />
+              <span className="hidden xs:inline">Answer</span>
+            </div>
+            
+            {/* Filters */}
+            <div className="flex items-center gap-2 flex-1 sm:flex-none">
+              <Select
+                value={course ?? "all"}
+                onValueChange={(v) => setCourse(v === "all" ? null : v)}
               >
-                <Gauge className="size-3.5" />
-                {(confidence * 100).toFixed(0)}% confidence
-              </Badge>
-            )}
-            {/* RAG Mode toggle — always visible in header */}
-            <button
-              type="button"
-              onClick={() => setSettingsField("ragMode", ragMode === "strict" ? "fallback" : "strict")}
-              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                ragMode === "strict"
-                  ? "border-amber-500/50 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
-                  : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
-              }`}
-              title={ragMode === "strict" ? "Strict RAG — click to switch to AI Fallback" : "AI Fallback — click to switch to Strict RAG"}
-            >
-              <ShieldCheck className="size-3" />
-              {ragMode === "strict" ? "Strict RAG" : "AI Fallback"}
-            </button>
-            {/* Socratic Mode toggle */}
-            <button
-              type="button"
-              onClick={() => setSocratic(!socratic)}
-              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                socratic
-                  ? "border-violet-500/50 bg-violet-500/10 text-violet-600 hover:bg-violet-500/20"
-                  : "border-border text-muted-foreground hover:border-border hover:text-foreground"
-              }`}
-              title={socratic ? "Socratic Mode ON — AI guides, does not answer" : "Enable Socratic Mode"}
-            >
-              <GraduationCap className="size-3" />
-              Socratic
-            </button>
-            {messages.length > 0 && (
-              <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs" onClick={reset}>
-                <Trash2 className="size-3.5" /> Clear
+                <SelectTrigger data-tour="ask-scope" className="h-8 flex-1 sm:w-36 md:w-44 bg-input-background text-xs min-w-[90px]">
+                  <SelectValue placeholder="All courses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All courses</SelectItem>
+                  {courses.map((c) => (
+                    <SelectItem key={c.id} value={c.name}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={document ?? "all"}
+                onValueChange={(v) => setDocument(v === "all" ? null : v)}
+              >
+                <SelectTrigger className="h-8 flex-1 sm:w-36 md:w-44 bg-input-background text-xs min-w-[90px]">
+                  <SelectValue placeholder="All documents" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All documents</SelectItem>
+                  {documents.filter(d => course ? d.course === course : true).map((d) => (
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Right / Bottom group: State toggles & Actions */}
+          <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {confidence !== undefined && !isStreaming && (
+                <Badge
+                  variant="outline"
+                  className="gap-1 border-success/40 bg-success-soft text-success text-xs px-2 py-0.5"
+                >
+                  <Gauge className="size-3" />
+                  <span>{(confidence * 100).toFixed(0)}% <span className="hidden md:inline">confidence</span></span>
+                </Badge>
+              )}
+              {/* RAG Mode toggle */}
+              <button
+                type="button"
+                onClick={() => setSettingsField("ragMode", ragMode === "strict" ? "fallback" : "strict")}
+                className={`flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-medium transition-colors ${
+                  ragMode === "strict"
+                    ? "border-amber-500/50 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
+                    : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
+                }`}
+                title={ragMode === "strict" ? "Strict RAG — click to switch to AI Fallback" : "AI Fallback — click to switch to Strict RAG"}
+              >
+                <ShieldCheck className="size-3" />
+                <span>{ragMode === "strict" ? "Strict" : "Fallback"}</span>
+              </button>
+              {/* Socratic Mode toggle */}
+              <button
+                type="button"
+                onClick={() => setSocratic(!socratic)}
+                className={`flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-medium transition-colors ${
+                  socratic
+                    ? "border-violet-500/50 bg-violet-500/10 text-violet-600 hover:bg-violet-500/20"
+                    : "border-border text-muted-foreground hover:border-border hover:text-foreground"
+                }`}
+                title={socratic ? "Socratic Mode ON — AI guides, does not answer" : "Enable Socratic Mode"}
+              >
+                <GraduationCap className="size-3" />
+                <span>Socratic</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1">
+              {messages.length > 0 && (
+                <Button variant="ghost" size="sm" className="h-8 px-2.5 gap-1.5 text-xs text-muted-foreground hover:text-foreground" onClick={reset}>
+                  <Trash2 className="size-3.5" />
+                  <span className="hidden xs:inline">Clear</span>
+                </Button>
+              )}
+              {/* Sources panel toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 hidden lg:inline-flex"
+                onClick={() => setSourcesPanelOpen((v) => !v)}
+                title={sourcesPanelOpen ? "Hide sources" : "Show sources"}
+              >
+                <PanelRight className="size-4" />
               </Button>
-            )}
-            {/* Sources panel toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 hidden lg:inline-flex"
-              onClick={() => setSourcesPanelOpen((v) => !v)}
-              title={sourcesPanelOpen ? "Hide sources" : "Show sources"}
-            >
-              <PanelRight className="size-4" />
-            </Button>
+            </div>
           </div>
         </div>
 
