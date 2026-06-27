@@ -41,6 +41,7 @@ class Page(NamedTuple):
     image_url: str = ""  # served URL for image/diagram artifacts
     bbox: tuple[float, float, float, float] | None = None  # union bbox of text blocks
     original_payload: str | None = None  # raw content (e.g. markdown table) preserved for retrieval
+    csv_path: str | None = None  # path to extracted CSV for tables
 
 
 @dataclass
@@ -57,7 +58,7 @@ class _PageJob:
     page_area: float  # page.rect.width * page.rect.height — for background-image filter
     png_bytes: bytes | None  # rendered PNG; set only when is_scanned is True
     text_blocks: list[dict] = field(default_factory=list)  # from page.get_text("dict")
-    table_markdowns: list[str] = field(default_factory=list)  # pre-extracted by main thread
+    tables: list[dict] = field(default_factory=list)  # pre-extracted by main thread
 
 
 # ---------------------------------------------------------------------------
@@ -89,7 +90,7 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
     from scholarcli.config import get_settings
     from scholarcli.ingest.analyze import analyze_page
     from scholarcli.ingest.ocr import _page_image_png
-    from scholarcli.ingest.tables import extract_table_markdowns
+    from scholarcli.ingest.tables import extract_tables
 
     cfg = get_settings().ingest
     images_dir = get_settings().paths.resolved_data_dir() / "images" / content_hash
@@ -122,7 +123,7 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
             ))
         else:
             blocks = page_dict.get("blocks", [])
-            table_mds = extract_table_markdowns(page)
+            page_tables = extract_tables(page, content_hash)
             
             try:
                 tables_res = page.find_tables()
@@ -225,7 +226,7 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
                 page_area=page_area,
                 png_bytes=None,
                 text_blocks=blocks,
-                table_markdowns=table_mds,
+                tables=page_tables,
             ))
 
     doc.close()
@@ -361,9 +362,10 @@ def _process_job(
         )
 
     # --- Tables (LLM summarisation in worker thread) -------------------------
-    if job.table_markdowns:
+    if job.tables:
         from scholarcli.ingest.tables import _summarize
-        for md in job.table_markdowns:
+        for tbl in job.tables:
+            md = tbl["markdown"]
             summary = _summarize(md)
             pages.append(
                 Page(
@@ -371,6 +373,7 @@ def _process_job(
                     text=summary if summary else md,
                     source_type="table",
                     original_payload=md,
+                    csv_path=tbl.get("csv_path"),
                 )
             )
 

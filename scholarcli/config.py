@@ -76,6 +76,8 @@ class RetrievalConfig(BaseModel):
     # LLM relevance rerank pass that reorders the retrieved top_k before
     # generation (Ollama-only; not a torch cross-encoder).
     rerank_enabled: bool = True
+    pq_enabled: bool = True
+    pq_training_threshold: int = 500
 
 
 class PathsConfig(BaseModel):
@@ -91,6 +93,12 @@ class PathsConfig(BaseModel):
     @property
     def chat_logs_dir(self) -> Path:
         p = self.resolved_data_dir() / "chat_logs"
+        p.mkdir(parents=True, exist_ok=True)
+        return p
+
+    @property
+    def tables_dir(self) -> Path:
+        p = self.resolved_data_dir() / "tables"
         p.mkdir(parents=True, exist_ok=True)
         return p
 

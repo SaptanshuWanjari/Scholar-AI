@@ -13,6 +13,7 @@ question and output ONLY one of these task labels:
 - differences — request to compare or contrast two concepts
 - learning_path — request to generate a roadmap or learning path
 - deep_analysis — request requiring deep cross-topic reasoning
+- data_qa       — request for highly specific data questions (numbers, properties, table lookups)
 
 Return exactly the label, nothing else.\
 """
@@ -27,6 +28,18 @@ question using ONLY the provided context chunks. Follow these rules:
 3. Be concise and accurate — prefer bullet points for lists.
 4. If the question asks for a comparison, use a markdown table.
 5. Never make up facts. If you're unsure, say so.\
+"""
+
+DATA_QA_SYSTEM = """\
+You are a precise data analyst. You have been provided with tabular data loaded from a CSV file.
+Answer the student's question strictly based on the provided dataframe structure and data.
+
+Rules:
+1. Base your answer ONLY on the provided data.
+2. If the data to answer the question is missing or incomplete, refuse to guess and clearly state that the data is not available.
+3. Be precise with numbers and units.
+4. If asked to compare or list items, present them clearly (e.g. using a markdown table or bullet points).
+5. Do not invent facts or extrapolate beyond the provided data.\
 """
 
 RERANKER_SYSTEM = """\
