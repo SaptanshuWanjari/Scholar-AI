@@ -122,6 +122,100 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
         else:
             blocks = page_dict.get("blocks", [])
             table_mds = extract_table_markdowns(page)
+            
+            try:
+                tables_res = page.find_tables()
+                table_bboxes = [fitz.Rect(t.bbox) for t in getattr(tables_res, "tables", [])] if tables_res else []
+            except Exception:
+                table_bboxes = []
+                
+            try:
+                drawings = page.get_drawings()
+            except Exception:
+                drawings = []
+                
+            bboxes = []
+            for d in drawings:
+                r = d["rect"]
+                if r.width > 20 and r.height > 20:
+                    bboxes.append(r)
+                    
+            merged = []
+            for r in bboxes:
+                found = False
+                for j, m in enumerate(merged):
+                    inflated = fitz.Rect(r.x0 - 10, r.y0 - 10, r.x1 + 10, r.y1 + 10)
+                    if inflated.intersects(m):
+                        merged[j] = m | r
+                        found = True
+                        break
+                if not found:
+                    merged.append(r)
+                    
+            changed = True
+            while changed:
+                changed = False
+                new_merged = []
+                while merged:
+                    current = merged.pop(0)
+                    j = 0
+                    while j < len(merged):
+                        inflated = fitz.Rect(current.x0 - 20, current.y0 - 20, current.x1 + 20, current.y1 + 20)
+                        if inflated.intersects(merged[j]):
+                            current = current | merged.pop(j)
+                            changed = True
+                        else:
+                            j += 1
+                    new_merged.append(current)
+                merged = new_merged
+                
+            diagrams = []
+            for m in merged:
+                if m.width > 50 and m.height > 50:
+                    is_table = False
+                    for tbox in table_bboxes:
+                        intersect = fitz.Rect(m).intersect(tbox)
+                        if intersect.width > 0 and intersect.height > 0:
+                            if (intersect.width * intersect.height) > 0.5 * (m.width * m.height):
+                                is_table = True
+                                break
+                    if not is_table:
+                        diagrams.append(m)
+                        
+            filtered_blocks = []
+            for b in blocks:
+                if b.get("type") == 0:
+                    bx0, by0, bx1, by1 = b["bbox"]
+                    b_rect = fitz.Rect(bx0, by0, bx1, by1)
+                    original_area = b_rect.width * b_rect.height
+                    in_diagram = False
+                    for dbox in diagrams:
+                        intersect = b_rect & dbox
+                        if intersect.width > 0 and intersect.height > 0:
+                            if (intersect.width * intersect.height) > 0.7 * original_area:
+                                in_diagram = True
+                                break
+                    if not in_diagram:
+                        filtered_blocks.append(b)
+                else:
+                    filtered_blocks.append(b)
+                    
+            blocks = filtered_blocks
+            
+            for dbox in diagrams:
+                try:
+                    pix = page.get_pixmap(clip=dbox, dpi=300)
+                    blocks.append({
+                        "type": 1,
+                        "bbox": [dbox.x0, dbox.y0, dbox.x1, dbox.y1],
+                        "ext": "png",
+                        "image": pix.tobytes("png")
+                    })
+                except Exception as exc:
+                    logger.warning("failed to render diagram bbox %s: %s", dbox, exc)
+                    
+            blocks.sort(key=lambda x: x["bbox"][1])
+            
             jobs.append(_PageJob(
                 page_num=page_num,
                 heading=heading,
@@ -197,13 +291,46 @@ def _process_job(
     text_parts: list[str] = []
     bbox_union: list[float] | None = None
 
+    from collections import Counter
+    size_counts = Counter()
+    for b in job.text_blocks:
+        if b.get("type") == 0:
+            for line in b.get("lines", []):
+                for span in line.get("spans", []):
+                    size_counts[span.get("size", 0)] += len(span.get("text", "").strip())
+    base_size = size_counts.most_common(1)[0][0] if size_counts else 0
+
     for b_idx, b in enumerate(job.text_blocks):
         if b.get("type") == 0:  # text block
-            lines = [
-                "".join(span.get("text", "") for span in line.get("spans", []))
-                for line in b.get("lines", [])
-            ]
-            block_text = "\n".join(lines).strip()
+            block_lines = []
+            for line in b.get("lines", []):
+                line_text = ""
+                max_size = 0
+                for span in line.get("spans", []):
+                    line_text += span.get("text", "")
+                    sz = span.get("size", 0)
+                    if sz > max_size and span.get("text", "").strip():
+                        max_size = sz
+                
+                line_text_stripped = line_text.strip()
+                if line_text_stripped:
+                    if base_size > 0:
+                        ratio = max_size / base_size
+                        if ratio >= 1.4:
+                            line_text = f"# {line_text_stripped}"
+                        elif ratio >= 1.2:
+                            line_text = f"## {line_text_stripped}"
+                        elif ratio >= 1.1:
+                            line_text = f"### {line_text_stripped}"
+                        elif set(line_text_stripped) <= {"-", "=", "_"} and len(line_text_stripped) >= 3:
+                            line_text = f"\\{line_text_stripped}"
+                        else:
+                            line_text = line_text_stripped
+                    else:
+                        line_text = line_text_stripped
+                    block_lines.append(line_text)
+            
+            block_text = "\n".join(block_lines).strip()
             if block_text:
                 text_parts.append(block_text)
                 bx0, by0, bx1, by1 = b["bbox"]
@@ -315,20 +442,34 @@ def _pdf_title(doc, path: Path) -> str:
 
 
 def _pdf_page_heading(page_dict: dict) -> str:
-    """Heuristic: largest font-size text block on page (its first line)."""
+    """Heuristic: text of the block containing the largest font-size on the page."""
     blocks = page_dict.get("blocks", [])
-    best = ""
+    best_block_text = ""
     best_size = 0.0
+
     for b in blocks:
         if b.get("type") != 0:
             continue
+        
+        block_has_larger = False
+        block_text_parts = []
         for line in b.get("lines", []):
             for span in line.get("spans", []):
                 sz = span.get("size", 0)
-                if sz > best_size and span.get("text", "").strip():
-                    best_size = sz
-                    best = span["text"].strip()
-    return best
+                text = span.get("text", "").strip()
+                if text:
+                    block_text_parts.append(text)
+                    if sz > best_size:
+                        best_size = sz
+                        block_has_larger = True
+        
+        if block_has_larger and block_text_parts:
+            # Re-assemble the block text.
+            best_block_text = " ".join(block_text_parts)
+
+    # Sometimes a block might just be a giant number, but it's part of a chapter title.
+    # Joining the block text fixes the "split heading" issue.
+    return best_block_text
 
 
 # ---------------------------------------------------------------------------

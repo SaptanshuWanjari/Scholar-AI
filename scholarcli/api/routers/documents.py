@@ -225,3 +225,23 @@ def get_document_image(content_hash: str, filename: str) -> FileResponse:
         raise HTTPException(status_code=404, detail="Image not found")
     return FileResponse(image_path)
 
+
+
+@router.get("/documents/{document_id}/raw")
+def get_document_raw(document_id: int) -> FileResponse:
+    session = get_session()
+    try:
+        doc = session.get(Document, document_id)
+        if not doc or not doc.path:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        path = Path(doc.path)
+        if not path.exists():
+            raise HTTPException(status_code=404, detail="File missing from disk")
+            
+        media_type = "application/pdf" if doc.file_type == "pdf" else "text/plain"
+        
+        # We can pass inline disposition to allow browsers to view pdfs directly
+        return FileResponse(path, media_type=media_type, headers={"Content-Disposition": f'inline; filename="{doc.title}.{doc.file_type}"'})
+    finally:
+        session.close()

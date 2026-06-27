@@ -15,6 +15,7 @@ import {
   X,
   FileText,
   Loader2,
+  Monitor,
 } from "lucide-react";
 import { Link } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
@@ -51,6 +52,7 @@ export function Reading() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [viewMode, setViewMode] = useState<"reader" | "original">("reader");
 
   const [lens, setLens] = useState<Lens>("Intermediate");
   const [selected, setSelected] = useState<string | null>(null);
@@ -295,26 +297,29 @@ export function Reading() {
         <main className="relative min-w-0 flex-1 overflow-y-auto" ref={scrollRef}>
           <SelectionToolbar containerRef={readerRef} actions={actions} />
 
-          {/* Sidebar Toggles */}
+          {/* Sidebar Toggles & View Mode */}
           <div className="pointer-events-none absolute left-0 top-4 z-10 flex w-full justify-between px-4">
             <div className="pointer-events-auto">
               {leftCollapsed && (
                 <Button
                   variant="outline"
                   size="icon"
-                  className="size-8 rounded-full bg-card/80 backdrop-blur shadow-sm"
+                  className="size-8 rounded-full bg-card/80 shadow-sm backdrop-blur"
                   onClick={() => setLeftCollapsed(false)}
                 >
                   <PanelLeftOpen className="size-4" />
                 </Button>
               )}
             </div>
+
+
+
             <div className="pointer-events-auto">
               {rightCollapsed && (
                 <Button
                   variant="outline"
                   size="icon"
-                  className="size-8 rounded-full bg-card/80 backdrop-blur shadow-sm"
+                  className="size-8 rounded-full bg-card/80 shadow-sm backdrop-blur"
                   onClick={() => setRightCollapsed(false)}
                 >
                   <PanelRightOpen className="size-4" />
@@ -331,6 +336,14 @@ export function Reading() {
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
               Select a document to start reading.
             </div>
+          ) : viewMode === "original" ? (
+            <div className="h-full w-full ">
+              <iframe
+                src={`/api/documents/${docId}/raw`}
+                className="h-full w-full border-none bg-white"
+                title="Original Document"
+              />
+            </div>
           ) : (
             <div ref={readerRef} className="mx-auto max-w-[760px] px-8 py-14">
               <div className="border-b border-border pb-8 text-center">
@@ -346,8 +359,8 @@ export function Reading() {
                     <h2 className="text-[1.75rem]">{s.title}</h2>
                   </div>
                   {s.paragraphs.map((p, i) => (
-                    <div key={i} className="mb-6 font-book text-[18px] leading-[1.85] text-foreground/85 selection:bg-primary selection:text-primary-foreground">
-                      <MarkdownRenderer content={p} />
+                    <div key={i} className="selection:bg-primary selection:text-primary-foreground">
+                      <MarkdownRenderer content={p} className="text-[17px] leading-relaxed" />
                     </div>
                   ))}
                 </section>
@@ -375,6 +388,35 @@ export function Reading() {
               <div className="size-7" />
             )}
           </div>
+
+          {/* View Mode */}
+          {doc && (
+            <div className="border-b border-border p-4">
+              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <Monitor className="size-3.5" /> View Mode
+              </div>
+              <div className="flex rounded-lg border border-border bg-card p-0.5">
+                <button
+                  onClick={() => setViewMode("reader")}
+                  className={cn(
+                    "flex-1 rounded-md py-1.5 text-xs font-medium transition-colors",
+                    viewMode === "reader" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  Reader
+                </button>
+                <button
+                  onClick={() => setViewMode("original")}
+                  className={cn(
+                    "flex-1 rounded-md py-1.5 text-xs font-medium transition-colors",
+                    viewMode === "original" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  Original
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Academic Lens */}
           <div className="border-b border-border p-4">

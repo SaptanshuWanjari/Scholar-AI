@@ -1,9 +1,11 @@
 import { Children, isValidElement, type ReactNode, cloneElement } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import katex from "katex";
 import { CitationBadge } from "./CitationBadge";
 import { DiagramViewer } from "./DiagramViewer";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { cn } from "./ui/utils";
 
 interface MarkdownRendererProps {
@@ -99,6 +101,7 @@ export function MarkdownRenderer({
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
         components={{
           h1: ({ children }) => (
             <h1 className="mb-3 mt-6 first:mt-0">{children}</h1>
@@ -134,12 +137,24 @@ export function MarkdownRenderer({
           },
           img: ({ src, alt }) => (
             <figure className="my-4">
-              <img
-                src={typeof src === "string" ? src : ""}
-                alt={alt ?? ""}
-                loading="lazy"
-                className="mx-auto max-h-[28rem] rounded-lg border border-border object-contain"
-              />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <img
+                    src={typeof src === "string" ? src : ""}
+                    alt={alt ?? ""}
+                    loading="lazy"
+                    className="mx-auto max-h-[28rem] cursor-zoom-in rounded-lg border border-border object-contain transition-opacity hover:opacity-90"
+                  />
+                </DialogTrigger>
+                <DialogContent className="max-w-[95vw] sm:max-w-[95vw] border-none bg-transparent p-0 shadow-none">
+                  <DialogTitle className="sr-only">{alt ?? "Image view"}</DialogTitle>
+                  <img
+                    src={typeof src === "string" ? src : ""}
+                    alt={alt ?? ""}
+                    className="h-auto max-h-[95vh] w-auto max-w-full m-auto rounded-lg object-contain"
+                  />
+                </DialogContent>
+              </Dialog>
               {alt && alt !== "Image" && (
                 <figcaption className="mt-2 text-center text-xs italic text-muted-foreground">
                   {alt}
