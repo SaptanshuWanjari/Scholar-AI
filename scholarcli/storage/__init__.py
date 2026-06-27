@@ -84,6 +84,7 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("duration_minutes", "INTEGER NOT NULL DEFAULT 0"),
         ("expires_at", "TEXT"),
     ],
+    "learning_paths": [("archived", "BOOLEAN NOT NULL DEFAULT 0")],
 }
 
 
