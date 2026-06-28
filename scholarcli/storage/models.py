@@ -94,8 +94,8 @@ class Document(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
-    course_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("courses.id"), nullable=False, index=True
+    course_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("courses.id"), nullable=True, index=True
     )
     course: Mapped["Course"] = relationship(back_populates="documents")
     code_examples: Mapped[list["CodeExample"]] = relationship(

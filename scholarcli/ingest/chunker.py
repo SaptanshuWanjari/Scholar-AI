@@ -4,33 +4,19 @@ The chunker respects page/heading boundaries: it tries to keep text from
 the same page+heading together, and never splits a page+heading section
 unless the section itself exceeds the chunk budget (in which case it
 falls back to a simple sliding window for that section).
-
-Every chunk is assigned a deterministic ``block_id`` (12-char SHA-256 hex)
-derived from the page number and first 200 characters of its text.  This
-ID survives document re-indexing so that highlights anchor to content
-rather than volatile array positions.
 """
 
 from __future__ import annotations
 
-import hashlib
-
 from scholarcli.config import get_settings
 from scholarcli.ingest.loaders import Page
-
-
-def _block_id(text: str, page: int) -> str:
-    """Return a 12-char deterministic ID for a text block."""
-    key = f"{page}:{text[:200]}"
-    return hashlib.sha256(key.encode()).hexdigest()[:12]
 
 
 def chunk_pages(pages: list[Page]) -> list[dict]:
     """Convert pages into chunk dicts ready for embedding + storage.
 
     Returns a list of dicts with keys:
-        page, heading, chunk_index, block_id, text, source_type,
-        image_url, original_payload, csv_path
+        page, heading, chunk_index, text, source_type, image_url, original_payload, csv_path
     """
     s = get_settings()
     budget = s.chunking.chunk_size
@@ -58,7 +44,6 @@ def chunk_pages(pages: list[Page]) -> list[dict]:
                     "page": page.page_number,
                     "heading": page.heading,
                     "chunk_index": ci,
-                    "block_id": _block_id(chunk_text, page.page_number),
                     "text": chunk_text,
                     "source_type": source_type,
                     "image_url": image_url,

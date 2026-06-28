@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
-  List,
   Bookmark,
   Highlighter,
   Wand2,
@@ -15,14 +14,15 @@ import {
   X,
   FileText,
   Loader2,
-  Monitor,
+  ZoomIn,
+  ZoomOut,
+  BookMarked,
 } from "lucide-react";
 import { Link } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
 import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -33,13 +33,14 @@ import {
 import { SelectionToolbar, type SelectionAction } from "../components/SelectionToolbar";
 import { api, type ReadingDoc } from "../lib/api";
 import type { DocumentItem } from "../lib/types";
-import { MarkdownRenderer } from "../components/MarkdownRenderer";
+import PDFViewer, { type HighlightItem, type HighlightRect } from "../components/PDFViewer";
 
 type Lens = "Beginner" | "Intermediate" | "Expert";
 
 export function Reading() {
   const readerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const pendingHighlightRef = useRef<{ page: number; rects: HighlightRect[] }>({ page: 1, rects: [] });
 
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [docsLoading, setDocsLoading] = useState(true);
@@ -49,14 +50,12 @@ export function Reading() {
   const [docLoading, setDocLoading] = useState(false);
 
   const [progress, setProgress] = useState(0);
-  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [scale, setScale] = useState(1.0);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
-  const [viewMode, setViewMode] = useState<"reader" | "original">("reader");
 
   const [lens, setLens] = useState<Lens>("Intermediate");
   const [selected, setSelected] = useState<string | null>(null);
-  const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [explanation, setExplanation] = useState<string | null>(null);
   const [lensLoading, setLensLoading] = useState(false);
 
@@ -94,7 +93,6 @@ export function Reading() {
       .then((d) => {
         if (cancelled) return;
         setDoc(d);
-        setActiveSection(d.sections[0]?.id ?? null);
       })
       .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load reading"))
       .finally(() => !cancelled && setDocLoading(false));
@@ -103,35 +101,17 @@ export function Reading() {
     };
   }, [docId]);
 
-  // ---- Scroll progress + active section tracking ----
+  // ---- Scroll progress tracking ----
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el || !doc) return;
+    if (!el) return;
     const onScroll = () => {
       const max = el.scrollHeight - el.clientHeight;
       setProgress(max > 0 ? Math.min(100, Math.round((el.scrollTop / max) * 100)) : 0);
-      const sections = doc.sections;
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const node = document.getElementById(sections[i].id);
-        if (node && node.offsetTop - el.scrollTop <= 160) {
-          setActiveSection(sections[i].id);
-          break;
-        }
-      }
     };
     el.addEventListener("scroll", onScroll);
     return () => el.removeEventListener("scroll", onScroll);
   }, [doc]);
-
-  const jump = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const currentSectionTitle = useMemo(() => {
-    if (!doc) return "";
-    const match = doc.sections.find((s) => s.id === activeSection);
-    return match?.title ?? doc.sections[0]?.title ?? "";
-  }, [doc, activeSection]);
 
   // ---- Lens: fetch an adaptive explanation for some text ----
   const runLens = async (text: string, level: Lens) => {
@@ -149,16 +129,21 @@ export function Reading() {
     }
   };
 
+  // ---- PDF text selection: capture page + rects before toolbar fires ----
+  const handlePDFTextSelect = (_text: string, page: number, rects: HighlightRect[]) => {
+    pendingHighlightRef.current = { page, rects };
+  };
+
   // ---- Selection toolbar actions ----
   const onExplain = (text: string) => {
-    setSelectedSection(currentSectionTitle);
     runLens(text, lens);
   };
 
   const onHighlight = async (text: string) => {
     if (!docId) return;
+    const { page, rects } = pendingHighlightRef.current;
     try {
-      const updated = await api.addHighlight(docId, text, currentSectionTitle);
+      const updated = await api.addHighlight(docId, text, page, rects);
       setDoc(updated);
       toast.success("Highlight saved");
     } catch (e) {
@@ -168,8 +153,9 @@ export function Reading() {
 
   const onBookmark = async (text: string) => {
     if (!docId) return;
+    const page = pendingHighlightRef.current.page;
     try {
-      const updated = await api.addBookmark(docId, currentSectionTitle, text);
+      const updated = await api.addBookmark(docId, `Page ${page}`, text);
       setDoc(updated);
       toast.success("Bookmark saved");
     } catch (e) {
@@ -189,9 +175,10 @@ export function Reading() {
     if (selected) runLens(selected, l);
   };
 
-  const highlights = doc?.highlights ?? [];
+  const highlights = (doc?.highlights ?? []) as HighlightItem[];
   const bookmarks = doc?.bookmarks ?? [];
   const pages = doc?.pages ?? 0;
+  const currentPage = pages > 0 ? Math.max(1, Math.round((progress / 100) * pages)) : 1;
 
   // ---- Empty state: no documents at all ----
   if (!docsLoading && documents.length === 0) {
@@ -246,22 +233,32 @@ export function Reading() {
             </Select>
           </div>
 
-          <Group label="Outline" icon={List}>
-            {(doc?.sections ?? []).map((s) => (
-              <button
-                key={s.id}
-                onClick={() => jump(s.id)}
-                className={cn(
-                  "flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm transition-colors",
-                  activeSection === s.id ? "bg-accent text-foreground" : "text-foreground/70 hover:bg-accent/50",
-                )}
+          <Group label="Navigation" icon={BookMarked}>
+            <div className="px-2.5 py-2 text-sm text-muted-foreground">
+              Page{" "}
+              <span className="font-medium text-foreground">{doc ? currentPage : "—"}</span>
+              {" "}of{" "}
+              <span className="font-medium text-foreground">{pages || "—"}</span>
+            </div>
+            <div className="flex items-center gap-1 px-2.5 pb-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                onClick={() => setScale((s) => Math.max(0.5, +(s - 0.25).toFixed(2)))}
               >
-                <span className={cn("font-mono text-xs", activeSection === s.id ? "text-violet" : "text-muted-foreground")}>
-                  {s.number}
-                </span>
-                <span className="truncate">{s.title}</span>
-              </button>
-            ))}
+                <ZoomOut className="size-3.5" />
+              </Button>
+              <span className="flex-1 text-center text-xs text-muted-foreground">{Math.round(scale * 100)}%</span>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                onClick={() => setScale((s) => Math.min(3.0, +(s + 0.25).toFixed(2)))}
+              >
+                <ZoomIn className="size-3.5" />
+              </Button>
+            </div>
           </Group>
 
           <Group label="Bookmarks" icon={Bookmark}>
@@ -286,19 +283,20 @@ export function Reading() {
                   <div className="study-mark inline font-reading text-[13px] leading-snug text-foreground/80">
                     {h.text}
                   </div>
-                  <div className="mt-1 text-[11px] text-muted-foreground">{h.section}</div>
+                  <div className="mt-1 text-[11px] text-muted-foreground">Page {h.page_number}</div>
                 </div>
               ))
             )}
           </Group>
         </aside>
 
-        {/* Center — Reader */}
-        <main data-tour="reading-reader" className="relative min-w-0 flex-1 overflow-y-auto" ref={scrollRef}>
+        {/* Center — Reader + overlay wrapper */}
+        <div className="relative min-w-0 flex-1">
+        <main data-tour="reading-reader" className="h-full overflow-y-auto" ref={scrollRef}>
           <SelectionToolbar containerRef={readerRef} actions={actions} />
 
-          {/* Sidebar Toggles & View Mode */}
-          <div className="pointer-events-none absolute left-0 top-4 z-10 flex w-full justify-between px-4">
+          {/* Sidebar Toggles */}
+          <div className="pointer-events-none sticky top-4 z-10 flex w-full justify-between px-4">
             <div className="pointer-events-auto">
               {leftCollapsed && (
                 <Button
@@ -336,39 +334,41 @@ export function Reading() {
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
               Select a document to start reading.
             </div>
-          ) : viewMode === "original" ? (
-            <div className="h-full w-full ">
-              <iframe
-                src={`/api/documents/${docId}/raw`}
-                className="h-full w-full border-none bg-white"
-                title="Original Document"
-              />
-            </div>
           ) : (
-            <div ref={readerRef} className="mx-auto max-w-[760px] px-8 py-14">
-              <div className="border-b border-border pb-8 text-center">
-                <Badge variant="outline" className="text-[11px] text-muted-foreground">{doc.kind}</Badge>
-                <h1 className="mt-4 text-[2.75rem] leading-[1.1]">{doc.title}</h1>
-                {doc.author && <p className="mt-3 text-sm text-muted-foreground">{doc.author}</p>}
-              </div>
-
-              {doc.sections.map((s) => (
-                <section key={s.id} id={s.id} className="scroll-mt-8 pt-12">
-                  <div className="mb-4 flex items-baseline gap-3">
-                    <span className="font-mono text-sm text-violet">{s.number}</span>
-                    <h2 className="text-[1.75rem]">{s.title}</h2>
-                  </div>
-                  {s.paragraphs.map((p, i) => (
-                    <div key={i} className="selection:bg-primary selection:text-primary-foreground">
-                      <MarkdownRenderer content={p} className="text-[17px] leading-relaxed" />
-                    </div>
-                  ))}
-                </section>
-              ))}
-              <div className="h-24" />
+            <div ref={readerRef} className="px-6 py-6">
+              <PDFViewer
+                pdfUrl={`/api/documents/${docId}/raw`}
+                highlights={highlights}
+                scale={scale}
+                onTextSelect={handlePDFTextSelect}
+              />
             </div>
           )}
         </main>
+
+        {/* Zoom pill — absolute on the non-scrolling wrapper, always visible */}
+        <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1 rounded-full border border-border bg-card/90 px-2 py-1 shadow-md backdrop-blur">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 rounded-full"
+            onClick={() => setScale((s) => Math.max(0.25, +(s - 0.25).toFixed(2)))}
+          >
+            <ZoomOut className="size-3.5" />
+          </Button>
+          <span className="min-w-[3rem] text-center text-xs font-medium tabular-nums text-muted-foreground">
+            {Math.round(scale * 100)}%
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 rounded-full"
+            onClick={() => setScale((s) => Math.min(3.0, +(s + 0.25).toFixed(2)))}
+          >
+            <ZoomIn className="size-3.5" />
+          </Button>
+        </div>
+        </div>{/* end center wrapper */}
 
         {/* Right — Context */}
         <aside className={cn(
@@ -388,35 +388,6 @@ export function Reading() {
               <div className="size-7" />
             )}
           </div>
-
-          {/* View Mode */}
-          {doc && (
-            <div className="border-b border-border p-4">
-              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                <Monitor className="size-3.5" /> View Mode
-              </div>
-              <div className="flex rounded-lg border border-border bg-card p-0.5">
-                <button
-                  onClick={() => setViewMode("reader")}
-                  className={cn(
-                    "flex-1 rounded-md py-1.5 text-xs font-medium transition-colors",
-                    viewMode === "reader" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  Reader
-                </button>
-                <button
-                  onClick={() => setViewMode("original")}
-                  className={cn(
-                    "flex-1 rounded-md py-1.5 text-xs font-medium transition-colors",
-                    viewMode === "original" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  Original
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Academic Lens */}
           <div data-tour="reading-lens" className="border-b border-border p-4">
@@ -452,9 +423,9 @@ export function Reading() {
                     <div className="study-mark inline font-reading text-sm leading-relaxed text-foreground/90">
                       "{selected}"
                     </div>
-                    {selectedSection && (
-                      <div className="mt-1.5 text-[11px] text-muted-foreground">in {selectedSection}</div>
-                    )}
+                    <div className="mt-1.5 text-[11px] text-muted-foreground">
+                      Page {pendingHighlightRef.current.page}
+                    </div>
                   </Block>
                   <Block title={`AI Explanation · ${lens}`}>
                     <div className="rounded-lg border border-violet/25 bg-violet-soft/50 p-3">
@@ -519,7 +490,7 @@ export function Reading() {
   );
 }
 
-function Group({ label, icon: Icon, children }: { label: string; icon: typeof List; children: React.ReactNode }) {
+function Group({ label, icon: Icon, children }: { label: string; icon: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
   return (
     <div className="border-b border-border p-2">
       <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">

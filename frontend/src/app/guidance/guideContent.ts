@@ -47,6 +47,33 @@ Each file is processed automatically — text extraction → chunking → embedd
 > Tip: group related material into a **course** so you can scope answers and study sets to one subject.`,
       },
       {
+        id: "gs-ollama",
+        title: "Set up Ollama (model backend)",
+        keywords: ["ollama", "models", "setup", "install", "local"],
+        body: `ScholarAI runs all AI models locally through **Ollama**. You need it installed and running before the app can answer questions or generate study material.
+
+**Install:** Download from [ollama.ai](https://ollama.ai) or your package manager (\`brew install ollama\`, \`winget install Ollama.Ollama\`). Start it with \`ollama serve\`.
+
+**Pull required models (minimum set):**
+\`\`\`bash
+ollama pull llama3.2:latest # general-purpose Q&A
+ollama pull qwen3:8b     # larger Q&A model for reasoning & diagrams
+ollama pull nomic-embed-text # embedding model for retrieval
+\`\`\`
+
+**Optional — larger models for better quality** (if you have ~16 GB+ RAM):
+\`\`\`bash
+ollama pull gemma4:12b      # general-purpose Q&A
+ollama pull qwen2.5vl:7b    # vision + text (diagrams, images, PDFs)
+ollama pull qwen3-embedding:0.6b     # better embeddings 
+\`\`\`
+
+The model list in \`config/default.toml\` controls which model handles which task. To override, copy that file to \`config/local.toml\` and edit —\`local.toml\` merges on top of defaults.
+
+**Verify:** By default, the app expects Ollama to be running at \`http://localhost:11434\`. If your Ollama runs on a non-default host/port, copy \`config/default.toml\` to \`config/local.toml\` and update the URL under \`[ollama]\` → \`base_url\`.`,
+
+      },
+      {
         id: "gs-first-answer",
         title: "Get your first answer",
         keywords: ["ask", "question", "answer", "citations"],

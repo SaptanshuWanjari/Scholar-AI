@@ -12,7 +12,10 @@ export type MarkdownAction =
   | "ul"
   | "ol"
   | "quote"
-  | "link";
+  | "link"
+  | "strikethrough"
+  | "task"
+  | "table";
 
 /** Wrap the textarea's current selection with `before`/`after`. Returns the new value. */
 export function wrapSelection(
@@ -74,6 +77,14 @@ export function applyMarkdown(el: HTMLTextAreaElement, action: MarkdownAction): 
       return prefixLines(el, "> ");
     case "link":
       return wrapSelection(el, "[", "](url)");
+    case "strikethrough":
+      return wrapSelection(el, "~~");
+    case "task":
+      return prefixLines(el, "- [ ] ");
+    case "table": {
+      const tableTpl = "\n| Header 1 | Header 2 |\n| -------- | -------- |\n| Cell 1   | Cell 2   |\n";
+      return wrapSelection(el, tableTpl, "");
+    }
     default:
       return el.value;
   }

@@ -30,7 +30,7 @@ TABLE_NAME = "chunks"
 # Columns that an up-to-date chunks table must carry. A pre-multimodal table
 # lacks these, so the first insert recreates it (chunks are rebuildable from
 # the source files under data/uploads via reindex_all()).
-_REQUIRED_COLUMNS = {"source_type", "image_url", "original_payload", "csv_path", "block_id"}
+_REQUIRED_COLUMNS = {"source_type", "image_url", "original_payload", "csv_path"}
 
 
 def _db():
