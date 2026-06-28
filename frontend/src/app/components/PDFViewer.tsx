@@ -15,6 +15,7 @@ export interface HighlightItem {
   text: string;
   page_number: number;
   rects: HighlightRect[];
+  annotation?: string;
 }
 
 interface PDFViewerProps {
@@ -215,9 +216,9 @@ const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
                         setNativeDims((prev) => new Map(prev).set(page, { w: vp.width, h: vp.height }));
                       }}
                     />
-                    {/* Highlight overlays – fractional coords scale automatically with page width */}
-                    {pageHighlights.flatMap((hl) =>
-                      hl.rects.map((rect, ri) => (
+                    {/* Highlight overlays and margin notes */}
+                    {pageHighlights.flatMap((hl) => {
+                      const rects = hl.rects.map((rect, ri) => (
                         <div
                           key={`${hl.id}-${ri}`}
                           style={{
@@ -231,8 +232,26 @@ const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
                             pointerEvents: "none",
                           }}
                         />
-                      ))
-                    )}
+                      ));
+
+                      if (hl.annotation && hl.rects.length > 0) {
+                        const firstRect = hl.rects[0];
+                        rects.push(
+                          <div
+                            key={`${hl.id}-note`}
+                            className="absolute left-full ml-6 z-10 w-64 bg-card shadow-md rounded-lg border border-violet/25 bg-violet-soft/50 p-3 text-[13px] text-foreground/90 leading-relaxed font-reading"
+                            style={{ top: `${firstRect.y * 100}%` }}
+                          >
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-violet mb-2">
+                              ScholarAI Note
+                            </div>
+                            {hl.annotation}
+                          </div>
+                        );
+                      }
+                      
+                      return rects;
+                    })}
                   </>
                 ) : (
                   <div

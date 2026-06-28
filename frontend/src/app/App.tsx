@@ -35,6 +35,7 @@ const PromptLibrary = lazy(() => import("./pages/PromptLibrary").then((m) => ({ 
 const Guide = lazy(() => import("./pages/Guide").then((m) => ({ default: m.Guide })));
 
 const OnboardingHero = lazy(() => import("./pages/onboarding/OnboardingHero").then((m) => ({ default: m.OnboardingHero })));
+const OnboardingSetup = lazy(() => import("./pages/onboarding/OnboardingSetup").then((m) => ({ default: m.OnboardingSetup })));
 const OnboardingImport = lazy(() => import("./pages/onboarding/OnboardingImport").then((m) => ({ default: m.OnboardingImport })));
 const OnboardingAnalyzing = lazy(() => import("./pages/onboarding/OnboardingAnalyzing").then((m) => ({ default: m.OnboardingAnalyzing })));
 const OnboardingReady = lazy(() => import("./pages/onboarding/OnboardingReady").then((m) => ({ default: m.OnboardingReady })));
@@ -65,6 +66,7 @@ export default function App() {
           <Routes>
             {/* Onboarding flow — full-page, no sidebar */}
             <Route path="/onboarding" element={<OnboardingHero />} />
+            <Route path="/onboarding/setup" element={<OnboardingSetup />} />
             <Route path="/onboarding/import" element={<OnboardingImport />} />
             <Route path="/onboarding/analyzing" element={<OnboardingAnalyzing />} />
             <Route path="/onboarding/ready" element={<OnboardingReady />} />

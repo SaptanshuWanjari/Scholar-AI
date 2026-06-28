@@ -142,6 +142,7 @@ class Deck(Base):
         Integer, ForeignKey("dep_concepts.id"), nullable=True, index=True
     )
     quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    source: Mapped[str | None] = mapped_column(String(256), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -161,6 +162,8 @@ class Card(Base):
     back: Mapped[str] = mapped_column(Text, nullable=False)
     due: Mapped[str] = mapped_column(String(32), nullable=False, default="Today")
     ease: Mapped[str] = mapped_column(String(16), nullable=False, default="new")
+    interval: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    sm2_ease: Mapped[float] = mapped_column(Float, nullable=False, default=2.5)
 
     deck: Mapped["Deck"] = relationship(back_populates="cards")
 
@@ -174,6 +177,7 @@ class SavedQuiz(Base):
     difficulty: Mapped[str] = mapped_column(String(16), nullable=False, default="Medium")
     questions: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    source: Mapped[str | None] = mapped_column(String(256), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

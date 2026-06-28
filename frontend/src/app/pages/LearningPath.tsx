@@ -81,6 +81,13 @@ const DIFFICULTY_COLOR: Record<string, string> = {
   Hard: "border-danger/40 bg-danger-soft text-danger",
 };
 
+const MASTERY_DOT: Record<string, string> = {
+  Mastered: "bg-green-500",
+  Learning: "bg-amber-400",
+  Weak: "bg-red-500",
+  "Needs Revision": "bg-orange-400",
+};
+
 // Concept-card actions wired to existing generators via useConceptActionStore.
 const ACTIONS: { label: string; icon: typeof Sparkles; runLabel: string }[] = [
   { label: "Explain", icon: Sparkles, runLabel: "Explain Concept" },
@@ -132,12 +139,20 @@ function ConceptCard({
     <div className="flex flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-ring/40">
       <div className="flex items-start justify-between gap-2">
         <h4 className="font-medium leading-snug text-foreground">{concept.title}</h4>
-        <Badge
-          variant="outline"
-          className={cn("shrink-0 text-[10px]", DIFFICULTY_COLOR[concept.difficulty] ?? "")}
-        >
-          {concept.difficulty}
-        </Badge>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {concept.masteryStatus && concept.masteryStatus !== "Unknown" && (
+            <span
+              className={cn("size-2 rounded-full", MASTERY_DOT[concept.masteryStatus])}
+              title={concept.masteryStatus}
+            />
+          )}
+          <Badge
+            variant="outline"
+            className={cn("text-[10px]", DIFFICULTY_COLOR[concept.difficulty] ?? "")}
+          >
+            {concept.difficulty}
+          </Badge>
+        </div>
       </div>
 
       {concept.summary && (
@@ -185,6 +200,14 @@ function ConceptCard({
         >
           <Lightbulb className="size-3" /> Teach Me
         </button>
+        {concept.depConceptId != null && (
+          <button
+            onClick={() => navigate(`/knowledge-base?conceptId=${concept.depConceptId}`)}
+            className="flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:border-ring/40 hover:text-foreground"
+          >
+            <Network className="size-3" /> Graph
+          </button>
+        )}
         {ACTIONS.map((a) => {
           const isNotebook = a.label === "Notebook";
           const isSummary = a.label === "Summary";

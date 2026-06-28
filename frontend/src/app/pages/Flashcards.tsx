@@ -181,12 +181,12 @@ export function Flashcards() {
     }
   };
 
-  const reviewCard = async (card: Flashcard, ease: Flashcard["ease"]) => {
+  const reviewCard = async (card: Flashcard, quality: number) => {
     // Optimistic update on whichever set is shown.
-    updateActiveCards((cs) => cs.map((c) => (c.id === card.id ? { ...c, ease } : c)));
+    updateActiveCards((cs) => cs.map((c) => (c.id === card.id ? { ...c, ease: quality < 3 ? "learning" : "mastered" } : c)));
     if (!activeDeck) return; // Unsaved cards have no DB id to persist against.
     try {
-      const updated = await api.reviewCard(card.id, ease);
+      const updated = await api.reviewCardSm2(card.id, quality);
       setSavedCards((cs) => cs.map((c) => (c.id === card.id ? updated : c)));
       void loadDecks();
     } catch (err) {
@@ -509,7 +509,7 @@ function StudyMode({
   persisted,
 }: {
   cards: Flashcard[];
-  onReview: (card: Flashcard, ease: Flashcard["ease"]) => void;
+  onReview: (card: Flashcard, quality: number) => void;
   persisted: boolean;
 }) {
   const [idx, setIdx] = useState(0);
@@ -526,8 +526,8 @@ function StudyMode({
     setIdx((i) => (i - 1 + cards.length) % cards.length);
   };
 
-  const grade = (ease: Flashcard["ease"]) => {
-    onReview(card, ease);
+  const grade = (quality: number) => {
+    onReview(card, quality);
     next();
   };
 
@@ -593,11 +593,17 @@ function StudyMode({
         <Button variant="outline" size="icon" className="size-11 rounded-full border-border/60" onClick={prev}>
           <ChevronLeft className="size-5" />
         </Button>
-        <div data-tour="flashcards-rate" className="flex gap-4">
-          <Button variant="outline" className="h-11 gap-2 rounded-full border-danger/40 px-6 font-medium text-danger hover:bg-danger-soft" onClick={() => grade("learning")}>
-            <X className="size-4" /> Hard
+        <div className={cn("flex items-center gap-2 transition-all duration-300", flipped ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none")}>
+          <Button variant="outline" className="h-11 gap-2 rounded-full border-danger/40 px-5 font-medium text-danger hover:bg-danger-soft" onClick={() => grade(1)}>
+            <X className="size-4" /> Again
           </Button>
-          <Button variant="outline" className="h-11 gap-2 rounded-full border-success/40 px-6 font-medium text-success hover:bg-success-soft" onClick={() => grade("mastered")}>
+          <Button variant="outline" className="h-11 gap-2 rounded-full border-amber-500/40 px-5 font-medium text-amber-500 hover:bg-amber-500/10" onClick={() => grade(3)}>
+            Hard
+          </Button>
+          <Button variant="outline" className="h-11 gap-2 rounded-full border-success/40 px-5 font-medium text-success hover:bg-success-soft" onClick={() => grade(4)}>
+            Good
+          </Button>
+          <Button variant="outline" className="h-11 gap-2 rounded-full border-blue-500/40 px-5 font-medium text-blue-500 hover:bg-blue-500/10" onClick={() => grade(5)}>
             <Check className="size-4" /> Easy
           </Button>
         </div>

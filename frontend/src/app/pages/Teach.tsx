@@ -25,6 +25,7 @@ import {
   ChevronLeft,
   PauseCircle,
   PenLine,
+  X,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -131,6 +132,7 @@ function InputPhase() {
   // for the chosen topic aren't mastered yet.
   const [gate, setGate] = useState<ReadinessMissing[] | null>(null);
   const [checking, setChecking] = useState(false);
+  const [showHint, setShowHint] = useState(() => !localStorage.getItem("teach_hitl_hint_dismissed"));
 
   // Check prerequisite mastery before generating. If unmet, open the gate
   // modal; otherwise generate immediately. Failures fall through to generate.
@@ -371,6 +373,32 @@ function InputPhase() {
               </div>
             </div>
 
+            {showHint && (
+              <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground relative">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute right-2 top-2 size-6 text-muted-foreground hover:bg-primary/10 hover:text-foreground rounded-full"
+                  onClick={() => {
+                    localStorage.setItem("teach_hitl_hint_dismissed", "1");
+                    setShowHint(false);
+                  }}
+                >
+                  <X className="size-3.5" />
+                </Button>
+                <div className="flex items-start gap-3 pr-6">
+                  <div className="mt-0.5 rounded-full bg-primary/10 p-1 text-primary">
+                    <Sparkles className="size-3.5" />
+                  </div>
+                  <div className="leading-relaxed">
+                    <span className="font-medium text-foreground block mb-1">How Teach Me works:</span>
+                    <strong>Phase 1</strong> — AI generates a draft based on your materials. Review and refine it.<br />
+                    <strong>Phase 2</strong> — Approve to generate flashcards, quiz, diagram, and mind map from your approved notes.
+                  </div>
+                </div>
+              </div>
+            )}
+
             <Button data-tour="teach-generate" onClick={handleGenerate} disabled={checking} className="mt-6 w-full gap-2">
               {checking ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
               {checking ? "Checking prerequisites…" : "Generate learning package"}
@@ -521,6 +549,8 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
       const slot = useTeachStore((s) => s.artifacts[view]);
       const selected = useTeachStore((s) => s.selected[view]);
       const retryArtifact = useTeachStore((s) => s.retryArtifact);
+      const sessionId = useTeachStore((s) => s.sessionId);
+      const [savedToLibrary, setSavedToLibrary] = useState(false);
 
       if (!selected) {
         return <ViewState icon={XCircle} message={`${ARTIFACT_LABELS[view]} was not included in this package.`} />;
@@ -547,16 +577,79 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
           case "difference":
             return <MarkdownRenderer content={(slot.data as GeneratedDifference).content} />;
           case "flashcards": {
-            const cards = (slot.data as FlashcardSet).cards as Flashcard[];
+            const fset = slot.data as FlashcardSet;
+            const cards = fset.cards as Flashcard[];
             if (!cards.length) return <ViewState icon={Layers} message="No flashcards were generated." />;
             return (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {cards.map((c) => <FlashcardCard key={c.id} card={c} />)}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {cards.map((c) => <FlashcardCard key={c.id} card={c} />)}
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={savedToLibrary}
+                    onClick={async () => {
+                      try {
+                        await api.saveDeck(
+                          fset.deck || "Teach Me Deck",
+                          fset.course ?? null,
+                          cards,
+                          undefined,
+                          fset.quality,
+                          sessionId ? `teach/${sessionId}` : undefined,
+                        );
+                        setSavedToLibrary(true);
+                        toast.success("Deck saved to library");
+                      } catch {
+                        toast.error("Failed to save deck");
+                      }
+                    }}
+                  >
+                    {savedToLibrary
+                      ? <><CheckCircle2 className="mr-1.5 size-3.5" />Added to Decks</>
+                      : <><Plus className="mr-1.5 size-3.5" />Add to Decks</>}
+                  </Button>
+                </div>
               </div>
             );
           }
-          case "quiz":
-            return <QuizReview questions={(slot.data as GeneratedQuiz).questions} />;
+          case "quiz": {
+            const q = slot.data as GeneratedQuiz;
+            return (
+              <div className="space-y-4">
+                <QuizReview questions={q.questions} />
+                <div className="flex justify-end">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={savedToLibrary}
+                    onClick={async () => {
+                      try {
+                        await api.saveQuiz({
+                          title: q.title,
+                          course: q.course ?? null,
+                          difficulty: q.difficulty,
+                          questions: q.questions,
+                          quality: q.quality,
+                          source: sessionId ? `teach/${sessionId}` : undefined,
+                        });
+                        setSavedToLibrary(true);
+                        toast.success("Quiz saved to library");
+                      } catch {
+                        toast.error("Failed to save quiz");
+                      }
+                    }}
+                  >
+                    {savedToLibrary
+                      ? <><CheckCircle2 className="mr-1.5 size-3.5" />Quiz Saved</>
+                      : <><Plus className="mr-1.5 size-3.5" />Save Quiz</>}
+                  </Button>
+                </div>
+              </div>
+            );
+          }
           case "diagram":
             return <DiagramViewer code={(slot.data as GeneratedDiagram).mermaid} flush />;
           case "mindmap": {

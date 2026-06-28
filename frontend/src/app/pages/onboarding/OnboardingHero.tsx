@@ -79,7 +79,7 @@ export function OnboardingHero() {
           <Button
             size="lg"
             className="w-full max-w-sm gap-2 bg-primary px-8 text-lg font-medium text-primary-foreground hover:bg-primary/90"
-            onClick={() => navigate("/onboarding/import")}
+            onClick={() => navigate("/onboarding/setup")}
           >
             Get Started
           </Button>

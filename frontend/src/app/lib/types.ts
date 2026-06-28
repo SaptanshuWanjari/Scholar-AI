@@ -132,6 +132,8 @@ export interface Flashcard {
   deck: string;
   due: string;
   ease: "new" | "learning" | "mastered";
+  interval: number;
+  sm2_ease: number;
 }
 
 export interface Deck {

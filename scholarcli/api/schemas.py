@@ -284,6 +284,11 @@ class FlashcardOut(BaseModel):
     deck: str
     due: str = "Today"
     ease: Literal["new", "learning", "mastered"] = "new"
+    interval: int = 0
+    sm2_ease: float = 2.5
+
+class SM2Review(BaseModel):
+    quality: int  # 0 to 5
 
 
 class FlashcardSet(BaseModel):
@@ -319,6 +324,7 @@ class QuizOut(BaseModel):
     grounded: bool = True
     questions: list[QuizQuestionOut] = []
     quality: QualityScore | None = None
+    source: str | None = None
     session_answers: dict | None = None
     session_current_question: int | None = None
     session_started_at: str | None = None
@@ -413,6 +419,7 @@ class DeckOut(BaseModel):
     cards: int
     mastered: int
     quality: QualityScore | None = None
+    source: str | None = None
 
 
 class SaveDeckRequest(BaseModel):
@@ -421,6 +428,7 @@ class SaveDeckRequest(BaseModel):
     color: str | None = None
     cards: list[FlashcardOut] = []
     quality: QualityScore | None = None
+    source: str | None = None
 
 
 class CardReview(BaseModel):
@@ -434,6 +442,7 @@ class SaveQuizRequest(BaseModel):
     difficulty: str = "Medium"
     questions: list[QuizQuestionOut] = []
     quality: QualityScore | None = None
+    source: str | None = None
 
 
 class QuizSessionPatch(BaseModel):
@@ -651,6 +660,7 @@ class HighlightCreate(BaseModel):
     text: str
     page_number: int = 1
     rects: list[HighlightRect] = []
+    annotation: str | None = None
 
 
 class BookmarkCreate(BaseModel):
