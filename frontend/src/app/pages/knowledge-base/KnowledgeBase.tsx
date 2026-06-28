@@ -4,8 +4,6 @@ import {
   Search,
   PanelLeftClose,
   PanelLeftOpen,
-  PanelRightClose,
-  PanelRightOpen,
   SlidersHorizontal,
   Tag,
   History,
@@ -14,6 +12,7 @@ import {
   Compass,
   Loader2,
   RefreshCw,
+  Network,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -21,14 +20,8 @@ import { cn } from "../../components/ui/utils";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { ScrollArea } from "../../components/ui/scroll-area";
-import {
-  Sheet,
-  SheetContent,
-} from "../../components/ui/sheet";
-import {
-  savedViews,
-  type ConceptData,
-} from "../../lib/graph-data";
+import { Sheet, SheetContent } from "../../components/ui/sheet";
+import { savedViews, type ConceptData } from "../../lib/graph-data";
 import { api, type KGSidebar } from "../../lib/api";
 import { useKnowledgeBaseStore } from "../../stores/useKnowledgeBaseStore";
 import type { Course } from "../../lib/types";
@@ -46,25 +39,52 @@ export function KnowledgeBase() {
     selectedId,
     drawerConceptId,
     leftCollapsed,
-    rightCollapsed,
     searchQuery,
     activeCollection,
     course,
     activeFilters,
+    degreeOfSeparation,
     setField,
     toggleFilter,
   } = useKnowledgeBaseStore();
-  const activeFilterSet = useMemo(() => new Set(activeFilters), [activeFilters]);
+  const activeFilterSet = useMemo(
+    () => new Set(activeFilters),
+    [activeFilters],
+  );
 
-  const setSelectedId = useCallback((v: string | null) => setField("selectedId", v), [setField]);
-  const setDrawerConceptId = useCallback((v: string | null) => setField("drawerConceptId", v), [setField]);
-  const setLeftCollapsed = useCallback((v: boolean) => setField("leftCollapsed", v), [setField]);
-  const setRightCollapsed = useCallback((v: boolean) => setField("rightCollapsed", v), [setField]);
-  const setSearchQuery = useCallback((v: string) => setField("searchQuery", v), [setField]);
-  const setActiveCollection = useCallback((v: string | null) => setField("activeCollection", v), [setField]);
-  const setCourse = useCallback((v: string | null) => setField("course", v), [setField]);
+  const setSelectedId = useCallback(
+    (v: string | null) => setField("selectedId", v),
+    [setField],
+  );
+  const setDrawerConceptId = useCallback(
+    (v: string | null) => setField("drawerConceptId", v),
+    [setField],
+  );
+  const setLeftCollapsed = useCallback(
+    (v: boolean) => setField("leftCollapsed", v),
+    [setField],
+  );
+  const setSearchQuery = useCallback(
+    (v: string) => setField("searchQuery", v),
+    [setField],
+  );
+  const setActiveCollection = useCallback(
+    (v: string | null) => setField("activeCollection", v),
+    [setField],
+  );
+  const setCourse = useCallback(
+    (v: string | null) => setField("course", v),
+    [setField],
+  );
+  const setDegreeOfSeparation = useCallback(
+    (v: number | "all") => setField("degreeOfSeparation", v),
+    [setField],
+  );
 
-  const [graph, setGraph] = useState<{ nodes: Node<ConceptData>[]; edges: Edge[] } | null>(null);
+  const [graph, setGraph] = useState<{
+    nodes: Node<ConceptData>[];
+    edges: Edge[];
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [building, setBuilding] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -75,19 +95,22 @@ export function KnowledgeBase() {
     sourceFilters: [],
   });
 
-  const loadSidebar = useCallback(async (c: string | null) => {
-    try {
-      const s = await api.getKnowledgeSidebar(c);
-      setSidebar(s);
-      const { initializedFilters } = useKnowledgeBaseStore.getState();
-      if (!initializedFilters) {
-        setField("activeFilters", s.sourceFilters);
-        setField("initializedFilters", true);
+  const loadSidebar = useCallback(
+    async (c: string | null) => {
+      try {
+        const s = await api.getKnowledgeSidebar(c);
+        setSidebar(s);
+        const { initializedFilters } = useKnowledgeBaseStore.getState();
+        if (!initializedFilters) {
+          setField("activeFilters", s.sourceFilters);
+          setField("initializedFilters", true);
+        }
+      } catch {
+        setSidebar({ collections: [], recentConcepts: [], sourceFilters: [] });
       }
-    } catch {
-      setSidebar({ collections: [], recentConcepts: [], sourceFilters: [] });
-    }
-  }, [setField]);
+    },
+    [setField],
+  );
 
   const loadGraph = useCallback(async (c: string | null) => {
     setLoading(true);
@@ -95,7 +118,9 @@ export function KnowledgeBase() {
       const g = await api.getKnowledgeGraph(c);
       setGraph(layoutGraph(g));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load knowledge graph");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to load knowledge graph",
+      );
       setGraph({ nodes: [], edges: [] });
     } finally {
       setLoading(false);
@@ -108,25 +133,64 @@ export function KnowledgeBase() {
   }, [course, loadGraph, loadSidebar]);
 
   useEffect(() => {
-    api.listCourses().then(setCourses).catch(() => {});
+    api
+      .listCourses()
+      .then(setCourses)
+      .catch(() => { });
   }, []);
 
   const build = useCallback(async () => {
     setBuilding(true);
-    toast.info("Building knowledge graph — this runs the LLM over your documents and may take a while…");
+    toast.info(
+      "Building knowledge graph — this runs the LLM over your documents and may take a while…",
+    );
     try {
       const [{ concepts, edges }] = await Promise.all([
         api.buildKnowledgeGraph(course),
         api.buildDependencies(course).catch(() => null),
       ]);
-      toast.success(`Knowledge graph built — ${concepts} concepts, ${edges} relationships.`);
+      toast.success(
+        `Knowledge graph built — ${concepts} concepts, ${edges} relationships.`,
+      );
       await Promise.all([loadGraph(course), loadSidebar(course)]);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to build knowledge graph");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to build knowledge graph",
+      );
     } finally {
       setBuilding(false);
     }
   }, [course, loadGraph, loadSidebar]);
+
+  const distances = useMemo(() => {
+    if (!graph || !selectedId || degreeOfSeparation === "all") return null;
+
+    const dists: Record<string, number> = { [selectedId]: 0 };
+    const queue = [selectedId];
+
+    const adj: Record<string, string[]> = {};
+    for (const e of graph.edges) {
+      if (!adj[e.source]) adj[e.source] = [];
+      if (!adj[e.target]) adj[e.target] = [];
+      adj[e.source].push(e.target);
+      adj[e.target].push(e.source);
+    }
+
+    while (queue.length > 0) {
+      const cur = queue.shift()!;
+      const d = dists[cur];
+
+      if (d >= (degreeOfSeparation as number)) continue;
+
+      for (const nxt of adj[cur] || []) {
+        if (dists[nxt] === undefined) {
+          dists[nxt] = d + 1;
+          queue.push(nxt);
+        }
+      }
+    }
+    return dists;
+  }, [graph, selectedId, degreeOfSeparation]);
 
   const isEmpty = !!graph && graph.nodes.length === 0;
 
@@ -144,7 +208,12 @@ export function KnowledgeBase() {
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               <Compass className="size-3.5" /> Knowledge Explorer
             </div>
-            <Button variant="ghost" size="icon" className="size-7" onClick={() => setLeftCollapsed(true)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              onClick={() => setLeftCollapsed(true)}
+            >
               <PanelLeftClose className="size-4" />
             </Button>
           </div>
@@ -169,7 +238,9 @@ export function KnowledgeBase() {
                     onClick={() => setCourse(null)}
                     className={cn(
                       "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
-                      course === null ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
+                      course === null
+                        ? "bg-violet-soft text-violet"
+                        : "text-foreground/80 hover:bg-accent/50",
                     )}
                   >
                     <span>All courses</span>
@@ -177,10 +248,14 @@ export function KnowledgeBase() {
                   {courses.map((c) => (
                     <button
                       key={c.id}
-                      onClick={() => setCourse(c.name === course ? null : c.name)}
+                      onClick={() =>
+                        setCourse(c.name === course ? null : c.name)
+                      }
                       className={cn(
                         "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
-                        course === c.name ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
+                        course === c.name
+                          ? "bg-violet-soft text-violet"
+                          : "text-foreground/80 hover:bg-accent/50",
                       )}
                     >
                       <span>{c.name}</span>
@@ -194,7 +269,10 @@ export function KnowledgeBase() {
               <SideSection label="Source Type" icon={SlidersHorizontal}>
                 <div className="space-y-1">
                   {sidebar.sourceFilters.map((f) => (
-                    <label key={f} className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1 text-sm text-foreground/80 hover:bg-accent/50">
+                    <label
+                      key={f}
+                      className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1 text-sm text-foreground/80 hover:bg-accent/50"
+                    >
                       <input
                         type="checkbox"
                         checked={activeFilterSet.has(f)}
@@ -204,6 +282,32 @@ export function KnowledgeBase() {
                       {f}
                     </label>
                   ))}
+                </div>
+              </SideSection>
+            )}
+
+            {selectedId && (
+              <SideSection label="Degree of Separation" icon={Network}>
+                <div className="px-2 py-1">
+                  <input
+                    type="range"
+                    min="1"
+                    max="4"
+                    step="1"
+                    value={
+                      degreeOfSeparation === "all" ? 4 : degreeOfSeparation
+                    }
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      setDegreeOfSeparation(val === 4 ? "all" : val);
+                    }}
+                    className="w-full accent-violet"
+                  />
+                  <div className="mt-1 text-center text-xs text-muted-foreground">
+                    {degreeOfSeparation === "all"
+                      ? "All concepts"
+                      : `Within ${degreeOfSeparation} degrees`}
+                  </div>
                 </div>
               </SideSection>
             )}
@@ -218,14 +322,22 @@ export function KnowledgeBase() {
                   {sidebar.collections.map((c) => (
                     <button
                       key={c.id}
-                      onClick={() => setActiveCollection(c.id === activeCollection ? null : c.id)}
+                      onClick={() =>
+                        setActiveCollection(
+                          c.id === activeCollection ? null : c.id,
+                        )
+                      }
                       className={cn(
                         "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
-                        activeCollection === c.id ? "bg-violet-soft text-violet" : "text-foreground/80 hover:bg-accent/50",
+                        activeCollection === c.id
+                          ? "bg-violet-soft text-violet"
+                          : "text-foreground/80 hover:bg-accent/50",
                       )}
                     >
                       <span>{c.label}</span>
-                      <span className="text-xs text-muted-foreground">{c.count}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {c.count}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -250,18 +362,6 @@ export function KnowledgeBase() {
                 </div>
               )}
             </SideSection>
-
-            <SideSection label="Saved Views" icon={Tag}>
-              {savedViews.map((v) => (
-                <button
-                  key={v.id}
-                  className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50"
-                >
-                  <v.icon className="size-4 text-muted-foreground" />
-                  <span>{v.label}</span>
-                </button>
-              ))}
-            </SideSection>
           </ScrollArea>
         </div>
       </motion.aside>
@@ -276,14 +376,6 @@ export function KnowledgeBase() {
             <PanelLeftOpen className="size-4" />
           </button>
         )}
-        {rightCollapsed && (
-          <button
-            onClick={() => setRightCollapsed(false)}
-            className="absolute right-3 top-3 z-20 flex size-8 items-center justify-center rounded-full border border-border bg-card shadow-sm hover:bg-accent"
-          >
-            <PanelRightOpen className="size-4" />
-          </button>
-        )}
 
         {graph && !isEmpty && !loading && (
           <div className="absolute right-3 top-3 z-20">
@@ -294,7 +386,11 @@ export function KnowledgeBase() {
               onClick={build}
               disabled={building}
             >
-              {building ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCw className="size-3.5" />}
+              {building ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="size-3.5" />
+              )}
               {building ? "Rebuilding…" : "Rebuild"}
             </Button>
           </div>
@@ -312,7 +408,13 @@ export function KnowledgeBase() {
             searchQuery={searchQuery}
             activeFilters={activeFilters}
             activeCollection={activeCollection}
-            onNodeClick={(id) => setSelectedId(id === selectedId ? null : id)}
+            degreeOfSeparation={degreeOfSeparation}
+            distances={distances}
+            onNodeClick={(id) => {
+              const newId = id === selectedId ? null : id;
+              setSelectedId(newId);
+              if (newId) setDrawerConceptId(newId);
+            }}
             onNodeDoubleClick={(id) => setDrawerConceptId(id)}
             onPaneClick={() => setSelectedId(null)}
           />
@@ -321,53 +423,31 @@ export function KnowledgeBase() {
         {!loading && !isEmpty && (
           <div className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2">
             <div className="flex items-center gap-4 rounded-full border border-border bg-card/80 px-4 py-2 text-[11px] text-muted-foreground backdrop-blur">
-              <LegendDot cls="size-4 border-2 border-foreground bg-card" label="Large (hub)" />
-              <LegendDot cls="size-3 border border-foreground/60 bg-card" label="Medium" />
-              <LegendDot cls="size-2.5 border border-foreground/40 bg-card" label="Small (rare)" />
-              <span className="h-3 w-px bg-border" />
-              <span className="flex items-center gap-1">Click to inspect · Double-click for details</span>
+              <span className="flex items-center gap-1">
+                Click to inspect · Double-click for details
+              </span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Right inspector */}
-      <motion.aside
-        data-tour="knowledge-inspector"
-        animate={{ width: rightCollapsed ? 0 : 320 }}
-        transition={{ type: "spring", stiffness: 340, damping: 36 }}
-        className="relative z-10 hidden shrink-0 flex-col overflow-hidden border-l border-border bg-card/50 xl:flex"
-      >
-        <div className="flex h-full w-[320px] flex-col overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Inspector</span>
-            <Button variant="ghost" size="icon" className="size-7" onClick={() => setRightCollapsed(true)}>
-              <PanelRightClose className="size-4" />
-            </Button>
-          </div>
-          <ScrollArea className="min-h-0 flex-1">
-            {selectedId ? (
-              <InspectorContent
-                key={selectedId}
-                conceptId={selectedId}
-                onOpenDrawer={() => setDrawerConceptId(selectedId)}
-              />
-            ) : (
-              <EmptyInspector />
-            )}
-          </ScrollArea>
-        </div>
-      </motion.aside>
-
       {/* Concept drawer */}
-      <Sheet open={!!drawerConceptId} onOpenChange={(o) => !o && setDrawerConceptId(null)}>
-        <SheetContent side="right" className="w-[540px] max-w-full overflow-y-auto p-0 sm:max-w-[540px]">
+      <Sheet
+        open={!!drawerConceptId}
+        onOpenChange={(o) => !o && setDrawerConceptId(null)}
+      >
+        <SheetContent
+          side="right"
+          className="w-[540px] max-w-full overflow-y-auto p-0 sm:max-w-[540px]"
+        >
           {drawerConceptId && (
             <ConceptDrawerContent
               key={drawerConceptId}
               conceptId={drawerConceptId}
               onClose={() => setDrawerConceptId(null)}
-              onRefresh={() => Promise.all([loadGraph(course), loadSidebar(course)])}
+              onRefresh={() =>
+                Promise.all([loadGraph(course), loadSidebar(course)])
+              }
             />
           )}
         </SheetContent>

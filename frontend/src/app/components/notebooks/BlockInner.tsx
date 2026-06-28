@@ -23,9 +23,9 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
   switch (block.type) {
     case "heading":
       return block.level === 1 ? (
-        <h1 className="mt-4 text-3xl">{block.text}</h1>
+        <h1 className="mt-6 text-4xl font-bold">{block.text}</h1>
       ) : (
-        <h2 className="mt-4">{block.text}</h2>
+        <h2 className="mt-5 text-2xl font-semibold">{block.text}</h2>
       );
     case "text":
       return (
@@ -36,22 +36,22 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
               {artifactLabel(block.source.type)}
             </span>
           )}
-          <MarkdownRenderer content={block.text} />
+          <MarkdownRenderer content={block.text} className="text-[18px] leading-relaxed" />
         </>
       );
     case "callout": {
       const m = calloutMeta[block.tone];
       return (
-        <div className={cn("flex gap-3 rounded-xl border p-4", m.cls)}>
-          <m.icon className={cn("mt-0.5 size-5 shrink-0", m.iconCls)} />
-          <div className="font-reading leading-relaxed">{block.text}</div>
+        <div className={cn("flex gap-4 rounded-xl border p-5", m.cls)}>
+          <m.icon className={cn("mt-0.5 size-6 shrink-0", m.iconCls)} />
+          <div className="font-reading text-[18px] leading-relaxed">{block.text}</div>
         </div>
       );
     }
     case "code":
       return (
-        <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-4">
-          <code className="font-mono text-[13px] leading-relaxed text-foreground/90">
+        <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-5">
+          <code className="font-mono text-[14.5px] leading-relaxed text-foreground/90">
             {block.code}
           </code>
         </pre>
@@ -59,13 +59,13 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
     case "table":
       return (
         <div className="overflow-x-auto rounded-xl border border-border">
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-base">
             <thead className="bg-muted/60">
               <tr>
                 {block.headers.map((h) => (
                   <th
                     key={h}
-                    className="border-b border-border px-4 py-2.5 text-left font-semibold"
+                    className="border-b border-border px-5 py-3 text-left font-semibold"
                   >
                     {h}
                   </th>
@@ -78,7 +78,7 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
                   {row.map((cell, j) => (
                     <td
                       key={j}
-                      className="border-b border-border/60 px-4 py-2.5 text-foreground/80"
+                      className="border-b border-border/60 px-5 py-3 text-foreground/80"
                     >
                       {cell}
                     </td>
@@ -92,20 +92,20 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
     case "ai-answer":
       return (
         <div className="overflow-hidden rounded-xl border border-violet/25 bg-violet-soft/40">
-          <div className="flex items-center justify-between border-b border-violet/15 px-4 py-2.5">
-            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-violet">
-              <Sparkles className="size-3.5" /> Saved AI Answer
+          <div className="flex items-center justify-between border-b border-violet/15 px-5 py-3.5">
+            <span className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-violet">
+              <Sparkles className="size-4" /> Saved AI Answer
             </span>
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Gauge className="size-3" /> {(block.confidence * 100).toFixed(0)}
+              <Gauge className="size-3.5" /> {(block.confidence * 100).toFixed(0)}
               % · {block.sources} sources
             </span>
           </div>
-          <div className="px-4 pb-3 pt-3">
-            <div className="mb-2 font-reading text-base font-medium italic text-foreground">
+          <div className="px-5 pb-4 pt-4">
+            <div className="mb-3 font-reading text-lg font-medium italic text-foreground">
               {block.question}
             </div>
-            <MarkdownRenderer content={block.answer} />
+            <MarkdownRenderer content={block.answer} className="text-[18px] leading-relaxed" />
           </div>
         </div>
       );
@@ -120,25 +120,25 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
       );
     case "flashdeck":
       return (
-        <div className="rounded-xl border border-border bg-card p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="flex items-center gap-2 text-sm font-medium">
-              <Layers className="size-4 text-violet" /> {block.name}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="flex items-center gap-2.5 text-base font-semibold">
+              <Layers className="size-5 text-violet" /> {block.name}
             </span>
-            <Badge variant="outline" className="text-xs text-muted-foreground">
+            <Badge variant="outline" className="text-xs text-muted-foreground px-2.5 py-0.5">
               {block.count} cards
             </Badge>
           </div>
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             {block.cards.map((c, i) => (
               <div
                 key={i}
-                className="rounded-lg border border-border bg-background/50 p-3"
+                className="rounded-lg border border-border bg-background/50 p-4"
               >
-                <div className="font-reading text-sm leading-snug">
+                <div className="font-reading text-base leading-snug font-medium">
                   {c.front}
                 </div>
-                <div className="mt-2 border-t border-border pt-2 text-xs text-muted-foreground">
+                <div className="mt-2.5 border-t border-border pt-2 text-xs text-muted-foreground">
                   {c.back}
                 </div>
               </div>
@@ -149,19 +149,19 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
     case "quiz-results": {
       const pct = Math.round((block.score / block.total) * 100);
       return (
-        <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
-          <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-xl bg-success-soft text-success">
-            <span className="font-display text-xl leading-none">{pct}%</span>
+        <div className="flex items-center gap-5 rounded-xl border border-border bg-card p-5">
+          <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-xl bg-success-soft text-success">
+            <span className="font-display text-2xl leading-none">{pct}%</span>
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <ListChecks className="size-4 text-success" /> {block.title}
+            <div className="flex items-center gap-2.5 text-base font-semibold">
+              <ListChecks className="size-5 text-success" /> {block.title}
             </div>
-            <div className="mt-1 text-xs text-muted-foreground">
+            <div className="mt-1 text-sm text-muted-foreground">
               Scored {block.score} of {block.total} · embedded quiz result
             </div>
           </div>
-          <Check className="size-5 text-success" />
+          <Check className="size-6 text-success" />
         </div>
       );
     }
@@ -178,16 +178,16 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
             {block.thumbnail ? (
               <img src={block.thumbnail} alt="" className="h-full w-full object-contain" />
             ) : (
-              <PencilRuler className="size-8 text-muted-foreground/40" />
+              <PencilRuler className="size-10 text-muted-foreground/40" />
             )}
           </div>
-          <div className="flex items-center justify-between gap-2 px-3 py-2">
-            <span className="flex min-w-0 items-center gap-2 text-sm font-medium">
-              <PencilRuler className="size-4 shrink-0 text-violet" />
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <span className="flex min-w-0 items-center gap-2.5 text-base font-semibold">
+              <PencilRuler className="size-5 shrink-0 text-violet" />
               <span className="truncate">{block.title || "Whiteboard"}</span>
             </span>
-            <span className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground group-hover/wb:text-violet">
-              Open <ExternalLink className="size-3" />
+            <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground group-hover/wb:text-violet">
+              Open <ExternalLink className="size-3.5" />
             </span>
           </div>
         </button>

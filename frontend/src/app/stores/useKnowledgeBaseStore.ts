@@ -12,7 +12,6 @@ interface KnowledgeBaseState {
   activeCollection: string | null;
   course: string | null;
   leftCollapsed: boolean;
-  rightCollapsed: boolean;
   // Stored as a plain array (not a Set) to keep it serializable/simple; the
   // component derives a Set locally where membership checks are needed.
   activeFilters: string[];
@@ -20,6 +19,7 @@ interface KnowledgeBaseState {
   // Lets `loadSidebar` apply "enable all filters" only on a fresh session and
   // never clobber a restored selection on remount.
   initializedFilters: boolean;
+  degreeOfSeparation: number | "all";
   setField: <K extends keyof KnowledgeBaseState>(key: K, value: KnowledgeBaseState[K]) => void;
   toggleFilter: (name: string) => void;
 }
@@ -31,9 +31,9 @@ export const useKnowledgeBaseStore = create<KnowledgeBaseState>((set) => ({
   activeCollection: null,
   course: null,
   leftCollapsed: false,
-  rightCollapsed: false,
   activeFilters: [],
   initializedFilters: false,
+  degreeOfSeparation: "all",
   setField: (key, value) => set({ [key]: value } as Partial<KnowledgeBaseState>),
   toggleFilter: (name) =>
     set((state) => ({

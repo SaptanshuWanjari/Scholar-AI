@@ -101,7 +101,7 @@ _SYSTEM_MAP = {
 }
 
 
-def _generate_one(key: str, topic: str, approved_notes: str, depth: str) -> dict:
+def _generate_one(key: str, topic: str, approved_notes: str, depth: str, retrieved: list[dict], grounded: bool) -> dict:
     """Generate a single artifact from approved notes via direct LLM call."""
     system = _SYSTEM_MAP.get(key, STUDY_NOTES_SYSTEM)
     route = _ROUTE_MAP.get(key, "study_notes")
@@ -125,29 +125,36 @@ def _generate_one(key: str, topic: str, approved_notes: str, depth: str) -> dict
 
     stable_id = lambda prefix: f"{prefix}-{abs(hash(topic + key)) % 10_000_000}"
 
+    from scholarcli.api.quality import score_artifact
+    
     if key == "flashcards":
         cards = parsers.parse_flashcards(content, deck=topic)
+        quality = score_artifact("flashcards", cards, retrieved, grounded)
         from scholarcli.api.schemas import FlashcardOut, FlashcardSet
         return FlashcardSet(
             deck=topic,
-            grounded=True,
+            grounded=grounded,
+            quality=quality,
             cards=[FlashcardOut(**c) for c in cards],
         ).model_dump()
 
     if key == "quiz":
         questions = parsers.parse_quiz(content)
+        quality = score_artifact("quiz", questions, retrieved, grounded)
         from scholarcli.api.schemas import QuizOut, QuizQuestionOut
         return QuizOut(
             id=stable_id("quiz"),
             title=topic,
             course="",
             difficulty=difficulty,
-            grounded=True,
+            grounded=grounded,
+            quality=quality,
             questions=[QuizQuestionOut(**q) for q in questions],
         ).model_dump()
 
     if key == "diagram":
         mermaid = parsers.strip_mermaid_fences(content)
+        quality = score_artifact("mermaid", mermaid, retrieved, grounded)
         from scholarcli.api.schemas import DiagramOut
         return DiagramOut(
             id=stable_id("dg"),
@@ -155,26 +162,31 @@ def _generate_one(key: str, topic: str, approved_notes: str, depth: str) -> dict
             course="",
             kind="flowchart",
             mermaid=mermaid,
-            grounded=True,
+            grounded=grounded,
+            quality=quality,
         ).model_dump()
 
     if key == "mindmap":
+        quality = score_artifact("mindmap", content, retrieved, grounded)
         from scholarcli.api.schemas import MindmapOut
         return MindmapOut(
             id=stable_id("mm"),
             title=topic,
             course="",
             text=content,
-            grounded=True,
+            grounded=grounded,
+            quality=quality,
         ).model_dump()
 
     if key == "difference":
+        quality = score_artifact("differences", content, retrieved, grounded)
         from scholarcli.api.schemas import DifferenceOut
-        return DifferenceOut(title=topic, content=content, grounded=True).model_dump()
+        return DifferenceOut(title=topic, content=content, grounded=grounded, quality=quality).model_dump()
 
     # key == "notes"
+    quality = score_artifact("notes", content, retrieved, grounded)
     from scholarcli.api.schemas import RevisionOut
-    return RevisionOut(title=topic, markdown=content, grounded=True).model_dump()
+    return RevisionOut(title=topic, markdown=content, grounded=grounded, quality=quality).model_dump()
 
 
 def generate_artifacts(state: TeachState) -> dict:
@@ -185,11 +197,13 @@ def generate_artifacts(state: TeachState) -> dict:
     keys_to_generate: list[str] = human_input.get("artifacts_to_generate", [])
     topic = state.get("topic", "")
     depth = state.get("depth", "standard")
+    retrieved = state.get("retrieved", [])
+    grounded = state.get("grounded", False)
 
     artifacts: dict[str, Any] = {}
     for key in keys_to_generate:
         try:
-            artifacts[key] = _generate_one(key, topic, approved_notes, depth)
+            artifacts[key] = _generate_one(key, topic, approved_notes, depth, retrieved, grounded)
         except Exception as exc:
             artifacts[key] = {"error": str(exc)}
 

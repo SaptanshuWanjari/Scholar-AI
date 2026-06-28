@@ -26,7 +26,7 @@ export function BlockEditor({
     setDraft({ ...d, ...patch } as NotebookBlock);
 
   return (
-    <div className="space-y-3 rounded-xl border border-violet/40 bg-card/60 p-4">
+    <div className="space-y-4 rounded-xl border border-violet/40 bg-card/60 p-5">
       {draft.type === "heading" && (
         <>
           <div className="flex gap-1.5">
@@ -85,7 +85,7 @@ export function BlockEditor({
             placeholder="Callout text"
             autoFocus
             rows={3}
-            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 text-sm outline-none focus:border-violet"
+            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 text-base outline-none focus:border-violet"
           />
         </>
       )}
@@ -123,7 +123,7 @@ export function BlockEditor({
             autoFocus
             rows={6}
             spellCheck={false}
-            className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
+            className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[14.5px] leading-relaxed outline-none focus:border-violet"
           />
         </div>
       )}
@@ -166,14 +166,14 @@ export function BlockEditor({
             autoFocus
             rows={6}
             spellCheck={false}
-            className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
+            className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[14.5px] leading-relaxed outline-none focus:border-violet"
           />
         </div>
       )}
 
       {draft.type === "table" && (
         <div className="overflow-x-auto rounded-xl border border-border bg-card/50">
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-base">
             <thead className="bg-muted/60">
               <tr>
                 {d.headers.map((h: string, j: number) => (
@@ -270,7 +270,7 @@ export function BlockEditor({
             onChange={(e) => field({ answer: e.target.value })}
             placeholder="Answer (markdown)"
             rows={5}
-            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 text-sm leading-relaxed outline-none focus:border-violet"
+            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 text-base leading-relaxed outline-none focus:border-violet"
           />
         </>
       )}

@@ -186,7 +186,10 @@ function InputPhase() {
       });
     }
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTopicChange = (value: string) => {
