@@ -20,7 +20,7 @@ const PIPELINE_STEPS = [
   { label: "Extracting Text", icon: FileText },
   { label: "Analyzing Structure", icon: Layers },
   { label: "Detecting Topics", icon: Tag },
-  { label: "Clustering Courses", icon: Network },
+  { label: "Indexing Library", icon: Network },
   { label: "Extracting Concepts", icon: Cpu },
   { label: "Generating Recommendations", icon: Database },
   { label: "Preparing Workspace", icon: Sparkles },

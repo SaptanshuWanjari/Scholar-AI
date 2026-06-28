@@ -17,6 +17,7 @@ from scholarcli.rag.prompts import (
     MERMAID_SYSTEM,
     MINDMAP_SYSTEM,
     NOT_GROUNDED,
+    PLANTUML_SYSTEM,
     QA_PROMPT_TEMPLATE,
     QUIZ_SYSTEM,
     STUDY_NOTES_SYSTEM,
@@ -36,6 +37,7 @@ _ROUTE_PROMPTS: dict[str, str] = {
     "differences": DIFFERENCES_SYSTEM,
     "learning_path": LEARNING_PATH_SYSTEM,
     "data_qa": DATA_QA_SYSTEM,
+    "plantuml": PLANTUML_SYSTEM,
 }
 
 

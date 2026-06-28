@@ -25,7 +25,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 import re
 
-def get_or_create_course(session: Session, name: str) -> "Course":
+def get_course(session: Session, name: str | None) -> "Course" | None:
+    if not name:
+        return None
+
     def is_similar(n1: str, n2: str) -> bool:
         n1, n2 = n1.lower().strip(), n2.lower().strip()
         if n1 == n2: return True
@@ -43,15 +46,7 @@ def get_or_create_course(session: Session, name: str) -> "Course":
         if is_similar(name, existing.name):
             return existing
     
-    course = Course(name=name)
-    session.add(course)
-    try:
-        session.commit()
-        session.refresh(course)
-        return course
-    except IntegrityError:
-        session.rollback()
-        return session.query(Course).filter(Course.name == name).one()
+    return None
 
 class Base(DeclarativeBase):
     pass

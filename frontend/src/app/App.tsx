@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate, Navigate } from "react-route
 import { AppLayout } from "./components/layout/AppLayout";
 import { Toaster } from "./components/ui/sonner";
 import { PromptCoachModal } from "./components/PromptCoachModal";
+import OnboardingWidget from "./components/OnboardingWidget";
 import { Dashboard } from "./pages/Dashboard";
 import { KnowledgeBase } from "./pages/KnowledgeBase";
 import { Documents } from "./pages/Documents";
@@ -104,6 +105,7 @@ export default function App() {
         </Routes>
         <Toaster position="bottom-right" theme="light" />
         <PromptCoachModal />
+        <OnboardingWidget />
       </OnboardingProvider>
     </BrowserRouter>
   );

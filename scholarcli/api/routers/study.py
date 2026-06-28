@@ -90,24 +90,35 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
     topic = req.topic.strip()
     if not topic:
         raise HTTPException(status_code=400, detail="topic is required")
-    kind = (req.type or "flowchart").replace("_", " ")
-    query = f"Generate a {kind} diagram about: {topic}"
-    result = await run_in_threadpool(run_ask, query, req.course, req.document, "mermaid", topic, req.rag_mode)
-    mermaid = parsers.strip_mermaid_fences(result["content"])
-    quality = score_artifact("mermaid", mermaid, result["retrieved"], result["grounded"])
+
+    is_plantuml = (req.type or "").lower() == "plantuml"
+
+    if is_plantuml:
+        kind_label = "PlantUML"
+        query = f"Generate a PlantUML diagram about: {topic}"
+        result = await run_in_threadpool(run_ask, query, req.course, req.document, "plantuml", topic, req.rag_mode)
+        syntax = parsers.strip_plantuml_fences(result["content"])
+        quality = score_artifact("mermaid", syntax, result["retrieved"], result["grounded"])
+    else:
+        kind = (req.type or "flowchart").replace("_", " ")
+        kind_label = kind.title()
+        query = f"Generate a {kind} diagram about: {topic}"
+        result = await run_in_threadpool(run_ask, query, req.course, req.document, "mermaid", topic, req.rag_mode)
+        syntax = parsers.strip_mermaid_fences(result["content"])
+        quality = score_artifact("mermaid", syntax, result["retrieved"], result["grounded"])
+
     course_name = req.course or "All courses"
-    kind_label = kind.title()
-    diagram_id = _stable_id("dg", topic, kind)
+    diagram_id = _stable_id("dg", topic, kind_label)
 
     # Persist grounded diagrams so the library survives reloads.
-    if result["grounded"] and mermaid.strip():
+    if result["grounded"] and syntax.strip():
         from scholarcli.storage import get_session
         from scholarcli.storage.models import Diagram
 
         session = get_session()
         try:
             row = Diagram(
-                title=topic, course=course_name, kind=kind_label, mermaid=mermaid,
+                title=topic, course=course_name, kind=kind_label, mermaid=syntax,
                 quality_score=quality.model_dump(),
             )
             session.add(row)
@@ -123,7 +134,7 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
         title=topic,
         course=course_name,
         kind=kind_label,
-        mermaid=mermaid,
+        mermaid=syntax,
         grounded=result["grounded"],
         quality=quality,
     )

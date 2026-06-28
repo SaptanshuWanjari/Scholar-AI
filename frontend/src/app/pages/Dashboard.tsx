@@ -138,13 +138,7 @@ export function Dashboard() {
             </div>
           )}
 
-          {/* Metrics Row */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-tour="dashboard-metrics">
-            <MetricCard label="Documents" value={metrics?.documents ?? documents.length} icon={FileText} accent="#8b5cf6" hint={`${courses.length} courses`} />
-            <MetricCard label="Flashcards" value={metrics?.flashcards ?? 0} icon={Layers} accent="#06b6d4" hint="across all decks" />
-            <MetricCard label="Quizzes" value={metrics?.quizzesTaken ?? 0} icon={ListChecks} accent="#22c55e" />
-            <MetricCard label="Sessions" value={metrics?.studySessions ?? 0} icon={Clock} accent="#f59e0b" />
-          </div>
+
 
           {/* Recent documents */}
           <div data-tour="dashboard-recent">
@@ -204,6 +198,14 @@ export function Dashboard() {
               )}
             </div>
           )}
+
+          {/* Metrics Row */}
+          <div className="grid gap-4 grid-cols-2" data-tour="dashboard-metrics">
+            <MetricCard label="Documents" value={metrics?.documents ?? documents.length} icon={FileText} accent="#8b5cf6" hint={`${courses.length} courses`} />
+            <MetricCard label="Flashcards" value={metrics?.flashcards ?? 0} icon={Layers} accent="#06b6d4" hint="across all decks" />
+            <MetricCard label="Quizzes" value={metrics?.quizzesTaken ?? 0} icon={ListChecks} accent="#22c55e" />
+            <MetricCard label="Sessions" value={metrics?.studySessions ?? 0} icon={Clock} accent="#f59e0b" />
+          </div>
 
           {/* Recent sessions */}
           <div className="rounded-2xl border border-border bg-card p-5">

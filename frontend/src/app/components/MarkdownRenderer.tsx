@@ -7,7 +7,12 @@ import { CitationBadge } from "./CitationBadge";
 import { DiagramViewer } from "./DiagramViewer";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger, DialogClose } from "./ui/dialog";
 import { cn } from "./ui/utils";
+import { usePluginStore } from "../plugins/usePluginStore";
 import type { Components } from "react-markdown";
+
+const LazyPlantUMLViewer = lazy(() =>
+  import("../plugins/plantuml/PlantUMLViewer").then((m) => ({ default: m.PlantUMLViewer }))
+);
 
 interface MarkdownRendererProps {
   content: string;
@@ -126,6 +131,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
   onCitationClick,
   className,
 }: MarkdownRendererProps) {
+  const plantumlEnabled = usePluginStore((s) => s.isEnabled("plantuml"));
   const remarkPlugins = useMemo(() => [remarkGfm], []);
   const rehypePlugins = useMemo(() => [rehypeRaw], []);
 
@@ -243,6 +249,14 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
         return <DiagramViewer code={String(children).replace(/\n$/, "")} />;
       }
 
+      if (language === "plantuml" && plantumlEnabled) {
+        return (
+          <Suspense fallback={<div className="my-4 h-48 animate-pulse rounded-lg bg-muted" />}>
+            <LazyPlantUMLViewer code={String(children).replace(/\n$/, "")} />
+          </Suspense>
+        );
+      }
+
       if (!isBlock) {
         return (
           <code className="rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[13px] text-cyan">
@@ -286,7 +300,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
       </td>
     ),
     hr: () => <hr className="my-6 border-border" />,
-  }), [onCitationClick]);
+  }), [onCitationClick, plantumlEnabled]);
 
   return (
     <div

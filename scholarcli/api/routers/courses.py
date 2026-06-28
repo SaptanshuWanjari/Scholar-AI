@@ -48,8 +48,18 @@ def create_course(payload: CourseCreate) -> CourseOut:
         raise HTTPException(status_code=400, detail="Course name is required")
     session = get_session()
     try:
-        from scholarcli.storage.models import get_or_create_course
-        course = get_or_create_course(session, name)
+        from scholarcli.storage.models import get_course, Course
+        from sqlalchemy.exc import IntegrityError
+        course = get_course(session, name)
+        if not course:
+            course = Course(name=name)
+            session.add(course)
+            try:
+                session.commit()
+                session.refresh(course)
+            except IntegrityError:
+                session.rollback()
+                course = get_course(session, name)
         return _serialize(course)
     finally:
         session.close()

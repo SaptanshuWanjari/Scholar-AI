@@ -256,7 +256,7 @@ export function AskAI() {
 
         {/* Messages */}
         <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-3xl px-6 py-6">
+          <div className="mx-auto max-w-5xl px-6 py-6">
             {messages.length === 0 ? (
               <EmptyAsk onPick={submit} suggestions={suggestions} />
             ) : (
@@ -271,7 +271,7 @@ export function AskAI() {
 
         {/* Sticky input */}
         <div className="border-t border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto max-w-5xl">
             <div data-tour="ask-input" className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 transition-colors focus-within:border-ring/60">
               <textarea
                 value={input}

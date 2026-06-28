@@ -30,8 +30,11 @@ def _hash_file(path: Path) -> str:
 
 def _ensure_course(name: str, session: Session) -> Course:
     """Get or create a ``Course`` by name within *session*."""
-    from scholarcli.storage.models import get_or_create_course
-    return get_or_create_course(session, name)
+    from scholarcli.storage.models import get_course
+    c = get_course(session, name)
+    if not c:
+        raise ValueError(f"Course '{name}' does not exist.")
+    return c
 
 
 def ingest_file(
@@ -168,7 +171,7 @@ def _ingest_file_inner(
                     continue
                 new_example = CodeExample(
                     document_id=doc_id,
-                    course=course_name,
+                    course=course_name or "",
                     title=ex.get("title", "Untitled Example"),
                     language=ex.get("language", "Unknown"),
                     topic=ex.get("topic", "General"),
@@ -192,7 +195,7 @@ def _ingest_file_inner(
                 extracted_rows.append({
                     "id": str(uuid.uuid4()),
                     "document_id": doc_id,
-                    "course": course_name,
+                    "course": course_name or "unassigned",
                     "title": ex.get("title", "Code Example"),
                     "page": ch["page"],
                     "heading": ex.get("topic", "Code Example"),

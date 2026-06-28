@@ -99,7 +99,11 @@ export function SettingsPage() {
   const handleNuke = async () => {
     setIsNuking(true);
     try {
-      await fetch("/api/settings/nuke", { method: "DELETE" });
+      await fetch("/api/settings/nuke", { 
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirm: "DELETE_ALL_DATA" })
+      });
     } catch (e) {
       console.error(e);
     }
@@ -510,7 +514,7 @@ export function SettingsPage() {
                               v{plugin.version}
                             </span>
                           </div>
-                          <div className="text-xs text-muted-foreground truncate">
+                          <div className="text-xs text-muted-foreground">
                             {plugin.description}
                           </div>
                         </div>
