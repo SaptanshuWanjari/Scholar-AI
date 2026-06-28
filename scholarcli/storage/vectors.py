@@ -144,16 +144,16 @@ def add_chunks(rows: list[dict], rebuild_fts: bool = True) -> None:
             logger.warning("PQ index creation failed: %s", exc)
 
 
-def search(query_vector: list[float], top_k: int = 5, course: str | None = None, document_id: int | None = None) -> list[dict]:
+def search(query_vector: list[float], top_k: int = 5, offset: int = 0, course: str | None = None, document_id: int | None = None, return_count: bool = False):
     """Return nearest chunks as dicts, closest first.
 
     Result includes ``_distance`` key (LanceDB cosine; lower = closer).
     Returns [] if no chunks have been indexed yet.
     """
     if not _has_table():
-        return []
+        return ([], 0) if return_count else []
     tbl = _open_table()
-    q = tbl.search(query_vector, vector_column_name="vector").metric("cosine").limit(top_k)
+    q = tbl.search(query_vector, vector_column_name="vector").metric("cosine")
     
     filters = []
     if course:
@@ -161,36 +161,62 @@ def search(query_vector: list[float], top_k: int = 5, course: str | None = None,
     if document_id is not None:
         filters.append(f"document_id = {document_id}")
         
-    if filters:
-        q = q.where(" AND ".join(filters), prefilter=True)
+    where_clause = " AND ".join(filters) if filters else None
+    if where_clause:
+        q = q.where(where_clause, prefilter=True)
         
-    return q.to_list()
+    results = q.limit(offset + top_k).to_list()[offset:]
+    
+    if return_count:
+        try:
+            total = tbl.count_rows(where_clause) if where_clause else tbl.count_rows()
+        except Exception:
+            total = len(results)
+        return results, total
+        
+    return results
 
 
-def get_document_chunks(document_id: int) -> list[dict]:
-    """Return all chunks for a document, ordered by chunk_index. [] if absent."""
+def get_document_chunks(document_id: int, limit: int = 10_000, offset: int = 0, return_count: bool = False):
+    """Return chunks for a document, ordered by chunk_index. [] if absent."""
     if not _has_table():
-        return []
+        return ([], 0) if return_count else []
     tbl = _open_table()
+    where_clause = f"document_id = {document_id}"
     try:
-        rows = tbl.search().where(f"document_id = {document_id}").limit(10_000).to_list()
+        q = tbl.search().where(where_clause).limit(limit)
+        if offset > 0:
+            q = q.offset(offset)
+        rows = q.to_list()
+        results = sorted(rows, key=lambda r: r.get("chunk_index", 0))
+        if return_count:
+            total = tbl.count_rows(where_clause)
+            return results, total
+        return results
     except Exception:
-        return []
-    return sorted(rows, key=lambda r: r.get("chunk_index", 0))
+        return ([], 0) if return_count else []
 
 
-def all_chunks(course: str | None = None, limit: int = 5000) -> list[dict]:
+def all_chunks(course: str | None = None, limit: int = 5000, offset: int = 0, return_count: bool = False):
     """Return chunks across all documents (optionally filtered by course)."""
     if not _has_table():
-        return []
+        return ([], 0) if return_count else []
     tbl = _open_table()
     try:
         q = tbl.search().limit(limit)
+        if offset > 0:
+            q = q.offset(offset)
+        where_clause = None
         if course:
-            q = q.where(f"course = '{course}'")
-        return q.to_list()
+            where_clause = f"course = '{course}'"
+            q = q.where(where_clause)
+        results = q.to_list()
+        if return_count:
+            total = tbl.count_rows(where_clause) if where_clause else tbl.count_rows()
+            return results, total
+        return results
     except Exception:
-        return []
+        return ([], 0) if return_count else []
 
 
 def delete_document(document_id: int) -> None:
@@ -211,9 +237,11 @@ def hybrid_search(
     query_text: str,
     query_vector: list[float],
     top_k: int = 5,
+    offset: int = 0,
     course: str | None = None,
     document_id: int | None = None,
-) -> list[dict]:
+    return_count: bool = False,
+):
     """Blend BM25 keyword and vector similarity via Reciprocal Rank Fusion.
 
     Falls back to pure vector search if the FTS index is unavailable.
@@ -229,7 +257,7 @@ def hybrid_search(
         filters.append(f"document_id = {document_id}")
     where_clause = " AND ".join(filters) if filters else None
 
-    fetch_n = top_k * 3
+    fetch_n = (offset + top_k) * 3
 
     # Vector search.
     vq = tbl.search(query_vector, vector_column_name="vector").metric("cosine").limit(fetch_n)
@@ -247,7 +275,7 @@ def hybrid_search(
             fq = fq.where(where_clause)
         bm25_results = fq.to_list()
     except Exception:
-        return search(query_vector, top_k=top_k, course=course, document_id=document_id)
+        return search(query_vector, top_k=top_k, offset=offset, course=course, document_id=document_id, return_count=return_count)
 
     # Reciprocal Rank Fusion (k=60 is a standard default).
     K = 60
@@ -267,4 +295,13 @@ def hybrid_search(
             id_to_row[rid] = row
 
     ranked = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
-    return [id_to_row[rid] for rid, _ in ranked[:top_k] if rid in id_to_row]
+    results = [id_to_row[rid] for rid, _ in ranked[offset:offset+top_k] if rid in id_to_row]
+    
+    if return_count:
+        try:
+            total = tbl.count_rows(where_clause) if where_clause else tbl.count_rows()
+        except Exception:
+            total = len(ranked)
+        return results, total
+        
+    return results

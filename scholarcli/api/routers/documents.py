@@ -10,7 +10,7 @@ import scholarcli.llm
 from scholarcli.api import job_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import serialize_chunks
-from scholarcli.api.schemas import DocumentOut, DocumentPatch, DocumentUploadOut, SourceOut
+from scholarcli.api.schemas import DocumentOut, DocumentPatch, DocumentUploadOut, SourceOut, PaginatedSourcesOut
 from scholarcli.config import get_settings
 from scholarcli.ingest.pipeline import ingest_file
 from scholarcli.storage import get_session
@@ -213,21 +213,24 @@ def update_document_endpoint(document_id: int, patch: DocumentPatch) -> Document
         session.close()
 
 
-@router.get("/sources/search", response_model=list[SourceOut])
-def search_sources(q: str, course: str | None = None, limit: int = 5) -> list[SourceOut]:
+@router.get("/sources/search", response_model=PaginatedSourcesOut)
+def search_sources(q: str, course: str | None = None, limit: int = 5, offset: int = 0) -> PaginatedSourcesOut:
     from scholarcli.config import get_settings
     query = q.strip()
     if not query:
-        return []
+        return PaginatedSourcesOut(sources=[], total=0)
     emb = scholarcli.llm.get_embeddings()
     vector = emb.embed_query(query)
     top_k = max(1, min(limit, 20))
     cfg = get_settings()
     if cfg.retrieval.hybrid_search:
-        results = hybrid_search(query_text=query, query_vector=vector, top_k=top_k, course=course)
+        results, total = hybrid_search(query_text=query, query_vector=vector, top_k=top_k, offset=offset, course=course, return_count=True)
     else:
-        results = search(vector, top_k=top_k, course=course)
-    return [SourceOut(**src) for src in serialize_chunks(results)]
+        results, total = search(vector, top_k=top_k, offset=offset, course=course, return_count=True)
+    return PaginatedSourcesOut(
+        sources=[SourceOut(**src) for src in serialize_chunks(results)],
+        total=total
+    )
 
 
 from fastapi.responses import FileResponse
