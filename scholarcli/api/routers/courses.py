@@ -28,6 +28,7 @@ def _serialize(course: Course) -> CourseOut:
         documents=len(course.documents),
         flashcards=0,
         progress=0,
+        systemPrompt=course.system_prompt,
     )
 
 
@@ -52,7 +53,7 @@ def create_course(payload: CourseCreate) -> CourseOut:
         from sqlalchemy.exc import IntegrityError
         course = get_course(session, name)
         if not course:
-            course = Course(name=name)
+            course = Course(name=name, system_prompt=payload.systemPrompt)
             session.add(course)
             try:
                 session.commit()
@@ -78,6 +79,8 @@ def update_course(course_id: int, payload: CourseCreate) -> CourseOut:
         if existing and existing.id != course_id:
             raise HTTPException(status_code=400, detail="Course with this name already exists")
         course.name = name
+        if payload.systemPrompt is not None:
+            course.system_prompt = payload.systemPrompt
         session.commit()
         session.refresh(course)
         return _serialize(course)

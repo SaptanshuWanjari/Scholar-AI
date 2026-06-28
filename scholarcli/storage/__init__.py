@@ -49,6 +49,9 @@ def init_db() -> None:
 # Columns added after the initial schema. SQLite supports ADD COLUMN, so we
 # patch older databases in place rather than requiring a migration framework.
 _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
+    "courses": [
+        ("system_prompt", "TEXT"),
+    ],
     "documents": [
         ("size_kb", "INTEGER NOT NULL DEFAULT 0"),
         ("pages", "INTEGER NOT NULL DEFAULT 0"),

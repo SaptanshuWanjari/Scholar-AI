@@ -9,6 +9,7 @@ export interface Course {
   documents: number;
   flashcards: number;
   progress: number;
+  systemPrompt?: string;
 }
 
 export interface DocumentItem {
