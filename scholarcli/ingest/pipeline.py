@@ -35,7 +35,7 @@ def _ensure_course(name: str, session: Session) -> Course:
 
 
 def ingest_file(
-    path: Path, course_name: str, *, embeddings: Embeddings | None = None, rebuild_fts: bool = True,
+    path: Path, course_name: str | None, *, embeddings: Embeddings | None = None, rebuild_fts: bool = True,
 ) -> str:
     """Ingest a single file. Returns a status string (e.g. 'indexed', 'up-to-date')."""
     init_db()
@@ -46,20 +46,31 @@ def ingest_file(
         session.close()
 
 def _ingest_file_inner(
-    path: Path, course_name: str, session: Session, *, embeddings: Embeddings | None = None, rebuild_fts: bool = True,
+    path: Path, course_name: str | None, session: Session, *, embeddings: Embeddings | None = None, rebuild_fts: bool = True,
 ) -> str:
     if embeddings is None:
         embeddings = get_embeddings()
 
     content_hash = _hash_file(path)
-    course = _ensure_course(course_name, session)
+    
+    course_id = None
+    if course_name:
+        course = _ensure_course(course_name, session)
+        course_id = course.id
 
     # Check for existing document.
-    existing = (
-        session.query(Document)
-        .filter(Document.path == str(path.resolve()), Document.course_id == course.id)
-        .first()
-    )
+    if course_id:
+        existing = (
+            session.query(Document)
+            .filter(Document.path == str(path.resolve()), Document.course_id == course_id)
+            .first()
+        )
+    else:
+        existing = (
+            session.query(Document)
+            .filter(Document.path == str(path.resolve()), Document.course_id.is_(None))
+            .first()
+        )
     if existing and existing.content_hash == content_hash:
         if has_document_chunks(existing.id):
             return "up-to-date"
@@ -97,8 +108,10 @@ def _ingest_file_inner(
             size_kb=size_kb,
             pages=page_count,
             status="indexed",
-            course_id=course.id,
         )
+        if course_id:
+            doc.course_id = course_id
+
         session.add(doc)
         session.commit()
         doc_id = doc.id
@@ -114,7 +127,7 @@ def _ingest_file_inner(
             {
                 "id": str(uuid.uuid4()),
                 "document_id": doc_id,
-                "course": course_name,
+                "course": course_name or "unassigned",
                 "title": title,
                 "page": ch["page"],
                 "heading": ch["heading"],

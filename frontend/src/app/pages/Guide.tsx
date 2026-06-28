@@ -204,8 +204,8 @@ export function Guide() {
                   <article 
                     key={a.id} 
                     id={`guide-${a.id}`} 
-                    className={`scroll-mt-6 flex flex-col transition-all ${
-                      activeArticleId === a.id ? "ring-2 ring-violet ring-offset-4 ring-offset-background rounded-md p-4 -m-4 bg-muted/10" : ""
+                    className={`scroll-mt-6 flex flex-col transition-all rounded-md p-4 border border-transparent ${
+                      activeArticleId === a.id ? "ring-2 ring-violet bg-muted/10" : ""
                     }`}
                   >
                     <h3 className="mb-4 text-2xl font-display font-semibold text-foreground">

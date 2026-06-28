@@ -54,9 +54,14 @@ def get_llm(task: str = "quick_qa", *, temperature: float = 0.0) -> ChatOllama:
 def _get_embeddings_cached(model: str, base_url: str) -> OllamaEmbeddings:
     return OllamaEmbeddings(model=model, base_url=base_url)
 
+def _active_embedding_model() -> str:
+    from scholarcli.api.routers.settings import _load as load_settings
+    ui = load_settings()
+    return ui.get("embeddingModel") or get_settings().models.embedding
+
 def get_embeddings() -> OllamaEmbeddings:
     s = get_settings()
-    return _get_embeddings_cached(s.models.embedding, s.ollama.base_url)
+    return _get_embeddings_cached(_active_embedding_model(), s.ollama.base_url)
 
 
 def _active_vision_model() -> str:

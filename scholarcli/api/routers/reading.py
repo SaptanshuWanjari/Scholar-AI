@@ -42,11 +42,10 @@ def _build_sections(document_id: int, fallback_title: str) -> list[ReadingSectio
     sections: list[ReadingSectionOut] = []
     current_heading: str | None = None
     paragraphs: list[str] = []
-    block_ids: list[str] = []
     number = 0
 
     def flush(heading: str | None) -> None:
-        nonlocal number, paragraphs, block_ids
+        nonlocal number, paragraphs
         if paragraphs:
             number += 1
             sections.append(
@@ -55,35 +54,17 @@ def _build_sections(document_id: int, fallback_title: str) -> list[ReadingSectio
                     number=str(number),
                     title=(heading or fallback_title or "Section").strip()[:120],
                     paragraphs=paragraphs,
-                    block_ids=block_ids,
                 )
             )
         paragraphs = []
-        block_ids = []
 
     for ch in chunks:
-        source_type = ch.get("source_type", "text")
-
-        # Exclude code examples from the main reading view.
-        if source_type == "code_example":
+        # Image/diagram chunks exist for retrieval; the image itself already
+        # renders inline (with its description as caption) inside the text
+        # chunk, so skip the standalone description here to avoid duplicates.
+        if ch.get("source_type") in ("image", "diagram"):
             continue
-
-        # Image/diagram chunks: include only when they carry an inline Markdown
-        # image (![...](...)) so diagram-only pages render rather than blank.
-        # Pure description-only image chunks (no image_url, no inline image)
-        # are skipped to avoid duplicating captions already embedded in text.
-        if source_type in ("image", "diagram"):
-            text = ch.get("text", "")
-            image_url = ch.get("image_url", "")
-            has_inline_image = "![" in text
-            if not has_inline_image and not image_url:
-                continue
-            # Render image-only chunks as inline markdown image so they show up.
-            if image_url and not has_inline_image:
-                alt = text.replace("\n", " ")[:200] if text else "Image"
-                ch = dict(ch)
-                ch["text"] = f"![{alt}]({image_url})"
-
+        
         raw_heading = (ch.get("heading") or "").strip()
         if not raw_heading.strip(" •\t\n\r-*."):
             heading = current_heading if current_heading is not None else ""
@@ -96,7 +77,6 @@ def _build_sections(document_id: int, fallback_title: str) -> list[ReadingSectio
             flush(current_heading)
             current_heading = heading
         paragraphs.append(ch.get("text", ""))
-        block_ids.append(ch.get("block_id", ""))
     flush(current_heading)
     return sections
 
@@ -149,8 +129,8 @@ def add_highlight(document_id: int, payload: HighlightCreate) -> ReadingDocOut:
         hls.append({
             "id": f"hl{len(hls) + 1}",
             "text": payload.text,
-            "section": payload.section,
-            "block_id": payload.block_id,  # stable content anchor; empty string for legacy
+            "page_number": payload.page_number,
+            "rects": [r.model_dump() for r in payload.rects],
         })
         state.highlights = hls
         session.commit()

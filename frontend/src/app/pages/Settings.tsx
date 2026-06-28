@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Cpu, Boxes, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass } from "lucide-react";
+import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass } from "lucide-react";
 import { Page } from "../components/Page";
 import { useGuidanceStore } from "../guidance/useGuidanceStore";
 import {
@@ -129,9 +129,6 @@ export function SettingsPage() {
           <TabsTrigger value="models" className="gap-1.5">
             <Cpu className="size-4" /> Models
           </TabsTrigger>
-          <TabsTrigger value="embeddings" className="gap-1.5">
-            <Boxes className="size-4" /> Embeddings
-          </TabsTrigger>
           <TabsTrigger value="retrieval" className="gap-1.5">
             <Filter className="size-4" /> Retrieval
           </TabsTrigger>
@@ -231,10 +228,10 @@ export function SettingsPage() {
               />
             </Row>
           </div>
-        </TabsContent>
-
-        <TabsContent value="embeddings">
-          <div className="rounded-2xl border border-border bg-card px-5">
+          <div className="mt-6 rounded-2xl border border-border bg-card px-5">
+            <h3 className="pt-4 text-sm font-semibold text-muted-foreground">
+              Embedding &amp; Vision
+            </h3>
             <Row
               title="Embedding model"
               desc="Used to vectorize your documents"

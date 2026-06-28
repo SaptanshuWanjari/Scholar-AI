@@ -68,6 +68,7 @@ def create_app() -> FastAPI:
         trace,
         code_examples,
     )
+    from scholarcli.api import notebook_service
 
     for module in (
         ask,
@@ -94,6 +95,7 @@ def create_app() -> FastAPI:
         teach,
         trace,
         code_examples,
+        notebook_service,
     ):
         app.include_router(module.router)
 

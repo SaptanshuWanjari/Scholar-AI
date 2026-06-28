@@ -131,6 +131,13 @@ export interface NotebookFull {
   is_draft: boolean;
 }
 
+export interface NotebookDeduplicateResponse {
+  redundant: boolean;
+  similarity: number;
+  existing_block_index: number | null;
+  flagged_content: string | null;
+}
+
 export interface ReadingSection {
   id: string;
   number: string;
@@ -145,7 +152,12 @@ export interface ReadingDoc {
   kind: string;
   pages: number;
   sections: ReadingSection[];
-  highlights: { id: string; text: string; section: string }[];
+  highlights: {
+    id: string;
+    text: string;
+    page_number: number;
+    rects: { x: number; y: number; width: number; height: number }[];
+  }[];
   bookmarks: { id: string; section: string; note: string }[];
   progress: number;
 }
@@ -699,10 +711,10 @@ export const api = {
     const qs = p.toString();
     return request<DocumentItem[]>(`/api/documents${qs ? `?${qs}` : ""}`);
   },
-  uploadDocument(file: File, course: string): Promise<DocumentItem> {
+  uploadDocument(file: File, course?: string): Promise<DocumentItem> {
     const fd = new FormData();
     fd.append("file", file);
-    fd.append("course", course);
+    if (course) fd.append("course", course);
     return request<DocumentItem>("/api/documents/upload", { method: "POST", body: fd });
   },
   updateDocument(id: string, course: string): Promise<DocumentItem> {
@@ -869,15 +881,23 @@ export const api = {
     return request<void>(`/api/notebooks/${id}`, { method: "DELETE" });
   },
   notebookAssist(action: "explain" | "summarize" | "improve", text: string, course?: string | null): Promise<{ text: string }> {
-    return request<{ text: string }>("/api/notebooks/assist", json({ action, text, course }));
+    return request<{ text: string }>("/api/notebooks/assist", json({ action, text, course: course ?? null }));
+  },
+  notebookDeduplicate(notebookId: number, text: string): Promise<NotebookDeduplicateResponse> {
+    return request<NotebookDeduplicateResponse>("/api/notebooks/deduplicate", json({ notebook_id: notebookId, text }));
   },
 
   // ---- Reading ----
   getReading(documentId: string): Promise<ReadingDoc> {
     return request<ReadingDoc>(`/api/reading/${documentId}`);
   },
-  addHighlight(documentId: string, text: string, section: string): Promise<ReadingDoc> {
-    return request<ReadingDoc>(`/api/reading/${documentId}/highlights`, json({ text, section }));
+  addHighlight(
+    documentId: string,
+    text: string,
+    pageNumber: number,
+    rects: { x: number; y: number; width: number; height: number }[]
+  ): Promise<ReadingDoc> {
+    return request<ReadingDoc>(`/api/reading/${documentId}/highlights`, json({ text, page_number: pageNumber, rects }));
   },
   addBookmark(documentId: string, section: string, note: string): Promise<ReadingDoc> {
     return request<ReadingDoc>(`/api/reading/${documentId}/bookmarks`, json({ section, note }));

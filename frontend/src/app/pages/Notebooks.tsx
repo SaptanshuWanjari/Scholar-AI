@@ -34,6 +34,10 @@ import {
   List,
   ListOrdered,
   Link2,
+  Strikethrough,
+  Heading3,
+  Table,
+  ListTodo,
 } from "lucide-react";
 import { toast } from "sonner";
 import { applyMarkdown, type MarkdownAction } from "../lib/markdown-format";
@@ -74,6 +78,7 @@ import {
 } from "../lib/api";
 import type { Course } from "../lib/types";
 import { useAutoSave } from "../hooks/useAutoSave";
+import { Virtuoso } from "react-virtuoso";
 
 // Deterministic default icon per notebook (no icon field on real notebooks).
 const NOTEBOOK_ICONS = [
@@ -138,6 +143,8 @@ export function Notebooks() {
 
   // Draft restore banner state
   const [showDraftBanner, setShowDraftBanner] = useState(false);
+
+  const [scrollParent, setScrollParent] = useState<HTMLElement | null>(null);
 
   // Auto-save wiring
   const saveFn = useCallback(
@@ -240,10 +247,39 @@ export function Notebooks() {
   }
 
   // Append a fresh block of the given type and jump straight into editing it.
+  async function checkDeduplication(text: string, blockIndex: number) {
+    if (!activeId || !text.trim()) return;
+    try {
+      const res = await api.notebookDeduplicate(parseInt(activeId, 10), text);
+      if (res.redundant && res.existing_block_index !== null) {
+        setBlocks((prev) => {
+          const next = [...prev];
+          if (next[blockIndex]) {
+            next[blockIndex] = { 
+              ...next[blockIndex], 
+              _flagged: { 
+                similarity: res.similarity, 
+                content: text,
+                originalIndex: res.existing_block_index
+              } 
+            } as any;
+          }
+          return next;
+        });
+      }
+    } catch (e) {
+      console.error("Deduplication check failed", e);
+    }
+  }
+
   function addBlock(block: NotebookBlock) {
     const next = [...blocks, block];
     persistBlocks(next);
     setEditingIndex(next.length - 1);
+    const newText = (block as any).text || (block as any).answer || (block as any).code;
+    if (newText && block.type === "ai-answer") {
+      checkDeduplication(newText, next.length - 1);
+    }
   }
 
   function updateBlock(index: number, patch: Partial<NotebookBlock>) {
@@ -252,6 +288,35 @@ export function Notebooks() {
         i === index ? ({ ...b, ...patch } as NotebookBlock) : b,
       ),
     );
+    const newText = (patch as any).text || (patch as any).answer || (patch as any).code;
+    // Don't dedup if we're just removing the flag
+    if (newText && !("text" in patch === false && "answer" in patch === false && "code" in patch === false && Object.keys(patch).length === 1 && "_flagged" in patch)) {
+      checkDeduplication(newText, index);
+    }
+  }
+
+  function mergeBlock(index: number, targetIndex: number) {
+    const sourceBlock = blocks[index] as any;
+    const targetBlock = blocks[targetIndex] as any;
+    
+    if (!sourceBlock || !targetBlock) return;
+    
+    const sourceText = sourceBlock.text || sourceBlock.answer || sourceBlock.code || "";
+    const targetText = targetBlock.text || targetBlock.answer || targetBlock.code || "";
+    
+    const next = [...blocks];
+    
+    if (targetBlock.type === "text" || targetBlock.type === "callout" || targetBlock.type === "heading") {
+      next[targetIndex] = { ...targetBlock, text: targetText + "\n\n" + sourceText };
+    } else if (targetBlock.type === "ai-answer") {
+      next[targetIndex] = { ...targetBlock, answer: targetText + "\n\n" + sourceText };
+    } else if (targetBlock.type === "code" || targetBlock.type === "mermaid") {
+      next[targetIndex] = { ...targetBlock, code: targetText + "\n\n" + sourceText };
+    }
+    
+    // Remove the source block
+    next.splice(index, 1);
+    persistBlocks(next);
   }
 
   function deleteBlock(index: number) {
@@ -569,7 +634,7 @@ export function Notebooks() {
       </aside>
 
       {/* Center — Content */}
-      <main className="relative min-w-0 flex-1 overflow-y-auto">
+      <main ref={setScrollParent} className="relative min-w-0 flex-1 overflow-y-auto">
         <SelectionToolbar containerRef={contentRef} actions={actions} />
 
         {/* Sidebar Toggles */}
@@ -657,33 +722,42 @@ export function Notebooks() {
                   </div>
                 )}
 
-                {blocks.map((block, i) => (
-                  <BlockView
-                    key={i}
-                    block={block}
-                    index={i}
-                    editing={editingIndex === i}
-                    dragging={dragIndex === i}
-                    dropTarget={
-                      overIndex === i && dragIndex !== null && dragIndex !== i
-                    }
-                    onEdit={() => setEditingIndex(i)}
-                    onSave={(patch) => {
-                      updateBlock(i, patch);
-                      setEditingIndex(null);
-                    }}
-                    onCancel={() => setEditingIndex(null)}
-                    onDelete={() => deleteBlock(i)}
-                    onDragStart={() => setDragIndex(i)}
-                    onDragEnter={() => dragIndex !== null && setOverIndex(i)}
-                    onDragEnd={() => {
-                      if (dragIndex !== null && overIndex !== null)
-                        moveBlock(dragIndex, overIndex);
-                      setDragIndex(null);
-                      setOverIndex(null);
-                    }}
+                {scrollParent && blocks.length > 0 && (
+                  <Virtuoso
+                    useWindowScroll
+                    customScrollParent={scrollParent}
+                    data={blocks}
+                    itemContent={(i, block) => (
+                      <div className="pb-5">
+                        <BlockView
+                          block={block}
+                          index={i}
+                          editing={editingIndex === i}
+                          dragging={dragIndex === i}
+                          dropTarget={
+                            overIndex === i && dragIndex !== null && dragIndex !== i
+                          }
+                          onEdit={() => setEditingIndex(i)}
+                          onSave={(patch) => {
+                            updateBlock(i, patch);
+                            setEditingIndex(null);
+                          }}
+                          onCancel={() => setEditingIndex(null)}
+                          onDelete={() => deleteBlock(i)}
+                          onMerge={(targetIdx) => mergeBlock(i, targetIdx)}
+                          onDragStart={() => setDragIndex(i)}
+                          onDragEnter={() => dragIndex !== null && setOverIndex(i)}
+                          onDragEnd={() => {
+                            if (dragIndex !== null && overIndex !== null)
+                              moveBlock(dragIndex, overIndex);
+                            setDragIndex(null);
+                            setOverIndex(null);
+                          }}
+                        />
+                      </div>
+                    )}
                   />
-                ))}
+                )}
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -948,6 +1022,7 @@ function BlockView({
   onSave,
   onCancel,
   onDelete,
+  onMerge,
   onDragStart,
   onDragEnter,
   onDragEnd,
@@ -961,6 +1036,7 @@ function BlockView({
   onSave: (patch: Partial<NotebookBlock>) => void;
   onCancel: () => void;
   onDelete: () => void;
+  onMerge?: (targetIndex: number) => void;
   onDragStart: () => void;
   onDragEnter: () => void;
   onDragEnd: () => void;
@@ -975,8 +1051,37 @@ function BlockView({
         dragging && "opacity-40",
         dropTarget &&
         "before:absolute before:-top-1 before:left-3 before:right-3 before:h-0.5 before:rounded-full before:bg-violet",
+        (block as any)._flagged && "border-l-4 border-yellow-500 bg-yellow-500/5"
       )}
     >
+      {(block as any)._flagged && !editing && (
+        <div className="absolute -left-10 top-2 z-10">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-6 text-yellow-500 hover:text-yellow-600 bg-card/80 backdrop-blur">
+                <TriangleAlert className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <div className="px-2 py-1.5 text-xs text-muted-foreground font-medium">
+                Redundant block ({((block as any)._flagged.similarity * 100).toFixed(0)}% match)
+              </div>
+              {(block as any)._flagged.originalIndex !== undefined && onMerge && (
+                <DropdownMenuItem onClick={() => onMerge((block as any)._flagged.originalIndex)}>
+                  Merge
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={() => onSave({ _flagged: undefined } as any)}>
+                Keep Both
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+                Discard Redundant Info
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
       {!editing && (
         <div className="absolute -left-3 top-2 flex items-center opacity-0 transition-opacity group-hover/block:opacity-100">
           <span
@@ -1032,6 +1137,7 @@ const EDITABLE_TYPES = new Set([
   "code",
   "mermaid",
   "ai-answer",
+  "table",
 ]);
 
 // Inline editor for the common authorable block types. Commits a typed patch
@@ -1092,14 +1198,18 @@ function BlockEditor({
             {([
               ["bold", Bold, "Bold"],
               ["italic", Italic, "Italic"],
+              ["strikethrough", Strikethrough, "Strikethrough"],
               ["code", Code2, "Code"],
               ["h1", Heading1, "Heading 1"],
               ["h2", Heading2, "Heading 2"],
+              ["h3", Heading3, "Heading 3"],
               ["ul", List, "Bullet list"],
               ["ol", ListOrdered, "Numbered list"],
-              ["quote", Quote, "Quote"],
+              ["task", ListTodo, "Task list"],
+              ["quote", Quote, "Quote block"],
               ["link", Link2, "Link"],
-            ] as [MarkdownAction, typeof Bold, string][]).map(([action, Icon, label]) => (
+              ["table", Table, "Table"],
+            ] as [MarkdownAction, React.ElementType, string][]).map(([action, Icon, label]) => (
               <button
                 key={action}
                 type="button"
@@ -1154,13 +1264,31 @@ function BlockEditor({
       )}
 
       {draft.type === "code" && (
-        <>
-          <Input
-            value={d.lang}
-            onChange={(e) => field({ lang: e.target.value })}
-            placeholder="Language (e.g. python)"
-            className="h-8 max-w-[200px] text-xs"
-          />
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Input
+              value={d.lang}
+              onChange={(e) => field({ lang: e.target.value })}
+              placeholder="Language (e.g. python)"
+              className="h-8 max-w-[150px] text-xs"
+            />
+            <div className="flex gap-1">
+              {["python", "typescript", "sql", "rust", "go"].map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => field({ lang })}
+                  className={cn(
+                    "rounded-md border px-2 py-1 text-[11px] font-medium uppercase tracking-wider transition-colors",
+                    d.lang === lang
+                      ? "border-violet bg-violet-soft text-violet"
+                      : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
+                  )}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+          </div>
           <textarea
             value={d.code}
             onChange={(e) => field({ code: e.target.value })}
@@ -1170,19 +1298,123 @@ function BlockEditor({
             spellCheck={false}
             className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
           />
-        </>
+        </div>
       )}
 
       {draft.type === "mermaid" && (
-        <textarea
-          value={d.code}
-          onChange={(e) => field({ code: e.target.value })}
-          placeholder="Mermaid graph definition…"
-          autoFocus
-          rows={6}
-          spellCheck={false}
-          className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
-        />
+        <div className="space-y-2">
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              ["graph TD\n    A[Start] --> B{Decision}\n    B -->|Yes| C[OK]\n    B -->|No| D[End]", "Graph"],
+              ["sequenceDiagram\n    Alice->>+Bob: Hello\n    Bob-->>-Alice: Hi!", "Sequence"],
+              ["classDiagram\n    Animal <|-- Duck\n    class Animal{\n      +int age\n      +mate()\n    }", "Class"],
+              ["stateDiagram-v2\n    [*] --> Still\n    Still --> [*]", "State"],
+              ["pie title Pets\n    \"Dogs\" : 386\n    \"Cats\" : 85", "Pie"],
+            ].map(([tpl, label]) => (
+              <button
+                key={label}
+                onClick={() => field({ code: tpl })}
+                className="rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={d.code}
+            onChange={(e) => field({ code: e.target.value })}
+            placeholder="Mermaid graph definition…"
+            autoFocus
+            rows={6}
+            spellCheck={false}
+            className="w-full resize-y rounded-lg border border-border bg-secondary p-3 font-mono text-[13px] leading-relaxed outline-none focus:border-violet"
+          />
+        </div>
+      )}
+
+      {draft.type === "table" && (
+        <div className="overflow-x-auto rounded-xl border border-border bg-card/50">
+          <table className="w-full border-collapse text-sm">
+            <thead className="bg-muted/60">
+              <tr>
+                {d.headers.map((h: string, j: number) => (
+                  <th key={j} className="border-b border-border p-0">
+                    <input
+                      className="w-full bg-transparent px-4 py-2.5 font-semibold outline-none focus:bg-accent/20"
+                      value={h}
+                      onChange={(e) => {
+                        const next = [...d.headers];
+                        next[j] = e.target.value;
+                        field({ headers: next });
+                      }}
+                      placeholder={`Header ${j + 1}`}
+                    />
+                  </th>
+                ))}
+                <th className="w-8 border-b border-border p-1 text-center">
+                  <button
+                    onClick={() => {
+                      field({
+                        headers: [...d.headers, `Col ${d.headers.length + 1}`],
+                        rows: d.rows.map((r: string[]) => [...r, ""])
+                      });
+                    }}
+                    className="flex size-6 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
+                    title="Add column"
+                  >
+                    <Plus className="size-3.5" />
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {d.rows.map((row: string[], i: number) => (
+                <tr key={i}>
+                  {row.map((cell: string, j: number) => (
+                    <td key={j} className="border-b border-border/60 p-0">
+                      <input
+                        className="w-full bg-transparent px-4 py-2.5 text-foreground/80 outline-none focus:bg-accent/20"
+                        value={cell}
+                        onChange={(e) => {
+                          const next = [...d.rows];
+                          next[i] = [...next[i]];
+                          next[i][j] = e.target.value;
+                          field({ rows: next });
+                        }}
+                        placeholder="..."
+                      />
+                    </td>
+                  ))}
+                  <td className="border-b border-border/60 p-1 text-center">
+                    <button
+                      onClick={() => {
+                        const next = [...d.rows];
+                        next.splice(i, 1);
+                        field({ rows: next });
+                      }}
+                      className="flex size-6 items-center justify-center rounded text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      title="Remove row"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <td colSpan={d.headers.length + 1} className="p-1">
+                  <button
+                    onClick={() => {
+                      field({ rows: [...d.rows, new Array(d.headers.length).fill("")] });
+                    }}
+                    className="flex w-full items-center justify-center gap-1.5 rounded py-2 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+                  >
+                    <Plus className="size-3.5" /> Add Row
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       )}
 
       {draft.type === "ai-answer" && (

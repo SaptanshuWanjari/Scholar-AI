@@ -487,6 +487,18 @@ class NotebookAssistResponse(BaseModel):
     text: str
 
 
+class NotebookDeduplicateRequest(BaseModel):
+    notebook_id: int
+    text: str
+
+
+class NotebookDeduplicateResponse(BaseModel):
+    redundant: bool
+    similarity: float
+    existing_block_index: int | None
+    flagged_content: str | None
+
+
 # ---------------------------------------------------------------------------
 # Reading
 # ---------------------------------------------------------------------------
@@ -496,7 +508,6 @@ class ReadingSectionOut(BaseModel):
     number: str
     title: str
     paragraphs: list[str]
-    block_ids: list[str] = []  # parallel to paragraphs; stable content anchors for highlights
 
 
 class ReadingDocOut(BaseModel):
@@ -511,10 +522,17 @@ class ReadingDocOut(BaseModel):
     progress: float = 0.0
 
 
+class HighlightRect(BaseModel):
+    x: float
+    y: float
+    width: float
+    height: float
+
+
 class HighlightCreate(BaseModel):
     text: str
-    section: str = ""
-    block_id: str = ""  # permanent content anchor; preferred over section when set
+    page_number: int = 1
+    rects: list[HighlightRect] = []
 
 
 class BookmarkCreate(BaseModel):

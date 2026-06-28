@@ -59,17 +59,11 @@ export function Documents() {
   const filtered = documents.filter(
     (d) =>
       d.title.toLowerCase().includes(query.toLowerCase()) &&
-      (course === "all" || d.course === course),
+      (course === "all" || d.course === course || (course === "unassigned" && !d.course)),
   );
 
   const onUpload = async (file: File) => {
-    const target = course !== "all" ? course : courses[0]?.name;
-    if (!target) {
-      toast.error("Create a course first", {
-        description: "Select a course from the filter, then upload.",
-      });
-      return;
-    }
+    const target = course !== "all" && course !== "unassigned" ? course : undefined;
     setUploading(true);
     const t = toast.loading(`Indexing ${file.name}…`);
     try {
@@ -180,6 +174,7 @@ export function Documents() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All courses</SelectItem>
+            <SelectItem value="unassigned">Unassigned</SelectItem>
             {courses.map((c) => (
               <SelectItem key={c.id} value={c.name}>
                 {c.name}

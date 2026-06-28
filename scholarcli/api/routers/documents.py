@@ -41,13 +41,16 @@ def _serialize(doc: Document, course_name: str) -> DocumentOut:
 def list_documents(course: str | None = None, search: str | None = None) -> list[DocumentOut]:
     session = get_session()
     try:
-        q = session.query(Document, Course).join(Course, Document.course_id == Course.id)
+        q = session.query(Document).outerjoin(Course, Document.course_id == Course.id)
         if course and course != "all":
-            q = q.filter(Course.name == course)
+            if course == "unassigned":
+                q = q.filter(Document.course_id.is_(None))
+            else:
+                q = q.filter(Course.name == course)
         if search:
             q = q.filter(Document.title.ilike(f"%{search}%"))
         rows = q.order_by(Document.indexed_at.desc()).all()
-        return [_serialize(doc, c.name) for doc, c in rows]
+        return [_serialize(doc, doc.course.name if doc.course else "") for doc in rows]
     finally:
         session.close()
 
@@ -56,11 +59,9 @@ def list_documents(course: str | None = None, search: str | None = None) -> list
 async def upload_document(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    course: str = Form(...),
+    course: str | None = Form(None),
 ) -> DocumentOut:
-    course_name = course.strip()
-    if not course_name:
-        raise HTTPException(status_code=400, detail="course is required")
+    course_name = course.strip() if course else None
 
     filename = Path(file.filename or "upload").name
     suffix = Path(filename).suffix.lower()
@@ -104,13 +105,14 @@ async def upload_document(
                 size_kb=size_kb,
                 pages=0,
                 status="processing",
-                course_id=course_obj.id,
             )
+            if course_name:
+                doc.course_id = course_obj.id
             session.add(doc)
             session.commit()
             session.refresh(doc)
             doc_id = doc.id
-            stub_out = _serialize(doc, course_name)
+            stub_out = _serialize(doc, course_name or "")
     finally:
         session.close()
 
@@ -182,16 +184,20 @@ def update_document_endpoint(document_id: int, patch: DocumentPatch) -> Document
         
         if patch.course is not None:
             course_name = patch.course.strip()
-            if course_name and course_name != doc.course.name:
-                from scholarcli.storage.models import get_or_create_course
-                course = get_or_create_course(session, course_name)
-                
-                doc.course_id = course.id
-                from scholarcli.storage.vectors import update_document_course
-                update_document_course(doc.id, course.name)
+            from scholarcli.storage.vectors import update_document_course
+            if not course_name or course_name == "unassigned":
+                doc.course_id = None
+                update_document_course(doc.id, "unassigned")
+            else:
+                current_course_name = doc.course.name if doc.course else ""
+                if course_name != current_course_name:
+                    from scholarcli.storage.models import get_or_create_course
+                    course = get_or_create_course(session, course_name)
+                    doc.course_id = course.id
+                    update_document_course(doc.id, course.name)
                 
         session.commit()
-        return _serialize(doc, doc.course.name)
+        return _serialize(doc, doc.course.name if doc.course else "")
     finally:
         session.close()
 
