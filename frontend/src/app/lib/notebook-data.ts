@@ -40,7 +40,7 @@ export const recentNotes = [
 
 export type NotebookBlock =
   | { type: "heading"; level: 1 | 2; text: string }
-  | { type: "text"; text: string }
+  | { type: "text"; text: string; source?: { type: string; id: string } }
   | { type: "callout"; tone: "note" | "warning" | "insight"; text: string }
   | { type: "code"; lang: string; code: string }
   | { type: "ai-answer"; question: string; answer: string; confidence: number; sources: number }

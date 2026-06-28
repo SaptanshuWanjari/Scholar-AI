@@ -4,6 +4,7 @@ import { GenerationSteps } from "../components/GenerationSteps";
 import { toast } from "sonner";
 import { DiagramViewer } from "../components/DiagramViewer";
 import QualityBadge from "../components/QualityBadge";
+import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
@@ -321,6 +322,13 @@ export function Diagrams() {
                   {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
                   Copy Mermaid
                 </Button>
+                <AddToNotebookMenu
+                  artifactType="diagram"
+                  content={{ title: active.title, mermaid: active.mermaid }}
+                  sourceId={active.id}
+                  course={active.course}
+                />
+
                 <Button variant="outline" size="sm" className="gap-1.5" onClick={exportSvg}>
                   <Download className="size-3.5" /> SVG
                 </Button>

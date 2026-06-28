@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { Page, SectionTitle } from "../components/Page";
 import QualityBadge from "../components/QualityBadge";
+import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
 import { FlashcardCard } from "../components/FlashcardCard";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -348,6 +349,18 @@ export function Flashcards() {
           {!activeDeck && hasCards && <QualityBadge score={genQuality} />}
         </div>
         <div className="flex items-center gap-2">
+          {hasCards && (
+            <AddToNotebookMenu
+              artifactType="flashdeck"
+              content={{
+                name: activeDeck ?? "Flashcards",
+                cards: cards.map((c) => ({ front: c.front, back: c.back })),
+              }}
+              sourceId={activeDeck ?? "flashcards"}
+              course={course === "none" ? null : course}
+              label="Add deck"
+            />
+          )}
           {canSave && (
             <Button
               variant="outline"
@@ -403,13 +416,24 @@ export function Flashcards() {
               {cards.map((c) => (
                 <div key={c.id} className="group/card relative">
                   <FlashcardCard card={c} />
-                  <button
-                    onClick={() => void deleteCard(c)}
-                    aria-label="Delete card"
-                    className="absolute right-2 top-2 z-10 flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground opacity-0 backdrop-blur transition-opacity hover:bg-danger-soft hover:text-danger group-hover/card:opacity-100"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
+                  <div className="absolute right-2 top-2 z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover/card:opacity-100">
+                    <AddToNotebookMenu
+                      artifactType="flashcard"
+                      content={{ front: c.front, back: c.back }}
+                      sourceId={c.id}
+                      course={course === "none" ? null : course}
+                      variant="ghost"
+                      label=""
+                      className="size-7 bg-card/80 p-0 backdrop-blur"
+                    />
+                    <button
+                      onClick={() => void deleteCard(c)}
+                      aria-label="Delete card"
+                      className="flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground backdrop-blur transition-colors hover:bg-danger-soft hover:text-danger"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -429,13 +453,24 @@ export function Flashcards() {
                   </div>
                   <span className="text-xs text-muted-foreground">{c.deck}</span>
                   <span className="text-xs text-muted-foreground">{c.due}</span>
-                  <button
-                    onClick={() => void deleteCard(c)}
-                    aria-label="Delete card"
-                    className="flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger group-hover/row:opacity-100"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
+                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover/row:opacity-100">
+                    <AddToNotebookMenu
+                      artifactType="flashcard"
+                      content={{ front: c.front, back: c.back }}
+                      sourceId={c.id}
+                      course={course === "none" ? null : course}
+                      variant="ghost"
+                      label=""
+                      className="size-7 p-0"
+                    />
+                    <button
+                      onClick={() => void deleteCard(c)}
+                      aria-label="Delete card"
+                      className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-danger-soft hover:text-danger"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

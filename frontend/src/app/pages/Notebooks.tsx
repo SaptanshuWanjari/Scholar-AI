@@ -38,6 +38,7 @@ import {
   Heading3,
   Table,
   ListTodo,
+  BookPlus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { applyMarkdown, type MarkdownAction } from "../lib/markdown-format";
@@ -70,6 +71,7 @@ import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { DiagramViewer } from "../components/DiagramViewer";
 import { SelectionToolbar } from "../components/SelectionToolbar";
 import { type NotebookBlock } from "../lib/notebook-data";
+import { artifactLabel } from "../lib/serializers";
 import {
   api,
   type NotebookMeta,
@@ -1456,7 +1458,16 @@ function BlockInner({ block }: { block: NotebookBlock }) {
         <h2 className="mt-4">{block.text}</h2>
       );
     case "text":
-      return <MarkdownRenderer content={block.text} />;
+      return (
+        <>
+          {block.source && (
+            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+              <BookPlus className="size-3" /> Source: {artifactLabel(block.source.type)}
+            </span>
+          )}
+          <MarkdownRenderer content={block.text} />
+        </>
+      );
     case "callout": {
       const m = calloutMeta[block.tone];
       return (

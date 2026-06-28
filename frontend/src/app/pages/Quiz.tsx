@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { Page } from "../components/Page";
 import QualityBadge from "../components/QualityBadge";
+import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Progress } from "../components/ui/progress";
@@ -580,6 +581,20 @@ function Results({
           <Button onClick={onRetry} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
             <RotateCw className="size-4" /> Retry
           </Button>
+          {correct < total && (
+            <AddToNotebookMenu
+              artifactType="quiz"
+              content={{
+                title: `${quiz.title} — Review`,
+                questions: quiz.questions
+                  .filter((q) => (answers[q.id] ?? "").trim().toLowerCase() !== q.answer.toLowerCase())
+                  .map((q) => ({ prompt: q.prompt, answer: q.answer, explanation: q.explanation })),
+              }}
+              sourceId={quiz.id}
+              course={quiz.course}
+              label="Save mistakes"
+            />
+          )}
         </div>
       </motion.div>
 
@@ -608,6 +623,17 @@ function Results({
                   </div>
                   {q.explanation.trim() && (
                     <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{q.explanation}</p>
+                  )}
+                  {!isCorrect && (
+                    <div className="mt-2">
+                      <AddToNotebookMenu
+                        artifactType="quiz"
+                        content={{ prompt: q.prompt, answer: q.answer, explanation: q.explanation }}
+                        sourceId={`${quiz.id}-${q.id}`}
+                        course={quiz.course}
+                        variant="ghost"
+                      />
+                    </div>
                   )}
                 </div>
               </div>

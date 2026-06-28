@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
 import { MindMapTree, parseMindmapText, countNodes } from "../components/MindMapTree";
 import QualityBadge from "../components/QualityBadge";
+import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
 
 export function MindMaps() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -216,6 +217,12 @@ export function MindMaps() {
                 <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => exportTree("pdf")} title="Export PDF">
                   <FileDown className="size-3.5" /> PDF
                 </Button>
+                <AddToNotebookMenu
+                  artifactType="mindmap"
+                  content={{ title: active.title, text: active.text }}
+                  sourceId={active.id}
+                  course={active.course}
+                />
               </div>
             </div>
             <ScrollArea className="flex-1">
