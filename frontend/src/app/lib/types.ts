@@ -71,6 +71,7 @@ export interface WhiteboardItem {
   revisions: number;
   updated: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 
 // A full Excalidraw scene: { elements, appState, files }. Kept loosely typed
@@ -88,6 +89,7 @@ export interface WhiteboardFull {
   quality?: QualityScore;
   updated: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 
 export interface WhiteboardRevision {

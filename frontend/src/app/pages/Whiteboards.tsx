@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { PencilRuler, Plus, Trash2, Loader2, Sparkles, Clock } from "lucide-react";
+import { PencilRuler, Plus, Trash2, Loader2, Sparkles, Clock, Archive, Undo } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import {
@@ -24,6 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../components/ui/alert-dialog";
+import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
 
 const SOURCE_LABEL: Record<string, string> = {
   manual: "Manual",
@@ -34,11 +35,19 @@ const SOURCE_LABEL: Record<string, string> = {
 
 export function Whiteboards() {
   const navigate = useNavigate();
-  const { list, loading, load, create, remove } = useWhiteboardStore();
+  const { list, loading, load, create, remove, archive, moveToBin, restore } = useWhiteboardStore();
   const [courses, setCourses] = useState<Course[]>([]);
   const [course, setCourse] = useState<string>(ALL_COURSES);
   const [creating, setCreating] = useState(false);
   const [deletingWb, setDeletingWb] = useState<{ id: string; title: string } | null>(null);
+  const [activeTab, setActiveTab] = useState<"active" | "archived" | "binned">("active");
+
+  const filteredList = list.filter((w) => {
+    if (activeTab === "active") return w.status === "saved" || w.status === "draft" || !w.status;
+    if (activeTab === "archived") return w.status === "archived";
+    if (activeTab === "binned") return w.status === "binned";
+    return false;
+  });
 
   useEffect(() => {
     api.listCourses().then(setCourses).catch(() => {});
@@ -98,6 +107,15 @@ export function Whiteboards() {
             </Button>
           </div>
         </div>
+        <div className="mt-6 flex items-center">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full max-w-[400px]">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="active">Active</TabsTrigger>
+              <TabsTrigger value="archived">Archived</TabsTrigger>
+              <TabsTrigger value="binned">Bin</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
 
       {/* Grid */}
@@ -106,19 +124,25 @@ export function Whiteboards() {
           <div className="flex h-40 items-center justify-center">
             <Loader2 className="size-6 animate-spin text-violet" />
           </div>
-        ) : list.length === 0 ? (
+        ) : filteredList.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-500">
               <PencilRuler className="size-7" />
             </div>
-            <p className="text-sm text-muted-foreground">No whiteboards yet.</p>
-            <Button variant="outline" onClick={handleCreate} disabled={creating}>
-              <Plus className="mr-1.5 size-4" /> Create your first whiteboard
-            </Button>
+            <p className="text-sm text-muted-foreground">
+              {activeTab === "active" && "No whiteboards yet."}
+              {activeTab === "archived" && "No archived whiteboards."}
+              {activeTab === "binned" && "Bin is empty."}
+            </p>
+            {activeTab === "active" && (
+              <Button variant="outline" onClick={handleCreate} disabled={creating}>
+                <Plus className="mr-1.5 size-4" /> Create your first whiteboard
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {list.map((wb) => (
+            {filteredList.map((wb) => (
               <div
                 key={wb.id}
                 onClick={() => navigate(`/whiteboards/${wb.id}`)}
@@ -134,15 +158,38 @@ export function Whiteboards() {
                 <div className="flex flex-1 flex-col gap-1 p-3">
                   <div className="flex items-start justify-between gap-2">
                     <span className="truncate text-sm font-medium">{wb.title}</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeletingWb({ id: wb.id, title: wb.title });
-                      }}
-                      className="shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      {activeTab === "active" && (
+                        <>
+                          <button title="Archive" onClick={(e) => { e.stopPropagation(); archive(wb.id); }} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
+                            <Archive className="size-3.5" />
+                          </button>
+                          <button title="Move to Bin" onClick={(e) => { e.stopPropagation(); moveToBin(wb.id); }} className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </>
+                      )}
+                      {activeTab === "archived" && (
+                        <>
+                          <button title="Restore" onClick={(e) => { e.stopPropagation(); restore(wb.id); }} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
+                            <Undo className="size-3.5" />
+                          </button>
+                          <button title="Move to Bin" onClick={(e) => { e.stopPropagation(); moveToBin(wb.id); }} className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </>
+                      )}
+                      {activeTab === "binned" && (
+                        <>
+                          <button title="Restore" onClick={(e) => { e.stopPropagation(); restore(wb.id); }} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
+                            <Undo className="size-3.5" />
+                          </button>
+                          <button title="Delete Permanently" onClick={(e) => { e.stopPropagation(); setDeletingWb({ id: wb.id, title: wb.title }); }} className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                     {wb.course && <span className="truncate">{wb.course}</span>}
@@ -160,6 +207,11 @@ export function Whiteboards() {
                       <span className={cn("ml-auto")}>{wb.revisions} rev</span>
                     )}
                   </div>
+                  {wb.status === "binned" && wb.deletedAt && (
+                    <div className="mt-1 text-[10px] text-destructive">
+                      Auto-deletes in {Math.max(0, 10 - Math.floor((Date.now() - new Date(wb.deletedAt).getTime()) / (1000 * 60 * 60 * 24)))} days
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

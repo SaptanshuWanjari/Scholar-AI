@@ -10,6 +10,9 @@ interface WhiteboardState {
   loading: boolean;
   load: (course?: string | null) => Promise<void>;
   create: (title: string, course?: string | null) => Promise<WhiteboardFull | null>;
+  archive: (id: string) => Promise<void>;
+  moveToBin: (id: string) => Promise<void>;
+  restore: (id: string) => Promise<void>;
   remove: (id: string) => Promise<void>;
 }
 
@@ -37,6 +40,40 @@ export const useWhiteboardStore = create<WhiteboardState>((set, get) => ({
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to create whiteboard");
       return null;
+    }
+  },
+  archive: async (id) => {
+    try {
+      await api.updateWhiteboard(id, { status: "archived" });
+      set((state) => ({
+        list: state.list.map((w) => w.id === id ? { ...w, status: "archived" } : w)
+      }));
+      toast.success("Whiteboard archived");
+    } catch {
+      toast.error("Failed to archive whiteboard");
+    }
+  },
+  moveToBin: async (id) => {
+    try {
+      const now = new Date().toISOString();
+      await api.updateWhiteboard(id, { status: "binned" });
+      set((state) => ({
+        list: state.list.map((w) => w.id === id ? { ...w, status: "binned", deletedAt: now } : w)
+      }));
+      toast.success("Moved to bin");
+    } catch {
+      toast.error("Failed to move to bin");
+    }
+  },
+  restore: async (id) => {
+    try {
+      await api.updateWhiteboard(id, { status: "saved" });
+      set((state) => ({
+        list: state.list.map((w) => w.id === id ? { ...w, status: "saved", deletedAt: null } : w)
+      }));
+      toast.success("Whiteboard restored");
+    } catch {
+      toast.error("Failed to restore whiteboard");
     }
   },
   remove: async (id) => {

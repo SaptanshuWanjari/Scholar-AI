@@ -2,7 +2,8 @@ import { Children, isValidElement, type ReactNode, cloneElement, memo, useMemo, 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import katex from "katex";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import { CitationBadge } from "./CitationBadge";
 import { DiagramViewer } from "./DiagramViewer";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger, DialogClose } from "./ui/dialog";
@@ -60,43 +61,15 @@ const LazySyntaxHighlighter = lazy(async () => {
   };
 });
 
-function MathRenderer({ formula, displayMode }: { formula: string; displayMode: boolean }) {
-  try {
-    const html = katex.renderToString(formula, {
-      displayMode,
-      throwOnError: false,
-    });
-    return <span dangerouslySetInnerHTML={{ __html: html }} />;
-  } catch (err) {
-    return <code>{formula}</code>;
-  }
-}
-
 function withMathAndCitations(
   children: ReactNode,
   onCitationClick?: (index: number) => void,
 ): ReactNode {
   return Children.map(children, (child) => {
     if (typeof child === "string") {
-      const regex = /(\$\$[\s\S]+?\$\$|\$[^\s$\n](?:[^$\n]*?[^\s$\n])?\$|\\\(.+?\\\)|\\\[[\s\S]+?\\\]|\[\d+\])/g;
+      const regex = /(\[\d+\])/g;
       const parts = child.split(regex);
       return parts.map((part, i) => {
-        if (part.startsWith("$$") && part.endsWith("$$")) {
-          const formula = part.slice(2, -2);
-          return <MathRenderer key={i} formula={formula} displayMode={true} />;
-        }
-        if (part.startsWith("$") && part.endsWith("$")) {
-          const formula = part.slice(1, -1);
-          return <MathRenderer key={i} formula={formula} displayMode={false} />;
-        }
-        if (part.startsWith("\\(") && part.endsWith("\\)")) {
-          const formula = part.slice(2, -2);
-          return <MathRenderer key={i} formula={formula} displayMode={false} />;
-        }
-        if (part.startsWith("\\[") && part.endsWith("\\]")) {
-          const formula = part.slice(2, -2);
-          return <MathRenderer key={i} formula={formula} displayMode={true} />;
-        }
         const m = part.match(/^\[(\d+)\]$/);
         if (m) {
           return (
@@ -132,8 +105,8 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
   className,
 }: MarkdownRendererProps) {
   const plantumlEnabled = usePluginStore((s) => s.isEnabled("plantuml"));
-  const remarkPlugins = useMemo(() => [remarkGfm], []);
-  const rehypePlugins = useMemo(() => [rehypeRaw], []);
+  const remarkPlugins = useMemo(() => [remarkGfm, remarkMath], []);
+  const rehypePlugins = useMemo(() => [rehypeRaw, rehypeKatex], []);
 
   const components: Components = useMemo(() => ({
     h1: ({ children }) => (

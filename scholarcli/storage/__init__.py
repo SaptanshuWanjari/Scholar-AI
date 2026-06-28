@@ -88,6 +88,7 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("expires_at", "TEXT"),
     ],
     "learning_paths": [("archived", "BOOLEAN NOT NULL DEFAULT 0")],
+    "whiteboards": [("deleted_at", "TEXT")],
 }
 
 

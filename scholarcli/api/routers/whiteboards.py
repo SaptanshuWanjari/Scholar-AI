@@ -8,6 +8,7 @@ converts the returned Mermaid into editable Excalidraw elements.
 from __future__ import annotations
 
 import re
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
@@ -85,6 +86,7 @@ def _meta(wb: Whiteboard) -> WhiteboardMeta:
         revisions=len(wb.revisions or []),
         updated=_fmt(wb.updated_at),
         createdAt=_fmt(wb.created_at),
+        deletedAt=_fmt(wb.deleted_at) if hasattr(wb, 'deleted_at') else None,
     )
 
 
@@ -100,6 +102,7 @@ def _full(wb: Whiteboard) -> WhiteboardOut:
         quality=None,
         updated=_fmt(wb.updated_at),
         createdAt=_fmt(wb.created_at),
+        deletedAt=_fmt(wb.deleted_at) if hasattr(wb, 'deleted_at') else None,
     )
 
 
@@ -122,6 +125,17 @@ def _revision(rev: WhiteboardRevision) -> WhiteboardRevisionOut:
 def list_whiteboards(course: str | None = None) -> list[WhiteboardMeta]:
     session = get_session()
     try:
+        # Auto-delete binned whiteboards older than 10 days
+        cutoff = datetime.now(timezone.utc) - timedelta(days=10)
+        expired = session.query(Whiteboard).filter(
+            Whiteboard.status == "binned",
+            Whiteboard.deleted_at < cutoff
+        ).all()
+        for e in expired:
+            session.delete(e)
+        if expired:
+            session.commit()
+
         q = session.query(Whiteboard)
         if course:
             q = q.filter(Whiteboard.course == course)
@@ -181,6 +195,10 @@ def update_whiteboard(whiteboard_id: int, patch: WhiteboardPatch) -> WhiteboardO
         if patch.thumbnail is not None:
             wb.thumbnail = patch.thumbnail
         if patch.status is not None:
+            if patch.status == "binned" and wb.status != "binned":
+                wb.deleted_at = datetime.now(timezone.utc)
+            elif patch.status != "binned" and wb.status == "binned":
+                wb.deleted_at = None
             wb.status = patch.status
         session.commit()
         session.refresh(wb)

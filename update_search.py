@@ -1,8 +1,10 @@
-"""Global semantic search endpoint.
+import re
+
+content = """\"\"\"Global semantic search endpoint.
 
 v1 searches indexed document chunks (vector search). Flashcards/quizzes/etc.
 will join in once those are persisted (see persistence task).
-"""
+\"\"\"
 
 from __future__ import annotations
 
@@ -135,3 +137,8 @@ def global_search(
 
     # Sort results to have exact matches first, etc if needed, but for now just return them
     return results[:limit*2]
+"""
+
+with open("scholarcli/api/routers/search.py", "w") as f:
+    f.write(content)
+
