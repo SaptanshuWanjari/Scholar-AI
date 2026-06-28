@@ -1,27 +1,14 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
-  Bold,
-  Italic,
-  Strikethrough,
-  Code2,
-  Heading1,
-  Heading2,
-  Heading3,
-  List,
-  ListOrdered,
-  ListTodo,
-  Quote,
-  Link2,
-  Table,
   Check,
   Plus,
   Trash2,
 } from "lucide-react";
-import { applyMarkdown, type MarkdownAction } from "../../lib/markdown-format";
 import type { NotebookBlock } from "../../lib/notebook-data";
 import { cn } from "../ui/utils";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { MarkdownEditor } from "./MarkdownEditor";
 
 export function BlockEditor({
   block,
@@ -37,12 +24,6 @@ export function BlockEditor({
 
   const field = (patch: Record<string, unknown>) =>
     setDraft({ ...d, ...patch } as NotebookBlock);
-
-  const textRef = useRef<HTMLTextAreaElement>(null);
-  const format = (action: MarkdownAction) => {
-    if (!textRef.current) return;
-    field({ text: applyMarkdown(textRef.current, action) });
-  };
 
   return (
     <div className="space-y-3 rounded-xl border border-violet/40 bg-card/60 p-4">
@@ -74,47 +55,10 @@ export function BlockEditor({
       )}
 
       {draft.type === "text" && (
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-0.5 rounded-lg border border-border bg-card/60 p-1">
-            {(
-              [
-                ["bold", Bold, "Bold"],
-                ["italic", Italic, "Italic"],
-                ["strikethrough", Strikethrough, "Strikethrough"],
-                ["code", Code2, "Code"],
-                ["h1", Heading1, "Heading 1"],
-                ["h2", Heading2, "Heading 2"],
-                ["h3", Heading3, "Heading 3"],
-                ["ul", List, "Bullet list"],
-                ["ol", ListOrdered, "Numbered list"],
-                ["task", ListTodo, "Task list"],
-                ["quote", Quote, "Quote block"],
-                ["link", Link2, "Link"],
-                ["table", Table, "Table"],
-              ] as [MarkdownAction, React.ElementType, string][]
-            ).map(([action, Icon, label]) => (
-              <button
-                key={action}
-                type="button"
-                title={label}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => format(action)}
-                className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-              >
-                <Icon className="size-3.5" />
-              </button>
-            ))}
-          </div>
-          <textarea
-            ref={textRef}
-            value={d.text}
-            onChange={(e) => field({ text: e.target.value })}
-            placeholder="Write markdown…"
-            autoFocus
-            rows={5}
-            className="w-full resize-y rounded-lg border border-border bg-input-background p-3 font-reading text-sm leading-relaxed outline-none focus:border-violet"
-          />
-        </div>
+        <MarkdownEditor
+          value={d.text}
+          onChange={(val) => field({ text: val })}
+        />
       )}
 
       {draft.type === "callout" && (

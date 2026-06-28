@@ -22,29 +22,52 @@ mermaid.initialize({
 
 let counter = 0;
 
-export function DiagramViewer({ code, flush, title = "diagram" }: { code: string; flush?: boolean; title?: string }) {
+export function DiagramViewer({ code, flush, title = "diagram", kind }: { code: string; flush?: boolean; title?: string; kind?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const isPlantUML = kind === "PlantUML";
 
   useEffect(() => {
     let isMounted = true;
     const renderDiagram = async () => {
       if (!ref.current) return;
-      
+
       setLoading(true);
       setError(null);
       ref.current.innerHTML = "";
-      
+
+      if (isPlantUML) {
+        try {
+          const res = await fetch("/api/plugins/plantuml/render", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plantuml_syntax: code }),
+          });
+          const data = await res.json();
+          if (!isMounted) return;
+          if (data.error) {
+            setError(data.error);
+          } else if (ref.current) {
+            ref.current.innerHTML = data.svg;
+          }
+        } catch (err) {
+          if (isMounted) setError(err instanceof Error ? err.message : "Failed to render PlantUML");
+        } finally {
+          if (isMounted) setLoading(false);
+        }
+        return;
+      }
+
       const id = `mermaid-svg-${counter++}`;
-      
+
       try {
-        // Clear any previous content
         ref.current.innerHTML = "";
         // Validate syntax first so it throws instead of rendering an error SVG
         await mermaid.parse(code);
         const { svg } = await mermaid.render(id, code);
-        
+
         if (isMounted && ref.current) {
           ref.current.innerHTML = svg;
           setLoading(false);
@@ -59,11 +82,11 @@ export function DiagramViewer({ code, flush, title = "diagram" }: { code: string
     };
 
     renderDiagram();
-    
+
     return () => {
       isMounted = false;
     };
-  }, [code]);
+  }, [code, isPlantUML]);
 
   return (
     <div className={`relative flex w-full items-center justify-center overflow-hidden ${flush ? "h-full" : "min-h-[400px] rounded-lg border border-border bg-card p-8 paper"}`}>
@@ -81,7 +104,7 @@ export function DiagramViewer({ code, flush, title = "diagram" }: { code: string
           </div>
           <div>
             <h3 className="text-sm font-semibold">Diagram Error</h3>
-            <p className="mt-1 text-xs text-muted-foreground">The mermaid syntax might be invalid or there was a rendering issue.</p>
+            <p className="mt-1 text-xs text-muted-foreground">{isPlantUML ? "The PlantUML syntax might be invalid or the server is unavailable." : "The Mermaid syntax might be invalid or there was a rendering issue."}</p>
           </div>
           <pre className="mt-2 w-full overflow-x-auto rounded-lg border border-border bg-secondary p-3 text-left text-[11px] font-mono text-danger">
             {code}

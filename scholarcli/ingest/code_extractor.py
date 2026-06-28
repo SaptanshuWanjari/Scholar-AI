@@ -17,6 +17,75 @@ from scholarcli.llm import get_llm
 
 logger = logging.getLogger(__name__)
 
+# ---------------------------------------------------------------------------
+# Code detection
+# ---------------------------------------------------------------------------
+
+try:
+    from magika import Magika as _Magika
+    _magika: _Magika | None = _Magika()
+    _MAGIKA_AVAILABLE = True
+except Exception:  # noqa: BLE001
+    _magika = None  # type: ignore[assignment]
+    _MAGIKA_AVAILABLE = False
+
+# Labels magika returns for plain text / non-code content
+_MAGIKA_TEXT_LABELS = {"txt", "unknown"}
+
+# Heuristic fallback: strong markers for code embedded inside prose chunks
+# that magika labeled as plain text. Only includes patterns with low false-
+# positive rates in natural English.
+_CODE_HINTS: list[str] = [
+    # Explicit markers
+    "```", "#!/",
+    # Python (high specificity)
+    "def ", "class ", "import ", "yield ", "lambda ",
+    # C / C++ / Java (context-specific)
+    "#include", "public class", "public void", "printf(", "cout <<",
+    # JS / TS
+    "function ", "const ", "let ", "=>", "async ", "await ",
+    # SQL (ALL CAPS is rare in natural prose)
+    "SELECT ", "INSERT INTO", "UPDATE ", "DELETE FROM",
+    "CREATE TABLE", "DROP TABLE",
+    # Shell (command-like)
+    "grep ", "awk ",
+    # Code structure (specific contexts)
+    "for (", "while (", "if (", "return ",
+    "System.out", "console.log(",
+]
+
+
+def _heuristic_has_code(text: str) -> bool:
+    if any(hint in text for hint in _CODE_HINTS):
+        return True
+    # Structural: >30 % of lines are indented (code blocks / pseudocode)
+    lines = text.splitlines()
+    if len(lines) > 3:
+        indented = sum(1 for ln in lines if ln.startswith(("  ", "\t")))
+        if indented / len(lines) > 0.30:
+            return True
+    return False
+
+
+def _contains_code(text: str) -> bool:
+    """Return True if *text* likely contains a code example.
+
+    Uses magika (Google's AI content-type detector) as the primary signal,
+    with an expanded heuristic list as a fallback for snippets embedded
+    inside prose-heavy chunks that magika labels as plain text.
+    """
+    if _MAGIKA_AVAILABLE and _magika is not None:
+        try:
+            res = _magika.identify_bytes(text.encode("utf-8", errors="replace"))
+            label = res.output.label
+            if label not in _MAGIKA_TEXT_LABELS:
+                return True
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("magika detection failed, falling back to heuristics: %s", exc)
+    # Heuristic fallback (also runs when magika labels chunk as plain text,
+    # catching inline code snippets buried in prose).
+    return _heuristic_has_code(text)
+
 _SYSTEM = """\
 You are a code example extractor for academic and engineering documents.
 Your task is to scan the provided document text and extract any significant code snippets, pseudocode, algorithms, SQL queries, shell commands, or configuration files.
@@ -50,13 +119,7 @@ def extract_code_examples(text_chunk: str, course_name: str) -> list[dict[str, A
     if not text_chunk.strip():
         return []
 
-    # Quick heuristic check: only run LLM if we see signs of code (braces, indents, keywords, monospace hints)
-    # This avoids expensive LLM calls on pure prose pages.
-    code_hints = [
-        "```", "def ", "class ", "public class", "public void ", "SELECT * FROM",
-        "function ", "import ", "#include", "const ", "let ", "=>"
-    ]
-    if not any(hint in text_chunk for hint in code_hints):
+    if not _contains_code(text_chunk):
         return []
 
     try:

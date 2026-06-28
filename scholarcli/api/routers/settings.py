@@ -125,7 +125,7 @@ def list_models() -> ModelsList:
         embeddingModels=embed_models,
         visionModels=ordered,
     )
-from scholarcli.storage import reset_engine
+from scholarcli.storage import reset_engine, init_db
 
 class NukeRequest(BaseModel):
     confirm: str
@@ -144,6 +144,7 @@ def nuke_data(req: NukeRequest):
         if data_dir.exists():
             shutil.rmtree(data_dir.as_posix(), ignore_errors=True)
             data_dir.mkdir(parents=True, exist_ok=True)
+        init_db()
         _load.cache_clear()
         return {"status": "nuked"}
     except Exception as e:

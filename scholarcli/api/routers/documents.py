@@ -81,14 +81,23 @@ async def upload_document(
     # Create a stub Document row immediately so the frontend can show status.
     session = get_session()
     try:
-        from scholarcli.storage.models import get_or_create_course
-        course_obj = get_or_create_course(session, course_name)
+        from scholarcli.storage.models import get_course
+        course_obj = get_course(session, course_name)
+        if not course_obj and course_name:
+            raise HTTPException(status_code=400, detail=f"Course '{course_name}' not found")
 
-        existing = (
-            session.query(Document)
-            .filter(Document.path == str(dest.resolve()), Document.course_id == course_obj.id)
-            .first()
-        )
+        if course_obj:
+            existing = (
+                session.query(Document)
+                .filter(Document.path == str(dest.resolve()), Document.course_id == course_obj.id)
+                .first()
+            )
+        else:
+            existing = (
+                session.query(Document)
+                .filter(Document.path == str(dest.resolve()), Document.course_id.is_(None))
+                .first()
+            )
         if existing:
             existing.status = "processing"
             existing.error = None
@@ -191,8 +200,10 @@ def update_document_endpoint(document_id: int, patch: DocumentPatch) -> Document
             else:
                 current_course_name = doc.course.name if doc.course else ""
                 if course_name != current_course_name:
-                    from scholarcli.storage.models import get_or_create_course
-                    course = get_or_create_course(session, course_name)
+                    from scholarcli.storage.models import get_course
+                    course = get_course(session, course_name)
+                    if not course:
+                        raise HTTPException(status_code=400, detail=f"Course '{course_name}' not found")
                     doc.course_id = course.id
                     update_document_course(doc.id, course.name)
                 

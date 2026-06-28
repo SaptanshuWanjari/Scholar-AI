@@ -37,7 +37,7 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
       toast.error("Enter a topic to generate a diagram");
       return null;
     }
-    const enhResult = await usePromptEnhancerStore.getState().analyze(t, course === "none" ? null : course, "mermaid");
+    const enhResult = await usePromptEnhancerStore.getState().analyze(t, course === "none" ? null : course, type === "plantuml" ? "plantuml" : "mermaid");
     if (enhResult.action === "edit") {
       set({ topic: enhResult.prompt });
       return null;

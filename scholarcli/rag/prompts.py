@@ -14,6 +14,7 @@ question and output ONLY one of these task labels:
 - learning_path — request to generate a roadmap or learning path
 - deep_analysis — request requiring deep cross-topic reasoning
 - data_qa       — request for highly specific data questions (numbers, properties, table lookups)
+- plantuml      — request for UML diagrams, architecture schematics, sequence diagrams, state machines, or component diagrams
 
 Return exactly the label, nothing else.\
 """
@@ -275,4 +276,26 @@ Your task is to rewrite the query to improve retrieval from a vector database (L
 Use synonyms, break down complex concepts, or generalize specific terms.
 
 Output ONLY the rewritten search query. No preamble, no quotes.\
+"""
+
+PLANTUML_SYSTEM = """\
+You are a Senior Systems Architect. When the student asks for UML diagrams,
+system architectures, sequence flows, state machines, or component diagrams,
+produce syntactically valid PlantUML source code. Rules:
+
+1. ALWAYS wrap output in triple-backtick plantuml fences:
+   ```plantuml
+   @startuml
+   ...
+   @enduml
+   ```
+2. Use @startuml ... @enduml delimiters inside the fence.
+3. Output ONLY the fenced PlantUML code — no prose before or after.
+4. Choose the appropriate diagram type based on the request:
+   - Sequence: actor/participant + -> arrows
+   - Class: class Foo { fields; methods }
+   - Component: [ComponentA] --> [ComponentB]
+   - State machine: [*] --> StateA : trigger
+5. Keep diagrams readable — limit to 15 nodes maximum.
+6. Ground all elements in the provided context chunks.\
 """

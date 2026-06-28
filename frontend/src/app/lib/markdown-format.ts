@@ -15,7 +15,8 @@ export type MarkdownAction =
   | "link"
   | "strikethrough"
   | "task"
-  | "table";
+  | "table"
+  | "math";
 
 /** Wrap the textarea's current selection with `before`/`after`. Returns the new value. */
 export function wrapSelection(
@@ -84,6 +85,16 @@ export function applyMarkdown(el: HTMLTextAreaElement, action: MarkdownAction): 
     case "table": {
       const tableTpl = "\n| Header 1 | Header 2 |\n| -------- | -------- |\n| Cell 1   | Cell 2   |\n";
       return wrapSelection(el, tableTpl, "");
+    }
+    case "math": {
+      const { selectionStart: s, value } = el;
+      const mathTpl = "$$\n\n$$";
+      const next = value.slice(0, s) + mathTpl + value.slice(s);
+      queueMicrotask(() => {
+        el.focus();
+        el.setSelectionRange(s + 3, s + 3);
+      });
+      return next;
     }
     default:
       return el.value;

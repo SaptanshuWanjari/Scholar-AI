@@ -77,7 +77,10 @@ export function Topbar() {
   const { pathname } = useLocation();
   const setCommandOpen = useUIStore((s) => s.setCommandOpen);
   const current = navItems.find((n) => n.to === pathname);
-  const meta = titles[pathname] ?? { title: current?.label ?? "ScholarAI", subtitle: "" };
+  const meta = titles[pathname] ?? {
+    title: current?.label ?? "ScholarAI",
+    subtitle: "",
+  };
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border bg-background/70 px-6 backdrop-blur-xl">
@@ -110,13 +113,6 @@ export function Topbar() {
       <JobsIndicator />
 
       <HelpMenu />
-
-      <Button
-        onClick={() => toast.success("New item created")}
-        className="shrink-0 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-      >
-        <Plus className="size-4" /> New
-      </Button>
     </header>
   );
 }

@@ -379,3 +379,15 @@ def strip_mermaid_fences(text: str) -> str:
         if re.match(r"^\s*(graph|flowchart|sequenceDiagram|classDiagram|mindmap|erDiagram|stateDiagram)", line):
             return "\n".join(lines[i:]).strip()
     return t
+
+
+def strip_plantuml_fences(text: str) -> str:
+    """Remove ```plantuml fences, returning bare @startuml ... @enduml source."""
+    t = text.strip()
+    fence = re.search(r"```(?:plantuml)?\s*(.+?)```", t, re.DOTALL)
+    if fence:
+        return fence.group(1).strip()
+    # If already unwrapped (contains @startuml directly), return as-is.
+    if "@startuml" in t:
+        return t
+    return t

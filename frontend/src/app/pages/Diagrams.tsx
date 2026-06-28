@@ -32,6 +32,7 @@ const DIAGRAM_TYPES = [
   { value: "flowchart", label: "Flowchart" },
   { value: "decision_tree", label: "Decision tree" },
   { value: "concept_map", label: "Concept map" },
+  { value: "plantuml", label: "PlantUML" },
 ] as const;
 
 export function Diagrams() {
@@ -326,7 +327,7 @@ export function Diagrams() {
                 </Button>
                 <Button variant="outline" size="sm" className="gap-1.5" onClick={copy}>
                   {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
-                  Copy Mermaid
+                  {active.kind === "PlantUML" ? "Copy PlantUML" : "Copy Mermaid"}
                 </Button>
                 <AddToNotebookMenu
                   artifactType="diagram"
@@ -358,8 +359,8 @@ export function Diagrams() {
 
             <div className="relative flex min-h-0 flex-1 flex-col" id="diagram-container">
               <div className="min-h-0 flex-1 relative">
-                <DiagramErrorBoundary key={active.id} code={active.mermaid}>
-                  <DiagramViewer code={active.mermaid} flush title={active.title || "diagram"} />
+                <DiagramErrorBoundary key={active.id} code={active.mermaid} kind={active.kind}>
+                  <DiagramViewer code={active.mermaid} flush title={active.title || "diagram"} kind={active.kind} />
                 </DiagramErrorBoundary>
               </div>
               {showCode && (
@@ -391,10 +392,10 @@ export function Diagrams() {
  * (and thus the `key`) changes.
  */
 class DiagramErrorBoundary extends Component<
-  { code: string; children: ReactNode },
+  { code: string; kind?: string; children: ReactNode },
   { hasError: boolean }
 > {
-  constructor(props: { code: string; children: ReactNode }) {
+  constructor(props: { code: string; kind?: string; children: ReactNode }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -404,11 +405,13 @@ class DiagramErrorBoundary extends Component<
   }
 
   componentDidCatch() {
-    toast.error("Couldn't render that diagram — the Mermaid syntax may be invalid");
+    const label = this.props.kind === "PlantUML" ? "PlantUML" : "Mermaid";
+    toast.error(`Couldn't render that diagram — the ${label} syntax may be invalid`);
   }
 
   render() {
     if (this.state.hasError) {
+      const label = this.props.kind === "PlantUML" ? "PlantUML" : "Mermaid";
       return (
         <div className="flex min-h-[400px] w-full flex-col items-center justify-center gap-4 rounded-lg border border-border bg-card p-8 text-center">
           <div className="flex size-12 items-center justify-center rounded-full bg-danger/10 text-danger">
@@ -417,7 +420,7 @@ class DiagramErrorBoundary extends Component<
           <div>
             <h3 className="text-sm font-semibold">Diagram Error</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              The mermaid syntax might be invalid. Try the code view or regenerate.
+              The {label} syntax might be invalid. Try the code view or regenerate.
             </p>
           </div>
           <pre className="mt-2 w-full overflow-x-auto rounded-lg border border-border bg-secondary p-3 text-left text-[11px] font-mono text-danger">

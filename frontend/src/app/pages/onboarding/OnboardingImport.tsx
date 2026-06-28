@@ -96,14 +96,9 @@ export function OnboardingImport() {
   };
 
   const handleStart = async () => {
-    if (setupMode === "guided") {
-      navigate("/onboarding/analyzing");
-      await startImport();
-    } else {
-      localStorage.setItem("scholar_onboarding_done", "1");
-      navigate("/");
-      await startImport();
-    }
+    localStorage.setItem("scholar_onboarding_done", "1");
+    navigate("/");
+    await startImport();
   };
 
   return (
