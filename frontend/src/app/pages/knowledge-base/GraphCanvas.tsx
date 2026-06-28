@@ -23,6 +23,7 @@ export function GraphCanvas({
   selectedId,
   searchQuery,
   activeFilters,
+  masteryFilters,
   activeCollection,
   degreeOfSeparation,
   distances,
@@ -35,6 +36,7 @@ export function GraphCanvas({
   selectedId: string | null;
   searchQuery: string;
   activeFilters: string[];
+  masteryFilters: string[];
   activeCollection: string | null;
   degreeOfSeparation: number | "all";
   distances: Record<string, number> | null;
@@ -53,13 +55,14 @@ export function GraphCanvas({
         const collectionMatch = !activeCollection || `col-${cluster}` === activeCollection;
         const nodeSourceType = CLUSTER_SOURCE[cluster];
         const sourceMatch = !nodeSourceType || activeFilters.includes(nodeSourceType);
-        
+        const masteryMatch = masteryFilters.length === 0 || masteryFilters.includes(n.data.masteryStatus);
+
         let degreeMatch = true;
         if (selectedId && degreeOfSeparation !== "all" && distances) {
           degreeMatch = distances[n.id] !== undefined;
         }
 
-        const visible = searchMatch && collectionMatch && sourceMatch && degreeMatch;
+        const visible = searchMatch && collectionMatch && sourceMatch && degreeMatch && masteryMatch;
 
         return {
           ...n,
@@ -67,7 +70,7 @@ export function GraphCanvas({
           style: { opacity: visible ? 1 : 0.12, transition: "opacity 0.2s" },
         };
       }),
-    [sourceNodes, selectedId, q, activeFilters, activeCollection, degreeOfSeparation, distances],
+    [sourceNodes, selectedId, q, activeFilters, masteryFilters, activeCollection, degreeOfSeparation, distances],
   );
 
   const [nodes, setNodes, onNodesChange] = useNodesState(styledNodes);

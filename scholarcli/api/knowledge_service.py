@@ -14,9 +14,52 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from scholarcli.llm import get_llm
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Concept, ConceptEdge, Document, Notebook, Card, SavedQuiz, Diagram
+from scholarcli.storage.models import (
+    Concept, ConceptEdge, Deck, DependencyEdge, DepConcept,
+    Document, LearningPackage, Notebook, Card, SavedQuiz, Diagram, SavedRevision,
+    TopicStat, Whiteboard,
+)
 from sqlalchemy import func
 from scholarcli.storage.vectors import get_document_chunks, search
+
+_MASTER_ACCURACY = 0.8
+_WEAK_ACCURACY = 0.5
+_MASTER_CARD_RATIO = 0.7
+
+
+def _compute_mastery(
+    dep_id: int,
+    stats_by_dep: dict[int, tuple[int, int]],
+    deck_mastered_by_dep: dict[int, tuple[int, int]],
+    revised_dep_ids: set[int],
+    taught_dep_ids: set[int],
+) -> tuple[str, float]:
+    correct, total = stats_by_dep.get(dep_id, (0, 0))
+    accuracy = (correct / total) if total else None
+    mastered_cards, total_cards = deck_mastered_by_dep.get(dep_id, (0, 0))
+    card_ratio = (mastered_cards / total_cards) if total_cards else None
+    revised = dep_id in revised_dep_ids
+    taught = dep_id in taught_dep_ids
+
+    has_signal = accuracy is not None or card_ratio is not None or revised or taught
+    if not has_signal:
+        return "Unknown", 0.0
+
+    strong = (accuracy is not None and accuracy >= _MASTER_ACCURACY) or (
+        card_ratio is not None and card_ratio >= _MASTER_CARD_RATIO
+    )
+    weak = accuracy is not None and accuracy < _WEAK_ACCURACY
+
+    if strong:
+        status = "Mastered"
+    elif weak:
+        status = "Weak"
+    else:
+        status = "Learning"
+
+    parts = [p for p in (accuracy, card_ratio) if p is not None]
+    score = round(sum(parts) / len(parts), 2) if parts else 0.0
+    return status, score
 
 _CLUSTERS = ["rag", "agent", "infra", "eval"]
 
@@ -156,7 +199,7 @@ def build_graph(course: str | None = None, max_documents: int = 8) -> dict:
 
 
 def graph(course: str | None = None) -> dict:
-    """Return the persisted graph as nodes + edges."""
+    """Return the persisted graph as nodes + edges, enriched with mastery and artifact counts."""
     session = get_session()
     try:
         cq = session.query(Concept)
@@ -164,8 +207,99 @@ def graph(course: str | None = None) -> dict:
             cq = cq.filter(Concept.course == course)
         concepts = cq.all()
         ids = {c.id for c in concepts}
-        nodes = [
-            {
+
+        # Build name → DepConcept lookup for mastery enrichment.
+        dep_q = session.query(DepConcept)
+        if course:
+            dep_q = dep_q.filter(DepConcept.course == course)
+        dep_by_name: dict[str, DepConcept] = {dc.name.lower(): dc for dc in dep_q.all()}
+        dep_ids = [dc.id for dc in dep_by_name.values()]
+
+        # Batch mastery signals — avoid N+1 sessions.
+        stats_by_dep: dict[int, tuple[int, int]] = {}
+        for ts in session.query(TopicStat).filter(TopicStat.concept_id.in_(dep_ids)).all():
+            if ts.concept_id is None:
+                continue
+            dep_id_key: int = ts.concept_id
+            c_i, t_i = stats_by_dep.get(dep_id_key, (0, 0))
+            stats_by_dep[dep_id_key] = (c_i + ts.correct, t_i + ts.total)
+
+        deck_mastered_by_dep: dict[int, tuple[int, int]] = {}
+        for deck in session.query(Deck).filter(Deck.concept_id.in_(dep_ids)).all():
+            if deck.concept_id is None:
+                continue
+            dk: int = deck.concept_id
+            mastered = sum(1 for c in deck.cards if c.ease == "mastered")
+            m_prev, t_prev = deck_mastered_by_dep.get(dk, (0, 0))
+            deck_mastered_by_dep[dk] = (m_prev + mastered, t_prev + len(deck.cards))
+
+        revised_dep_ids: set[int] = {
+            int(r.concept_id)
+            for r in session.query(SavedRevision.concept_id).filter(SavedRevision.concept_id.in_(dep_ids)).all()
+            if r.concept_id is not None
+        }
+        taught_dep_ids: set[int] = {
+            int(lp.concept_id)
+            for lp in session.query(LearningPackage.concept_id).filter(LearningPackage.concept_id.in_(dep_ids)).all()
+            if lp.concept_id is not None
+        }
+
+        # Batch artifact counts by dep_concept_id.
+        deck_count_by_dep: dict[int, int] = {
+            int(cid): int(cnt)
+            for cid, cnt in session.query(Deck.concept_id, func.count(Deck.id))
+            .filter(Deck.concept_id.in_(dep_ids))
+            .group_by(Deck.concept_id)
+            .all()
+            if cid is not None
+        }
+        wb_count_by_dep: dict[int, int] = {
+            int(cid): int(cnt)
+            for cid, cnt in session.query(Whiteboard.concept_id, func.count(Whiteboard.id))
+            .filter(Whiteboard.concept_id.in_(dep_ids))
+            .group_by(Whiteboard.concept_id)
+            .all()
+            if cid is not None
+        }
+        rev_count_by_dep: dict[int, int] = {
+            int(cid): int(cnt)
+            for cid, cnt in session.query(SavedRevision.concept_id, func.count(SavedRevision.id))
+            .filter(SavedRevision.concept_id.in_(dep_ids))
+            .group_by(SavedRevision.concept_id)
+            .all()
+            if cid is not None
+        }
+        pkg_count_by_dep: dict[int, int] = {
+            int(cid): int(cnt)
+            for cid, cnt in session.query(LearningPackage.concept_id, func.count(LearningPackage.id))
+            .filter(LearningPackage.concept_id.in_(dep_ids))
+            .group_by(LearningPackage.concept_id)
+            .all()
+            if cid is not None
+        }
+
+        nodes = []
+        for c in concepts:
+            dc = dep_by_name.get(c.name.lower())
+            if dc:
+                mastery_status, mastery_score = _compute_mastery(
+                    dc.id, stats_by_dep, deck_mastered_by_dep, revised_dep_ids, taught_dep_ids
+                )
+                importance = dc.importance
+                dep_concept_id = dc.id
+                artifact_counts = {
+                    "flashcards": deck_count_by_dep.get(dc.id, 0),
+                    "whiteboards": wb_count_by_dep.get(dc.id, 0),
+                    "revisions": rev_count_by_dep.get(dc.id, 0),
+                    "packages": pkg_count_by_dep.get(dc.id, 0),
+                }
+            else:
+                mastery_status, mastery_score = "Unknown", 0.0
+                importance = 0.5
+                dep_concept_id = None
+                artifact_counts = {"flashcards": 0, "whiteboards": 0, "revisions": 0, "packages": 0}
+
+            nodes.append({
                 "id": str(c.id),
                 "label": c.name,
                 "description": c.description,
@@ -173,19 +307,48 @@ def graph(course: str | None = None) -> dict:
                 "refCount": c.ref_count,
                 "sourceCount": c.source_count,
                 "cluster": c.cluster,
-            }
-            for c in concepts
-        ]
+                "masteryStatus": mastery_status,
+                "masteryScore": mastery_score,
+                "importance": importance,
+                "artifactCounts": artifact_counts,
+                "depConceptId": dep_concept_id,
+            })
+
+        # Semantic edges from ConceptEdge.
         edges = [
             {
                 "id": f"e{e.source_id}-{e.target_id}",
                 "source": str(e.source_id),
                 "target": str(e.target_id),
                 "label": e.relation,
+                "edgeType": "semantic",
+                "confidence": 1.0,
             }
             for e in session.query(ConceptEdge).all()
             if e.source_id in ids and e.target_id in ids
         ]
+
+        # Prerequisite edges from DependencyEdge where both concepts appear as Concept rows.
+        concept_name_to_id: dict[str, str] = {c.name.lower(): str(c.id) for c in concepts}
+        dep_id_to_name: dict[int, str] = {dc.id: dc.name.lower() for dc in dep_by_name.values()}
+        for de in session.query(DependencyEdge).all():
+            prereq_name = dep_id_to_name.get(de.prereq_id)
+            target_name = dep_id_to_name.get(de.concept_id)
+            if not prereq_name or not target_name:
+                continue
+            src_concept_id = concept_name_to_id.get(prereq_name)
+            tgt_concept_id = concept_name_to_id.get(target_name)
+            if not src_concept_id or not tgt_concept_id:
+                continue
+            edges.append({
+                "id": f"dep-{de.prereq_id}-{de.concept_id}",
+                "source": src_concept_id,
+                "target": tgt_concept_id,
+                "label": de.reason or "prerequisite",
+                "edgeType": "prerequisite",
+                "confidence": de.confidence,
+            })
+
         return {"nodes": nodes, "edges": edges}
     finally:
         session.close()

@@ -13,6 +13,7 @@ import {
   Loader2,
   RefreshCw,
   Network,
+  GraduationCap,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -24,6 +25,15 @@ import { Sheet, SheetContent } from "../../components/ui/sheet";
 import { savedViews, type ConceptData } from "../../lib/graph-data";
 import { api, type KGSidebar } from "../../lib/api";
 import { useKnowledgeBaseStore } from "../../stores/useKnowledgeBaseStore";
+
+const MASTERY_STATUSES = ["Unknown", "Learning", "Weak", "Needs Revision", "Mastered"] as const;
+const MASTERY_DOT: Record<string, string> = {
+  Mastered: "bg-green-500",
+  Learning: "bg-amber-400",
+  Weak: "bg-red-500",
+  "Needs Revision": "bg-orange-400",
+  Unknown: "bg-border",
+};
 import type { Course } from "../../lib/types";
 import { GraphLoading } from "./GraphLoading";
 import { GraphEmpty } from "./GraphEmpty";
@@ -43,13 +53,19 @@ export function KnowledgeBase() {
     activeCollection,
     course,
     activeFilters,
+    masteryFilters,
     degreeOfSeparation,
     setField,
     toggleFilter,
+    toggleMasteryFilter,
   } = useKnowledgeBaseStore();
   const activeFilterSet = useMemo(
     () => new Set(activeFilters),
     [activeFilters],
+  );
+  const masteryFilterSet = useMemo(
+    () => new Set(masteryFilters),
+    [masteryFilters],
   );
 
   const setSelectedId = useCallback(
@@ -286,6 +302,26 @@ export function KnowledgeBase() {
               </SideSection>
             )}
 
+            <SideSection label="Mastery" icon={GraduationCap}>
+              <div className="space-y-1">
+                {MASTERY_STATUSES.map((s) => (
+                  <label
+                    key={s}
+                    className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1 text-sm text-foreground/80 hover:bg-accent/50"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={masteryFilterSet.has(s)}
+                      onChange={() => toggleMasteryFilter(s)}
+                      className="accent-violet"
+                    />
+                    <span className={cn("inline-block size-2 rounded-full flex-shrink-0", MASTERY_DOT[s])} />
+                    {s}
+                  </label>
+                ))}
+              </div>
+            </SideSection>
+
             {selectedId && (
               <SideSection label="Degree of Separation" icon={Network}>
                 <div className="px-2 py-1">
@@ -407,6 +443,7 @@ export function KnowledgeBase() {
             selectedId={selectedId}
             searchQuery={searchQuery}
             activeFilters={activeFilters}
+            masteryFilters={masteryFilters}
             activeCollection={activeCollection}
             degreeOfSeparation={degreeOfSeparation}
             distances={distances}
@@ -426,6 +463,13 @@ export function KnowledgeBase() {
               <span className="flex items-center gap-1">
                 Click to inspect · Double-click for details
               </span>
+              <span className="text-border">|</span>
+              {MASTERY_STATUSES.map((s) => (
+                <span key={s} className="flex items-center gap-1">
+                  <span className={cn("inline-block size-1.5 rounded-full flex-shrink-0", MASTERY_DOT[s])} />
+                  {s}
+                </span>
+              ))}
             </div>
           </div>
         )}
