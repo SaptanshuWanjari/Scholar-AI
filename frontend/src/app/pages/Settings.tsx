@@ -304,6 +304,54 @@ export function SettingsPage() {
               </span>
             </Row>
           </div>
+          <div className="mt-6 rounded-2xl border border-border bg-card px-5">
+            <h3 className="pt-4 text-sm font-semibold text-muted-foreground">
+              Ingestion
+            </h3>
+            <Row
+              title="Concurrent workers"
+              desc={`Files ingested in parallel · ${s.maxConcurrent}`}
+            >
+              <div className="flex flex-col items-end gap-1.5">
+                <Slider
+                  className="w-56"
+                  value={[s.maxConcurrent]}
+                  onValueChange={(v) => s.set("maxConcurrent", v[0])}
+                  min={1}
+                  max={8}
+                  step={1}
+                />
+                <div className="flex items-center gap-2 text-xs">
+                  <span className={`rounded px-1.5 py-0.5 font-medium ${
+                    s.maxConcurrent <= 2
+                      ? "bg-success-soft text-success"
+                      : s.maxConcurrent <= 4
+                        ? "bg-warning-soft text-warning"
+                        : s.maxConcurrent <= 6
+                          ? "bg-amber-500/10 text-amber-600"
+                          : "bg-danger-soft text-danger"
+                  }`}>
+                    {s.maxConcurrent <= 2
+                      ? "Light"
+                      : s.maxConcurrent <= 4
+                        ? "Moderate"
+                        : s.maxConcurrent <= 6
+                          ? "Heavy"
+                          : "Very Heavy"}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {s.maxConcurrent <= 2
+                      ? "Minimal CPU/RAM impact"
+                      : s.maxConcurrent <= 4
+                        ? "Balanced for most systems"
+                        : s.maxConcurrent <= 6
+                          ? "Uses significant resources"
+                          : "May slow other tasks"}
+                  </span>
+                </div>
+              </div>
+            </Row>
+          </div>
         </TabsContent>
 
         <TabsContent value="retrieval">

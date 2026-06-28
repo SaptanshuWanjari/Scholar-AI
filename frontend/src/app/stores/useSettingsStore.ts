@@ -20,6 +20,7 @@ interface SettingsState {
   learningPreferences: string;
   ragMode: "strict" | "fallback";
   usePromptEnhancer: boolean;
+  maxConcurrent: number;
   hydrated: boolean;
   set: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void;
   hydrate: () => Promise<void>;
@@ -44,6 +45,7 @@ const PERSISTED: (keyof BackendSettings)[] = [
   "learningPreferences",
   "ragMode",
   "usePromptEnhancer",
+  "maxConcurrent",
 ];
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -65,6 +67,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   learningPreferences: "",
   ragMode: "fallback",
   usePromptEnhancer: true,
+  maxConcurrent: 3,
   hydrated: false,
   set: (key, value) => {
     set({ [key]: value } as Partial<SettingsState>);

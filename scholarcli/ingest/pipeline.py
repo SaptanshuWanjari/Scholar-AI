@@ -124,6 +124,21 @@ def _ingest_file_inner(
     # OllamaEmbeddings.embed_documents() accepts list[str]; returns list[list[float]].
     vectors: list[list[float]] = embeddings.embed_documents(chunk_texts)
 
+    # Detect duplicate/overlapping document.
+    settings = get_settings()
+    if settings.duplicate_detection.enabled and course_name:
+        from scholarcli.storage.vectors import detect_overlapping_document
+        dup_doc_id = detect_overlapping_document(
+            vectors, [ch["text"] for ch in chunks], [doc_id] * len(chunks),
+            course=course_name, threshold=settings.duplicate_detection.overlap_threshold,
+            exclude_doc_id=doc_id,
+        )
+        if dup_doc_id is not None:
+            dup_doc = session.get(Document, dup_doc_id)
+            dup_title = dup_doc.title if dup_doc else str(dup_doc_id)
+            logger.warning("Skipping '%s' — overlaps with '%s'", title, dup_title)
+            return "duplicate"
+
     rows: list[dict] = []
     for ch, vec in zip(chunks, vectors):
         rows.append(

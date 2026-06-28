@@ -35,6 +35,16 @@ ocr_enabled = true
 vision_enabled = true
 tables_enabled = true
 scanned_min_chars = 40
+max_concurrent = 3
+
+[multi_hop]
+enabled = true
+max_hops = 2
+
+[duplicate_detection]
+enabled = true
+overlap_threshold = 0.30
+scope = "course"
 
 [retrieval]
 top_k = 5

@@ -541,6 +541,7 @@ export interface BackendSettings {
   learningPreferences: string;
   ragMode: string;
   usePromptEnhancer: boolean;
+  maxConcurrent: number;
 }
 
 export interface ModelsList {
