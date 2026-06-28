@@ -52,11 +52,14 @@ function FirstLaunchGuard({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+import { AppearanceSync } from "./components/layout/AppearanceSync";
+
 export default function App() {
   const isEnabled = usePluginStore((s) => s.isEnabled);
 
   return (
     <BrowserRouter>
+      <AppearanceSync />
       <OnboardingProvider>
         <Suspense fallback={<PageLoading />}>
           <Routes>

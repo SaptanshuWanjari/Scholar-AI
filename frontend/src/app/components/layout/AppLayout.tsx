@@ -5,9 +5,11 @@ import { Topbar } from "./Topbar";
 import { CommandMenu } from "../CommandMenu";
 import { TourAutoStart } from "../../guidance/components/TourAutoStart";
 import { navItems } from "../../lib/nav";
+import { useAppearanceStore } from "../../stores/useAppearanceStore";
 
 export function AppLayout() {
   const navigate = useNavigate();
+  const readingMode = useAppearanceStore((s) => s.readingMode);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -30,9 +32,9 @@ export function AppLayout() {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
-      <AppSidebar />
+      {!readingMode && <AppSidebar />}
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar />
+        {!readingMode && <Topbar />}
         <main className="min-h-0 flex-1 flex flex-col overflow-hidden">
           <Outlet />
         </main>

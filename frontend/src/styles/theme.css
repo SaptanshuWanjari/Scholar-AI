@@ -78,30 +78,39 @@
   --sidebar-ring: #211f1b;
 }
 
-/* The app shell still applies `.dark`; keep it identical to the
-   light theme so the editorial look is enforced everywhere. */
+/* Real dark theme for ScholarAI */
 .dark {
-  --background: #f6f5f1;
-  --foreground: #211f1b;
-  --card: #fffefb;
-  --card-foreground: #211f1b;
-  --popover: #fffefb;
-  --popover-foreground: #211f1b;
-  --primary: #211f1b;
-  --primary-foreground: #f6f5f1;
-  --secondary: #efece5;
-  --secondary-foreground: #211f1b;
-  --muted: #efece5;
-  --muted-foreground: #79736a;
-  --accent: #ebe8e0;
-  --accent-foreground: #211f1b;
-  --destructive: #9f3a36;
+  --background: #1c1b1a;
+  --foreground: #f6f5f1;
+  --card: #252422;
+  --card-foreground: #f6f5f1;
+  --popover: #252422;
+  --popover-foreground: #f6f5f1;
+  --primary: #f6f5f1;
+  --primary-foreground: #1c1b1a;
+  --secondary: #33312e;
+  --secondary-foreground: #f6f5f1;
+  --muted: #33312e;
+  --muted-foreground: #a39e93;
+  --accent: #3d3b38;
+  --accent-foreground: #f6f5f1;
+  --destructive: #df5d59;
   --destructive-foreground: #ffffff;
-  --border: #e4e0d6;
-  --input: #e4e0d6;
-  --input-background: #fffefb;
-  --switch-background: #d4cfc2;
-  --ring: #211f1b;
+  --border: #3d3b38;
+  --input: #3d3b38;
+  --input-background: #252422;
+  --switch-background: #54514d;
+  --ring: #f6f5f1;
+
+  /* Sidebar dark */
+  --sidebar: #151413;
+  --sidebar-foreground: #e4e0d6;
+  --sidebar-primary: #f6f5f1;
+  --sidebar-primary-foreground: #1c1b1a;
+  --sidebar-accent: #33312e;
+  --sidebar-accent-foreground: #f6f5f1;
+  --sidebar-border: #3d3b38;
+  --sidebar-ring: #f6f5f1;
 }
 
 @theme inline {
@@ -286,3 +295,45 @@ button {
   @apply cursor-pointer;
 }
 
+/* Accessibility & Personalization Overrides */
+.high-contrast {
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #e0e0e0;
+  --secondary-foreground: #000000;
+  --muted: #e0e0e0;
+  --muted-foreground: #333333;
+  --border: #000000;
+  --input: #000000;
+  --ring: #000000;
+}
+
+.dark.high-contrast {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #333333;
+  --secondary-foreground: #ffffff;
+  --muted: #333333;
+  --muted-foreground: #cccccc;
+  --border: #ffffff;
+  --input: #ffffff;
+  --ring: #ffffff;
+}
+
+.reduce-animations * {
+  animation: none !important;
+  transition: none !important;
+}
+
+.reduce-transparency * {
+  backdrop-filter: none !important;
+  background-color: var(--background) !important;
+}

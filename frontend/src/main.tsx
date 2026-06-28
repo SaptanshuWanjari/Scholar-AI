@@ -1,6 +1,6 @@
-
 import { createRoot } from "react-dom/client";
 import { pdfjs } from "react-pdf";
+import { ThemeProvider } from "next-themes";
 import App from "./app/App.tsx";
 import { useLogStore } from "./app/stores/useLogStore";
 import "./styles/index.css";
@@ -27,8 +27,8 @@ createRoot(document.getElementById("root")!).render(
     provider: () => new Map(), // No persistent cache
     keepPreviousData: false
   }}>
-    <App />
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <App />
+    </ThemeProvider>
   </SWRConfig>
 );
-
-  

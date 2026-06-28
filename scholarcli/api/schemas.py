@@ -744,6 +744,11 @@ class KGNode(BaseModel):
     refCount: int
     sourceCount: int
     cluster: str
+    masteryStatus: str = "Unknown"
+    masteryScore: float = 0.0
+    importance: float = 0.5
+    artifactCounts: dict = {}
+    depConceptId: int | None = None
 
 
 class KGEdge(BaseModel):
@@ -751,6 +756,8 @@ class KGEdge(BaseModel):
     source: str
     target: str
     label: str
+    edgeType: str = "semantic"
+    confidence: float = 1.0
 
 
 class KGGraphOut(BaseModel):
