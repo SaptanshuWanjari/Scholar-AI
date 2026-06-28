@@ -191,6 +191,80 @@ def run_ask(
     }
 
 
+def _lookup_concepts(query: str, course: str | None = None) -> str:
+    """Return formatted concept definitions for any KG concepts mentioned in query.
+
+    Case-insensitive substring match against Concept.name. Returns empty string
+    if no concepts match, the KG is empty, or there's nothing to enrich with.
+    Capped at 5 concepts to keep context lean.
+    """
+    if not query:
+        return ""
+
+    from scholarcli.storage import get_session
+    from scholarcli.storage.models import Concept, ConceptEdge
+
+    session = get_session()
+    try:
+        q = session.query(Concept)
+        if course:
+            q = q.filter(Concept.course == course)
+        concepts = q.all()
+        if not concepts:
+            return ""
+
+        query_lower = query.lower()
+        matched: list[Concept] = []
+        for c in concepts:
+            if c.name.lower() in query_lower:
+                matched.append(c)
+                if len(matched) >= 5:
+                    break
+
+        if not matched:
+            return ""
+
+        matched_ids = {c.id for c in matched}
+        edges = (
+            session.query(ConceptEdge)
+            .filter(
+                ConceptEdge.source_id.in_(matched_ids)
+                | ConceptEdge.target_id.in_(matched_ids)
+            )
+            .all()
+        )
+        all_ids = matched_ids | {e.source_id for e in edges} | {e.target_id for e in edges}
+        name_map = {c.id: c.name for c in session.query(Concept).filter(Concept.id.in_(all_ids)).all()}
+
+        related_by_id: dict[int, list[str]] = {cid: [] for cid in matched_ids}
+        for e in edges:
+            if e.source_id in matched_ids:
+                peer = name_map.get(e.target_id)
+                if peer:
+                    related_by_id[e.source_id].append(peer)
+            if e.target_id in matched_ids:
+                peer = name_map.get(e.source_id)
+                if peer:
+                    related_by_id[e.target_id].append(peer)
+
+        parts = []
+        for c in matched:
+            definition = c.definition or c.description or ""
+            related = related_by_id.get(c.id, [])
+            line = f"• **{c.name}**"
+            if definition:
+                line += f": {definition}"
+            if related:
+                seen: list[str] = []
+                uniq = [r for r in related if not (r in seen or seen.append(r))]
+                line += f"\n  Related: {', '.join(uniq[:8])}"
+            parts.append(line)
+
+        return "\n\n".join(parts)
+    finally:
+        session.close()
+
+
 def _build_generation_prompt(state: GraphState, socratic: bool = False) -> list:
     """Assemble LangChain messages statically pinned for KV cache."""
     route = state.get("route", "quick_qa")
@@ -243,6 +317,11 @@ def _build_generation_prompt(state: GraphState, socratic: bool = False) -> list:
         system = _SOCRATIC_PREFIX + system
         
     system += f"\n\nContext from your uploaded materials:\n{context}"
+
+    concepts_context = _lookup_concepts(state.get("query", ""), state.get("course"))
+    if concepts_context:
+        system += f"\n\nKnowledge Graph Concepts:\n{concepts_context}"
+
     messages = [SystemMessage(content=system)]
     
     for msg in history:

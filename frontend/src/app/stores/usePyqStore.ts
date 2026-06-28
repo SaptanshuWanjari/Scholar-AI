@@ -36,6 +36,7 @@ interface PyqState {
   deletePaper: (id: number) => Promise<void>;
   updateQuestion: (id: number, patch: Partial<Omit<PyqQuestion, 'id'>>) => Promise<void>;
   deleteQuestion: (id: number) => Promise<void>;
+  syncToKG: () => Promise<{ created: number; updated: number } | undefined>;
 }
 
 export const usePyqStore = create<PyqState>((set, get) => ({
@@ -137,6 +138,17 @@ export const usePyqStore = create<PyqState>((set, get) => ({
       toast.success("Question removed");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to delete question");
+    }
+  },
+
+  syncToKG: async () => {
+    const { course } = get();
+    if (!course) return undefined;
+    try {
+      return await api.syncPyqToKG(course);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to sync to knowledge graph");
+      return undefined;
     }
   },
 }));

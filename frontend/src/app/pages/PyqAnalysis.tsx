@@ -19,6 +19,7 @@ import {
   Columns2,
   Pencil,
   Save,
+  Share2,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -84,6 +85,7 @@ export function PyqAnalysis() {
   const refresh = usePyqStore((s) => s.refresh);
   const uploadPaper = usePyqStore((s) => s.uploadPaper);
   const setField = usePyqStore((s) => s.setField);
+  const syncToKG = usePyqStore((s) => s.syncToKG);
 
   const [courses, setCourses] = useState<Course[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -126,6 +128,15 @@ export function PyqAnalysis() {
   };
   const genFlashcards = (topic: string) => {
     navigate(`/flashcards?topic=${encodeURIComponent(topic)}&course=${encodeURIComponent(course)}`);
+  };
+
+  const handleSyncKG = async () => {
+    const result = await syncToKG();
+    if (result) {
+      toast.success("Synced to Knowledge Graph", {
+        description: `${result.created} topics added, ${result.updated} updated.`,
+      });
+    }
   };
 
   const onUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,9 +193,14 @@ export function PyqAnalysis() {
             <Upload className="size-4" /> {uploading ? "Analyzing…" : "Upload PYQ"}
           </Button>
           {hasData && (
-            <Button size="sm" variant="secondary" onClick={seedExam}>
-              <GraduationCap className="size-4" /> Generate Mock Exam
-            </Button>
+            <>
+              <Button size="sm" variant="outline" onClick={handleSyncKG}>
+                <Share2 className="size-4" /> Sync to KG
+              </Button>
+              <Button size="sm" variant="secondary" onClick={seedExam}>
+                <GraduationCap className="size-4" /> Generate Mock Exam
+              </Button>
+            </>
           )}
         </div>
       </div>

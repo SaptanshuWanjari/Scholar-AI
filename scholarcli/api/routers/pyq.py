@@ -18,6 +18,7 @@ from fastapi.concurrency import run_in_threadpool
 from scholarcli.api import pyq_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.schemas import (
+    PYQSyncKGResult,
     PyqAnalysisOut,
     PyqDifferenceSuggestion,
     PyqPaperOut,
@@ -199,6 +200,16 @@ def patch_question(question_id: int, body: PyqQuestionPatch) -> PyqQuestionOut:
         )
     finally:
         session.close()
+
+
+@router.post("/sync-knowledge-graph", response_model=PYQSyncKGResult)
+async def sync_knowledge_graph(course: str) -> PYQSyncKGResult:
+    """Upsert PYQ topics as DepConcept nodes and back-fill TopicStat.concept_id."""
+    course = course.strip()
+    if not course:
+        raise HTTPException(status_code=400, detail="course is required")
+    result = await run_in_threadpool(pyq_service.sync_topics_to_dep_concepts, course)
+    return PYQSyncKGResult(**result)
 
 
 @router.delete("/questions/{question_id}", status_code=204)
