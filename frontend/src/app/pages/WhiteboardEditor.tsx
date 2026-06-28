@@ -209,8 +209,10 @@ export function WhiteboardEditor() {
   const applyScene = (scene: WhiteboardScene) => {
     sceneRef.current = scene;
     if (apiRef.current) {
+      // Files must be added before elements so image elements find their data on first render.
+      const fileValues = scene.files ? Object.values(scene.files) : [];
+      if (fileValues.length > 0) apiRef.current.addFiles(fileValues);
       apiRef.current.updateScene({ elements: scene.elements ?? [] });
-      if (scene.files) apiRef.current.addFiles(Object.values(scene.files));
       apiRef.current.scrollToContent?.(scene.elements ?? [], { fitToContent: true });
     } else {
       setCanvasKey((k) => k + 1);
@@ -400,12 +402,12 @@ export function WhiteboardEditor() {
             sourceId={id}
             course={wb?.course || null}
             label="Add to notebook"
-            customBlock={async () => ({
+            customBlocks={async () => [{
               type: "whiteboard",
               whiteboardId: id,
               title: wb?.title || title || "Whiteboard",
               thumbnail: (await sceneThumbnail(sceneRef.current)) ?? undefined,
-            })}
+            }]}
           />
 
           <Button variant="outline" size="sm" onClick={saveRevision}>

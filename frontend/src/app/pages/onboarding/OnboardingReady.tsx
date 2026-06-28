@@ -66,7 +66,7 @@ export function OnboardingReady() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-6 mb-8">
           {[
             { label: "Documents", value: analysis.documents },
-            { label: "Courses", value: analysis.courses?.length || 0 },
+            { label: "Courses", value: analysis.topics?.length || 0 },
             { label: "Concepts", value: analysis.concepts?.length || 0 },
             { label: "Graph Nodes", value: (analysis.concepts?.length || 0) * 2 },
             { label: "Topics", value: analysis.topics?.length || 0 },
@@ -101,7 +101,7 @@ export function OnboardingReady() {
                   </div>
                   <div>
                     <h4 className="font-medium text-sm">{stage.title}</h4>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{stage.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{stage.summary}</p>
                     <div className="flex gap-2 mt-2">
                       {stage.concepts.slice(0, 3).map((c, j) => (
                         <span key={j} className="text-[10px] px-2 py-0.5 rounded-full bg-muted/50 border border-border text-muted-foreground">

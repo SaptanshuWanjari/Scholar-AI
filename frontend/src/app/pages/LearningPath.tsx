@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
+import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
+import { api } from "../lib/api";
 import {
   Milestone,
   Loader2,
@@ -102,7 +104,7 @@ function stageCompletion(stage: LearningPathStage): number {
   const cs = stage.concepts;
   if (!cs.length) return 0;
   const done = cs.filter((c) => c.status === "completed").length;
-  return Math.round((100 * done) / cs.length);
+  return Math.round((done / cs.length) * 100);
 }
 
 function ConceptCard({
@@ -183,21 +185,62 @@ function ConceptCard({
         >
           <Lightbulb className="size-3" /> Teach Me
         </button>
-        {ACTIONS.map((a) => (
-          <button
-            key={a.label}
-            disabled={!!running}
-            onClick={() => runAction({ name: concept.title }, conceptId, a.runLabel, navigate)}
-            className="flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:border-ring/40 hover:text-foreground disabled:opacity-50"
-          >
-            {busy && running === a.runLabel ? (
-              <Loader2 className="size-3 animate-spin" />
-            ) : (
-              <a.icon className="size-3" />
-            )}
-            {a.label}
-          </button>
-        ))}
+        {ACTIONS.map((a) => {
+          const isNotebook = a.label === "Notebook";
+          const isSummary = a.label === "Summary";
+          const isExplain = a.label === "Explain";
+          
+          const btn = (
+            <button
+              key={a.label}
+              disabled={!!running}
+              onClick={(!isNotebook && !isSummary && !isExplain) ? () => runAction({ name: concept.title }, conceptId, a.runLabel, navigate) : undefined}
+              className="flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:border-ring/40 hover:text-foreground disabled:opacity-50"
+            >
+              {busy && running === a.runLabel ? (
+                <Loader2 className="size-3 animate-spin" />
+              ) : (
+                <a.icon className="size-3" />
+              )}
+              {a.label}
+            </button>
+          );
+
+          if (isNotebook || isExplain) {
+             return (
+               <AddToNotebookMenu
+                 key={a.label}
+                 trigger={btn}
+                 asyncBackground
+                 backgroundTitle={`Explanation for ${concept.title}`}
+                 customBlocks={async () => {
+                   const ex = await api.ask(`Explain the concept: ${concept.title}`);
+                   return [
+                     { type: "heading", level: 1, text: concept.title },
+                     { type: "ai-answer", question: `Explain ${concept.title}`, answer: ex.content, confidence: 1, sources: 0 }
+                   ];
+                 }}
+               />
+             );
+          } else if (isSummary) {
+             return (
+               <AddToNotebookMenu
+                 key={a.label}
+                 trigger={btn}
+                 asyncBackground
+                 backgroundTitle={`Summary for ${concept.title}`}
+                 customBlocks={async () => {
+                   const r = await api.generateRevision({ topic: concept.title, format: "summary" });
+                   return [
+                     { type: "heading", level: 2, text: `Summary: ${concept.title}` },
+                     { type: "text", text: r.markdown }
+                   ];
+                 }}
+               />
+             );
+          }
+          return btn;
+        })}
       </div>
     </div>
   );

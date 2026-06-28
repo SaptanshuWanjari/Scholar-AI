@@ -202,7 +202,7 @@ export interface ExamQuestionOut {
   id: string;
   type: "mcq" | "truefalse" | "short" | "long";
   topic: string;
-  difficulty: string;
+  difficulty: "Easy" | "Medium" | "Hard";
   prompt: string;
   options?: string[];
   answer?: string;

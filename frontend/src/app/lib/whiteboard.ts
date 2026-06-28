@@ -3,13 +3,29 @@
 // bundle (only loaded when a whiteboard action actually needs them).
 import type { WhiteboardScene } from "./types";
 
+/**
+ * Wrap unquoted flowchart node labels in double quotes so the Mermaid parser
+ * never sees raw special characters (colons, leading digits, etc.).
+ *
+ * Matches `[unquoted label]` — skips labels already wrapped in " or '.
+ * Handles the most common node shapes: A[label], A(label), A{label}.
+ */
+function quoteMermaidLabels(mermaid: string): string {
+  // [content] where content has no existing quotes or nested brackets.
+  return mermaid.replace(/\[([^\]["'[\]]+)\]/g, (_, content) => {
+    const safe = content.replace(/"/g, "'");
+    return `["${safe}"]`;
+  });
+}
+
 /** Convert Mermaid syntax into an editable Excalidraw scene. */
 export async function mermaidToScene(mermaid: string): Promise<WhiteboardScene> {
   const [{ parseMermaidToExcalidraw }, { convertToExcalidrawElements }] = await Promise.all([
     import("@excalidraw/mermaid-to-excalidraw"),
     import("@excalidraw/excalidraw"),
   ]);
-  const { elements, files } = await parseMermaidToExcalidraw(mermaid);
+  const sanitized = quoteMermaidLabels(mermaid);
+  const { elements, files } = await parseMermaidToExcalidraw(sanitized);
   const excalidrawElements = convertToExcalidrawElements(elements as any);
   return { elements: excalidrawElements, files: files ?? {}, appState: { viewBackgroundColor: "#ffffff" } };
 }

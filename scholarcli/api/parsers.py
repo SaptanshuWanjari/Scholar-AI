@@ -369,7 +369,8 @@ def parse_learning_path(text: str) -> dict:
 
 def strip_mermaid_fences(text: str) -> str:
     """Remove ```mermaid fences and stray prose, returning bare diagram source."""
-    t = text.strip()
+    # Strip <think>…</think> blocks from reasoning models (e.g. qwen3) first.
+    t = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
     fence = re.search(r"```(?:mermaid)?\s*(.+?)```", t, re.DOTALL)
     if fence:
         return fence.group(1).strip()

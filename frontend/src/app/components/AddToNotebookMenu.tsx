@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { api, type NotebookMeta } from "../lib/api";
 import type { NotebookBlock } from "../lib/notebook-data";
 import { artifactLabel, serializeArtifact } from "../lib/serializers";
+import { useNotificationStore } from "../stores/useNotificationStore";
 import { Button } from "./ui/button";
 import {
   AlertDialog,
@@ -36,23 +37,26 @@ import {
 import { Input } from "./ui/input";
 
 interface AddToNotebookMenuProps {
-  artifactType: string;
+  artifactType?: string;
   /** Raw artifact payload; serialized by `serializeArtifact(artifactType, content)`. */
-  content: unknown;
-  sourceId: string;
+  content?: unknown;
+  sourceId?: string;
   label?: string;
   variant?: React.ComponentProps<typeof Button>["variant"];
   size?: React.ComponentProps<typeof Button>["size"];
   className?: string;
   course?: string | null;
   /**
-   * When provided, the artifact is appended as this rich block instead of being
+   * When provided, the artifact is appended as these rich blocks instead of being
    * serialized to a Markdown text block. Used for embed-style blocks (e.g. a
    * whiteboard snapshot that links back to the live editor). The builder may be
    * async so callers can compute a fresh thumbnail at insert time. Dedup is
    * skipped in this mode.
    */
-  customBlock?: () => NotebookBlock | Promise<NotebookBlock>;
+  customBlocks?: () => NotebookBlock[] | Promise<NotebookBlock[]>;
+  trigger?: React.ReactNode;
+  asyncBackground?: boolean;
+  backgroundTitle?: string;
 }
 
 interface DedupState {
@@ -71,7 +75,10 @@ export function AddToNotebookMenu({
   size = "sm",
   className,
   course,
-  customBlock,
+  customBlocks,
+  trigger,
+  asyncBackground,
+  backgroundTitle,
 }: AddToNotebookMenuProps) {
   const [open, setOpen] = useState(false);
   const [notebooks, setNotebooks] = useState<NotebookMeta[] | null>(null);
@@ -108,6 +115,7 @@ export function AddToNotebookMenu({
   );
 
   const serialize = useCallback((): string | null => {
+    if (!artifactType) return null;
     let markdown: string;
     try {
       markdown = serializeArtifact(artifactType, content);
@@ -124,14 +132,28 @@ export function AddToNotebookMenu({
 
   const addTo = useCallback(
     async (notebookId: string, notebookName: string) => {
-      // Embed-block mode: append a rich block directly (no serialize, no dedup).
-      if (customBlock) {
+      // Embed-block mode: append rich blocks directly (no serialize, no dedup).
+      if (customBlocks) {
+        if (asyncBackground) {
+          setOpen(false);
+          toast.info(backgroundTitle || "Adding to notebook...", { description: "Running in background" });
+          try {
+            const blocks = await customBlocks();
+            const nb = await api.getNotebook(notebookId);
+            await api.updateNotebook(notebookId, { blocks: [...(nb.blocks ?? []), ...blocks] });
+            useNotificationStore.getState().add({ title: `${backgroundTitle || "Item"} added to ${notebookName}`, status: "success" });
+          } catch (err) {
+            useNotificationStore.getState().add({ title: `Failed to add to ${notebookName}`, status: "error", message: err instanceof Error ? err.message : "Error" });
+          }
+          return;
+        }
+
         setBusy(true);
         setPendingId(notebookId);
         try {
-          const block = await customBlock();
+          const blocks = await customBlocks();
           const nb = await api.getNotebook(notebookId);
-          await api.updateNotebook(notebookId, { blocks: [...(nb.blocks ?? []), block] });
+          await api.updateNotebook(notebookId, { blocks: [...(nb.blocks ?? []), ...blocks] });
           toast.success(`Added to ${notebookName}`);
           setOpen(false);
         } catch (err) {
@@ -147,7 +169,7 @@ export function AddToNotebookMenu({
       setBusy(true);
       setPendingId(notebookId);
       try {
-        const res = await api.appendToNotebook(notebookId, markdown, artifactType, sourceId);
+        const res = await api.appendToNotebook(notebookId, markdown, artifactType!, sourceId!);
         if (res.redundant) {
           setDedup({ notebookId, notebookName, markdown, existingIndex: res.existing_block_index });
           return;
@@ -161,13 +183,31 @@ export function AddToNotebookMenu({
         setPendingId(null);
       }
     },
-    [customBlock, serialize, artifactType, sourceId],
+    [customBlocks, serialize, artifactType, sourceId],
   );
 
   const createAndAdd = useCallback(async () => {
     const name = newName.trim();
     if (!name) return;
-    if (!customBlock && serialize() === null) return;
+    if (!customBlocks && serialize() === null) return;
+    
+    if (customBlocks && asyncBackground) {
+      setOpen(false);
+      toast.info(backgroundTitle || "Adding to notebook...", { description: "Running in background" });
+      try {
+        const nb = await api.createNotebook(name, course ?? null);
+        setNewName("");
+        setCreating(false);
+        void refresh();
+        const blocks = await customBlocks();
+        await api.updateNotebook(nb.id, { blocks: [...(nb.blocks ?? []), ...blocks] });
+        useNotificationStore.getState().add({ title: `${backgroundTitle || "Item"} added to ${nb.title}`, status: "success" });
+      } catch (err) {
+        useNotificationStore.getState().add({ title: `Failed to create/add`, status: "error", message: err instanceof Error ? err.message : "Error" });
+      }
+      return;
+    }
+
     setBusy(true);
     try {
       const nb = await api.createNotebook(name, course ?? null);
@@ -180,13 +220,13 @@ export function AddToNotebookMenu({
     } finally {
       setBusy(false);
     }
-  }, [newName, serialize, course, refresh, addTo, customBlock]);
+  }, [newName, serialize, course, refresh, addTo, customBlocks, asyncBackground, backgroundTitle]);
 
   const forceAppend = useCallback(async () => {
     if (!dedup) return;
     setBusy(true);
     try {
-      await api.appendToNotebook(dedup.notebookId, dedup.markdown, artifactType, sourceId, true);
+      await api.appendToNotebook(dedup.notebookId, dedup.markdown, artifactType!, sourceId!, true);
       toast.success(`Added to ${dedup.notebookName}`);
       setOpen(false);
     } catch (err) {
@@ -230,16 +270,20 @@ export function AddToNotebookMenu({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger asChild>
-          <Button variant={variant} size={size} className={className}>
-            <BookPlus className="size-4" />
-            {label && <span className="ml-1.5">{label}</span>}
-          </Button>
+          {trigger ? (
+            trigger
+          ) : (
+            <Button variant={variant} size={size} className={className}>
+              <BookPlus className="size-4" />
+              {label && <span className="ml-1.5">{label}</span>}
+            </Button>
+          )}
         </DialogTrigger>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Add to notebook</DialogTitle>
             <DialogDescription>
-              Pick a notebook to add this {artifactLabel(artifactType).toLowerCase()} to.
+              Pick a notebook to add this {artifactLabel(artifactType ?? "").toLowerCase()} to.
             </DialogDescription>
           </DialogHeader>
 
@@ -320,7 +364,7 @@ export function AddToNotebookMenu({
           <AlertDialogHeader>
             <AlertDialogTitle>Similar content already exists</AlertDialogTitle>
             <AlertDialogDescription>
-              This {artifactLabel(artifactType).toLowerCase()} looks very similar to something
+              This {artifactLabel(artifactType ?? "").toLowerCase()} looks very similar to something
               already in “{dedup?.notebookName}”. Merge it into the existing note, or skip to
               avoid duplicates.
             </AlertDialogDescription>

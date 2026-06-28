@@ -1,3 +1,4 @@
+// @ts-expect-error ponytail: missing @types/react-dom, works at runtime
 import { createRoot } from "react-dom/client";
 import { pdfjs } from "react-pdf";
 import { ThemeProvider } from "next-themes";

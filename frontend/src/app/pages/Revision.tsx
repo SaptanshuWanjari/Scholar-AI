@@ -67,7 +67,7 @@ export function Revision() {
   const setFormat = (f: RevisionFormat) => setField("format", f);
   const setTopic = (v: string) => setField("topic", v);
   const setCourse = (v: string) => setField("course", v);
-  const document = useRevisionStore((s) => s.document);
+  const docId = useRevisionStore((s) => s.document);
   const setDocument = (v: string | null) => setField("document", v);
 
   const [courses, setCourses] = useState<Course[]>([]);
@@ -181,7 +181,7 @@ export function Revision() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
+            <Select value={docId ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
               <SelectTrigger className="mt-2 bg-input-background">
                 <SelectValue placeholder="All documents" />
               </SelectTrigger>

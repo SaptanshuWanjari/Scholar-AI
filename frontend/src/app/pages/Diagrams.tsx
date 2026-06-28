@@ -45,7 +45,7 @@ export function Diagrams() {
 
   // Generation state lives in a global store so an in-flight generation keeps
   // running (and shows a pending item) when navigating away and back.
-  const { topic, course, document, type, generating, generated, setField, generate } = useDiagramGenStore();
+  const { topic, course, document: docId, type, generating, generated, setField, generate } = useDiagramGenStore();
   const setTopic = (v: string) => setField("topic", v);
   const setCourse = (v: string) => setField("course", v);
   const setDocument = (v: string | null) => setField("document", v);
@@ -270,7 +270,7 @@ export function Diagrams() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
+          <Select value={docId ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
             <SelectTrigger className="h-9 w-44 bg-input-background">
               <SelectValue placeholder="All documents" />
             </SelectTrigger>

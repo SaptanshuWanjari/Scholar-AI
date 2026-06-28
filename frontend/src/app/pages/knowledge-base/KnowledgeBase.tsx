@@ -482,7 +482,7 @@ export function KnowledgeBase() {
       >
         <SheetContent
           side="right"
-          className="w-[540px] max-w-full overflow-y-auto p-0 sm:max-w-[540px]"
+          className="w-[540px] max-w-full overflow-hidden p-0 sm:max-w-[540px]"
         >
           {drawerConceptId && (
             <ConceptDrawerContent

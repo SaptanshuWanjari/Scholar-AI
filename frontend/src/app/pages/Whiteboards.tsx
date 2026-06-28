@@ -14,6 +14,16 @@ import { api } from "../lib/api";
 import type { Course } from "../lib/types";
 import { useWhiteboardStore, ALL_COURSES } from "../stores/useWhiteboardStore";
 import { cn } from "../components/ui/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
 
 const SOURCE_LABEL: Record<string, string> = {
   manual: "Manual",
@@ -28,6 +38,7 @@ export function Whiteboards() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [course, setCourse] = useState<string>(ALL_COURSES);
   const [creating, setCreating] = useState(false);
+  const [deletingWb, setDeletingWb] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     api.listCourses().then(setCourses).catch(() => {});
@@ -126,7 +137,7 @@ export function Whiteboards() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (confirm(`Delete "${wb.title}"?`)) remove(wb.id);
+                        setDeletingWb({ id: wb.id, title: wb.title });
                       }}
                       className="shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
                     >
@@ -155,6 +166,31 @@ export function Whiteboards() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={!!deletingWb} onOpenChange={(open) => !open && setDeletingWb(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Whiteboard?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingWb?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (deletingWb) {
+                  remove(deletingWb.id);
+                  setDeletingWb(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
