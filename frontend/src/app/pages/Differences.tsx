@@ -174,8 +174,8 @@ export function Differences() {
       {output && (
         <div ref={viewerRef} className="mb-8">
           <div className="mb-2 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <h2 className="font-medium text-foreground">{output.title}</h2>
+            <div className="flex min-w-0 flex-1 items-start gap-2">
+              <h2 className="line-clamp-2 break-words font-medium text-foreground" title={output.title}>{output.title}</h2>
               <QualityBadge score={output.quality} />
             </div>
             <div className="flex items-center gap-1">

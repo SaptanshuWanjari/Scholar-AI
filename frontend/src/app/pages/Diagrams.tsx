@@ -307,9 +307,9 @@ export function Diagrams() {
         {active ? (
           <>
             <div className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">{active.title}</span>
-                <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
+              <div className="flex min-w-0 flex-1 items-start gap-2">
+                <span className="line-clamp-2 break-words text-sm font-medium" title={active.title}>{active.title}</span>
+                <Badge variant="outline" className="shrink-0 border-cyan/40 bg-cyan-soft text-cyan">
                   {active.kind}
                 </Badge>
                 <QualityBadge score={active.quality} />

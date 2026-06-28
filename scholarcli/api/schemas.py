@@ -223,6 +223,7 @@ class SettingsOut(BaseModel):
     interests: str = ""
     learningPreferences: str = ""
     ragMode: str = "fallback"  # "strict" | "fallback"
+    usePromptEnhancer: bool = True
 
 
 class SettingsPatch(BaseModel):
@@ -243,6 +244,7 @@ class SettingsPatch(BaseModel):
     interests: str | None = None
     learningPreferences: str | None = None
     ragMode: str | None = None
+    usePromptEnhancer: bool | None = None
 
 
 class ModelsList(BaseModel):

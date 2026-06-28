@@ -512,6 +512,7 @@ export interface BackendSettings {
   interests: string;
   learningPreferences: string;
   ragMode: string;
+  usePromptEnhancer: boolean;
 }
 
 export interface ModelsList {

@@ -204,12 +204,14 @@ export function MindMaps() {
         {active ? (
           <>
             <div className="sticky top-0 z-10 flex h-12 items-center gap-2 border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-              <Network className="size-4 text-primary" />
-              <span className="text-sm font-medium">{active.title}</span>
-              <Badge variant="outline" className="border-cyan/40 bg-cyan-soft text-cyan">
-                {nodeCount} {nodeCount === 1 ? "node" : "nodes"}
-              </Badge>
-              <QualityBadge score={active.quality} />
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <Network className="size-4 shrink-0 text-primary" />
+                <span className="line-clamp-2 break-words text-sm font-medium" title={active.title}>{active.title}</span>
+                <Badge variant="outline" className="shrink-0 border-cyan/40 bg-cyan-soft text-cyan">
+                  {nodeCount} {nodeCount === 1 ? "node" : "nodes"}
+                </Badge>
+                <QualityBadge score={active.quality} />
+              </div>
               <div className="ml-auto flex items-center gap-1">
                 <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => exportTree("png")} title="Export PNG">
                   <ImageDown className="size-3.5" /> PNG

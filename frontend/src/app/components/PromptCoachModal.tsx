@@ -16,7 +16,7 @@ import {
 import { Progress } from "./ui/progress";
 import { Textarea } from "./ui/textarea";
 import { Toggle } from "./ui/toggle";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, Loader2 } from "lucide-react";
 import { usePromptEnhancerStore } from "../stores/usePromptEnhancerStore";
 
 const LABEL_CONFIG = {
@@ -36,6 +36,7 @@ type ArtifactOpt = (typeof ARTIFACT_OPTIONS)[number];
 
 export function PromptCoachModal() {
   const open = usePromptEnhancerStore((s) => s.open);
+  const analyzing = usePromptEnhancerStore((s) => s.analyzing);
   const score = usePromptEnhancerStore((s) => s.score);
   const label = usePromptEnhancerStore((s) => s.label);
   const improvements = usePromptEnhancerStore((s) => s.improvements);
@@ -79,8 +80,15 @@ export function PromptCoachModal() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && close()}>
-      <DialogContent className="max-w-lg gap-0 p-0 overflow-hidden">
+    <>
+      {analyzing && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 rounded-full bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg animate-in fade-in slide-in-from-bottom-4">
+          <Loader2 className="size-4 animate-spin" />
+          Analyzing prompt...
+        </div>
+      )}
+      <Dialog open={open} onOpenChange={(o) => !o && close()}>
+        <DialogContent className="max-w-lg gap-0 p-0 overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2 text-base font-semibold">
             <Sparkles className="size-4 text-violet-500" />
@@ -227,5 +235,6 @@ export function PromptCoachModal() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

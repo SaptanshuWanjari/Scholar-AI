@@ -49,6 +49,7 @@ def _defaults() -> dict:
         "interests": "",
         "learningPreferences": "",
         "ragMode": "fallback",
+        "usePromptEnhancer": True,
     }
 
 

@@ -312,7 +312,7 @@ export function Flashcards() {
                   </div>
                   <span className="text-xs text-muted-foreground">{d.cards} cards</span>
                 </div>
-                <div className="mt-3 text-sm font-medium">{d.name}</div>
+                <div className="mt-3 line-clamp-2 break-words text-sm font-medium" title={d.name}>{d.name}</div>
                 <div className="flex items-center justify-between gap-2">
                   <div className="text-xs text-muted-foreground">{d.course}</div>
                   {d.quality && <QualityBadge score={d.quality} />}

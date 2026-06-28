@@ -227,6 +227,12 @@ export function SettingsPage() {
                 onCheckedChange={(v) => s.set("streaming", v)}
               />
             </Row>
+            <Row title="Prompt Enhancer" desc="Automatically refine and improve your prompts">
+              <Switch
+                checked={s.usePromptEnhancer}
+                onCheckedChange={(v) => s.set("usePromptEnhancer", v)}
+              />
+            </Row>
           </div>
           <div className="mt-6 rounded-2xl border border-border bg-card px-5">
             <h3 className="pt-4 text-sm font-semibold text-muted-foreground">
