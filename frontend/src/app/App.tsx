@@ -16,8 +16,6 @@ import { Flashcards } from "./pages/Flashcards";
 import { QuizPage } from "./pages/Quiz";
 import { Diagrams } from "./pages/Diagrams";
 import { MindMaps } from "./pages/MindMaps";
-import { Whiteboards } from "./pages/Whiteboards";
-import { WhiteboardEditor } from "./pages/WhiteboardEditor";
 import { Teach } from "./pages/Teach";
 import { LearningPath } from "./pages/LearningPath";
 import { SearchPage } from "./pages/Search";
@@ -35,6 +33,8 @@ import { OnboardingAnalyzing } from "./pages/onboarding/OnboardingAnalyzing";
 import { OnboardingReady } from "./pages/onboarding/OnboardingReady";
 import { OnboardingProvider } from "./context/OnboardingContext";
 import { api } from "./lib/api";
+import { KNOWN_PLUGINS } from "./plugins/registry";
+import { usePluginStore } from "./plugins/usePluginStore";
 
 function FirstLaunchGuard({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
@@ -50,6 +50,8 @@ function FirstLaunchGuard({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
+  const isEnabled = usePluginStore((s) => s.isEnabled);
+
   return (
     <BrowserRouter>
       <OnboardingProvider>
@@ -78,8 +80,6 @@ export default function App() {
             <Route path="/quiz" element={<QuizPage />} />
             <Route path="/diagrams" element={<Diagrams />} />
             <Route path="/mindmaps" element={<MindMaps />} />
-            <Route path="/whiteboards" element={<Whiteboards />} />
-            <Route path="/whiteboards/:id" element={<WhiteboardEditor />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/trace" element={<Trace />} />
@@ -89,6 +89,15 @@ export default function App() {
             <Route path="/prompts" element={<PromptLibrary />} />
             <Route path="/code-library" element={<CodeLibrary />} />
             <Route path="/guide" element={<Guide />} />
+            {KNOWN_PLUGINS.flatMap((plugin) =>
+              (plugin.routes ?? []).map((r) =>
+                isEnabled(plugin.id) ? (
+                  <Route key={r.path} path={r.path} element={r.element} />
+                ) : (
+                  <Route key={r.path} path={r.path} element={<Navigate to="/" replace />} />
+                ),
+              ),
+            )}
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
