@@ -65,12 +65,12 @@ w = w - lr * grad
 A learning rate that is **too large** causes divergence, while one that is **too small** slows convergence dramatically [3].`;
 
 export const flashcards: Flashcard[] = [
-  { id: "f1", type: "basic", front: "What does backpropagation compute?", back: "The gradient of the loss function with respect to every weight, using the chain rule.", deck: "Neural Networks", due: "Today", ease: "learning" },
-  { id: "f2", type: "cloze", front: "Gradient descent updates weights via w = w − {{η}} · ∇L.", back: "η is the learning rate controlling step size.", deck: "Neural Networks", due: "Today", ease: "new" },
-  { id: "f3", type: "basic", front: "Difference between SN1 and SN2 reactions?", back: "SN1 is unimolecular (carbocation intermediate, 2 steps); SN2 is bimolecular (concerted backside attack, 1 step).", deck: "Reaction Mechanisms", due: "Tomorrow", ease: "mastered" },
-  { id: "f4", type: "basic", front: "What is an eigenvalue?", back: "A scalar λ such that Av = λv for some non-zero vector v.", deck: "Linear Algebra", due: "Today", ease: "learning" },
-  { id: "f5", type: "cloze", front: "The {{IS}} curve shows combinations of interest rate and output where the goods market clears.", back: "IS = Investment-Savings equilibrium.", deck: "Macro Models", due: "In 3 days", ease: "new" },
-  { id: "f6", type: "basic", front: "What does the softmax function output?", back: "A probability distribution over classes that sums to 1.", deck: "Neural Networks", due: "Today", ease: "mastered" },
+  { id: "f1", type: "basic", front: "What does backpropagation compute?", back: "The gradient of the loss function with respect to every weight, using the chain rule.", deck: "Neural Networks", due: "Today", ease: "learning", interval: 1, sm2_ease: 2.3 },
+  { id: "f2", type: "cloze", front: "Gradient descent updates weights via w = w − {{η}} · ∇L.", back: "η is the learning rate controlling step size.", deck: "Neural Networks", due: "Today", ease: "new", interval: 0, sm2_ease: 2.5 },
+  { id: "f3", type: "basic", front: "Difference between SN1 and SN2 reactions?", back: "SN1 is unimolecular (carbocation intermediate, 2 steps); SN2 is bimolecular (concerted backside attack, 1 step).", deck: "Reaction Mechanisms", due: "Tomorrow", ease: "mastered", interval: 21, sm2_ease: 2.6 },
+  { id: "f4", type: "basic", front: "What is an eigenvalue?", back: "A scalar λ such that Av = λv for some non-zero vector v.", deck: "Linear Algebra", due: "Today", ease: "learning", interval: 1, sm2_ease: 2.3 },
+  { id: "f5", type: "cloze", front: "The {{IS}} curve shows combinations of interest rate and output where the goods market clears.", back: "IS = Investment-Savings equilibrium.", deck: "Macro Models", due: "In 3 days", ease: "new", interval: 0, sm2_ease: 2.5 },
+  { id: "f6", type: "basic", front: "What does the softmax function output?", back: "A probability distribution over classes that sums to 1.", deck: "Neural Networks", due: "Today", ease: "mastered", interval: 21, sm2_ease: 2.6 },
 ];
 
 export const decks: Deck[] = [

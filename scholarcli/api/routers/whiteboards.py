@@ -139,7 +139,7 @@ def list_whiteboards(course: str | None = None) -> list[WhiteboardMeta]:
         q = session.query(Whiteboard)
         if course:
             q = q.filter(Whiteboard.course == course)
-        return [_meta(wb) for wb in q.order_by(Whiteboard.updated_at.desc()).all()]
+        return [_meta(wb) for wb in q.order_by(Whiteboard.last_opened_at.desc()).all()]
     finally:
         session.close()
 
@@ -174,6 +174,8 @@ def get_whiteboard(whiteboard_id: int) -> WhiteboardOut:
         wb = session.get(Whiteboard, whiteboard_id)
         if not wb:
             raise HTTPException(status_code=404, detail="Whiteboard not found")
+        wb.last_opened_at = datetime.now()
+        session.commit()
         return _full(wb)
     finally:
         session.close()
@@ -202,6 +204,8 @@ def update_whiteboard(whiteboard_id: int, patch: WhiteboardPatch) -> WhiteboardO
             wb.status = patch.status
         session.commit()
         session.refresh(wb)
+        wb.last_opened_at = datetime.now()
+        session.commit()
         return _full(wb)
     finally:
         session.close()
@@ -301,6 +305,8 @@ def restore_revision(whiteboard_id: int, revision_number: int) -> WhiteboardOut:
         wb.scene = rev.scene or {}
         session.commit()
         session.refresh(wb)
+        wb.last_opened_at = datetime.now()
+        session.commit()
         return _full(wb)
     finally:
         session.close()

@@ -296,7 +296,7 @@ export function Flashcards() {
             <Button 
               className="mt-4 gap-2" 
               size="sm" 
-              onClick={() => document.getElementById("flashcards-topic-input")?.focus()}
+              onClick={() => window.document.getElementById("flashcards-topic-input")?.focus()}
             >
               <Sparkles className="size-4" /> Generate Deck
             </Button>

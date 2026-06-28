@@ -63,7 +63,7 @@ def global_search(
         if type in ("all", "whiteboards", "whiteboard"):
             q_wb = session.query(Whiteboard).filter(Whiteboard.title.ilike(f"%{query}%"))
             if course != "all": q_wb = q_wb.filter(Whiteboard.course.ilike(course))
-            for wb in q_wb.order_by(Whiteboard.updated_at.desc()).limit(limit).all():
+            for wb in q_wb.order_by(Whiteboard.last_opened_at.desc()).limit(limit).all():
                 results.append(
                     SearchResultOut(
                         id=str(wb.id),
@@ -77,7 +77,7 @@ def global_search(
         if type in ("all", "flashcard"):
             q_deck = session.query(Deck).filter(Deck.name.ilike(f"%{query}%"))
             if course != "all": q_deck = q_deck.filter(Deck.course.ilike(course))
-            for deck in q_deck.order_by(Deck.created_at.desc()).limit(limit).all():
+            for deck in q_deck.order_by(Deck.last_opened_at.desc()).limit(limit).all():
                 results.append(
                     SearchResultOut(
                         id=str(deck.id),
@@ -105,7 +105,7 @@ def global_search(
         if type in ("all", "diagram"):
             q_diag = session.query(Diagram).filter(Diagram.title.ilike(f"%{query}%"))
             if course != "all": q_diag = q_diag.filter(Diagram.course.ilike(course))
-            for diag in q_diag.order_by(Diagram.created_at.desc()).limit(limit).all():
+            for diag in q_diag.order_by(Diagram.last_opened_at.desc()).limit(limit).all():
                 results.append(
                     SearchResultOut(
                         id=str(diag.id),

@@ -256,7 +256,7 @@ export function MindMaps() {
               <Button 
                 variant="outline"
                 className="mt-2"
-                onClick={() => document.getElementById("mindmap-topic-input")?.focus()}
+                onClick={() => window.document.getElementById("mindmap-topic-input")?.focus()}
               >
                 Generate Mind Map
               </Button>

@@ -68,7 +68,7 @@ def _deck_out(deck: Deck) -> DeckOut:
 def list_decks() -> list[DeckOut]:
     session = get_session()
     try:
-        return [_deck_out(d) for d in session.query(Deck).order_by(Deck.created_at.desc()).all()]
+        return [_deck_out(d) for d in session.query(Deck).order_by(Deck.last_opened_at.desc()).all()]
     finally:
         session.close()
 
@@ -116,6 +116,11 @@ def delete_deck(deck_id: int) -> None:
 def list_flashcards(deck: str | None = None, course: str | None = None) -> list[FlashcardOut]:
     session = get_session()
     try:
+        if deck:
+            d = session.query(Deck).filter(Deck.name == deck).first()
+            if d:
+                d.last_opened_at = datetime.now()
+                session.commit()
         q = session.query(Card, Deck).join(Deck, Card.deck_id == Deck.id)
         if deck:
             q = q.filter(Deck.name == deck)
@@ -370,7 +375,7 @@ def list_diagrams() -> list[DiagramOut]:
                 grounded=True,
                 quality=_quality(d.quality_score),
             )
-            for d in session.query(Diagram).order_by(Diagram.created_at.desc()).all()
+            for d in session.query(Diagram).order_by(Diagram.last_opened_at.desc()).all()
         ]
     finally:
         session.close()

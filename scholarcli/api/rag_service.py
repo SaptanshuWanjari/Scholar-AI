@@ -413,3 +413,47 @@ def stream_ask(
         "grounded": True,
         "route": used_route,
     }
+
+import asyncio
+from fastapi.concurrency import run_in_threadpool
+
+async def warmup_embedding_cache():
+    """Pre-embeds the top 50 most frequent user queries."""
+    await run_in_threadpool(_do_warmup)
+
+def _do_warmup():
+    from sqlalchemy import func
+    from scholarcli.storage import get_session
+    from scholarcli.storage.models import ChatMessage, get_cached_embedding, set_cached_embedding
+    import scholarcli.llm
+    
+    session = get_session()
+    try:
+        top_queries = (
+            session.query(ChatMessage.content)
+            .filter(ChatMessage.role == 'user')
+            .group_by(ChatMessage.content)
+            .order_by(func.count(ChatMessage.id).desc())
+            .limit(50)
+            .all()
+        )
+        
+        if not top_queries:
+            return
+            
+        emb = scholarcli.llm.get_embeddings()
+        for (query,) in top_queries:
+            if not query.strip():
+                continue
+                
+            cached = get_cached_embedding(session, query)
+            if cached is None:
+                try:
+                    vector = emb.embed_query(query)
+                    set_cached_embedding(session, query, vector, max_size=5000)
+                except Exception as e:
+                    print(f"Failed to embed warmup query '{query}': {e}")
+    except Exception as e:
+        print(f"Embedding warmup failed: {e}")
+    finally:
+        session.close()

@@ -143,13 +143,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (stream) {
         controller = new AbortController();
         let acc = "";
-        await api.askStream(finalQuestion, course, document, {
+        await api.askStream(finalQuestion, {
           signal: controller.signal,
-          onToken: (chunk) => {
+          onToken: (chunk: string) => {
             acc += chunk;
             patch({ content: acc, streaming: true });
           },
-          onDone: (meta) => {
+          onDone: (meta: any) => {
             patch({
               content: acc,
               streaming: false,
@@ -157,14 +157,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
               confidence: meta.confidence ?? undefined,
             });
           },
-          onError: (msg) => {
+          onError: (msg: string) => {
             patch({ content: acc || `⚠️ ${msg}`, streaming: false });
             toast.error("Answer failed", { description: msg });
             useNotificationStore.getState().add({ title: "Chat answer failed", status: "error", message: msg });
           },
         }, course, document, null, null, sessionId, ragMode, socratic, highlightsOnly);
       } else {
-        const res = await api.ask(finalQuestion, course, document, null, null, sessionId, ragMode, socratic, highlightsOnly);
+        const res = await api.ask(finalQuestion, course, document, sessionId, ragMode, socratic);
         patch({
           content: res.content,
           streaming: false,

@@ -1,4 +1,5 @@
 """Notebook CRUD + AI writing assistance."""
+from datetime import datetime
 
 from __future__ import annotations
 
@@ -61,7 +62,7 @@ def _full(nb: Notebook) -> NotebookOut:
 def list_notebooks() -> list[NotebookMetaOut]:
     session = get_session()
     try:
-        return [_meta(nb) for nb in session.query(Notebook).order_by(Notebook.updated_at.desc()).all()]
+        return [_meta(nb) for nb in session.query(Notebook).order_by(Notebook.last_opened_at.desc()).all()]
     finally:
         session.close()
 
@@ -128,6 +129,8 @@ def get_notebook(notebook_id: int) -> NotebookOut:
         nb = session.get(Notebook, notebook_id)
         if not nb:
             raise HTTPException(status_code=404, detail="Notebook not found")
+        nb.last_opened_at = datetime.now()
+        session.commit()
         return _full(nb)
     finally:
         session.close()
@@ -154,6 +157,8 @@ def update_notebook(notebook_id: int, patch: NotebookPatch) -> NotebookOut:
             nb.is_draft = patch.is_draft
         session.commit()
         session.refresh(nb)
+        nb.last_opened_at = datetime.now()
+        session.commit()
         return _full(nb)
     finally:
         session.close()

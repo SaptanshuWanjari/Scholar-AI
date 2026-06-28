@@ -522,15 +522,15 @@ export function Notebooks() {
               <BookOpen className="size-10 opacity-40" />
               <div>
                 <div className="text-base font-medium text-foreground">
-                  {notebooks.length === 0 ? "No notebooks found" : "No notebook selected"}
+                  {list.length === 0 ? "No notebooks found" : "No notebook selected"}
                 </div>
                 <p className="mt-1 max-w-sm text-sm">
-                  {notebooks.length === 0 
+                  {list.length === 0 
                     ? "Create a notebook. Use Teach Me to generate structured notes first." 
                     : "Pick a notebook from the sidebar or create a new one."}
                 </p>
               </div>
-              {notebooks.length === 0 ? (
+              {list.length === 0 ? (
                 <Button onClick={() => navigate("/teach")}>
                   <Sparkles className="mr-2 size-4" /> Go to Teach Me
                 </Button>

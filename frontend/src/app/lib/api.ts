@@ -582,6 +582,8 @@ export interface LearningPathConcept {
   prerequisites: string[];
   unlocks: string[];
   status: ConceptStatus;
+  masteryStatus?: string;
+  depConceptId?: string;
 }
 
 export interface LearningPathStage {
@@ -729,7 +731,7 @@ export const api = {
         }
         if (evt.type === "token") handlers.onToken(evt.value);
         else if (evt.type === "done")
-          handlers.onDone?.({ sources: evt.sources, confidence: evt.confidence, grounded: evt.grounded });
+          handlers.onDone?.({ sources: evt.sources, confidence: evt.confidence, grounded: evt.grounded, route: evt.route ?? "" });
         else if (evt.type === "error") {
           useLogStore.getState().addLog("error", `Generation Stream Error`, evt.value);
           handlers.onError?.(evt.value);

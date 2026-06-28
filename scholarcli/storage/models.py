@@ -146,6 +146,9 @@ class Deck(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    last_opened_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     cards: Mapped[list["Card"]] = relationship(
         back_populates="deck", cascade="all, delete-orphan"
@@ -202,6 +205,9 @@ class Notebook(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+    last_opened_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
 
 class Diagram(Base):
@@ -214,6 +220,9 @@ class Diagram(Base):
     mermaid: Mapped[str] = mapped_column(Text, nullable=False)
     quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    last_opened_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
 
@@ -265,6 +274,9 @@ class Whiteboard(Base):
     )
     deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
+    )
+    last_opened_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
     )
 
     revisions: Mapped[list["WhiteboardRevision"]] = relationship(
@@ -693,7 +705,7 @@ def get_cached_embedding(session: Session, query: str) -> list[float] | None:
     return None
 
 
-def set_cached_embedding(session: Session, query: str, vector: list[float], max_size: int = 1000) -> None:
+def set_cached_embedding(session: Session, query: str, vector: list[float], max_size: int = 5000) -> None:
     cache = session.get(EmbeddingCache, query)
     if cache:
         cache.vector = vector
