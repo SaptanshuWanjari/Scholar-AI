@@ -390,7 +390,7 @@ export function Diagrams() {
               <Button 
                 variant="outline"
                 className="mt-2"
-                onClick={() => document.getElementById("diagram-topic-input")?.focus()}
+                onClick={() => window.document.getElementById("diagram-topic-input")?.focus()}
               >
                 Generate Diagram
               </Button>

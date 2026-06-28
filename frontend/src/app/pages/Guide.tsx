@@ -42,14 +42,14 @@ export function Guide() {
 
   const goToSection = (id: string) => {
     navigate(`#${id}`);
-    document.getElementById("guide-content-scroll")?.scrollTo({ top: 0, behavior: "smooth" });
+    window.document.getElementById("guide-content-scroll")?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const goToArticle = (id: string) => {
     navigate(`#${id}`);
     // Delay scroll slightly to allow React to render the target article if we just switched sections
     setTimeout(() => {
-      document.getElementById(`guide-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.document.getElementById(`guide-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
   };
 

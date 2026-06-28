@@ -248,7 +248,7 @@ export function Differences() {
           <Button 
             variant="outline"
             className="mt-2"
-            onClick={() => document.getElementById("differences-topic-input")?.focus()}
+            onClick={() => window.document.getElementById("differences-topic-input")?.focus()}
           >
             Generate Difference Table
           </Button>

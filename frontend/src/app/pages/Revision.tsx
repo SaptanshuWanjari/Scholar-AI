@@ -259,7 +259,7 @@ export function Revision() {
                 <Button 
                   variant="outline"
                   size="sm"
-                  onClick={() => document.getElementById("revision-topic-input")?.focus()}
+                  onClick={() => window.document.getElementById("revision-topic-input")?.focus()}
                 >
                   Generate Revision Schedule
                 </Button>

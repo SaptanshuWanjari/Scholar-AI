@@ -21,6 +21,11 @@ async def lifespan(app: FastAPI):
     from scholarcli.api.worker_pool import start_pool, stop_pool
     from scholarcli.config import get_settings
     start_pool(get_settings().ingest.max_concurrent)
+    
+    import asyncio
+    from scholarcli.api.rag_service import warmup_embedding_cache
+    asyncio.create_task(warmup_embedding_cache())
+    
     yield
     stop_pool()
 

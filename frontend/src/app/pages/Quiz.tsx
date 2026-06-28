@@ -352,7 +352,7 @@ function Builder({
           <Button 
             className="mt-4 gap-2" 
             size="sm" 
-            onClick={() => document.getElementById("quiz-topic-input")?.focus()}
+            onClick={() => window.document.getElementById("quiz-topic-input")?.focus()}
           >
             <Sparkles className="size-4" /> Generate Quiz
           </Button>
