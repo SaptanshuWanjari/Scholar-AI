@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle, Terminal } from "lucide-react";
+import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle, Terminal, Paintbrush } from "lucide-react";
 import { Page } from "../components/Page";
 import { useGuidanceStore } from "../guidance/useGuidanceStore";
 import {
@@ -34,6 +34,8 @@ import { navItems } from "../lib/nav";
 import { api, type ModelsList } from "../lib/api";
 import { KNOWN_PLUGINS } from "../plugins/registry";
 import { usePluginStore } from "../plugins/usePluginStore";
+import { useTheme } from "next-themes";
+import { useAppearanceStore } from "../stores/useAppearanceStore";
 
 function ModelOptions({
   models,
@@ -76,6 +78,8 @@ function Row({
 
 export function SettingsPage() {
   const s = useSettingsStore();
+  const { theme, setTheme } = useTheme();
+  const appearance = useAppearanceStore();
   const logs = useLogStore((state) => state.logs);
   const clearLogs = useLogStore((state) => state.clearLogs);
   const navigate = useNavigate();
@@ -137,6 +141,9 @@ export function SettingsPage() {
           <TabsTrigger value="profile" className="gap-1.5">
             <User className="size-4" /> Profile
           </TabsTrigger>
+          <TabsTrigger value="appearance" className="gap-1.5">
+            <Paintbrush className="size-4" /> Appearance
+          </TabsTrigger>
           <TabsTrigger value="models" className="gap-1.5">
             <Cpu className="size-4" /> Models
           </TabsTrigger>
@@ -159,6 +166,85 @@ export function SettingsPage() {
             <Database className="size-4" /> Data
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="appearance">
+          <div className="rounded-2xl border border-border bg-card px-5">
+            <Row title="Theme" desc="Application color theme">
+              <Select
+                value={theme || "system"}
+                onValueChange={(v) => setTheme(v)}
+              >
+                <SelectTrigger className="w-56 bg-input-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
+                </SelectContent>
+              </Select>
+            </Row>
+            <Row title="Font Size" desc={`Base font size: ${appearance.fontSize}px`}>
+              <Slider
+                className="w-56"
+                value={[appearance.fontSize]}
+                onValueChange={(v) => appearance.set("fontSize", v[0])}
+                min={12}
+                max={24}
+                step={1}
+              />
+            </Row>
+            <Row title="Reading Font" desc="Font used for documents and long text">
+              <Select
+                value={appearance.readingFont}
+                onValueChange={(v: any) => appearance.set("readingFont", v)}
+              >
+                <SelectTrigger className="w-56 bg-input-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sans">Sans Serif</SelectItem>
+                  <SelectItem value="serif">Serif</SelectItem>
+                  <SelectItem value="mono">Monospace</SelectItem>
+                  <SelectItem value="book">Book (IBM Plex Serif)</SelectItem>
+                </SelectContent>
+              </Select>
+            </Row>
+            <Row title="High Contrast" desc="Increase border visibility and text contrast">
+              <Switch
+                checked={appearance.highContrast}
+                onCheckedChange={(v) => appearance.set("highContrast", v)}
+              />
+            </Row>
+            <Row title="Reduce Animations" desc="Disable UI transitions and animations">
+              <Switch
+                checked={appearance.reduceAnimations}
+                onCheckedChange={(v) => appearance.set("reduceAnimations", v)}
+              />
+            </Row>
+            <Row title="Reduce Transparency" desc="Disable blurs and translucent backgrounds">
+              <Switch
+                checked={appearance.reduceTransparency}
+                onCheckedChange={(v) => appearance.set("reduceTransparency", v)}
+              />
+            </Row>
+            <Row title="Custom Accent Color" desc="Hex color code (e.g. #4f4d7a)">
+              <div className="flex items-center gap-2">
+                <input 
+                  type="color" 
+                  value={appearance.accentColor} 
+                  onChange={(e) => appearance.set("accentColor", e.target.value)} 
+                  className="h-8 w-8 cursor-pointer rounded border border-border bg-transparent p-0"
+                />
+                <Input
+                  className="w-44 bg-input-background font-mono"
+                  value={appearance.accentColor}
+                  onChange={(e) => appearance.set("accentColor", e.target.value)}
+                />
+              </div>
+            </Row>
+          </div>
+        </TabsContent>
 
         <TabsContent value="models">
           <div className="rounded-2xl border border-border bg-card px-5">
