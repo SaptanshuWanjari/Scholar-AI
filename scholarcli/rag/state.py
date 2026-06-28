@@ -18,3 +18,6 @@ class GraphState(TypedDict, total=False):
     answer: str  # final answer with citations
     socratic: bool  # guide step-by-step
     loop_count: int  # number of retrieval attempts
+    sub_queries: list[str] | None  # sub-questions from decompose step
+    all_retrieved: list[dict]  # accumulated chunks across all hops
+    traces: list[dict]  # per-hop trace info for UI

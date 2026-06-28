@@ -64,6 +64,8 @@ class IngestConfig(BaseModel):
     tesseract_fallback: bool = True
     # Run an LLM pass post-ingestion to extract summary, tags, and topics.
     metadata_extraction: bool = True
+    # Max concurrent ingest jobs in the worker pool.
+    max_concurrent: int = 3
 
 
 
@@ -77,6 +79,17 @@ class RetrievalConfig(BaseModel):
     rerank_enabled: bool = True
     pq_enabled: bool = True
     pq_training_threshold: int = 500
+
+
+class MultiHopConfig(BaseModel):
+    enabled: bool = True
+    max_hops: int = 2
+
+
+class DuplicateDetectionConfig(BaseModel):
+    enabled: bool = True
+    overlap_threshold: float = 0.30
+    scope: str = "course"
 
 
 class PathsConfig(BaseModel):
@@ -106,6 +119,8 @@ class Settings(BaseModel):
     ollama: OllamaConfig = Field(default_factory=OllamaConfig)
     models: ModelsConfig = Field(default_factory=ModelsConfig)
     chunking: ChunkingConfig = Field(default_factory=ChunkingConfig)
+    multi_hop: MultiHopConfig = Field(default_factory=MultiHopConfig)
+    duplicate_detection: DuplicateDetectionConfig = Field(default_factory=DuplicateDetectionConfig)
     retrieval: RetrievalConfig = Field(default_factory=RetrievalConfig)
     ingest: IngestConfig = Field(default_factory=IngestConfig)
     paths: PathsConfig = Field(default_factory=PathsConfig)

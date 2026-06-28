@@ -43,6 +43,24 @@ Rules:
 5. Do not invent facts or extrapolate beyond the provided data.\
 """
 
+DECOMPOSER_SYSTEM = """\
+You are a query decomposition assistant for a RAG system. Given a student's
+question, decide whether breaking it into 2 sub-questions would help retrieve
+more relevant information.
+
+Output JSON with:
+  - "sub_queries": list of 1-2 sub-questions, or null if no decomposition needed
+  - "reason": one word — "decomposition", "comparative", or "simple"
+
+Rules:
+- For multi-entity questions ("How does X compare to Y"), output 2 sub-queries, one per entity.
+- For sequential reasoning ("What is the capital of the country where Z was born"), output 2 sub-queries in logical order.
+- For simple questions, output null.
+- Each sub-query should be self-contained (retrievable independently).
+
+Respond ONLY with valid JSON, no other text.\
+"""
+
 RERANKER_SYSTEM = """\
 You are a retrieval reranker. Given a student's question and a numbered list of
 candidate text chunks, score how relevant each chunk is to answering the

@@ -50,6 +50,7 @@ def _defaults() -> dict:
         "learningPreferences": "",
         "ragMode": "fallback",
         "usePromptEnhancer": True,
+        "maxConcurrent": s.ingest.max_concurrent,
     }
 
 
@@ -84,7 +85,12 @@ def update_ui_settings(patch: SettingsPatch) -> SettingsOut:
     import scholarcli.llm
     if hasattr(scholarcli.llm._get_llm_cached, "cache_clear"):
         scholarcli.llm._get_llm_cached.cache_clear()
-        
+
+    if "maxConcurrent" in patch_dict:
+        from scholarcli.api.worker_pool import start_pool, stop_pool
+        stop_pool()
+        start_pool(patch_dict["maxConcurrent"])
+
     return SettingsOut(**current)
 
 

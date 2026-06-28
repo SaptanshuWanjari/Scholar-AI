@@ -18,7 +18,11 @@ async def lifespan(app: FastAPI):
     init_db()
     from scholarcli.api.prompt_service import seed_prompts
     seed_prompts()
+    from scholarcli.api.worker_pool import start_pool, stop_pool
+    from scholarcli.config import get_settings
+    start_pool(get_settings().ingest.max_concurrent)
     yield
+    stop_pool()
 
 
 def create_app() -> FastAPI:

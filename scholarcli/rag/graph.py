@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from langgraph.graph import END, StateGraph
 
+from scholarcli.rag.nodes.decomposer import decompose
 from scholarcli.rag.nodes.generator import generate
 from scholarcli.rag.nodes.reranker import rerank
 from scholarcli.rag.nodes.retriever import retrieve
@@ -37,6 +38,7 @@ def build_graph() -> StateGraph:
     builder = StateGraph(GraphState)
 
     builder.add_node("router", route_query)
+    builder.add_node("decompose", decompose)
     builder.add_node("retrieve", retrieve)
     builder.add_node("rerank", rerank)
     builder.add_node("verify", verify)
@@ -45,13 +47,14 @@ def build_graph() -> StateGraph:
 
     builder.set_entry_point("router")
 
-    # Router → retrieve (if wired) or generate (stub answer).
+    # Router → decompose → retrieve (or direct to generate).
     builder.add_conditional_edges(
         "router",
         _should_retrieve,
-        {"retrieve": "retrieve", "generate": "generate"},
+        {"retrieve": "decompose", "generate": "generate"},
     )
 
+    builder.add_edge("decompose", "retrieve")
     builder.add_edge("retrieve", "rerank")
     builder.add_edge("rerank", "verify")
     

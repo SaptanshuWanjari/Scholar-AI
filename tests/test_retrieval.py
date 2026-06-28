@@ -7,7 +7,21 @@ from unittest.mock import patch
 
 from scholarcli.ingest.pipeline import ingest_file
 from scholarcli.rag import build_rag
+from scholarcli.storage import get_session, init_db
+from scholarcli.storage.models import Course
 from scholarcli.storage.vectors import search
+
+
+def _ensure_course(name: str) -> None:
+    init_db()
+    from scholarcli.storage.models import get_course
+    session = get_session()
+    try:
+        if not get_course(session, name):
+            session.add(Course(name=name))
+            session.commit()
+    finally:
+        session.close()
 
 
 class _MockEmbeddings:
@@ -41,6 +55,7 @@ def test_search_returns_chunks(mock_pipe_emb, mock_llm_emb, sample_pdf):
     mock_pipe_emb.return_value = m
     mock_llm_emb.return_value = m
 
+    _ensure_course("Networks")
     ingest_file(sample_pdf, "Networks", embeddings=m)
 
     # Search for 'slow start'.
@@ -65,6 +80,7 @@ def test_grounding_off_topic(mock_pipe_emb, mock_llm_emb, mock_router_llm, mock_
     mock_router_llm.return_value.invoke.return_value.content = "quick_qa"
     mock_gen_llm.return_value.invoke.return_value.content = "Answer is that it's not covered in your uploaded materials."
 
+    _ensure_course("Networks")
     ingest_file(sample_pdf, "Networks", embeddings=m)
 
     rag = build_rag()

@@ -1,5 +1,8 @@
 """LanceDB helper — create/get table, add vectors, search, delete by document.
 
+Includes ``detect_overlapping_document()`` for ingest-time duplicate detection.
+
+
 Table schema (inferred from first batch):
   - id          : str (uuid)
   - document_id : int
@@ -18,6 +21,7 @@ Table schema (inferred from first batch):
 from __future__ import annotations
 
 import logging
+from collections import Counter
 
 import lancedb
 
@@ -305,3 +309,51 @@ def hybrid_search(
         return results, total
         
     return results
+
+
+def detect_overlapping_document(
+    embeddings: list[list[float]],
+    chunk_ids: list[str],
+    document_ids: list[int],
+    course: str | None = None,
+    *,
+    threshold: float = 0.30,
+    exclude_doc_id: int | None = None,
+) -> int | None:
+    """Check if a set of chunk embeddings overlaps significantly with any
+    existing document in the same course.
+
+    For each chunk embedding, finds the nearest existing chunk.
+    Groups matches by their document_id. If any existing document accounts
+    for more than *threshold* of the new chunks, returns its document_id.
+
+    Returns None if no significant overlap is found.
+    """
+    if not _has_table() or not embeddings:
+        return None
+
+    tbl = _open_table()
+    matched_docs: list[int] = []
+
+    for vec in embeddings:
+        q = tbl.search(vec, vector_column_name="vector").metric("cosine").limit(1)
+        if course:
+            q = q.where(f"course = '{course}'", prefilter=True)
+        try:
+            results = q.to_list()
+        except Exception:
+            continue
+        if results:
+            doc_id = results[0].get("document_id")
+            if doc_id is not None and doc_id != exclude_doc_id:
+                matched_docs.append(doc_id)
+
+    if not matched_docs:
+        return None
+
+    counts = Counter(matched_docs)
+    top_doc, top_count = counts.most_common(1)[0]
+    overlap_pct = top_count / len(embeddings)
+    if overlap_pct >= threshold:
+        return top_doc
+    return None

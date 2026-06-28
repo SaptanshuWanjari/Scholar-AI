@@ -232,6 +232,7 @@ class SettingsOut(BaseModel):
     learningPreferences: str = ""
     ragMode: str = "fallback"  # "strict" | "fallback"
     usePromptEnhancer: bool = True
+    maxConcurrent: int = 3
 
 
 class SettingsPatch(BaseModel):
@@ -253,6 +254,7 @@ class SettingsPatch(BaseModel):
     learningPreferences: str | None = None
     ragMode: str | None = None
     usePromptEnhancer: bool | None = None
+    maxConcurrent: int | None = None
 
 
 class ModelsList(BaseModel):

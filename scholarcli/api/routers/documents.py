@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 import scholarcli.llm
 from scholarcli.api import job_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import serialize_chunks
 from scholarcli.api.schemas import DocumentOut, DocumentPatch, DocumentUploadOut, SourceOut, PaginatedSourcesOut
+from scholarcli.api.worker_pool import get_pool
 from scholarcli.config import get_settings
 from scholarcli.ingest.pipeline import ingest_file
 from scholarcli.storage import get_session
@@ -57,7 +58,6 @@ def list_documents(course: str | None = None, search: str | None = None) -> list
 
 @router.post("/documents/upload", response_model=DocumentUploadOut, status_code=201)
 async def upload_document(
-    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     course: str | None = Form(None),
 ) -> DocumentOut:
@@ -128,7 +128,7 @@ async def upload_document(
     job_id = job_service.create_job(
         "ingest", label=f"Ingesting {filename}", payload={"documentId": doc_id, "course": course_name}
     )
-    background_tasks.add_task(_ingest_bg, dest, course_name, doc_id, job_id)
+    get_pool().submit(_ingest_bg, dest, course_name, doc_id, job_id)
     return DocumentUploadOut(**stub_out.model_dump(), jobId=job_id)
 
 

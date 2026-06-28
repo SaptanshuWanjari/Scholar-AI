@@ -82,7 +82,7 @@ def _confidence(retrieved: list[dict], grounded: bool) -> float | None:
     return max(_similarity(ch.get("_distance")) for ch in retrieved)
 
 
-def _record_trace(query: str, route: str | None, retrieved: list[dict], grounded: bool) -> None:
+def _record_trace(query: str, route: str | None, retrieved: list[dict], grounded: bool, traces: list | None = None) -> None:
     s = get_settings()
     sims = [_similarity(ch.get("_distance")) for ch in retrieved]
     chunks = [
@@ -111,6 +111,8 @@ def _record_trace(query: str, route: str | None, retrieved: list[dict], grounded
             "chunks": chunks,
         }
     )
+    if traces:
+        _last_trace["multiHop"] = traces
 
 
 def get_last_trace() -> dict[str, Any]:
@@ -161,7 +163,7 @@ def run_ask(
     retrieved = result.get("retrieved", []) or []
     grounded = bool(result.get("grounded", False))
     used_route = result.get("route", route)
-    _record_trace(question, used_route, retrieved, grounded)
+    _record_trace(question, used_route, retrieved, grounded, traces=result.get("traces"))
     confidence = _confidence(retrieved, grounded)
     from scholarcli.api import trace_service
     trace_service.log_weak_generation(question, retrieved, grounded, confidence)
@@ -293,7 +295,7 @@ def stream_ask(
     retrieved = state.get("retrieved", []) or []
     grounded = bool(state.get("grounded", False))
     used_route = state.get("route", route)
-    _record_trace(question, used_route, retrieved, grounded)
+    _record_trace(question, used_route, retrieved, grounded, traces=state.get("traces"))
 
     sources = serialize_chunks(retrieved)
     confidence = _confidence(retrieved, grounded)

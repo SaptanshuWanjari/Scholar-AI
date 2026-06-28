@@ -10,6 +10,7 @@ import {
   XCircle,
   Search,
   Trash2,
+  X,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -28,6 +29,15 @@ import {
 import { api } from "../lib/api";
 import type { Course, DocStatus, DocType, DocumentItem } from "../lib/types";
 
+const CONCURRENCY = 3;
+
+interface UploadItem {
+  id: string;
+  file: File;
+  status: "queued" | "uploading" | "processing" | "completed" | "failed";
+  error?: string;
+}
+
 const typeIcon: Record<DocType, typeof FileText> = {
   pdf: FileText,
   docx: FileType,
@@ -41,12 +51,20 @@ const statusMeta: Record<DocStatus, { label: string; icon: typeof CheckCircle2; 
   failed: { label: "Failed", icon: XCircle, cls: "border-danger/40 bg-danger-soft text-danger" },
 };
 
+const uploadMeta: Record<string, { icon: typeof Loader2; cls: string }> = {
+  queued: { icon: Loader2, cls: "text-muted-foreground" },
+  uploading: { icon: Loader2, cls: "text-primary" },
+  processing: { icon: Loader2, cls: "text-warning" },
+  completed: { icon: CheckCircle2, cls: "text-success" },
+  failed: { icon: XCircle, cls: "text-danger" },
+};
+
 export function Documents() {
   const [query, setQuery] = useState("");
   const [course, setCourse] = useState("all");
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [uploads, setUploads] = useState<UploadItem[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
 
   const refresh = () => {
@@ -61,30 +79,6 @@ export function Documents() {
       d.title.toLowerCase().includes(query.toLowerCase()) &&
       (course === "all" || d.course === course || (course === "unassigned" && !d.course)),
   );
-
-  const onUpload = async (file: File) => {
-    const target = course !== "all" && course !== "unassigned" ? course : undefined;
-    setUploading(true);
-    const t = toast.loading(`Indexing ${file.name}…`);
-    try {
-      const doc = await api.uploadDocument(file, target);
-      if (doc.jobId) {
-        refresh(); // show "processing" stub immediately
-        const job = await api.pollJobUntilDone(doc.jobId);
-        if (job.status === "failed") {
-          throw new Error(job.error ?? "Indexing failed");
-        }
-      }
-      toast.success("Document indexed", { id: t, description: doc.title });
-      refresh();
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Upload failed";
-      toast.error("Upload failed", { id: t, description: msg });
-    } finally {
-      setUploading(false);
-      if (fileInput.current) fileInput.current.value = "";
-    }
-  };
 
   const onDelete = async (id: string, title: string) => {
     try {
@@ -108,16 +102,78 @@ export function Documents() {
     }
   };
 
+  const enqueue = async (files: FileList | File[]) => {
+    const target = course !== "all" && course !== "unassigned" ? course : undefined;
+    const items: UploadItem[] = Array.from(files).map((f) => ({
+      id: `up-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      file: f,
+      status: "queued",
+    }));
+    setUploads((prev) => [...prev, ...items]);
+
+    let completed = 0;
+    let failed = 0;
+
+    const processOne = async (item: UploadItem) => {
+      setUploads((prev) => prev.map((u) => (u.id === item.id ? { ...u, status: "uploading" } : u)));
+      try {
+        const doc = await api.uploadDocument(item.file, target);
+        setUploads((prev) =>
+          prev.map((u) => (u.id === item.id ? { ...u, status: "processing" } : u)),
+        );
+        if (doc.jobId) {
+          const job = await api.pollJobUntilDone(doc.jobId);
+          if (job.status === "failed") throw new Error(job.error ?? "Indexing failed");
+        }
+        setUploads((prev) =>
+          prev.map((u) => (u.id === item.id ? { ...u, status: "completed" } : u)),
+        );
+        completed++;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Upload failed";
+        setUploads((prev) =>
+          prev.map((u) => (u.id === item.id ? { ...u, status: "failed", error: msg } : u)),
+        );
+        failed++;
+      }
+    };
+
+    const running = new Set<Promise<void>>();
+    for (const item of items) {
+      const p = processOne(item).finally(() => running.delete(p));
+      running.add(p);
+      if (running.size >= CONCURRENCY) {
+        await Promise.race(running);
+      }
+    }
+    await Promise.allSettled(running);
+
+    if (completed > 0) {
+      toast.success(`${completed} document${completed > 1 ? "s" : ""} indexed`, {
+        description: failed > 0 ? `${failed} failed` : undefined,
+      });
+    }
+    refresh();
+  };
+
+  const busy = uploads.some((u) => u.status === "queued" || u.status === "uploading" || u.status === "processing");
+  const done = uploads.filter((u) => u.status === "completed").length;
+  const total = uploads.length;
+
   return (
     <Page className="space-y-5">
       <input
         ref={fileInput}
         type="file"
+        multiple
         accept=".pdf,.md,.markdown,.txt"
         className="hidden"
         onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) void onUpload(f);
+          const files = e.target.files;
+          if (files && files.length > 0) {
+            void enqueue(files);
+          }
+          if (fileInput.current) fileInput.current.value = "";
         }}
       />
 
@@ -130,26 +186,76 @@ export function Documents() {
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
-          const f = e.dataTransfer.files?.[0];
-          if (f) void onUpload(f);
+          const files = e.dataTransfer.files;
+          if (files && files.length > 0) void enqueue(files);
         }}
       >
-        <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-violet-soft text-primary">
-          <Upload className="size-6" />
-        </div>
-        <h3 className="mt-4">Drop files to upload</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          PDF, Markdown or plain text
-          {course !== "all" ? ` · into ${course}` : " · into first course"}
-        </p>
-        <Button
-          className="mt-4 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-          disabled={uploading}
-          onClick={() => fileInput.current?.click()}
-        >
-          {uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
-          {uploading ? "Indexing…" : "Browse files"}
-        </Button>
+        {uploads.length === 0 ? (
+          <>
+            <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-violet-soft text-primary">
+              <Upload className="size-6" />
+            </div>
+            <h3 className="mt-4">Drop files to upload</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              PDF, Markdown or plain text
+              {course !== "all" ? ` · into ${course}` : " · into first course"}
+            </p>
+            <Button
+              className="mt-4 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => fileInput.current?.click()}
+            >
+              <Upload className="size-4" />
+              Browse files
+            </Button>
+          </>
+        ) : (
+          <div className="space-y-3 text-left">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-medium">
+                  {busy ? "Uploading…" : `${done}/${total} files`}
+                </h3>
+                <span className="text-xs text-muted-foreground">
+                  {done}/{total}
+                </span>
+              </div>
+              {!busy && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setUploads([])}
+                  className="h-7 gap-1 text-xs text-muted-foreground"
+                >
+                  <X className="size-3" />
+                  Clear
+                </Button>
+              )}
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <motion.div
+                className="h-full rounded-full bg-primary"
+                initial={{ width: 0 }}
+                animate={{ width: `${(done / Math.max(total, 1)) * 100}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+            <div className="max-h-40 space-y-1 overflow-y-auto">
+              {uploads.map((item) => {
+                const m = uploadMeta[item.status];
+                const Icon = m.icon;
+                return (
+                  <div key={item.id} className="flex items-center gap-2 text-sm">
+                    <Icon className={`size-3.5 shrink-0 ${item.status === "queued" || item.status === "uploading" || item.status === "processing" ? "animate-spin" : ""} ${m.cls}`} />
+                    <span className="min-w-0 flex-1 truncate">{item.file.name}</span>
+                    {item.status === "failed" && (
+                      <span className="truncate text-xs text-danger">{item.error}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </motion.div>
 
       <ContextualTip id="documents-formats">
