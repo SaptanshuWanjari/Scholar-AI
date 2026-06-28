@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { type ReadingSection } from "../lib/api";
 import { cn } from "./ui/utils";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 export interface ReadingTextPaneProps {
   sections: ReadingSection[];
@@ -62,10 +65,14 @@ export const ReadingTextPane = forwardRef<ReadingTextPaneRef, ReadingTextPanePro
 
     const highlightText = (text: string, query: string) => {
       if (!query.trim()) return text;
-      const parts = text.split(new RegExp(`(${query})`, 'gi'));
-      return parts.map((part, i) => 
-        part.toLowerCase() === query.toLowerCase() ? <mark key={i} className="bg-yellow-200 text-black">{part}</mark> : part
-      );
+      // Escape regex characters in query
+      const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Replace only outside of markdown image/link syntax if possible, but simple replacement is usually fine for highlighting
+      const parts = text.split(new RegExp(`(${safeQuery})`, 'gi'));
+      // We will join it back with HTML <mark> tags since we use rehypeRaw
+      return parts.map(part => 
+        part.toLowerCase() === query.toLowerCase() ? `<mark class="bg-yellow-200 text-black rounded-sm">${part}</mark>` : part
+      ).join('');
     };
 
     return (
@@ -74,13 +81,21 @@ export const ReadingTextPane = forwardRef<ReadingTextPaneRef, ReadingTextPanePro
           <div key={sec.id} className="space-y-4">
             {sec.title && <h2 className="text-xl font-bold text-foreground/90">{sec.title}</h2>}
             {sec.paragraphs.map((p, idx) => (
-              <p 
+              <div 
                 key={`${sec.id}-${idx}`} 
                 data-page={p.page ?? undefined}
-                className="text-[16px] leading-relaxed text-foreground/80"
+                className="prose prose-sm dark:prose-invert max-w-none text-[16px] leading-relaxed text-foreground/80 break-words"
               >
-                {highlightText(p.text, searchQuery)}
-              </p>
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm]} 
+                  rehypePlugins={[rehypeRaw]}
+                  components={{
+                    img: ({node, ...props}) => <img className="rounded-lg border border-border my-4 max-h-[400px] object-contain" {...props} />
+                  }}
+                >
+                  {highlightText(p.text, searchQuery)}
+                </ReactMarkdown>
+              </div>
             ))}
           </div>
         ))}

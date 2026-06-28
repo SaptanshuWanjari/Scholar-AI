@@ -9,6 +9,9 @@ from __future__ import annotations
 
 from datetime import datetime
 
+import gzip
+import json
+
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -16,6 +19,7 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     Integer,
+    LargeBinary,
     String,
     Text,
     UniqueConstraint,
@@ -23,7 +27,30 @@ from sqlalchemy import (
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+from sqlalchemy.types import TypeDecorator
 import re
+
+
+class CompressedJSON(TypeDecorator):
+    """Transparently gzip-compresses dicts to BLOB.
+
+    Stores as SQLite BLOB instead of TEXT — shrinks large Excalidraw scenes
+    ~10×. The rest of the code reads/writes plain dicts as usual.
+    """
+
+    impl = LargeBinary
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        return gzip.compress(json.dumps(value, ensure_ascii=False, default=str).encode("utf-8"))
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        return json.loads(gzip.decompress(value).decode("utf-8"))
+
 
 def get_course(session: Session, name: str | None) -> "Course" | None:
     if not name:
@@ -213,7 +240,7 @@ class Whiteboard(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(256), nullable=False)
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
-    scene: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    scene: Mapped[dict] = mapped_column(CompressedJSON, nullable=False, default=dict)
     thumbnail: Mapped[str | None] = mapped_column(Text, nullable=True)
     source: Mapped[str] = mapped_column(
         String(16), nullable=False, default="manual"
@@ -248,7 +275,7 @@ class WhiteboardRevision(Base):
         Integer, ForeignKey("whiteboards.id"), nullable=False, index=True
     )
     revision_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-    scene: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    scene: Mapped[dict] = mapped_column(CompressedJSON, nullable=False, default=dict)
     change_summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -658,6 +685,7 @@ def get_cached_embedding(session: Session, query: str) -> list[float] | None:
         return cache.vector
     return None
 
+
 def set_cached_embedding(session: Session, query: str, vector: list[float], max_size: int = 1000) -> None:
     cache = session.get(EmbeddingCache, query)
     if cache:
@@ -674,4 +702,22 @@ def set_cached_embedding(session: Session, query: str, vector: list[float], max_
         for o in oldest:
             session.delete(o)
         session.commit()
+
+
+from sqlalchemy import event, text
+
+@event.listens_for(Document, 'after_delete')
+def _cascade_delete_chat_messages(mapper, connection, target):
+    """Cascade delete ChatMessages when Document is deleted."""
+    # SQLite JSON filtering via ORM can be tricky; we'll use a text query.
+    # The message sources JSON contains the document ID or title.
+    doc_id_str = str(target.id)
+    title_pattern = f'%"{target.title}"%'
+    doc_pattern = f'%"{doc_id_str}"%'
+    
+    connection.execute(
+        text("DELETE FROM chat_messages WHERE sources LIKE :p_title OR sources LIKE :p_doc"),
+        {"p_title": title_pattern, "p_doc": doc_pattern}
+    )
+
 

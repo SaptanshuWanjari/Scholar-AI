@@ -1217,6 +1217,9 @@ export const api = {
       tick();
     });
   },
+  deleteJob(id: string): Promise<void> {
+    return request<void>(`/api/jobs/${id}`, { method: "DELETE" });
+  },
 
 
   // ---- Trace analytics ----
@@ -1308,16 +1311,7 @@ export const api = {
     return request<{ reasoning: string, vision: string, embedding: string, ocr: string }>("/api/system/health");
   },
 
-  // ---- Background Jobs ----
-  listJobs(): Promise<JobItem[]> {
-    return request<JobItem[]>("/api/jobs");
-  },
-  getJob(id: string): Promise<JobItem> {
-    return request<JobItem>(`/api/jobs/${id}`);
-  },
-  deleteJob(id: string): Promise<void> {
-    return request<void>(`/api/jobs/${id}`, { method: "DELETE" });
-  },
+
 
   // ---- Prompt Enhancer ----
   analyzePrompt(topic: string, course?: string | null, route?: string | null): Promise<PromptAnalysis> {

@@ -75,6 +75,6 @@ def _active_vision_model() -> str:
 
 
 def get_vision_llm(*, temperature: float = 0.0) -> ChatOllama:
-    """Return a ``ChatOllama`` bound to the vision-capable model."""
+    """Return a ``ChatOllama`` bound to the vision-capable model (not cached)."""
     s = get_settings()
-    return _get_llm_cached(_active_vision_model(), temperature, s.ollama.base_url)
+    return ChatOllama(model=_active_vision_model(), temperature=temperature, base_url=s.ollama.base_url, num_ctx=8192)

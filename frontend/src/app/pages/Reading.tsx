@@ -65,7 +65,7 @@ export function Reading() {
   const textRef = useRef<ReadingTextPaneRef>(null);
   const isScrollingRef = useRef(false);
 
-  const [viewMode, setViewMode] = useState<"pdf" | "text" | "split" | "compare">("split");
+  const [viewMode, setViewMode] = useState<"pdf" | "text" | "split" | "compare">("pdf");
   const [searchQuery, setSearchQuery] = useState("");
   const [compareDocId, setCompareDocId] = useState<string | null>(null);
   const [compareDoc, setCompareDoc] = useState<ReadingDoc | null>(null);
@@ -140,17 +140,11 @@ export function Reading() {
   }, [viewMode, compareDocId]);
 
   const handlePdfPageVisible = (page: number) => {
-    if (viewMode !== "split" || isScrollingRef.current) return;
-    isScrollingRef.current = true;
-    textRef.current?.scrollToPage(page);
-    setTimeout(() => { isScrollingRef.current = false; }, 800);
+    // Disabled auto-sync from PDF to text as per user request
   };
 
   const handleTextPageVisible = (page: number) => {
-    if (viewMode !== "split" || isScrollingRef.current) return;
-    isScrollingRef.current = true;
-    pdfRef.current?.scrollToPage(page);
-    setTimeout(() => { isScrollingRef.current = false; }, 800);
+    // Disabled auto-sync from text to PDF as per user request
   };
 
   // ---- Lens: fetch an adaptive explanation for some text ----
