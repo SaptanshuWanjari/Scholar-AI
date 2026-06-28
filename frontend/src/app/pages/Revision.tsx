@@ -26,6 +26,7 @@ import {
 import { Label } from "../components/ui/label";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import QualityBadge from "../components/QualityBadge";
+import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
 import { api } from "../lib/api";
 import {
   useRevisionStore,
@@ -315,6 +316,12 @@ export function Revision() {
               >
                 <Download className="size-3.5" /> Export
               </Button>
+              <AddToNotebookMenu
+                artifactType="revision"
+                content={{ title: title ?? "Revision Notes", content: output }}
+                sourceId={title ?? "revision"}
+                course={course === "none" ? null : course}
+              />
             </div>
           )}
         </div>

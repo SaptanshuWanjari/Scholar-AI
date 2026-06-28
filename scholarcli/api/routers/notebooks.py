@@ -7,8 +7,11 @@ from fastapi.concurrency import run_in_threadpool
 
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import run_ask
+from scholarcli.api.notebook_service import SIMILARITY_THRESHOLD, most_similar
 from scholarcli.api.schemas import (
     CollectionOut,
+    NotebookAppendRequest,
+    NotebookAppendResponse,
     NotebookAssistRequest,
     NotebookAssistResponse,
     NotebookCreate,
@@ -181,3 +184,49 @@ async def assist(req: NotebookAssistRequest) -> NotebookAssistResponse:
     }[req.action]
     result = await run_in_threadpool(run_ask, instruction, req.course, None, "study_notes")
     return NotebookAssistResponse(text=result["content"])
+
+
+@router.post("/{notebook_id}/append", response_model=NotebookAppendResponse)
+async def append_block(notebook_id: int, req: NotebookAppendRequest) -> NotebookAppendResponse:
+    """Append a serialized artifact as a text block, with semantic dedup."""
+    content = req.markdown_content.strip()
+    if not content:
+        raise HTTPException(status_code=400, detail="markdown_content is required")
+    session = get_session()
+    try:
+        nb = session.get(Notebook, notebook_id)
+        if not nb:
+            raise HTTPException(status_code=404, detail="Notebook not found")
+
+        if not req.force:
+            max_sim, max_idx = await run_in_threadpool(most_similar, nb, content)
+            if max_sim > SIMILARITY_THRESHOLD:
+                return NotebookAppendResponse(
+                    appended=False,
+                    redundant=True,
+                    similarity=max_sim,
+                    existing_block_index=max_idx,
+                    block_index=None,
+                )
+        else:
+            max_sim = 0.0
+
+        block = {
+            "type": "text",
+            "text": content,
+            "source": {"type": req.artifact_type, "id": req.source_id},
+        }
+        # Reassign a new list so SQLAlchemy detects the JSON column change.
+        nb.blocks = [*(nb.blocks or []), block]
+        session.commit()
+        session.refresh(nb)
+        record_activity("note", f"Added {req.artifact_type} to notebook: {nb.title}", nb.course)
+        return NotebookAppendResponse(
+            appended=True,
+            redundant=False,
+            similarity=max_sim,
+            existing_block_index=None,
+            block_index=len(nb.blocks) - 1,
+        )
+    finally:
+        session.close()

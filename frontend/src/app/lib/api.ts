@@ -138,6 +138,14 @@ export interface NotebookDeduplicateResponse {
   flagged_content: string | null;
 }
 
+export interface NotebookAppendResponse {
+  appended: boolean;
+  redundant: boolean;
+  similarity: number;
+  existing_block_index: number | null;
+  block_index: number | null;
+}
+
 export interface ReadingSection {
   id: string;
   number: string;
@@ -885,6 +893,18 @@ export const api = {
   },
   notebookDeduplicate(notebookId: number, text: string): Promise<NotebookDeduplicateResponse> {
     return request<NotebookDeduplicateResponse>("/api/notebooks/deduplicate", json({ notebook_id: notebookId, text }));
+  },
+  appendToNotebook(
+    notebookId: string,
+    markdownContent: string,
+    artifactType: string,
+    sourceId: string,
+    force = false,
+  ): Promise<NotebookAppendResponse> {
+    return request<NotebookAppendResponse>(
+      `/api/notebooks/${notebookId}/append`,
+      json({ markdown_content: markdownContent, artifact_type: artifactType, source_id: sourceId, force }),
+    );
   },
 
   // ---- Reading ----

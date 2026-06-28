@@ -22,6 +22,7 @@ import {
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { Page, SectionTitle } from "../components/Page";
 import QualityBadge from "../components/QualityBadge";
+import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
 import { useDifferencesStore } from "../stores/useDifferencesStore";
 import { cn } from "../components/ui/utils";
 
@@ -196,6 +197,12 @@ export function Differences() {
               <Button size="sm" onClick={saveTable} className="gap-1.5">
                 Save
               </Button>
+              <AddToNotebookMenu
+                artifactType="difference"
+                content={{ title: output.title, content: output.content }}
+                sourceId={output.title}
+                course={course === "none" ? null : course}
+              />
             </div>
           </div>
           <div

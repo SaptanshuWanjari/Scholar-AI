@@ -499,6 +499,21 @@ class NotebookDeduplicateResponse(BaseModel):
     flagged_content: str | None
 
 
+class NotebookAppendRequest(BaseModel):
+    markdown_content: str
+    artifact_type: str
+    source_id: str
+    force: bool = False
+
+
+class NotebookAppendResponse(BaseModel):
+    appended: bool
+    redundant: bool
+    similarity: float
+    existing_block_index: int | None
+    block_index: int | None
+
+
 # ---------------------------------------------------------------------------
 # Reading
 # ---------------------------------------------------------------------------
