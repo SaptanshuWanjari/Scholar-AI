@@ -183,15 +183,46 @@ def _highest_mistake_topic(titles: set[str], course: str) -> str | None:
         session.close()
 
 
+def _enrich_stages_with_mastery(stages: list[dict], course: str) -> list[dict]:
+    """Return deep-copied stages with depConceptId/masteryStatus/masteryScore per concept."""
+    stages = copy.deepcopy(stages)
+    titles = [str(c.get("title", "")).lower() for c in _concepts(stages) if c.get("title")]
+    if not titles:
+        return stages
+    session = get_session()
+    try:
+        dep_rows = (
+            session.query(DepConcept)
+            .filter(
+                func.lower(DepConcept.name).in_(titles),
+                DepConcept.course == course,
+            )
+            .all()
+        )
+    finally:
+        session.close()
+    dep_map = {dc.name.lower(): dc for dc in dep_rows}
+    for st in stages:
+        for c in st.get("concepts") or []:
+            dep = dep_map.get(str(c.get("title", "")).lower())
+            if dep:
+                m = mastery_service.mastery(dep.id)
+                c["depConceptId"] = dep.id
+                c["masteryStatus"] = m["status"]
+                c["masteryScore"] = m["score"]
+    return stages
+
+
 def _out(row: LearningPath) -> LearningPathOut:
     stages = row.stages or []
+    enriched = _enrich_stages_with_mastery(stages, row.course)
     return LearningPathOut(
         id=str(row.id),
         title=row.title,
         course=row.course,
         document=row.document,
         overview=LearningPathOverview(**(row.overview or {})),
-        stages=[LearningPathStage(**st) for st in stages],
+        stages=[LearningPathStage(**st) for st in enriched],
         sources=[SourceOut(**s) for s in (row.sources or [])],
         grounded=row.grounded,
         archived=row.archived,
@@ -296,11 +327,13 @@ def update_concept_status(
         # Rebuild the stages list so SQLAlchemy detects the JSON column change.
         stages = [dict(st) for st in (row.stages or [])]
         found = False
+        prev_status: str | None = None
         for st in stages:
             new_concepts = []
             for c in st.get("concepts") or []:
                 c = dict(c)
                 if str(c.get("title", "")).lower() == concept_title.strip().lower():
+                    prev_status = c.get("status")
                     c["status"] = status
                     found = True
                 new_concepts.append(c)
@@ -309,6 +342,41 @@ def update_concept_status(
             raise HTTPException(status_code=404, detail="Concept not found in path")
         row.stages = stages
         session.commit()
+
+        # On first completion, record a TopicStat entry so mastery_service picks it up.
+        if status == "completed" and prev_status != "completed" and row.course:
+            dep = (
+                session.query(DepConcept)
+                .filter(
+                    func.lower(DepConcept.name) == concept_title.strip().lower(),
+                    DepConcept.course == row.course,
+                )
+                .first()
+            )
+            if dep:
+                stat = (
+                    session.query(TopicStat)
+                    .filter(
+                        TopicStat.concept_id == dep.id,
+                        TopicStat.course == row.course,
+                        func.lower(TopicStat.topic) == concept_title.strip().lower(),
+                    )
+                    .first()
+                )
+                if stat is None:
+                    stat = TopicStat(
+                        course=row.course,
+                        topic=concept_title.strip(),
+                        concept_id=dep.id,
+                        correct=0,
+                        total=0,
+                    )
+                    session.add(stat)
+                stat.correct += 1
+                stat.total += 1
+                stat.last_attempt = datetime.now(timezone.utc)
+                session.commit()
+
         session.refresh(row)
         return _out(row)
     finally:

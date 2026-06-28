@@ -11,6 +11,7 @@ from scholarcli.api import dependency_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.schemas import (
     CardReview,
+    SM2Review,
     DeckOut,
     DiagramOut,
     FlashcardOut,
@@ -56,6 +57,7 @@ def _deck_out(deck: Deck) -> DeckOut:
         cards=len(cards),
         mastered=sum(1 for c in cards if c.ease == "mastered"),
         quality=_quality(deck.quality_score),
+        source=deck.source,
     )
 
 
@@ -80,6 +82,7 @@ def save_deck(payload: SaveDeckRequest) -> DeckOut:
             name=name, course=payload.course or "", color=color,
             concept_id=dependency_service.resolve_concept(name, payload.course),
             quality_score=payload.quality.model_dump() if payload.quality else None,
+            source=payload.source,
         )
         for c in payload.cards:
             deck.cards.append(
@@ -153,6 +156,58 @@ def review_card(card_id: int, review: CardReview) -> FlashcardOut:
             deck=deck.name if deck else "",
             due=card.due,
             ease=card.ease,  # type: ignore[arg-type]
+            interval=card.interval,
+            sm2_ease=card.sm2_ease,
+        )
+    finally:
+        session.close()
+
+@router.post("/flashcards/{card_id}/review", response_model=FlashcardOut)
+def review_card_sm2(card_id: int, review: SM2Review) -> FlashcardOut:
+    session = get_session()
+    try:
+        card = session.get(Card, card_id)
+        if not card:
+            raise HTTPException(status_code=404, detail="Card not found")
+        
+        q = max(0, min(5, review.quality))
+        # SM-2 ease calculation
+        card.sm2_ease = max(1.3, card.sm2_ease + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)))
+        
+        # SM-2 interval calculation
+        if q < 3:
+            card.interval = 1
+            card.ease = "learning"
+        else:
+            if card.interval == 0:
+                card.interval = 1
+            elif card.interval == 1:
+                card.interval = 6
+            else:
+                card.interval = int(round(card.interval * card.sm2_ease))
+            
+            if card.interval >= 21:
+                card.ease = "mastered"
+            else:
+                card.ease = "learning"
+
+        from datetime import date, timedelta
+        card.due = (date.today() + timedelta(days=card.interval)).isoformat()
+        
+        session.commit()
+        session.refresh(card)
+        deck = session.get(Deck, card.deck_id)
+        record_activity("flashcard", f"SM-2 Reviewed card in {deck.name if deck else 'deck'}", deck.course if deck else "", cards=1)
+        return FlashcardOut(
+            id=str(card.id),
+            type=card.type,  # type: ignore[arg-type]
+            front=card.front,
+            back=card.back,
+            deck=deck.name if deck else "",
+            due=card.due,
+            ease=card.ease,  # type: ignore[arg-type]
+            interval=card.interval,
+            sm2_ease=card.sm2_ease,
         )
     finally:
         session.close()
@@ -184,6 +239,7 @@ def _quiz_out(q: SavedQuiz) -> QuizOut:
         grounded=True,
         questions=[QuizQuestionOut(**qq) for qq in q.questions],
         quality=_quality(q.quality_score),
+        source=q.source,
         session_answers=q.session_answers,
         session_current_question=q.session_current_question,
         session_started_at=q.session_started_at.isoformat() if q.session_started_at else None,
@@ -212,6 +268,7 @@ def save_quiz(payload: SaveQuizRequest) -> QuizOut:
             difficulty=payload.difficulty,
             questions=[qq.model_dump() for qq in payload.questions],
             quality_score=payload.quality.model_dump() if payload.quality else None,
+            source=payload.source,
         )
         session.add(quiz)
         session.commit()

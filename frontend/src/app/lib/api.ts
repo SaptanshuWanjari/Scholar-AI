@@ -267,6 +267,13 @@ export interface PyqTopicFreq {
   subtopics: string[];
 }
 
+export interface HealthStatus {
+  status: string;
+  ollama_reachable?: boolean;
+  embed_available?: boolean;
+  embed_model?: string;
+}
+
 export interface PyqDifferenceSuggestion {
   a: string;
   b: string;
@@ -885,8 +892,8 @@ export const api = {
   listDecks(): Promise<DeckOut[]> {
     return request<DeckOut[]>("/api/decks");
   },
-  saveDeck(name: string, course: string | null, cards: Flashcard[], color?: string, quality?: QualityScore): Promise<DeckOut> {
-    return request<DeckOut>("/api/decks", json({ name, course, cards, color, quality }));
+  saveDeck(name: string, course: string | null, cards: Flashcard[], color?: string, quality?: QualityScore, source?: string): Promise<DeckOut> {
+    return request<DeckOut>("/api/decks", json({ name, course, cards, color, quality, source }));
   },
   deleteDeck(id: string): Promise<void> {
     return request<void>(`/api/decks/${id}`, { method: "DELETE" });
@@ -901,6 +908,9 @@ export const api = {
   reviewCard(id: string, ease: "new" | "learning" | "mastered", due?: string): Promise<Flashcard> {
     return request<Flashcard>(`/api/flashcards/${id}`, { ...json({ ease, due }), method: "PUT" });
   },
+  reviewCardSm2(id: string, quality: number): Promise<Flashcard> {
+    return request<Flashcard>(`/api/flashcards/${id}/review`, { ...json({ quality }), method: "POST" });
+  },
   deleteCard(id: string): Promise<void> {
     return request<void>(`/api/flashcards/${id}`, { method: "DELETE" });
   },
@@ -909,7 +919,7 @@ export const api = {
   listSavedQuizzes(): Promise<Quiz[]> {
     return request<Quiz[]>("/api/quizzes");
   },
-  saveQuiz(quiz: { title: string; course?: string | null; difficulty: string; questions: Quiz["questions"]; quality?: QualityScore }): Promise<Quiz> {
+  saveQuiz(quiz: { title: string; course?: string | null; difficulty: string; questions: Quiz["questions"]; quality?: QualityScore; source?: string }): Promise<Quiz> {
     return request<Quiz>("/api/quizzes", json(quiz));
   },
   deleteQuiz(id: string): Promise<void> {
@@ -965,9 +975,10 @@ export const api = {
     documentId: string,
     text: string,
     pageNumber: number,
-    rects: { x: number; y: number; width: number; height: number }[]
+    rects: { x: number; y: number; width: number; height: number }[],
+    annotation?: string
   ): Promise<ReadingDoc> {
-    return request<ReadingDoc>(`/api/reading/${documentId}/highlights`, json({ text, page_number: pageNumber, rects }));
+    return request<ReadingDoc>(`/api/reading/${documentId}/highlights`, json({ text, page_number: pageNumber, rects, annotation }));
   },
   addBookmark(documentId: string, section: string, note: string): Promise<ReadingDoc> {
     return request<ReadingDoc>(`/api/reading/${documentId}/bookmarks`, json({ section, note }));
@@ -1324,5 +1335,10 @@ export const api = {
   // ---- Prompt Enhancer ----
   analyzePrompt(topic: string, course?: string | null, route?: string | null): Promise<PromptAnalysis> {
     return request<PromptAnalysis>("/api/prompt/analyze", json({ topic, course: course ?? null, route: route ?? null }));
+  },
+
+  // ---- Health ----
+  health(): Promise<HealthStatus> {
+    return request<HealthStatus>("/api/health");
   },
 };

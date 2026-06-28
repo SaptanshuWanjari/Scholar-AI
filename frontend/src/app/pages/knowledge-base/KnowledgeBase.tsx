@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import type { Node, Edge } from "@xyflow/react";
 import {
   Search,
@@ -26,7 +27,13 @@ import { savedViews, type ConceptData } from "../../lib/graph-data";
 import { api, type KGSidebar } from "../../lib/api";
 import { useKnowledgeBaseStore } from "../../stores/useKnowledgeBaseStore";
 
-const MASTERY_STATUSES = ["Unknown", "Learning", "Weak", "Needs Revision", "Mastered"] as const;
+const MASTERY_STATUSES = [
+  "Unknown",
+  "Learning",
+  "Weak",
+  "Needs Revision",
+  "Mastered",
+] as const;
 const MASTERY_DOT: Record<string, string> = {
   Mastered: "bg-green-500",
   Learning: "bg-amber-400",
@@ -96,6 +103,19 @@ export function KnowledgeBase() {
     (v: number | "all") => setField("degreeOfSeparation", v),
     [setField],
   );
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Open concept drawer when navigated here with ?conceptId=<id>
+  useEffect(() => {
+    const id = searchParams.get("conceptId");
+    if (id) {
+      setField("drawerConceptId", id);
+      setField("selectedId", id);
+      setSearchParams({}, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [graph, setGraph] = useState<{
     nodes: Node<ConceptData>[];
@@ -315,7 +335,12 @@ export function KnowledgeBase() {
                       onChange={() => toggleMasteryFilter(s)}
                       className="accent-violet"
                     />
-                    <span className={cn("inline-block size-2 rounded-full flex-shrink-0", MASTERY_DOT[s])} />
+                    <span
+                      className={cn(
+                        "inline-block size-2 rounded-full flex-shrink-0",
+                        MASTERY_DOT[s],
+                      )}
+                    />
                     {s}
                   </label>
                 ))}
@@ -457,22 +482,22 @@ export function KnowledgeBase() {
           />
         )}
 
-        {!loading && !isEmpty && (
-          <div className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2">
-            <div className="flex items-center gap-4 rounded-full border border-border bg-card/80 px-4 py-2 text-[11px] text-muted-foreground backdrop-blur">
-              <span className="flex items-center gap-1">
-                Click to inspect · Double-click for details
-              </span>
-              <span className="text-border">|</span>
-              {MASTERY_STATUSES.map((s) => (
-                <span key={s} className="flex items-center gap-1">
-                  <span className={cn("inline-block size-1.5 rounded-full flex-shrink-0", MASTERY_DOT[s])} />
-                  {s}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* {!loading && !isEmpty && ( */}
+        {/*   <div className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2"> */}
+        {/*     <div className="flex items-center gap-4 rounded-full border border-border bg-card/80 px-4 py-2 text-[11px] text-muted-foreground backdrop-blur"> */}
+        {/*       <span className="flex items-center gap-1"> */}
+        {/*         Click to inspect  */}
+        {/*       </span> */}
+        {/*       <span className="text-border">|</span> */}
+        {/*       {MASTERY_STATUSES.map((s) => ( */}
+        {/*         <span key={s} className="flex items-center gap-1"> */}
+        {/*           <span className={cn("inline-block size-1.5 rounded-full flex-shrink-0", MASTERY_DOT[s])} /> */}
+        {/*           {s} */}
+        {/*         </span> */}
+        {/*       ))} */}
+        {/*     </div> */}
+        {/*   </div> */}
+        {/* )} */}
       </div>
 
       {/* Concept drawer */}

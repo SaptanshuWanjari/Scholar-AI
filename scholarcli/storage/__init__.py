@@ -65,6 +65,10 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("tags", "JSON"),
         ("is_draft", "INTEGER NOT NULL DEFAULT 0"),
     ],
+    "cards": [
+        ("interval", "INTEGER NOT NULL DEFAULT 0"),
+        ("sm2_ease", "FLOAT NOT NULL DEFAULT 2.5"),
+    ],
     "pyq_questions": [
         ("subtopics", "JSON"),
     ],
@@ -73,12 +77,13 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
     "revisions": [("concept_id", "INTEGER")],
     "learning_packages": [("concept_id", "INTEGER")],
     # Artifact quality scores (api/quality.py), added per artifact table.
-    "decks": [("quality_score", "JSON"), ("concept_id", "INTEGER")],
+    "decks": [("quality_score", "JSON"), ("concept_id", "INTEGER"), ("source", "VARCHAR(256)")],
     "quizzes": [
         ("quality_score", "JSON"),
         ("session_answers", "JSON"),
         ("session_current_question", "INTEGER"),
         ("session_started_at", "TEXT"),
+        ("source", "VARCHAR(256)"),
     ],
     "diagrams": [("quality_score", "JSON")],
     "mindmaps": [("quality_score", "JSON")],

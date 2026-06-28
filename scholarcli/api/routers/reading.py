@@ -133,6 +133,7 @@ def add_highlight(document_id: int, payload: HighlightCreate) -> ReadingDocOut:
             "text": payload.text,
             "page_number": payload.page_number,
             "rects": [r.model_dump() for r in payload.rects],
+            "annotation": payload.annotation,
         })
         state.highlights = hls
         session.commit()

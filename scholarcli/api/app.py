@@ -106,8 +106,33 @@ def create_app() -> FastAPI:
         app.include_router(module.router)
 
     @app.get("/api/health", tags=["health"])
-    def health() -> dict:
-        return {"status": "ok"}
+    async def health() -> dict:
+        import httpx
+        from scholarcli.config import get_settings
+        settings = get_settings()
+        
+        # Check Ollama reachability
+        ollama_reachable = False
+        models = []
+        try:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                resp = await client.get("http://localhost:11434/api/tags")
+                if resp.status_code == 200:
+                    ollama_reachable = True
+                    data = resp.json()
+                    models = [m.get("name") for m in data.get("models", [])]
+        except Exception:
+            pass
+
+        embed_model = settings.llm.embedding_model
+        embed_available = any(m == embed_model or m.startswith(embed_model + ":") for m in models)
+
+        return {
+            "status": "ok",
+            "ollama_reachable": ollama_reachable,
+            "embed_available": embed_available,
+            "embed_model": embed_model,
+        }
 
     return app
 

@@ -156,6 +156,10 @@ export function Reading() {
     try {
       const res = await api.readingLens(docId, text, level);
       setExplanation(res.text);
+      // Auto-save AI response as an annotation (margin note)
+      const { page, rects } = pendingHighlightRef.current;
+      const updated = await api.addHighlight(docId, text, page, rects, res.text);
+      setDoc(updated);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to fetch explanation");
     } finally {
