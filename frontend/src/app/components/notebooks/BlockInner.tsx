@@ -6,7 +6,10 @@ import {
   Layers,
   ListChecks,
   Check,
+  PencilRuler,
+  ExternalLink,
 } from "lucide-react";
+import { useNavigate } from "react-router";
 import { cn } from "../ui/utils";
 import { Badge } from "../ui/badge";
 import { MarkdownRenderer } from "../MarkdownRenderer";
@@ -16,6 +19,7 @@ import { artifactLabel } from "../../lib/serializers";
 import { calloutMeta } from "./utils";
 
 export function BlockInner({ block }: { block: NotebookBlock }) {
+  const navigate = useNavigate();
   switch (block.type) {
     case "heading":
       return block.level === 1 ? (
@@ -161,6 +165,33 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
         </div>
       );
     }
+    case "whiteboard":
+      // Static read-only snapshot — clicking opens the live whiteboard editor.
+      // A snapshot (not a live canvas) keeps notebooks lightweight.
+      return (
+        <button
+          type="button"
+          onClick={() => navigate(`/whiteboards/${block.whiteboardId}`)}
+          className="group/wb block w-full overflow-hidden rounded-xl border border-border bg-card text-left transition-colors hover:border-violet/40"
+        >
+          <div className="flex aspect-video items-center justify-center overflow-hidden border-b border-border bg-muted/30">
+            {block.thumbnail ? (
+              <img src={block.thumbnail} alt="" className="h-full w-full object-contain" />
+            ) : (
+              <PencilRuler className="size-8 text-muted-foreground/40" />
+            )}
+          </div>
+          <div className="flex items-center justify-between gap-2 px-3 py-2">
+            <span className="flex min-w-0 items-center gap-2 text-sm font-medium">
+              <PencilRuler className="size-4 shrink-0 text-violet" />
+              <span className="truncate">{block.title || "Whiteboard"}</span>
+            </span>
+            <span className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground group-hover/wb:text-violet">
+              Open <ExternalLink className="size-3" />
+            </span>
+          </div>
+        </button>
+      );
     default:
       return null;
   }

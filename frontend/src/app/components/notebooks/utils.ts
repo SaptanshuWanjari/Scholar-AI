@@ -63,6 +63,8 @@ export function blockLabel(block: NotebookBlock): string {
       return block.name || "Flashcard deck";
     case "quiz-results":
       return block.title || "Quiz results";
+    case "whiteboard":
+      return block.title || "Whiteboard";
     default:
       return "Block";
   }

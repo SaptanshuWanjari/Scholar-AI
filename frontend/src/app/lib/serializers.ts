@@ -144,6 +144,7 @@ const ARTIFACT_LABELS: Record<string, string> = {
   mindmap: "Mind Map",
   difference: "Difference Table",
   revision: "Revision Notes",
+  whiteboard: "Whiteboard",
 };
 
 export function artifactLabel(artifactType: string): string {

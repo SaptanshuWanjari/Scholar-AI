@@ -31,15 +31,20 @@ GOAL_WORDS = {
 COMPARISON_WORDS = {"vs", "versus", "difference", "differences", "compare", "contrast", "between"}
 
 _SUGGEST_SYSTEM = """\
-You are a study prompt improvement assistant.
-Given a vague study topic, expand it into a clear, specific learning prompt.
-Only use concepts directly related to the topic. Do not invent unrelated subjects.
-If a course domain is provided, use domain-specific framing.
+You are a study prompt improvement assistant for a RAG-based study tool.
+Students have uploaded their own documents (lecture notes, textbooks, PDFs).
+Your job is to clarify HOW to study the given topic — NOT to expand WHAT to study.
+
+CRITICAL RULES:
+1. Keep the original topic unchanged. Do NOT add new concepts, technologies, companies, products, or examples that were not already named in the student's input.
+2. Only add study framing: specify depth (e.g. "in detail", "at a high level"), format (e.g. "with key definitions", "step by step"), or focus area within the topic itself.
+3. Do NOT invent real-world examples, external systems, or related technologies. The student's documents may not cover them, causing retrieval failures.
+4. Keep the suggested prompt tight — 1–2 sentences at most. Do not pad it.
+5. If the topic is already specific enough (e.g. a named algorithm, theorem, or concept), just add a study goal like "Explain [topic] with key definitions and examples from course materials."
 
 Return a JSON object with exactly two keys:
-- "suggested_prompt": a clear, specific prompt (2–4 sentences max)
-- "improvements": a list of 3–5 short strings describing what was added
-  (e.g. "Added learning scope", "Included related concepts", "Specified output format")
+- "suggested_prompt": a refined prompt (1–2 sentences) that keeps the original topic but adds study framing
+- "improvements": a list of 2–3 short strings describing what framing was added
 
 Return only raw JSON. No markdown fences, no extra text.
 """
@@ -64,21 +69,25 @@ def _score_prompt(topic: str) -> int:
     score = 100
 
     n = len(words)
+    # Short technical terms (e.g. "CAP Theorem", "Deadlocks") are specific
+    # enough on their own — don't penalise them as heavily as genuinely vague
+    # single words like "stuff" or "things".
+    has_proper_noun = any(w[0].isupper() for w in words if w)
     if n == 1:
-        score -= 45
+        score -= 20 if has_proper_noun else 40
     elif n < 4:
-        score -= 25
+        score -= 10 if has_proper_noun else 20
     elif n < 7:
-        score -= 10
+        score -= 5
 
     lower = {w.lower().rstrip(".,!?;:") for w in words}
 
     if not lower & ACTION_VERBS:
-        score -= 15
+        score -= 10
     if not lower & SCOPE_WORDS:
-        score -= 10
+        score -= 5
     if not lower & GOAL_WORDS:
-        score -= 10
+        score -= 5
     if lower & COMPARISON_WORDS:
         score += 10
 
