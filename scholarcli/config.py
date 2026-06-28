@@ -64,8 +64,7 @@ class IngestConfig(BaseModel):
     tesseract_fallback: bool = True
     # Run an LLM pass post-ingestion to extract summary, tags, and topics.
     metadata_extraction: bool = True
-    # Run an LLM pass post-ingestion to extract code snippets and algorithms.
-    code_extraction_enabled: bool = True
+
 
 
 class RetrievalConfig(BaseModel):

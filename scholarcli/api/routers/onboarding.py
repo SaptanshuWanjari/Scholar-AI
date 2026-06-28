@@ -8,7 +8,7 @@ from collections import Counter
 from fastapi import APIRouter
 
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Document, Course, CodeExample
+from scholarcli.storage.models import Document, Course
 from scholarcli.storage.vectors import count_source_type
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ def library_analysis() -> dict:
             "collections": [],
             "actions": [],
             "stats": {
-                "algorithms": session.query(CodeExample).count(),
+                "algorithms": 0,
                 "tables": count_source_type("table"),
                 "diagrams": count_source_type("diagram"),
             },

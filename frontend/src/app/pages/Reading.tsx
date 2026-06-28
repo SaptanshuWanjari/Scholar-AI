@@ -18,6 +18,10 @@ import {
   ZoomOut,
   BookMarked,
   PencilRuler,
+  Search,
+  LayoutPanelLeft,
+  Columns,
+  BookOpenText,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
@@ -34,7 +38,8 @@ import {
 import { SelectionToolbar, type SelectionAction } from "../components/SelectionToolbar";
 import { api, type ReadingDoc } from "../lib/api";
 import type { DocumentItem } from "../lib/types";
-import PDFViewer, { type HighlightItem, type HighlightRect } from "../components/PDFViewer";
+import PDFViewer, { type HighlightItem, type HighlightRect, type PDFViewerRef } from "../components/PDFViewer";
+import { ReadingTextPane, type ReadingTextPaneRef } from "../components/ReadingTextPane";
 
 type Lens = "Beginner" | "Intermediate" | "Expert";
 
@@ -55,6 +60,15 @@ export function Reading() {
   const [scale, setScale] = useState(1.0);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
+
+  const pdfRef = useRef<PDFViewerRef>(null);
+  const textRef = useRef<ReadingTextPaneRef>(null);
+  const isScrollingRef = useRef(false);
+
+  const [viewMode, setViewMode] = useState<"pdf" | "text" | "split" | "compare">("split");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [compareDocId, setCompareDocId] = useState<string | null>(null);
+  const [compareDoc, setCompareDoc] = useState<ReadingDoc | null>(null);
 
   const [lens, setLens] = useState<Lens>("Intermediate");
   const [selected, setSelected] = useState<string | null>(null);
@@ -114,6 +128,30 @@ export function Reading() {
     el.addEventListener("scroll", onScroll);
     return () => el.removeEventListener("scroll", onScroll);
   }, [doc]);
+
+  // ---- Compare doc loading ----
+  useEffect(() => {
+    if (viewMode !== "compare" || !compareDocId) return;
+    let cancelled = false;
+    api.getReading(compareDocId)
+      .then(d => { if (!cancelled) setCompareDoc(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [viewMode, compareDocId]);
+
+  const handlePdfPageVisible = (page: number) => {
+    if (viewMode !== "split" || isScrollingRef.current) return;
+    isScrollingRef.current = true;
+    textRef.current?.scrollToPage(page);
+    setTimeout(() => { isScrollingRef.current = false; }, 800);
+  };
+
+  const handleTextPageVisible = (page: number) => {
+    if (viewMode !== "split" || isScrollingRef.current) return;
+    isScrollingRef.current = true;
+    pdfRef.current?.scrollToPage(page);
+    setTimeout(() => { isScrollingRef.current = false; }, 800);
+  };
 
   // ---- Lens: fetch an adaptive explanation for some text ----
   const runLens = async (text: string, level: Lens) => {
@@ -194,8 +232,10 @@ export function Reading() {
     if (selected) runLens(selected, l);
   };
 
-  const highlights = (doc?.highlights ?? []) as HighlightItem[];
-  const bookmarks = doc?.bookmarks ?? [];
+  const allHighlights = (doc?.highlights ?? []) as HighlightItem[];
+  const allBookmarks = doc?.bookmarks ?? [];
+  const highlights = allHighlights.filter(h => h.text.toLowerCase().includes(searchQuery.toLowerCase()));
+  const bookmarks = allBookmarks.filter(b => b.section.toLowerCase().includes(searchQuery.toLowerCase()) || b.note.toLowerCase().includes(searchQuery.toLowerCase()));
   const pages = doc?.pages ?? 0;
   const currentPage = pages > 0 ? Math.max(1, Math.round((progress / 100) * pages)) : 1;
 
@@ -253,7 +293,19 @@ export function Reading() {
           </div>
 
           <Group label="Navigation" icon={BookMarked}>
-            <div className="px-2.5 py-2 text-sm text-muted-foreground">
+            <div className="px-2.5 pt-1.5 pb-2">
+              <div className="relative">
+                <Search className="absolute left-2 top-1.5 size-3.5 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-7 w-full rounded-md border border-input bg-input-background pl-7 pr-2 text-xs outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+            </div>
+            <div className="px-2.5 pb-2 text-sm text-muted-foreground">
               Page{" "}
               <span className="font-medium text-foreground">{doc ? currentPage : "—"}</span>
               {" "}of{" "}
@@ -314,7 +366,7 @@ export function Reading() {
         <main data-tour="reading-reader" className="h-full overflow-y-auto" ref={scrollRef}>
           <SelectionToolbar containerRef={readerRef} actions={actions} />
 
-          {/* Sidebar Toggles */}
+          {/* Sidebar Toggles & View Mode */}
           <div className="pointer-events-none sticky top-4 z-10 flex w-full justify-between px-4">
             <div className="pointer-events-auto">
               {leftCollapsed && (
@@ -329,7 +381,14 @@ export function Reading() {
               )}
             </div>
 
-
+            <div className="pointer-events-auto flex items-center justify-center">
+              <div className="flex bg-card/90 shadow-sm border border-border rounded-lg p-1 backdrop-blur">
+                <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "pdf" ? "bg-accent" : ""}`} onClick={() => setViewMode("pdf")}><BookOpen className="size-3.5 mr-1" /> PDF</Button>
+                <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "text" ? "bg-accent" : ""}`} onClick={() => setViewMode("text")}><BookOpenText className="size-3.5 mr-1" /> Text</Button>
+                <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "split" ? "bg-accent" : ""}`} onClick={() => setViewMode("split")}><Columns className="size-3.5 mr-1" /> Split</Button>
+                <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "compare" ? "bg-accent" : ""}`} onClick={() => { setViewMode("compare"); if (!compareDocId && documents.length > 1) setCompareDocId(documents.find(d => d.id !== docId)?.id ?? null); }}><Columns className="size-3.5 mr-1" /> Compare</Button>
+              </div>
+            </div>
 
             <div className="pointer-events-auto">
               {rightCollapsed && (
@@ -354,13 +413,76 @@ export function Reading() {
               Select a document to start reading.
             </div>
           ) : (
-            <div ref={readerRef} className="px-6 py-6">
-              <PDFViewer
-                pdfUrl={`/api/documents/${docId}/raw`}
-                highlights={highlights}
-                scale={scale}
-                onTextSelect={handlePDFTextSelect}
-              />
+            <div ref={readerRef} className="flex h-full">
+              {viewMode === "compare" ? (
+                <>
+                  <div className="h-full overflow-y-auto w-[50%] border-r border-border flex flex-col">
+                    <div className="px-6 py-6">
+                      <PDFViewer
+                        pdfUrl={`/api/documents/${docId}/raw`}
+                        highlights={highlights}
+                        scale={scale}
+                        onTextSelect={handlePDFTextSelect}
+                      />
+                    </div>
+                  </div>
+                  <div className="h-full overflow-y-auto w-[50%] flex flex-col relative">
+                    <div className="absolute top-2 right-6 z-10 w-48">
+                      <Select value={compareDocId ?? undefined} onValueChange={setCompareDocId}>
+                        <SelectTrigger className="w-full bg-card shadow-sm text-xs h-8">
+                          <SelectValue placeholder="Select document..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {documents.map((d) => (
+                            <SelectItem key={d.id} value={d.id}>{d.title}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {compareDoc ? (
+                      <div className="px-6 py-6 mt-8">
+                        <PDFViewer
+                          pdfUrl={`/api/documents/${compareDocId}/raw`}
+                          highlights={(compareDoc.highlights ?? []) as HighlightItem[]}
+                          scale={scale}
+                          onTextSelect={() => {}}
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-sm text-muted-foreground mt-8">
+                        Select a secondary document to compare.
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {(viewMode === "pdf" || viewMode === "split") && (
+                    <div className={`h-full overflow-y-auto ${viewMode === "split" ? "w-[50%] border-r border-border" : "w-full"}`}>
+                      <div className="px-6 py-6">
+                        <PDFViewer
+                          ref={pdfRef}
+                          pdfUrl={`/api/documents/${docId}/raw`}
+                          highlights={highlights}
+                          scale={scale}
+                          onTextSelect={handlePDFTextSelect}
+                          onPageVisible={handlePdfPageVisible}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {(viewMode === "text" || viewMode === "split") && (
+                    <div className={`h-full ${viewMode === "split" ? "w-[50%]" : "w-full"}`}>
+                      <ReadingTextPane
+                        ref={textRef}
+                        sections={doc.sections}
+                        searchQuery={searchQuery}
+                        onPageVisible={handleTextPageVisible}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
         </main>
