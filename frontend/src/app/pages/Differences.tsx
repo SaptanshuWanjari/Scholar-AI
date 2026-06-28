@@ -29,7 +29,7 @@ import { cn } from "../components/ui/utils";
 export function Differences() {
   const topic = useDifferencesStore((s) => s.topic);
   const course = useDifferencesStore((s) => s.course);
-  const document = useDifferencesStore((s) => s.document);
+  const docId = useDifferencesStore((s) => s.document);
   const loading = useDifferencesStore((s) => s.loading);
   const output = useDifferencesStore((s) => s.output);
   const showRaw = useDifferencesStore((s) => s.showRaw);
@@ -138,7 +138,7 @@ export function Differences() {
         </Select>
 
         <Select
-          value={document ?? "all"}
+          value={docId ?? "all"}
           onValueChange={(v) => setDocument(v === "all" ? null : v)}
         >
           <SelectTrigger className="w-56">

@@ -135,7 +135,6 @@ export function ConceptDrawerContent({
             </div>
             <SheetTitle className="mt-1 font-display text-2xl">{concept.name}</SheetTitle>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}><X className="size-4" /></Button>
         </div>
       </SheetHeader>
 
@@ -154,20 +153,22 @@ export function ConceptDrawerContent({
             </div>
           </DrawerBlock>
 
-          <DrawerBlock title="Source References">
-            <div className="space-y-2">
-              {concept.citations.map((c, i) => (
-                <div key={i} className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3">
-                  <Quote className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                  <div>
-                    <div className="text-sm font-medium">{c.source}</div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">{c.detail}</div>
+          {concept.citations && concept.citations.length > 0 && (
+            <DrawerBlock title="Source References">
+              <div className="space-y-2">
+                {concept.citations.map((c, i) => (
+                  <div key={i} className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3">
+                    <Quote className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                    <div>
+                      <div className="text-sm font-medium">{c.source}</div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">{c.detail}</div>
+                    </div>
+                    <ExternalLink className="ml-auto size-3.5 shrink-0 text-muted-foreground" />
                   </div>
-                  <ExternalLink className="ml-auto size-3.5 shrink-0 text-muted-foreground" />
-                </div>
-              ))}
-            </div>
-          </DrawerBlock>
+                ))}
+              </div>
+            </DrawerBlock>
+          )}
 
           <DrawerBlock title="Related Concepts">
             <div className="flex flex-wrap gap-2">

@@ -46,8 +46,8 @@ export function ExamResults() {
       useRevisionStore.getState().setField("course", examCourse);
       navigate("/revision");
     } else if (label === "Flashcards") {
-      useFlashcardGenStore.getState().setTopic(combinedTopic);
-      useFlashcardGenStore.getState().setCourse(examCourse);
+      useFlashcardGenStore.getState().setField("topic", combinedTopic);
+      useFlashcardGenStore.getState().setField("course", examCourse);
       navigate("/flashcards");
     } else if (label === "Quiz") {
       useQuizStore.getState().setField("topic", combinedTopic);

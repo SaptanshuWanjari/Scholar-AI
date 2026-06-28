@@ -54,7 +54,7 @@ export const useConceptActionStore = create<ConceptActionState>((set, get) => ({
         useNotificationStore.getState().add({ title: `Summary generated: ${name}`, status: "success" });
       } else if (label === "Generate Mind Map") {
         const r = await api.generateMindmap(name);
-        set({ result: { title: `Mind Map: ${name}`, body: r.text, mono: true }, resultConceptId: conceptId });
+        toast.success(`Mind map generated: ${name}`, { action: open("/mindmaps") });
         useNotificationStore.getState().add({ title: `Mind map generated: ${name}`, status: "success" });
       } else if (label === "Generate Flashcards") {
         const r = await api.generateFlashcards(name);

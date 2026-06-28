@@ -955,6 +955,9 @@ class LearningPathConcept(BaseModel):
     prerequisites: list[str] = []
     unlocks: list[str] = []
     status: str = "not_started"  # not_started|in_progress|completed|needs_revision|weak_area
+    depConceptId: int | None = None
+    masteryStatus: str = "Unknown"
+    masteryScore: float = 0.0
 
 
 class LearningPathStage(BaseModel):

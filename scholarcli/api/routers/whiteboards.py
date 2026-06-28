@@ -7,8 +7,11 @@ converts the returned Mermaid into editable Excalidraw elements.
 
 from __future__ import annotations
 
+import re
+
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from scholarcli.api import parsers
 from scholarcli.api.activity_service import record_activity
@@ -29,6 +32,38 @@ from scholarcli.storage import get_session
 from scholarcli.storage.models import Whiteboard, WhiteboardRevision
 
 router = APIRouter(prefix="/api/whiteboards", tags=["whiteboards"])
+
+
+def _is_mermaid(text: str) -> bool:
+    """True if text looks like Mermaid syntax rather than an error message."""
+    return bool(re.match(
+        r"\s*(graph|flowchart|sequenceDiagram|classDiagram|mindmap|erDiagram|stateDiagram|gantt|pie)",
+        text.strip(),
+    ))
+
+
+def _direct_mermaid(kind: str, topic: str) -> str:
+    """Generate Mermaid directly from the LLM without RAG context."""
+    from scholarcli.llm import get_llm
+    llm = get_llm("mermaid")
+    system = (
+        "You are a diagram generator. Generate a Mermaid flowchart. Rules:\n"
+        "1. Output ONLY valid Mermaid syntax. No fences, no explanation, no prose.\n"
+        "2. First line must be 'flowchart TD' or 'flowchart LR'.\n"
+        '3. Wrap ALL node labels in double quotes: A["Label text"] — never A[Label text].\n'
+        "4. Node IDs: single uppercase letters or short codes (A, B, C, N1, N2). No spaces.\n"
+        "5. Arrows: A --> B or A --|\"edge label\"--> B.\n"
+        "6. 5-12 nodes maximum. Labels: 1-5 words each.\n"
+        "7. Never use: 'note', special symbols (#, &, <, >), multi-line labels, subgraphs."
+    )
+    messages = [
+        SystemMessage(content=system),
+        HumanMessage(content=f"Generate a {kind} diagram about: {topic}"),
+    ]
+    response = llm.invoke(messages)
+    raw = response.content if hasattr(response, "content") else str(response)
+    content = raw if isinstance(raw, str) else (str(raw[0]) if raw else "")
+    return parsers.strip_mermaid_fences(content)
 
 # Cap on retained revisions per whiteboard. Old snapshots are pruned on each new
 # save so version history doesn't grow the database without bound.
@@ -269,11 +304,19 @@ async def generate_whiteboard(req: WhiteboardGenerateRequest) -> WhiteboardGener
         run_ask, query, req.course, req.document, "mermaid", topic, req.rag_mode
     )
     mermaid = parsers.strip_mermaid_fences(result["content"])
+    grounded = bool(result.get("grounded", False))
+
+    # RAG returns NOT_GROUNDED prose when docs don't cover the topic.
+    # Diagram generation doesn't require document context — fall back to direct LLM.
+    if not grounded or not _is_mermaid(mermaid):
+        mermaid = await run_in_threadpool(_direct_mermaid, kind, topic)
+        grounded = False
+
     record_activity("whiteboard", f"Generated whiteboard: {topic}", req.course or "")
     return WhiteboardGenerateResponse(
         title=topic,
         mermaid=mermaid,
-        grounded=result["grounded"],
+        grounded=grounded,
     )
 
 

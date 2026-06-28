@@ -115,7 +115,7 @@ function withMathAndCitations(
       const { children: elementChildren } = child.props as { children?: ReactNode };
       if (elementChildren) {
         return cloneElement(child, {
-          ...child.props,
+          ...(child.props as Record<string, unknown>),
           children: withMathAndCitations(elementChildren, onCitationClick),
         } as any);
       }

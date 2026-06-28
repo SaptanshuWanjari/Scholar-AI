@@ -173,7 +173,7 @@ export default function OnboardingWidget() {
                             </div>
                             <div>
                               <h4 className="text-sm font-medium">{stage.title}</h4>
-                              <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{stage.description}</p>
+                              <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{stage.summary}</p>
                             </div>
                           </div>
                         ))}

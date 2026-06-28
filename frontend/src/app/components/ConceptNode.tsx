@@ -30,12 +30,12 @@ const sizeMap = {
   },
 };
 
-const MASTERY_BORDER: Record<string, string> = {
-  Mastered: "border-green-500/70 shadow-green-500/10",
-  Learning: "border-amber-400/70 shadow-amber-400/10",
-  Weak: "border-red-500/70 shadow-red-500/10",
-  "Needs Revision": "border-orange-400/70 shadow-orange-400/10",
-  Unknown: "border-border",
+const MASTERY_COLOR: Record<string, string> = {
+  Mastered: "#22c55e",
+  Learning: "#fbbf24",
+  Weak: "#ef4444",
+  "Needs Revision": "#fb923c",
+  Unknown: "",
 };
 
 const MASTERY_BG_SELECTED: Record<string, string> = {
@@ -51,20 +51,25 @@ export const ConceptNode = memo(function ConceptNode({
   selected,
 }: NodeProps & { data: ConceptData }) {
   const s = sizeMap[data.size];
-  const masteryBorder = MASTERY_BORDER[data.masteryStatus] ?? MASTERY_BORDER.Unknown;
+  const masteryColor = MASTERY_COLOR[data.masteryStatus] ?? "";
   const masteryBgSel = MASTERY_BG_SELECTED[data.masteryStatus] ?? MASTERY_BG_SELECTED.Unknown;
 
   const artifacts = data.artifactCounts ?? { flashcards: 0, whiteboards: 0, revisions: 0, packages: 0 };
   const hasBadges = artifacts.flashcards > 0 || artifacts.whiteboards > 0 || artifacts.revisions > 0 || artifacts.packages > 0;
 
+  const borderStyle: React.CSSProperties = masteryColor
+    ? { borderColor: masteryColor, boxShadow: `0 0 0 1px ${masteryColor}33, 0 1px 3px ${masteryColor}22` }
+    : {};
+
   return (
     <div
+      style={borderStyle}
       className={cn(
         "relative cursor-pointer rounded-xl border bg-card text-center transition-all duration-150",
         s.wrapper,
         selected
-          ? cn(masteryBorder, masteryBgSel, "shadow-md")
-          : cn(masteryBorder, "shadow-sm hover:border-foreground/25 hover:shadow-md"),
+          ? cn(masteryBgSel, "shadow-md")
+          : "shadow-sm hover:border-foreground/25 hover:shadow-md",
       )}
     >
       {positions.map((pos) => (

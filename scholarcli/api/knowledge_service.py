@@ -387,8 +387,11 @@ def inspector(concept_id: int) -> dict | None:
         vec = emb.embed_query(c.name)
         raw_cites = search(vec, top_k=5, course=c.course)
         citations = [
-            {"id": str(i), "title": r.get("title", "Source"), "snippet": r.get("text", "")[:150]}
-            for i, r in enumerate(raw_cites)
+            {
+                "source": r.get("title", "Source"),
+                "detail": (r.get("heading") or "") + (" — " if r.get("heading") and r.get("text") else "") + r.get("text", "")[:120],
+            }
+            for r in raw_cites
         ]
 
         return {

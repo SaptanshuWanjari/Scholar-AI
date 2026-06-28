@@ -36,6 +36,7 @@ import { InspectorPanel } from "../components/notebooks/InspectorPanel";
 import { BlockView } from "../components/notebooks/BlockView";
 import { CreateNotebookDialog } from "../components/notebooks/CreateNotebookDialog";
 
+import { Code } from "lucide-react";
 export function Notebooks() {
   const [list, setList] = useState<NotebookMeta[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -108,11 +109,7 @@ export function Notebooks() {
     [activeId],
   );
 
-  const {
-    schedule: autoSave,
-    flush: flushSave,
-    saving,
-  } = useAutoSave(saveFn);
+  const { schedule: autoSave, flush: flushSave, saving } = useAutoSave(saveFn);
 
   function loadSidebar() {
     api
@@ -179,7 +176,7 @@ export function Notebooks() {
     flushSave();
     setShowDraftBanner(false);
     if (activeId) {
-      await api.updateNotebook(activeId, { is_draft: false }).catch(() => {});
+      await api.updateNotebook(activeId, { is_draft: false }).catch(() => { });
     }
   }
 
@@ -510,7 +507,10 @@ export function Notebooks() {
           </div>
         </div>
 
-        <div ref={contentRef} className="mx-auto max-w-[1350px] px-6 md:px-10 py-12">
+        <div
+          ref={contentRef}
+          className="mx-auto max-w-[1350px] px-6 md:px-10 py-12"
+        >
           {loadingNotebook ? (
             <div className="flex items-center gap-2 py-20 text-sm text-muted-foreground">
               <Loader2 className="size-4 animate-spin" /> Loading notebook…
@@ -665,7 +665,7 @@ export function Notebooks() {
                         })
                       }
                     >
-                      <Workflow className="mr-2 size-4 text-muted-foreground" />{" "}
+                      <Code className="mr-2 text-muted-foreground" />
                       Code
                     </DropdownMenuItem>
                     <DropdownMenuItem
