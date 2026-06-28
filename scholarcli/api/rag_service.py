@@ -141,6 +141,7 @@ def run_ask(
     rag_mode: str = "fallback",
     socratic: bool = False,
     session_id: str | None = None,
+    highlights_only: bool = False,
 ) -> dict:
     """One-shot RAG answer. Returns answer, sources, confidence, grounded, route."""
     doc_id = int(document) if document and document.isdigit() else None
@@ -154,10 +155,11 @@ def run_ask(
             
     if search_query:
         state["search_query"] = search_query
-    if route:
-        state["route"] = route
     if socratic:
         state["socratic"] = True
+    if highlights_only:
+        state["highlights_only"] = True
+        
     result = get_rag_app().invoke(state)
 
     retrieved = result.get("retrieved", []) or []
@@ -263,6 +265,7 @@ def stream_ask(
     rag_mode: str = "fallback",
     socratic: bool = False,
     session_id: str | None = None,
+    highlights_only: bool = False,
 ) -> Iterator[dict]:
     """Yield streaming events for the Ask endpoint.
 
@@ -281,10 +284,10 @@ def stream_ask(
             
     if search_query:
         state["search_query"] = search_query
-    if route:
-        state["route"] = route
     if socratic:
         state["socratic"] = True
+    if highlights_only:
+        state["highlights_only"] = True
 
     # Router (LLM classify unless route forced) → retrieve → rerank → verify.
     state = route_query(state)

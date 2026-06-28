@@ -78,13 +78,16 @@ export function QuizPage() {
     if (saving) return;
     setSaving(true);
     try {
-      await api.saveQuiz({
+      const saved = await api.saveQuiz({
         title: quiz.title,
         course: quiz.course && quiz.course !== "all" ? quiz.course : null,
         difficulty: quiz.difficulty,
         questions: quiz.questions,
         quality: quiz.quality,
       });
+      if (Object.keys(answers).length > 0) {
+        api.submitQuiz(saved.id, answers).catch(() => {});
+      }
       await refreshSaved();
       toast.success("Quiz saved");
     } catch (e) {

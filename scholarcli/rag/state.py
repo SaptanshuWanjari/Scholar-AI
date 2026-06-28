@@ -21,3 +21,4 @@ class GraphState(TypedDict, total=False):
     sub_queries: list[str] | None  # sub-questions from decompose step
     all_retrieved: list[dict]  # accumulated chunks across all hops
     traces: list[dict]  # per-hop trace info for UI
+    highlights_only: bool  # if True, bypass LanceDB and use doc highlights

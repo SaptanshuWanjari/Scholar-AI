@@ -15,6 +15,7 @@ import re
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
+from datetime import date
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
@@ -23,7 +24,7 @@ from scholarcli.config import get_settings
 from scholarcli.ingest.loaders import load_document
 from scholarcli.llm import get_llm
 from scholarcli.storage import get_session
-from scholarcli.storage.models import PYQQuestion, QuestionPaper, TopicStat
+from scholarcli.storage.models import PYQQuestion, QuestionPaper, TopicStat, Deck, Card
 
 # Cap paper text fed to the model — a question paper is a few pages; this guards
 # against a stray huge upload blowing the context window.
@@ -173,6 +174,48 @@ def record_topic_results(course: str, by_topic: dict[str, list[int]]) -> None:
             stat.correct += int(correct)
             stat.total += int(total)
             stat.last_attempt = now
+        session.commit()
+    finally:
+        session.close()
+
+
+_WEAK_ACCURACY = 0.5
+
+
+def prioritize_weak_topic_cards(course: str) -> None:
+    """Mark all cards in weak topics as due today.
+
+    A topic is weak when ``correct / total < 0.5``. The function finds every
+    ``Deck`` whose ``concept_id`` matches a weak ``TopicStat`` and overrides
+    the SM-2 schedule so those cards appear at the front of the review queue.
+    """
+    session = get_session()
+    try:
+        weak = (
+            session.query(TopicStat)
+            .filter(
+                TopicStat.course == course,
+                TopicStat.total > 0,
+                TopicStat.correct * 1.0 / TopicStat.total < _WEAK_ACCURACY,
+                TopicStat.concept_id.isnot(None),
+            )
+            .all()
+        )
+        if not weak:
+            return
+
+        concept_ids = {s.concept_id for s in weak}
+        deck_ids = [
+            d.id
+            for d in session.query(Deck).filter(Deck.concept_id.in_(concept_ids)).all()
+        ]
+        if not deck_ids:
+            return
+
+        today = date.today().isoformat()
+        session.query(Card).filter(Card.deck_id.in_(deck_ids)).update(
+            {Card.due: today}, synchronize_session=False
+        )
         session.commit()
     finally:
         session.close()

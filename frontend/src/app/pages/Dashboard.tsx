@@ -11,6 +11,7 @@ import {
   Milestone,
   CheckCircle2,
   Archive,
+  Bookmark,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Page, SectionTitle } from "../components/Page";
@@ -229,6 +230,28 @@ export function Dashboard() {
                 ))
               ) : (
                 <p className="py-4 text-center text-xs text-muted-foreground">No sessions yet</p>
+              )}
+            </div>
+          </div>
+
+          {/* Recent bookmarks */}
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <SectionTitle title="Recent bookmarks" />
+            <div className="space-y-2">
+              {dashboard?.recentBookmarks?.length ? (
+                dashboard.recentBookmarks.map((bm) => (
+                  <div key={bm.id} className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40 cursor-pointer" onClick={() => navigate(`/reading?doc=${bm.docId}`)}>
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-soft text-emerald">
+                      <Bookmark className="size-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium">{bm.section || "Untitled section"}</div>
+                      <div className="truncate text-xs text-muted-foreground">{bm.note || "No note"} · {bm.docTitle}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="py-4 text-center text-xs text-muted-foreground">No recent bookmarks</p>
               )}
             </div>
           </div>

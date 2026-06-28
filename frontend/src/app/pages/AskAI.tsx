@@ -18,7 +18,7 @@ import { api } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 
 export function AskAI() {
-  const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument, sessions, activeSessionId, loadSessions, loadSession, deleteSession, socratic, setSocratic } = useChatStore();
+  const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument, sessions, activeSessionId, loadSessions, loadSession, deleteSession, socratic, setSocratic, highlightsOnly, setHighlightsOnly } = useChatStore();
   const streaming = useSettingsStore((s) => s.streaming);
   const ragMode = useSettingsStore((s) => s.ragMode);
   const setSettingsField = useSettingsStore((s) => s.set);
@@ -217,6 +217,22 @@ export function AskAI() {
                 <ShieldCheck className="size-3" />
                 <span>{ragMode === "strict" ? "Strict" : "Fallback"}</span>
               </button>
+              {/* Highlights Only toggle (only visible when a document is selected) */}
+              {document && document !== "all" && (
+                <button
+                  type="button"
+                  onClick={() => setHighlightsOnly(!highlightsOnly)}
+                  className={`flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-medium transition-colors ${
+                    highlightsOnly
+                      ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+                      : "border-border text-muted-foreground hover:border-border hover:text-foreground"
+                  }`}
+                  title={highlightsOnly ? "Highlights Only ON — answers derived exclusively from your highlights in this document" : "Enable Highlights Only"}
+                >
+                  <BookOpen className="size-3" />
+                  <span>Highlights</span>
+                </button>
+              )}
               {/* Socratic Mode toggle */}
               <button
                 type="button"

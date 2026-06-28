@@ -11,7 +11,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Activity, Card, Deck, Document, SavedQuiz
+from scholarcli.storage.models import Activity, Card, Deck, Document, SavedQuiz, ReadingState
 
 # Rough per-event time estimates (minutes) when a caller doesn't pass one.
 _DEFAULT_MINUTES = {"ask": 3, "quiz": 10, "exam": 20, "diagram": 2, "flashcard": 1, "note": 4}
@@ -129,6 +129,26 @@ def dashboard() -> dict:
                 )
         weak_topics.sort(key=lambda w: w["mastery"])
 
+        # Recent bookmarks
+        recent_bookmarks = []
+        rstates = session.query(ReadingState).all()
+        all_bmarks = []
+        for rs in rstates:
+            if not rs.bookmarks:
+                continue
+            doc = session.get(Document, rs.document_id)
+            doc_title = doc.title if doc else "Unknown Document"
+            for bm in rs.bookmarks:
+                all_bmarks.append({
+                    "id": bm.get("id", ""),
+                    "section": bm.get("section", ""),
+                    "note": bm.get("note", ""),
+                    "docTitle": doc_title,
+                    "docId": str(rs.document_id)
+                })
+        # Since we don't have created_at on bookmarks, we just reverse to get the last appended
+        recent_bookmarks = all_bmarks[::-1][:5]
+
         return {
             "metrics": {
                 "documents": documents,
@@ -141,6 +161,7 @@ def dashboard() -> dict:
             "activity": activity,
             "weakTopics": weak_topics[:4],
             "suggestedRevision": suggested[:3],
+            "recentBookmarks": recent_bookmarks,
         }
     finally:
         session.close()

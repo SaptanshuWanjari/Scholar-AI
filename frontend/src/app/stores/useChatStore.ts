@@ -14,9 +14,11 @@ interface ChatState {
   sessions: ChatSessionMeta[];
   activeSessionId: string | null;
   socratic: boolean;
+  highlightsOnly: boolean;
   setCourse: (course: string | null) => void;
   setDocument: (document: string | null) => void;
   setSocratic: (v: boolean) => void;
+  setHighlightsOnly: (v: boolean) => void;
   ask: (question: string, opts?: { stream?: boolean; ragMode?: string }) => Promise<void>;
   reset: () => void;
   loadSessions: () => Promise<void>;
@@ -34,9 +36,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
   sessions: [],
   activeSessionId: null,
   socratic: false,
+  highlightsOnly: false,
   setCourse: (course) => set({ course }),
   setDocument: (document) => set({ document }),
   setSocratic: (v) => set({ socratic: v }),
+  setHighlightsOnly: (v) => set({ highlightsOnly: v }),
   reset: () => {
     controller?.abort();
     controller = null;
@@ -86,6 +90,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const course = get().course;
     const document = get().document;
     const socratic = get().socratic;
+    const highlightsOnly = get().highlightsOnly;
 
     const enhResult = await usePromptEnhancerStore.getState().analyze(question, course, "quick_qa");
     let finalQuestion = question;
@@ -157,9 +162,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
             toast.error("Answer failed", { description: msg });
             useNotificationStore.getState().add({ title: "Chat answer failed", status: "error", message: msg });
           },
-        }, sessionId, ragMode, socratic);
+        }, course, document, null, null, sessionId, ragMode, socratic, highlightsOnly);
       } else {
-        const res = await api.ask(finalQuestion, course, document, sessionId, ragMode, socratic);
+        const res = await api.ask(finalQuestion, course, document, null, null, sessionId, ragMode, socratic, highlightsOnly);
         patch({
           content: res.content,
           streaming: false,
