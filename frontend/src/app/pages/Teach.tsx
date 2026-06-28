@@ -45,6 +45,7 @@ import { DiagramViewer } from "../components/DiagramViewer";
 import { SourcePanel } from "../components/SourcePanel";
 import { MindMapTree, countNodes, parseMindmapText } from "../components/MindMapTree";
 import { ConsistencyReport } from "../components/ConsistencyReport";
+import QualityBadge from "../components/QualityBadge";
 import { cn } from "../components/ui/utils";
 import {
   AlertDialog,
@@ -537,38 +538,53 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
       }
       if (!slot.data) return <Spinner message="Loading…" />;
 
-      switch (view) {
-        case "notes":
-          return <MarkdownRenderer content={(slot.data as GeneratedRevision).markdown} />;
-        case "difference":
-          return <MarkdownRenderer content={(slot.data as GeneratedDifference).content} />;
-        case "flashcards": {
-          const cards = (slot.data as FlashcardSet).cards as Flashcard[];
-          if (!cards.length) return <ViewState icon={Layers} message="No flashcards were generated." />;
-          return (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {cards.map((c) => <FlashcardCard key={c.id} card={c} />)}
-            </div>
-          );
+      const quality = (slot.data as any).quality;
+
+      const content = (() => {
+        switch (view) {
+          case "notes":
+            return <MarkdownRenderer content={(slot.data as GeneratedRevision).markdown} />;
+          case "difference":
+            return <MarkdownRenderer content={(slot.data as GeneratedDifference).content} />;
+          case "flashcards": {
+            const cards = (slot.data as FlashcardSet).cards as Flashcard[];
+            if (!cards.length) return <ViewState icon={Layers} message="No flashcards were generated." />;
+            return (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {cards.map((c) => <FlashcardCard key={c.id} card={c} />)}
+              </div>
+            );
+          }
+          case "quiz":
+            return <QuizReview questions={(slot.data as GeneratedQuiz).questions} />;
+          case "diagram":
+            return <DiagramViewer code={(slot.data as GeneratedDiagram).mermaid} flush />;
+          case "mindmap": {
+            const text = (slot.data as GeneratedMindmap).text;
+            if (!text?.trim()) return <ViewState icon={Network} message="No mind map was generated." />;
+            const count = countNodes(parseMindmapText(text));
+            return (
+              <div>
+                <Badge variant="outline" className="mb-4 border-cyan/40 bg-cyan-soft text-cyan">
+                  {count} {count === 1 ? "node" : "nodes"}
+                </Badge>
+                <MindMapTree text={text} />
+              </div>
+            );
+          }
         }
-        case "quiz":
-          return <QuizReview questions={(slot.data as GeneratedQuiz).questions} />;
-        case "diagram":
-          return <DiagramViewer code={(slot.data as GeneratedDiagram).mermaid} flush />;
-        case "mindmap": {
-          const text = (slot.data as GeneratedMindmap).text;
-          if (!text?.trim()) return <ViewState icon={Network} message="No mind map was generated." />;
-          const count = countNodes(parseMindmapText(text));
-          return (
-            <div>
-              <Badge variant="outline" className="mb-4 border-cyan/40 bg-cyan-soft text-cyan">
-                {count} {count === 1 ? "node" : "nodes"}
-              </Badge>
-              <MindMapTree text={text} />
+      })();
+
+      return (
+        <div className="space-y-4">
+          {quality && (
+            <div className="flex justify-end">
+              <QualityBadge score={quality} />
             </div>
-          );
-        }
-      }
+          )}
+          {content}
+        </div>
+      );
     }
 
 function StatusIcon({ status, paused }: { status: SlotStatus; paused?: boolean }) {

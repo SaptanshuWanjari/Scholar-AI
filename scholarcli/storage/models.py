@@ -57,6 +57,7 @@ class Course(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(256), unique=True, nullable=False)
+    system_prompt: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     documents: Mapped[list["Document"]] = relationship(
         back_populates="course", cascade="all, delete-orphan"

@@ -12,6 +12,7 @@ for exact mastery rollup and would break if the ids churned.
 
 from __future__ import annotations
 
+import heapq
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from scholarcli.llm import get_llm
@@ -133,19 +134,19 @@ def build(course: str | None = None, max_documents: int = 8) -> dict:
                 DependencyEdge.concept_id.in_(ids)
             ).delete(synchronize_session=False)
 
-        # prereq_id -> set(concept_id) we keep, used for cycle detection.
-        adj: dict[int, set[int]] = {i: set() for i in ids}
+        importances: dict[int, float] = {}
         edge_rows: list[tuple[int, int]] = []
         for key, entry in agg.items():
             cid = key_to_id[key]
+            importances[cid] = entry["importance"]
             for pk in entry["prereqs"]:
                 pid = key_to_id.get(pk)
                 if pid is None or pid == cid:
                     continue
-                if _creates_cycle(adj, pid, cid):
-                    continue  # skip edge that would close a learning-order cycle
-                adj[pid].add(cid)
                 edge_rows.append((pid, cid))
+
+        edge_rows = list(set(edge_rows))  # deduplicate
+        edge_rows = _break_cycles(edge_rows, importances)
 
         for pid, cid in edge_rows:
             session.add(DependencyEdge(prereq_id=pid, concept_id=cid))
@@ -163,19 +164,65 @@ def build(course: str | None = None, max_documents: int = 8) -> dict:
         session.close()
 
 
-def _creates_cycle(adj: dict[int, set[int]], prereq: int, dependent: int) -> bool:
-    """Adding prereq→dependent makes a cycle iff prereq is reachable from dependent."""
-    stack = [dependent]
-    seen: set[int] = set()
-    while stack:
-        node = stack.pop()
-        if node == prereq:
-            return True
-        if node in seen:
-            continue
-        seen.add(node)
-        stack.extend(adj.get(node, ()))
-    return False
+def _break_cycles(edges: list[tuple[int, int]], importances: dict[int, float]) -> list[tuple[int, int]]:
+    """Detects and breaks cycles by dropping the edge with the lowest combined importance."""
+    adj: dict[int, set[int]] = {}
+    for u, v in edges:
+        adj.setdefault(u, set()).add(v)
+
+    def find_cycle() -> list[tuple[int, int]] | None:
+        visited = set()
+        stack = []
+        in_stack = set()
+        parent = {}
+
+        def dfs(node: int) -> list[tuple[int, int]] | None:
+            visited.add(node)
+            stack.append(node)
+            in_stack.add(node)
+
+            for neighbor in adj.get(node, []):
+                if neighbor not in visited:
+                    parent[neighbor] = node
+                    cycle = dfs(neighbor)
+                    if cycle:
+                        return cycle
+                elif neighbor in in_stack:
+                    cycle_edges = [(node, neighbor)]
+                    curr = node
+                    while curr != neighbor:
+                        p = parent[curr]
+                        cycle_edges.append((p, curr))
+                        curr = p
+                    return cycle_edges
+
+            stack.pop()
+            in_stack.remove(node)
+            return None
+
+        for node in list(adj.keys()):
+            if node not in visited:
+                cycle = dfs(node)
+                if cycle:
+                    return cycle
+        return None
+
+    while True:
+        cycle = find_cycle()
+        if not cycle:
+            break
+        
+        def edge_weight(e: tuple[int, int]) -> float:
+            return importances.get(e[0], 0.5) + importances.get(e[1], 0.5)
+
+        weakest = min(cycle, key=edge_weight)
+        adj[weakest[0]].remove(weakest[1])
+
+    valid_edges = []
+    for u, neighbors in adj.items():
+        for v in neighbors:
+            valid_edges.append((u, v))
+    return valid_edges
 
 
 def _compute_depth(ids: list[int], edges: list[tuple[int, int]]) -> dict[int, int]:
@@ -373,3 +420,77 @@ def readiness(topic: str, course: str | None = None) -> dict:
     finally:
         session.close()
     return {"concept": name, "ready": len(missing) == 0, "missing": missing}
+
+
+def learning_path(concept_id: int) -> list[dict]:
+    """Find the optimal learning path to a target concept using Dijkstra's algorithm.
+    
+    Cost function prioritizes high importance, then low difficulty/time.
+    Returns a sequence of concepts from a root down to the target concept.
+    """
+    session = get_session()
+    try:
+        target = session.get(DepConcept, concept_id)
+        if not target:
+            return []
+            
+        course = target.course
+        concepts = {c.id: c for c in session.query(DepConcept).filter(DepConcept.course == course).all()}
+        
+        edges = session.query(DependencyEdge).all()
+        # Create adjacency list for backwards traversal (target -> sources)
+        adj: dict[int, list[int]] = {c_id: [] for c_id in concepts}
+        in_degree: dict[int, int] = {c_id: 0 for c_id in concepts}
+        
+        for e in edges:
+            if e.concept_id in adj and e.prereq_id in adj:
+                adj[e.concept_id].append(e.prereq_id)
+                in_degree[e.concept_id] += 1
+                
+        def node_cost(cid: int) -> float:
+            c = concepts[cid]
+            diff_w = 1.0 if c.difficulty == "Easy" else 2.0 if c.difficulty == "Medium" else 3.0
+            time_w = (c.est_study_time_min or 0) / 30.0
+            imp_w = (c.importance or 0) * 2.0
+            return max(0.1, diff_w + time_w - imp_w)
+
+        distances = {c_id: float('inf') for c_id in concepts}
+        distances[concept_id] = node_cost(concept_id)
+        previous = {c_id: None for c_id in concepts}
+        
+        pq = [(distances[concept_id], concept_id)]
+        
+        best_root = None
+        min_root_dist = float('inf')
+        
+        while pq:
+            curr_dist, u = heapq.heappop(pq)
+            
+            if curr_dist > distances[u]:
+                continue
+                
+            if in_degree[u] == 0:
+                if curr_dist < min_root_dist:
+                    min_root_dist = curr_dist
+                    best_root = u
+            
+            for v in adj[u]:
+                alt = curr_dist + node_cost(v)
+                if alt < distances[v]:
+                    distances[v] = alt
+                    previous[v] = u
+                    heapq.heappush(pq, (alt, v))
+                    
+        if best_root is None:
+            best_root = concept_id
+            
+        path = []
+        curr = best_root
+        while curr is not None:
+            path.append(curr)
+            curr = previous.get(curr)
+            
+        return [_link(concepts[cid]) for cid in path]
+        
+    finally:
+        session.close()

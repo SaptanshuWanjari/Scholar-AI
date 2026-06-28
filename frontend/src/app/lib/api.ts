@@ -716,11 +716,11 @@ export const api = {
   listCourses(): Promise<Course[]> {
     return request<Course[]>("/api/courses");
   },
-  createCourse(name: string): Promise<Course> {
-    return request<Course>("/api/courses", json({ name }));
+  createCourse(name: string, systemPrompt?: string): Promise<Course> {
+    return request<Course>("/api/courses", json({ name, systemPrompt }));
   },
-  updateCourse(id: string, name: string): Promise<Course> {
-    return request<Course>(`/api/courses/${id}`, { ...json({ name }), method: "PUT" });
+  updateCourse(id: string, name: string, systemPrompt?: string): Promise<Course> {
+    return request<Course>(`/api/courses/${id}`, { ...json({ name, systemPrompt }), method: "PUT" });
   },
   deleteCourse(id: string): Promise<void> {
     return request<void>(`/api/courses/${id}`, { method: "DELETE" });

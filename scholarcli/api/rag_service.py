@@ -218,7 +218,23 @@ def _build_generation_prompt(state: GraphState, socratic: bool = False) -> list:
 
     context = "\n\n---\n\n".join(context_parts)
     
+    course_name = state.get("course")
+    custom_system_prompt = ""
+    if course_name:
+        from scholarcli.storage import get_session
+        from scholarcli.storage.models import get_course
+        session = get_session()
+        try:
+            course_obj = get_course(session, course_name)
+            if course_obj and course_obj.system_prompt:
+                custom_system_prompt = course_obj.system_prompt + "\n\n"
+        finally:
+            session.close()
+
     system = active_body(route) or _ROUTE_PROMPTS.get(route, GENERATOR_SYSTEM)
+    if custom_system_prompt:
+        system = custom_system_prompt + system
+        
     if socratic:
         system = _SOCRATIC_PREFIX + system
         

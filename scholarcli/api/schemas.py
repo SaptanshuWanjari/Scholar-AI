@@ -111,10 +111,12 @@ class CourseOut(BaseModel):
     documents: int
     flashcards: int
     progress: int
+    systemPrompt: str | None = None
 
 
 class CourseCreate(BaseModel):
     name: str
+    systemPrompt: str | None = None
 
 
 # ---------------------------------------------------------------------------

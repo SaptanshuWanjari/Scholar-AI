@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type Tab = "overview" | "documents" | "artifacts";
+type Tab = "overview" | "documents" | "artifacts" | "settings";
 
 interface CourseWorkspaceState {
   selectedCourseId: string | null;

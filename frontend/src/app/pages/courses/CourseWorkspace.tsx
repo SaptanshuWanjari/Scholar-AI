@@ -36,6 +36,7 @@ import { fmtDate } from "./helpers";
 import { OverviewTab } from "./OverviewTab";
 import { DocumentsTab } from "./DocumentsTab";
 import { ArtifactsTab } from "./ArtifactsTab";
+import { SettingsTab } from "./SettingsTab";
 
 interface CourseWorkspaceProps {
   course: Course;
@@ -226,7 +227,7 @@ export function CourseWorkspace({
         )}
 
         <div className="flex gap-1 mt-6">
-          {(["overview", "documents", "artifacts"] as const).map((tab) => (
+          {(["overview", "documents", "artifacts", "settings"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -267,6 +268,17 @@ export function CourseWorkspace({
             setTypeFilter={setArtifactTypeFilter}
             navigate={navigate}
             courseName={course.name}
+          />
+        )}
+        {activeTab === "settings" && (
+          <SettingsTab
+            course={course}
+            onUpdate={() => {
+              // The API updates the backend; optionally we can reload course info 
+              // here, but the parent components might manage `course` state.
+              // For now, it will update when unmounted/remounted.
+              loadAll();
+            }}
           />
         )}
       </div>

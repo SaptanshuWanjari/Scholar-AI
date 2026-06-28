@@ -53,3 +53,11 @@ def readiness(topic: str, course: str | None = None) -> ReadinessOut:
 @router.get("/dependencies/graph")
 def get_graph(course: str | None = None) -> dict:
     return dependency_service.graph(course)
+
+
+@router.get("/dependencies/path/{concept_id}")
+def get_learning_path(concept_id: int) -> list[dict]:
+    path = dependency_service.learning_path(concept_id)
+    if not path:
+        raise HTTPException(status_code=404, detail="Concept not found")
+    return path
