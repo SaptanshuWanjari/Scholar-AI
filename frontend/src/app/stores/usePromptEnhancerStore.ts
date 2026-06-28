@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { api } from "../lib/api";
 import type { PromptAnalysis } from "../lib/api";
+import { useSettingsStore } from "./useSettingsStore";
 
 export type EnhancerResult =
   | { action: "use_suggested"; prompt: string }
@@ -35,6 +36,10 @@ export const usePromptEnhancerStore = create<PromptEnhancerState>((set, get) => 
 
   analyze: (topic, course, route) =>
     new Promise<EnhancerResult>((promiseResolve) => {
+      if (!useSettingsStore.getState().usePromptEnhancer) {
+        promiseResolve({ action: "generate_anyway" });
+        return;
+      }
       set({ analyzing: true });
       api
         .analyzePrompt(topic, course, route)

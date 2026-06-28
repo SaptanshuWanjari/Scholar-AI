@@ -287,8 +287,8 @@ export function Revision() {
       {/* Preview */}
       <div className="min-w-0 flex-1 overflow-y-auto">
         <div data-tour="revision-preview" className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{title ?? "Preview"}</span>
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <span className="line-clamp-2 break-words text-sm font-medium" title={title ?? "Preview"}>{title ?? "Preview"}</span>
             {!loading && <QualityBadge score={quality} />}
           </div>
           {output && (

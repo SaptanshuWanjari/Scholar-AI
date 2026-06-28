@@ -153,7 +153,7 @@ def search(query_vector: list[float], top_k: int = 5, course: str | None = None,
     if not _has_table():
         return []
     tbl = _open_table()
-    q = tbl.search(query_vector).metric("cosine").limit(top_k)
+    q = tbl.search(query_vector, vector_column_name="vector").metric("cosine").limit(top_k)
     
     filters = []
     if course:
@@ -232,7 +232,7 @@ def hybrid_search(
     fetch_n = top_k * 3
 
     # Vector search.
-    vq = tbl.search(query_vector).metric("cosine").limit(fetch_n)
+    vq = tbl.search(query_vector, vector_column_name="vector").metric("cosine").limit(fetch_n)
     if where_clause:
         vq = vq.where(where_clause, prefilter=True)
     try:

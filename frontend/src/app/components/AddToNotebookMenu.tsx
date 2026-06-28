@@ -1,8 +1,11 @@
-// Universal "Add to Notebook" action. Drop into any artifact page: it lets the
-// user pick a target notebook (or create one), serializes the artifact to
-// Markdown client-side, and appends it via the backend append endpoint. If the
-// backend flags the content as a near-duplicate, the user is prompted to Merge
-// into the existing block or Skip.
+// Universal "Add to Notebook" action. Drop into any artifact page: it opens a
+// modal where the user can pick a target notebook (or create a new one),
+// serializes the artifact to Markdown client-side, and appends it via the
+// backend append endpoint. If the backend flags the content as a near-duplicate,
+// the user is prompted to Merge into the existing block or Skip.
+//
+// Notebook management (rename/delete) lives on the Notebooks page sidebar, not
+// here — this modal is only for choosing a target.
 
 import { useCallback, useState } from "react";
 import { BookPlus, Loader2, Plus } from "lucide-react";
@@ -11,14 +14,6 @@ import { toast } from "sonner";
 import { api, type NotebookMeta } from "../lib/api";
 import { artifactLabel, serializeArtifact } from "../lib/serializers";
 import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,9 +27,10 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 
@@ -52,6 +48,7 @@ interface AddToNotebookMenuProps {
 
 interface DedupState {
   notebookId: string;
+  notebookName: string;
   markdown: string;
   existingIndex: number | null;
 }
@@ -66,15 +63,17 @@ export function AddToNotebookMenu({
   className,
   course,
 }: AddToNotebookMenuProps) {
+  const [open, setOpen] = useState(false);
   const [notebooks, setNotebooks] = useState<NotebookMeta[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dedup, setDedup] = useState<DedupState | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState("");
+  const [creating, setCreating] = useState(false);
+  // Id of the notebook currently being appended to (drives the row spinner).
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
-  const loadNotebooks = useCallback(async (open: boolean) => {
-    if (!open || notebooks !== null) return;
+  const refresh = useCallback(async () => {
     setLoading(true);
     try {
       setNotebooks(await api.listNotebooks());
@@ -84,44 +83,85 @@ export function AddToNotebookMenu({
     } finally {
       setLoading(false);
     }
-  }, [notebooks]);
+  }, []);
 
-  const appendTo = useCallback(
-    async (notebookId: string, notebookName?: string) => {
-      let markdown: string;
-      try {
-        markdown = serializeArtifact(artifactType, content);
-      } catch {
-        toast.error("Could not serialize this artifact");
-        return;
+  const onOpenChange = useCallback(
+    (next: boolean) => {
+      setOpen(next);
+      if (next) {
+        setNewName("");
+        setCreating(false);
+        void refresh();
       }
-      if (!markdown.trim()) {
-        toast.error("Nothing to add");
-        return;
-      }
+    },
+    [refresh],
+  );
+
+  const serialize = useCallback((): string | null => {
+    let markdown: string;
+    try {
+      markdown = serializeArtifact(artifactType, content);
+    } catch {
+      toast.error("Could not serialize this artifact");
+      return null;
+    }
+    if (!markdown.trim()) {
+      toast.error("Nothing to add");
+      return null;
+    }
+    return markdown;
+  }, [artifactType, content]);
+
+  const addTo = useCallback(
+    async (notebookId: string, notebookName: string) => {
+      const markdown = serialize();
+      if (markdown === null) return;
       setBusy(true);
+      setPendingId(notebookId);
       try {
         const res = await api.appendToNotebook(notebookId, markdown, artifactType, sourceId);
         if (res.redundant) {
-          setDedup({ notebookId, markdown, existingIndex: res.existing_block_index });
+          setDedup({ notebookId, notebookName, markdown, existingIndex: res.existing_block_index });
           return;
         }
-        toast.success(`Added to ${notebookName ?? "notebook"}`);
+        toast.success(`Added to ${notebookName}`);
+        setOpen(false);
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Failed to add to notebook");
       } finally {
         setBusy(false);
+        setPendingId(null);
       }
     },
-    [artifactType, content, sourceId],
+    [serialize, artifactType, sourceId],
   );
+
+  const createAndAdd = useCallback(async () => {
+    const name = newName.trim();
+    if (!name) return;
+    const markdown = serialize();
+    if (markdown === null) return;
+    setBusy(true);
+    try {
+      const nb = await api.createNotebook(name, course ?? null);
+      setNewName("");
+      setCreating(false);
+      await refresh();
+      await addTo(nb.id, nb.title);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create notebook");
+    } finally {
+      setBusy(false);
+    }
+  }, [newName, serialize, course, refresh, addTo]);
 
   const forceAppend = useCallback(async () => {
     if (!dedup) return;
     setBusy(true);
     try {
       await api.appendToNotebook(dedup.notebookId, dedup.markdown, artifactType, sourceId, true);
-      toast.success("Added to notebook");
+      toast.success(`Added to ${dedup.notebookName}`);
+      setOpen(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to add to notebook");
     } finally {
@@ -132,7 +172,6 @@ export function AddToNotebookMenu({
 
   const mergeIntoExisting = useCallback(async () => {
     if (!dedup || dedup.existingIndex === null) {
-      // No specific block to merge into — fall back to a forced append.
       await forceAppend();
       return;
     }
@@ -152,6 +191,7 @@ export function AddToNotebookMenu({
       await api.updateNotebook(dedup.notebookId, { blocks });
       toast.success("Merged into existing note");
       setDedup(null);
+      setOpen(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to merge");
     } finally {
@@ -159,59 +199,93 @@ export function AddToNotebookMenu({
     }
   }, [dedup, forceAppend]);
 
-  const createAndAppend = useCallback(async () => {
-    const name = newName.trim();
-    if (!name) return;
-    setBusy(true);
-    try {
-      const nb = await api.createNotebook(name, course ?? null);
-      setNotebooks((prev) => (prev ? null : prev)); // invalidate cache; reloads on next open
-      setCreateOpen(false);
-      setNewName("");
-      await appendTo(nb.id, name);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create notebook");
-    } finally {
-      setBusy(false);
-    }
-  }, [newName, course, appendTo]);
-
   return (
     <>
-      <DropdownMenu onOpenChange={loadNotebooks}>
-        <DropdownMenuTrigger asChild>
-          <Button variant={variant} size={size} className={className} disabled={busy}>
-            {busy ? <Loader2 className="size-4 animate-spin" /> : <BookPlus className="size-4" />}
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogTrigger asChild>
+          <Button variant={variant} size={size} className={className}>
+            <BookPlus className="size-4" />
             {label && <span className="ml-1.5">{label}</span>}
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-60">
-          <DropdownMenuLabel>Add to notebook</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {loading && (
-            <div className="flex items-center gap-2 px-2 py-3 text-sm text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" /> Loading…
-            </div>
-          )}
-          {!loading && notebooks?.length === 0 && (
-            <div className="px-2 py-3 text-sm text-muted-foreground">No notebooks yet.</div>
-          )}
-          {!loading &&
-            notebooks?.map((nb) => (
-              <DropdownMenuItem key={nb.id} onSelect={() => appendTo(nb.id, nb.name)}>
-                <span
-                  className="mr-2 size-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: nb.color }}
+        </DialogTrigger>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add to notebook</DialogTitle>
+            <DialogDescription>
+              Pick a notebook to add this {artifactLabel(artifactType).toLowerCase()} to.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="max-h-72 space-y-1 overflow-y-auto py-1">
+            {loading && (
+              <div className="flex items-center gap-2 px-2 py-6 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" /> Loading…
+              </div>
+            )}
+            {!loading && notebooks?.length === 0 && (
+              <div className="px-2 py-6 text-center text-sm text-muted-foreground">
+                No notebooks yet. Create one below.
+              </div>
+            )}
+            {!loading &&
+              notebooks?.map((nb) => (
+                <button
+                  key={nb.id}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void addTo(nb.id, nb.name)}
+                  className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {pendingId === nb.id ? (
+                    <Loader2 className="size-3 shrink-0 animate-spin text-violet" />
+                  ) : (
+                    <span
+                      className="size-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: nb.color }}
+                    />
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">{nb.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {pendingId === nb.id
+                        ? "Adding…"
+                        : `${nb.course || "Uncategorized"} · ${nb.notes} notes`}
+                    </span>
+                  </span>
+                </button>
+              ))}
+          </div>
+
+          <div className="border-t border-border pt-3">
+            {creating ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  autoFocus
+                  placeholder="Notebook name"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") void createAndAdd();
+                    if (e.key === "Escape") setCreating(false);
+                  }}
+                  className="h-9"
                 />
-                <span className="truncate">{nb.name}</span>
-              </DropdownMenuItem>
-            ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => setCreateOpen(true)}>
-            <Plus className="mr-2 size-4" /> Create new notebook
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+                <Button onClick={() => void createAndAdd()} disabled={busy || !newName.trim()}>
+                  {busy ? <Loader2 className="size-4 animate-spin" /> : "Create & add"}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                className="w-full justify-center gap-1.5"
+                onClick={() => setCreating(true)}
+              >
+                <Plus className="size-4" /> Create new notebook
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Dedup warning */}
       <AlertDialog open={dedup !== null} onOpenChange={(o) => !o && setDedup(null)}>
@@ -220,8 +294,8 @@ export function AddToNotebookMenu({
             <AlertDialogTitle>Similar content already exists</AlertDialogTitle>
             <AlertDialogDescription>
               This {artifactLabel(artifactType).toLowerCase()} looks very similar to something
-              already in the notebook. Merge it into the existing note, or skip to avoid
-              duplicates.
+              already in “{dedup?.notebookName}”. Merge it into the existing note, or skip to
+              avoid duplicates.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -232,32 +306,6 @@ export function AddToNotebookMenu({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Create new notebook */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>New notebook</DialogTitle>
-          </DialogHeader>
-          <Input
-            autoFocus
-            placeholder="Notebook name"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") createAndAppend();
-            }}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={busy}>
-              Cancel
-            </Button>
-            <Button onClick={createAndAppend} disabled={busy || !newName.trim()}>
-              {busy ? "Creating…" : "Create & add"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

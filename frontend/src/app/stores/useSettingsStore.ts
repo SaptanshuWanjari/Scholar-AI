@@ -19,6 +19,7 @@ interface SettingsState {
   interests: string;
   learningPreferences: string;
   ragMode: "strict" | "fallback";
+  usePromptEnhancer: boolean;
   hydrated: boolean;
   set: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void;
   hydrate: () => Promise<void>;
@@ -42,6 +43,7 @@ const PERSISTED: (keyof BackendSettings)[] = [
   "interests",
   "learningPreferences",
   "ragMode",
+  "usePromptEnhancer",
 ];
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -62,6 +64,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   interests: "",
   learningPreferences: "",
   ragMode: "fallback",
+  usePromptEnhancer: true,
   hydrated: false,
   set: (key, value) => {
     set({ [key]: value } as Partial<SettingsState>);
@@ -73,7 +76,13 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   hydrate: async () => {
     try {
       const remote = await api.getSettings();
-      set({ ...remote, accent: remote.accent as SettingsState["accent"], density: remote.density as SettingsState["density"], hydrated: true });
+      set({
+        ...remote,
+        accent: remote.accent as SettingsState["accent"],
+        density: remote.density as SettingsState["density"],
+        ragMode: remote.ragMode as SettingsState["ragMode"],
+        hydrated: true,
+      });
     } catch {
       set({ hydrated: true });
     }
