@@ -249,6 +249,7 @@ export function Diagrams() {
         {/* Generate control */}
         <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card/40 px-6 py-3">
           <Input
+            id="diagram-topic-input"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             onKeyDown={(e) => {
@@ -377,7 +378,23 @@ export function Diagrams() {
             <div className="flex size-12 items-center justify-center rounded-xl bg-violet-soft text-primary">
               <Workflow className="size-6" />
             </div>
-            <div className="text-sm">No diagram selected — generate one above.</div>
+            <div className="text-sm font-semibold text-foreground">
+              {items.length === 0 ? "No diagrams yet" : "No diagram selected"}
+            </div>
+            <div className="text-sm">
+              {items.length === 0 
+                ? "Generate one to get started visualizing concepts." 
+                : "Select a diagram from the sidebar or generate a new one."}
+            </div>
+            {items.length === 0 && (
+              <Button 
+                variant="outline"
+                className="mt-2"
+                onClick={() => document.getElementById("diagram-topic-input")?.focus()}
+              >
+                Generate Diagram
+              </Button>
+            )}
           </div>
         )}
       </div>

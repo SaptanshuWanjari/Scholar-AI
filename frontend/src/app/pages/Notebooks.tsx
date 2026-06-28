@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import { useMemo, useCallback, useEffect, useRef, useState } from "react";
 import {
   PanelLeftOpen,
@@ -45,6 +46,7 @@ export function Notebooks() {
   const [loadingList, setLoadingList] = useState(true);
   const [loadingNotebook, setLoadingNotebook] = useState(false);
   const [assisting, setAssisting] = useState(false);
+  const navigate = useNavigate();
 
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
@@ -520,15 +522,23 @@ export function Notebooks() {
               <BookOpen className="size-10 opacity-40" />
               <div>
                 <div className="text-base font-medium text-foreground">
-                  No notebook selected
+                  {notebooks.length === 0 ? "No notebooks found" : "No notebook selected"}
                 </div>
-                <p className="mt-1 text-sm">
-                  Pick a notebook from the sidebar or create a new one.
+                <p className="mt-1 max-w-sm text-sm">
+                  {notebooks.length === 0 
+                    ? "Create a notebook. Use Teach Me to generate structured notes first." 
+                    : "Pick a notebook from the sidebar or create a new one."}
                 </p>
               </div>
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-2 size-4" /> New notebook
-              </Button>
+              {notebooks.length === 0 ? (
+                <Button onClick={() => navigate("/teach")}>
+                  <Sparkles className="mr-2 size-4" /> Go to Teach Me
+                </Button>
+              ) : (
+                <Button onClick={() => setCreateOpen(true)}>
+                  <Plus className="mr-2 size-4" /> New notebook
+                </Button>
+              )}
             </div>
           ) : (
             <>

@@ -206,6 +206,7 @@ export function Flashcards() {
         </div>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
           <Input
+            id="flashcards-topic-input"
             value={topic}
             onChange={(e) => setField("topic", e.target.value)}
             onKeyDown={(e) => {
@@ -290,9 +291,15 @@ export function Flashcards() {
             </div>
             <h3 className="mt-4 text-sm font-semibold">No saved decks yet</h3>
             <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-              Generate a set of flashcards above and save it as a deck to start
-              building your spaced-repetition library.
+              Generate your first deck. Start with a topic from your documents.
             </p>
+            <Button 
+              className="mt-4 gap-2" 
+              size="sm" 
+              onClick={() => document.getElementById("flashcards-topic-input")?.focus()}
+            >
+              <Sparkles className="size-4" /> Generate Deck
+            </Button>
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

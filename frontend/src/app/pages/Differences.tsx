@@ -105,6 +105,7 @@ export function Differences() {
       {/* Search + generate */}
       <div className="flex gap-2 mb-3">
         <Input
+          id="differences-topic-input"
           placeholder="Compare concepts… e.g. Process vs Thread"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
@@ -229,11 +230,11 @@ export function Differences() {
       {isEmpty && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Columns2 className="size-10 text-muted-foreground/40 mb-3" />
-          <p className="font-medium text-muted-foreground mb-1">Generate your first comparison.</p>
-          <p className="text-sm text-muted-foreground/70">
-            Compare two concepts to create an exam-ready revision table.
+          <p className="font-semibold text-foreground mb-1">No difference tables yet</p>
+          <p className="text-sm text-muted-foreground/70 mb-4 max-w-sm mx-auto">
+            Generate one to compare concepts. Try an example below:
           </p>
-          <div className="flex gap-2 mt-4 flex-wrap justify-center">
+          <div className="flex gap-2 flex-wrap justify-center mb-4">
             {["Process vs Thread", "REST vs gRPC", "Monolith vs Microservices"].map((ex) => (
               <button
                 key={ex}
@@ -244,6 +245,13 @@ export function Differences() {
               </button>
             ))}
           </div>
+          <Button 
+            variant="outline"
+            className="mt-2"
+            onClick={() => document.getElementById("differences-topic-input")?.focus()}
+          >
+            Generate Difference Table
+          </Button>
         </div>
       )}
 

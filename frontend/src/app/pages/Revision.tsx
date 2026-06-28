@@ -156,6 +156,7 @@ export function Revision() {
           <div data-tour="revision-source">
             <Label className="mb-2 block">Topic</Label>
             <Input
+              id="revision-topic-input"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               onKeyDown={(e) => {
@@ -243,13 +244,27 @@ export function Revision() {
         )}
 
         {/* Saved revisions */}
-        {savedRevisions.length > 0 && (
-          <div className="mt-8 space-y-5">
-            <div>
-              <div className="mb-2 flex items-center gap-2">
-                <Bookmark className="size-3.5 text-muted-foreground" />
-                <Label>Saved revisions</Label>
+        <div className="mt-8 space-y-5">
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <Bookmark className="size-3.5 text-muted-foreground" />
+              <Label>Saved revisions</Label>
+            </div>
+            {savedRevisions.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border bg-card p-6 text-center">
+                <p className="font-semibold text-sm mb-1 text-foreground">No saved revisions yet</p>
+                <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">
+                  Generate a revision schedule to start reviewing.
+                </p>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById("revision-topic-input")?.focus()}
+                >
+                  Generate Revision Schedule
+                </Button>
               </div>
+            ) : (
               <div className="space-y-2">
                 {savedRevisions.map((r) => (
                   <div key={r.id} className="group relative flex w-full flex-col items-start gap-0.5 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-ring/40">
@@ -279,9 +294,9 @@ export function Revision() {
                   </div>
                 ))}
               </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Preview */}

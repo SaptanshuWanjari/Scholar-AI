@@ -12,6 +12,7 @@ import {
   Save,
   Trash2,
   Clock,
+  Sparkles,
 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
@@ -230,6 +231,7 @@ function Builder({
           <div className="flex-1 min-w-48">
             <label className="mb-1.5 block text-xs text-muted-foreground">Topic</label>
             <Input
+              id="quiz-topic-input"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               onKeyDown={(e) => {
@@ -343,10 +345,17 @@ function Builder({
           <div className="mx-auto flex size-10 items-center justify-center rounded-lg bg-violet-soft text-primary">
             <ListChecks className="size-5" />
           </div>
-          <h4 className="mt-3">No saved quizzes yet</h4>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Generate a quiz above and save it to find it here later.
+          <h4 className="mt-3 text-sm font-semibold">No saved quizzes yet</h4>
+          <p className="mt-1 max-w-xs mx-auto text-sm text-muted-foreground">
+            Take a quiz on any topic. Start with a topic from your documents.
           </p>
+          <Button 
+            className="mt-4 gap-2" 
+            size="sm" 
+            onClick={() => document.getElementById("quiz-topic-input")?.focus()}
+          >
+            <Sparkles className="size-4" /> Generate Quiz
+          </Button>
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
