@@ -1044,6 +1044,12 @@ export const api = {
   deletePyqQuestion(id: number): Promise<void> {
     return request<void>(`/api/pyq/questions/${id}`, { method: "DELETE" });
   },
+  syncPyqToKG(course: string): Promise<{ created: number; updated: number }> {
+    return request<{ created: number; updated: number }>(
+      `/api/pyq/sync-knowledge-graph?course=${encodeURIComponent(course)}`,
+      { method: "POST" }
+    );
+  },
 
   // ---- Knowledge graph ----
   buildKnowledgeGraph(course?: string | null, maxDocuments = 8): Promise<{ concepts: number; edges: number }> {

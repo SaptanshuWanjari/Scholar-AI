@@ -1111,6 +1111,11 @@ class PyqDifferenceSuggestion(BaseModel):
     example: str
 
 
+class PYQSyncKGResult(BaseModel):
+    created: int
+    updated: int
+
+
 # ---------------------------------------------------------------------------
 # Cross-Artifact Consistency Engine
 # ---------------------------------------------------------------------------

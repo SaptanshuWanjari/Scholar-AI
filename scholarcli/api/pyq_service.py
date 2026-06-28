@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from datetime import date
@@ -24,7 +24,7 @@ from scholarcli.config import get_settings
 from scholarcli.ingest.loaders import load_document
 from scholarcli.llm import get_llm
 from scholarcli.storage import get_session
-from scholarcli.storage.models import PYQQuestion, QuestionPaper, TopicStat, Deck, Card
+from scholarcli.storage.models import DepConcept, PYQQuestion, QuestionPaper, TopicStat, Deck, Card
 
 # Cap paper text fed to the model — a question paper is a few pages; this guards
 # against a stray huge upload blowing the context window.
@@ -217,6 +217,75 @@ def prioritize_weak_topic_cards(course: str) -> None:
             {Card.due: today}, synchronize_session=False
         )
         session.commit()
+    finally:
+        session.close()
+
+
+# ---------------------------------------------------------------------------
+# Knowledge-graph integration
+# ---------------------------------------------------------------------------
+
+def sync_topics_to_dep_concepts(course: str) -> dict:
+    """Upsert each unique PYQ topic for *course* as a ``DepConcept`` node.
+
+    Sets difficulty from the majority question difficulty for that topic and
+    importance from its occurrence frequency (0-1). Also back-fills
+    ``TopicStat.concept_id`` on any existing rows that weren't linked yet.
+    Returns ``{"created": N, "updated": M}``.
+    """
+    session = get_session()
+    try:
+        rows = (
+            session.query(PYQQuestion.topic, PYQQuestion.difficulty)
+            .filter(PYQQuestion.course == course)
+            .all()
+        )
+        if not rows:
+            return {"created": 0, "updated": 0}
+
+        topic_difficulties: dict[str, Counter] = defaultdict(Counter)
+        topic_counts: dict[str, int] = defaultdict(int)
+        for topic, diff in rows:
+            topic_difficulties[topic][diff] += 1
+            topic_counts[topic] += 1
+
+        max_count = max(topic_counts.values(), default=1)
+
+        existing = {
+            c.name.strip().lower(): c
+            for c in session.query(DepConcept).filter(DepConcept.course == course).all()
+        }
+        created = updated = 0
+        name_to_id: dict[str, int] = {}
+        for topic, count in topic_counts.items():
+            key = topic.strip().lower()
+            majority_difficulty = topic_difficulties[topic].most_common(1)[0][0]
+            importance = count / max_count
+            concept = existing.get(key)
+            if concept is None:
+                concept = DepConcept(name=topic, course=course)
+                session.add(concept)
+                created += 1
+            else:
+                updated += 1
+            concept.difficulty = majority_difficulty
+            concept.importance = max(concept.importance, importance)
+            session.flush()
+            name_to_id[key] = concept.id
+
+        # Back-fill concept_id on orphaned TopicStat rows.
+        orphans = (
+            session.query(TopicStat)
+            .filter(TopicStat.course == course, TopicStat.concept_id.is_(None))
+            .all()
+        )
+        for stat in orphans:
+            cid = name_to_id.get(stat.topic.strip().lower())
+            if cid:
+                stat.concept_id = cid
+
+        session.commit()
+        return {"created": created, "updated": updated}
     finally:
         session.close()
 
