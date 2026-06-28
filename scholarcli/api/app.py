@@ -67,7 +67,6 @@ def create_app() -> FastAPI:
         study,
         teach,
         trace,
-        code_examples,
         whiteboards,
     )
     from scholarcli.api import notebook_service
@@ -97,7 +96,6 @@ def create_app() -> FastAPI:
         study,
         teach,
         trace,
-        code_examples,
         whiteboards,
         notebook_service,
     ):

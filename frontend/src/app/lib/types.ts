@@ -209,28 +209,3 @@ export interface DifferenceTableItem {
   createdAt: string;
   quality?: QualityScore;
 }
-
-export interface CodeExample {
-  id: number;
-  document_id: number;
-  course: string;
-  title: string;
-  language: string;
-  topic: string;
-  difficulty: string;
-  example_type: string;
-  page_number: number;
-  code: string;
-  explanation: string;
-  purpose: string;
-  inputs: string;
-  outputs: string;
-  time_complexity: string;
-  space_complexity: string;
-  common_mistakes: string;
-  important_notes: string;
-  related_concepts: string[];
-  used_in_quiz: boolean;
-  used_in_pyq: boolean;
-  created_at: string;
-}

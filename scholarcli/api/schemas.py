@@ -605,11 +605,15 @@ class WhiteboardAssistResponse(BaseModel):
 # Reading
 # ---------------------------------------------------------------------------
 
+class ReadingParagraph(BaseModel):
+    text: str
+    page: int | None = None
+
 class ReadingSectionOut(BaseModel):
     id: str
     number: str
     title: str
-    paragraphs: list[str]
+    paragraphs: list[ReadingParagraph]
 
 
 class ReadingDocOut(BaseModel):

@@ -93,9 +93,7 @@ class Document(Base):
         Integer, ForeignKey("courses.id"), nullable=True, index=True
     )
     course: Mapped["Course"] = relationship(back_populates="documents")
-    code_examples: Mapped[list["CodeExample"]] = relationship(
-        back_populates="document", cascade="all, delete-orphan"
-    )
+
 
 
 # ---------------------------------------------------------------------------
@@ -625,42 +623,6 @@ class ChunkFeedback(Base):
     )
 
 
-class CodeExample(Base):
-    """Automatically extracted programming example."""
-
-    __tablename__ = "code_examples"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    document_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
-    )
-    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
-    title: Mapped[str] = mapped_column(String(256), nullable=False, default="Untitled Example")
-    language: Mapped[str] = mapped_column(String(64), nullable=False, default="Unknown")
-    topic: Mapped[str] = mapped_column(String(256), nullable=False, default="General")
-    difficulty: Mapped[str] = mapped_column(String(32), nullable=False, default="Intermediate")
-    example_type: Mapped[str] = mapped_column(String(64), nullable=False, default="code")
-    page_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-    
-    code: Mapped[str] = mapped_column(Text, nullable=False)
-    explanation: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    purpose: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    inputs: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    outputs: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    time_complexity: Mapped[str] = mapped_column(String(128), nullable=False, default="")
-    space_complexity: Mapped[str] = mapped_column(String(128), nullable=False, default="")
-    common_mistakes: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    important_notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    
-    related_concepts: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
-    used_in_quiz: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    used_in_pyq: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-    
-    document: Mapped["Document"] = relationship(back_populates="code_examples")
 
 
 class PageOcrCache(Base):

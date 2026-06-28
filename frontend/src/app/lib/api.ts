@@ -164,11 +164,16 @@ export interface NotebookAppendResponse {
   block_index: number | null;
 }
 
+export interface ReadingParagraph {
+  text: string;
+  page: number | null;
+}
+
 export interface ReadingSection {
   id: string;
   number: string;
   title: string;
-  paragraphs: string[];
+  paragraphs: ReadingParagraph[];
 }
 
 export interface ReadingDoc {
@@ -1213,24 +1218,6 @@ export const api = {
   },
   sendChunkFeedback(source: string, chunkId = "", query = "", similarity = 0): Promise<void> {
     return request<void>("/api/trace/feedback", json({ source, chunkId, query, similarity }));
-  },
-
-  // ---- Code Examples ----
-  listCodeExamples(filters?: { course?: string; language?: string; topic?: string; difficulty?: string; example_type?: string; sort_by?: string; skip?: number; limit?: number }): Promise<{ items: import('./types').CodeExample[], total: number }> {
-    const p = new URLSearchParams();
-    if (filters?.course) p.set("course", filters.course);
-    if (filters?.language) p.set("language", filters.language);
-    if (filters?.topic) p.set("topic", filters.topic);
-    if (filters?.difficulty) p.set("difficulty", filters.difficulty);
-    if (filters?.example_type) p.set("example_type", filters.example_type);
-    if (filters?.sort_by) p.set("sort_by", filters.sort_by);
-    if (filters?.skip !== undefined) p.set("skip", String(filters.skip));
-    if (filters?.limit !== undefined) p.set("limit", String(filters.limit));
-    const qs = p.toString();
-    return request<{ items: import('./types').CodeExample[], total: number }>(`/api/code-examples${qs ? `?${qs}` : ""}`);
-  },
-  getCodeExample(id: number): Promise<import('./types').CodeExample> {
-    return request<import('./types').CodeExample>(`/api/code-examples/${id}`);
   },
 
   // ---- Learning Path ----

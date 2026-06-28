@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
 import { Document, Page } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -22,14 +22,20 @@ interface PDFViewerProps {
   highlights: HighlightItem[];
   scale?: number;
   onTextSelect: (text: string, page: number, rects: HighlightRect[]) => void;
+  onPageVisible?: (page: number) => void;
 }
 
-export default function PDFViewer({
+export interface PDFViewerRef {
+  scrollToPage: (page: number) => void;
+}
+
+const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
   pdfUrl,
   highlights,
   scale = 1.0,
   onTextSelect,
-}: PDFViewerProps) {
+  onPageVisible,
+}, ref) => {
   const containerDivRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
@@ -41,6 +47,15 @@ export default function PDFViewer({
   const [visiblePages, setVisiblePages] = useState<Set<number>>(new Set([1, 2]));
   const observerRef = useRef<IntersectionObserver | null>(null);
   const pageWrapperRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+  useImperativeHandle(ref, () => ({
+    scrollToPage: (page: number) => {
+      const el = pageWrapperRefs.current.get(page);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }));
 
   // Measure container width so pages fill it exactly (handles resize / panel collapse).
   useEffect(() => {
@@ -68,6 +83,8 @@ export default function PDFViewer({
     observerRef.current?.disconnect();
     observerRef.current = new IntersectionObserver(
       (entries) => {
+        let maxRatio = 0;
+        let mostVisible = -1;
         setVisiblePages((prev) => {
           const next = new Set(prev);
           for (const entry of entries) {
@@ -75,12 +92,19 @@ export default function PDFViewer({
             if (entry.isIntersecting) {
               next.add(page);
               next.add(page + 1);
+              if (entry.intersectionRatio > maxRatio) {
+                maxRatio = entry.intersectionRatio;
+                mostVisible = page;
+              }
             }
           }
           return next;
         });
+        if (mostVisible > 0 && onPageVisible) {
+          onPageVisible(mostVisible);
+        }
       },
-      { rootMargin: "200px 0px" }
+      { rootMargin: "200px 0px", threshold: [0.1, 0.5, 0.9] }
     );
     for (const [, el] of pageWrapperRefs.current) {
       observerRef.current.observe(el);
@@ -222,4 +246,6 @@ export default function PDFViewer({
       )}
     </div>
   );
-}
+});
+
+export default PDFViewer;

@@ -49,7 +49,7 @@ export const navItems: NavItem[] = [
   { label: "Exam", to: "/exam", icon: GraduationCap, shortcut: "X", group: "workspace" },
   { label: "PYQ Analysis", to: "/exam-analysis", icon: FileSearch, shortcut: "Y", group: "workspace" },
   { label: "Notebooks", to: "/notebooks", icon: Notebook, shortcut: "N", group: "workspace" },
-  { label: "Code Library", to: "/code-library", icon: Code2, shortcut: "L", group: "workspace" },
+
 
   // Study
   { label: "Flashcards", to: "/flashcards", icon: Layers, shortcut: "F", group: "study" },

@@ -26,7 +26,7 @@ import { Courses } from "./pages/Courses";
 import { Differences } from "./pages/Differences";
 import { Consistency } from "./pages/Consistency";
 import { PromptLibrary } from "./pages/PromptLibrary";
-import { CodeLibrary } from "./pages/CodeLibrary";
+
 import { Guide } from "./pages/Guide";
 import { OnboardingHero } from "./pages/onboarding/OnboardingHero";
 import { OnboardingImport } from "./pages/onboarding/OnboardingImport";
@@ -88,7 +88,7 @@ export default function App() {
             <Route path="/differences" element={<Differences />} />
             <Route path="/consistency" element={<Consistency />} />
             <Route path="/prompts" element={<PromptLibrary />} />
-            <Route path="/code-library" element={<CodeLibrary />} />
+
             <Route path="/guide" element={<Guide />} />
             {KNOWN_PLUGINS.flatMap((plugin) =>
               (plugin.routes ?? []).map((r) =>

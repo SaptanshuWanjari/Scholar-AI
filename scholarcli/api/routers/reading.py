@@ -17,6 +17,7 @@ from scholarcli.api.schemas import (
     HighlightCreate,
     LensResponse,
     ReadingDocOut,
+    ReadingParagraph,
     ReadingSectionOut,
 )
 from pydantic import BaseModel
@@ -41,7 +42,7 @@ def _build_sections(document_id: int, fallback_title: str) -> list[ReadingSectio
     chunks = get_document_chunks(document_id)
     sections: list[ReadingSectionOut] = []
     current_heading: str | None = None
-    paragraphs: list[str] = []
+    paragraphs: list[ReadingParagraph] = []
     number = 0
 
     def flush(heading: str | None) -> None:
@@ -76,7 +77,8 @@ def _build_sections(document_id: int, fallback_title: str) -> list[ReadingSectio
         if heading != current_heading:
             flush(current_heading)
             current_heading = heading
-        paragraphs.append(ch.get("text", ""))
+        page = ch.get("page")
+        paragraphs.append(ReadingParagraph(text=ch.get("text", ""), page=int(page) if page is not None else None))
     flush(current_heading)
     return sections
 
