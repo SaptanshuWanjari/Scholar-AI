@@ -22,6 +22,7 @@ import {
   LayoutPanelLeft,
   Columns,
   BookOpenText,
+  Save,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
@@ -36,7 +37,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { SelectionToolbar, type SelectionAction } from "../components/SelectionToolbar";
-import { api, type ReadingDoc } from "../lib/api";
+import { api, type ReadingDoc, type NotebookMeta } from "../lib/api";
 import type { DocumentItem } from "../lib/types";
 import PDFViewer, { type HighlightItem, type HighlightRect, type PDFViewerRef } from "../components/PDFViewer";
 import { ReadingTextPane, type ReadingTextPaneRef } from "../components/ReadingTextPane";
@@ -74,6 +75,8 @@ export function Reading() {
   const [selected, setSelected] = useState<string | null>(null);
   const [explanation, setExplanation] = useState<string | null>(null);
   const [lensLoading, setLensLoading] = useState(false);
+  const [notebooks, setNotebooks] = useState<NotebookMeta[]>([]);
+  const [savingToNotebook, setSavingToNotebook] = useState(false);
 
   // ---- Load the document list ----
   useEffect(() => {
@@ -91,6 +94,15 @@ export function Reading() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  // ---- Load Notebooks ----
+  useEffect(() => {
+    let cancelled = false;
+    api.listNotebooks().then(nbs => {
+      if (!cancelled) setNotebooks(nbs);
+    }).catch(() => {});
+    return () => { cancelled = true; };
   }, []);
 
   // ---- Load the selected reading document ----
@@ -164,6 +176,21 @@ export function Reading() {
       toast.error(e instanceof Error ? e.message : "Failed to fetch explanation");
     } finally {
       setLensLoading(false);
+    }
+  };
+
+  const handleSaveToNotebook = async (notebookId: string) => {
+    if (!explanation || !docId) return;
+    setSavingToNotebook(true);
+    try {
+      // Create markdown block to save
+      const textToSave = `> **Highlight**: ${selected}\n\n**Lens Explanation (${lens})**:\n${explanation}`;
+      await api.appendToNotebook(notebookId, textToSave, "reading", docId);
+      toast.success("Saved to notebook");
+    } catch (e) {
+      toast.error("Failed to save to notebook");
+    } finally {
+      setSavingToNotebook(false);
     }
   };
 
@@ -579,6 +606,25 @@ export function Reading() {
                         <p className="font-reading text-sm leading-relaxed text-foreground/90">
                           {explanation ?? "No explanation available."}
                         </p>
+                      )}
+                      
+                      {explanation && !lensLoading && (
+                        <div className="mt-3 flex justify-end">
+                          <Select onValueChange={handleSaveToNotebook} disabled={savingToNotebook}>
+                            <SelectTrigger className="h-7 w-auto min-w-[140px] text-[11px] bg-background">
+                              <Save className="size-3 mr-1" />
+                              <SelectValue placeholder={savingToNotebook ? "Saving..." : "Save to Notebook"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {notebooks.map(nb => (
+                                <SelectItem key={nb.id} value={nb.id} className="text-xs">{nb.name}</SelectItem>
+                              ))}
+                              {notebooks.length === 0 && (
+                                <div className="p-2 text-xs text-muted-foreground text-center">No notebooks found</div>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       )}
                     </div>
                   </Block>

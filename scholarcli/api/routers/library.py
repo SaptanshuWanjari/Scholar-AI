@@ -8,6 +8,7 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 
 from scholarcli.api import dependency_service
+from scholarcli.api import pyq_service
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.schemas import (
     CardReview,
@@ -20,6 +21,8 @@ from scholarcli.api.schemas import (
     QuizOut,
     QuizQuestionOut,
     QuizSessionPatch,
+    QuizSubmitRequest,
+    QuizSubmitResult,
     SaveDeckRequest,
     SaveQuizRequest,
     SaveRevisionRequest,
@@ -320,6 +323,31 @@ def clear_quiz_session(quiz_id: int) -> None:
         quiz.session_current_question = None
         quiz.session_started_at = None
         session.commit()
+    finally:
+        session.close()
+
+
+@router.post("/quizzes/{quiz_id}/submit", response_model=QuizSubmitResult)
+def submit_quiz(quiz_id: int, payload: QuizSubmitRequest) -> QuizSubmitResult:
+    session = get_session()
+    try:
+        quiz = session.get(SavedQuiz, quiz_id)
+        if not quiz:
+            raise HTTPException(status_code=404, detail="Quiz not found")
+
+        total = len(quiz.questions)
+        correct = 0
+        for q in quiz.questions:
+            given = (payload.answers.get(q["id"]) or "").strip().lower()
+            expected = (q.get("answer") or "").strip().lower()
+            if given == expected:
+                correct += 1
+
+        if quiz.course:
+            pyq_service.record_topic_results(quiz.course, {quiz.title: [correct, total]})
+            pyq_service.prioritize_weak_topic_cards(quiz.course)
+
+        return QuizSubmitResult(correct=correct, total=total, score=round(100 * correct / total) if total else 0)
     finally:
         session.close()
 

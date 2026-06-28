@@ -366,6 +366,7 @@ export interface DashboardData {
   activity: { id: string; kind: string; text: string; time: string }[];
   weakTopics: { id: string; topic: string; course: string; mastery: number }[];
   suggestedRevision: { id: string; topic: string; reason: string; course: string }[];
+  recentBookmarks: { id: string; section: string; note: string; docTitle: string; docId: string }[];
 }
 
 export interface Collection {
@@ -681,20 +682,23 @@ export const api = {
   /** Stream an answer token-by-token over SSE. Returns the final metadata. */
   async askStream(
     question: string,
-    course: string | null | undefined,
-    document: string | null | undefined,
     handlers: {
       onToken: (chunk: string) => void;
-      onDone?: (meta: { sources: Source[]; confidence: number | null; grounded: boolean }) => void;
+      onDone?: (meta: { sources: Source[]; confidence?: number; grounded: boolean; route: string }) => void;
       onError?: (message: string) => void;
       signal?: AbortSignal;
     },
+    course?: string | null,
+    document?: string | null,
+    route?: string | null,
+    searchQuery?: string | null,
     sessionId?: string | null,
-    ragMode?: string,
-    socratic?: boolean,
+    ragMode = "fallback",
+    socratic = false,
+    highlightsOnly = false,
   ): Promise<void> {
     const res = await fetch(`${BASE}/api/ask/stream`, {
-      ...json({ question, course: course ?? null, document: document ?? null, sessionId: sessionId ?? null, rag_mode: ragMode ?? "fallback", socratic: socratic ?? false }),
+      ...json({ question, course, document, route, search_query: searchQuery, sessionId, rag_mode: ragMode, socratic, highlights_only: highlightsOnly }),
       signal: handlers.signal,
     });
     if (!res.ok || !res.body) {
@@ -930,6 +934,9 @@ export const api = {
   },
   clearQuizSession(id: string): Promise<void> {
     return request<void>(`/api/quizzes/${id}/session`, { method: "DELETE" });
+  },
+  submitQuiz(id: string, answers: Record<string, string>): Promise<{ correct: number; total: number; score: number }> {
+    return request(`/api/quizzes/${id}/submit`, json({ answers }));
   },
 
   // ---- Notebooks ----

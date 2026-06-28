@@ -339,6 +339,7 @@ async def submit_exam(session_id: str, payload: ExamSubmitRequest) -> ExamResult
                 for t, vals in by_topic.items()
             }
             pyq_service.record_topic_results(exam.course, topic_for_stat)
+            pyq_service.prioritize_weak_topic_cards(exam.course)
 
         exam.submitted_at = now
         db.commit()

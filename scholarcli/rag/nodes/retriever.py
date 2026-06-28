@@ -58,6 +58,31 @@ def retrieve(state: GraphState) -> GraphState:
     s = get_settings()
     emb = scholarcli.llm.get_embeddings()
 
+    if state.get("highlights_only"):
+        doc_id = state.get("document_id")
+        if doc_id:
+            from scholarcli.storage.models import ReadingState
+            session = get_session()
+            try:
+                rstate = session.query(ReadingState).filter(ReadingState.document_id == doc_id).first()
+                retrieved = []
+                if rstate and rstate.highlights:
+                    for idx, h in enumerate(rstate.highlights):
+                        retrieved.append({
+                            "id": f"hl_{h.get('id', idx)}",
+                            "title": f"Highlight on Page {h.get('page_number', '?')}",
+                            "page": h.get("page_number", 0),
+                            "course": state.get("course") or "",
+                            "source_type": "text",
+                            "text": h.get("text", ""),
+                            "_distance": 0.0,
+                            "document_id": doc_id
+                        })
+                state["retrieved"] = retrieved
+                return state
+            finally:
+                session.close()
+
     sub_queries = state.get("sub_queries")
     if sub_queries:
         all_chunks: list[dict] = []

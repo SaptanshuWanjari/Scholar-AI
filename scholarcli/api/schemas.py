@@ -64,6 +64,7 @@ class AskRequest(BaseModel):
     sessionId: str | None = None  # persist this turn into a chat session
     rag_mode: str = "fallback"  # "strict" = only ingested docs; "fallback" = AI fills gaps
     socratic: bool = False  # guide user step-by-step instead of direct answer
+    highlights_only: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -448,6 +449,16 @@ class SaveQuizRequest(BaseModel):
 class QuizSessionPatch(BaseModel):
     session_answers: dict
     session_current_question: int
+
+
+class QuizSubmitRequest(BaseModel):
+    answers: dict[str, str]
+
+
+class QuizSubmitResult(BaseModel):
+    correct: int
+    total: int
+    score: int
 
 
 # ---------------------------------------------------------------------------
