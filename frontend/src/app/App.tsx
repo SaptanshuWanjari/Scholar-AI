@@ -16,6 +16,8 @@ import { Flashcards } from "./pages/Flashcards";
 import { QuizPage } from "./pages/Quiz";
 import { Diagrams } from "./pages/Diagrams";
 import { MindMaps } from "./pages/MindMaps";
+import { Whiteboards } from "./pages/Whiteboards";
+import { WhiteboardEditor } from "./pages/WhiteboardEditor";
 import { Teach } from "./pages/Teach";
 import { LearningPath } from "./pages/LearningPath";
 import { SearchPage } from "./pages/Search";
@@ -76,6 +78,8 @@ export default function App() {
             <Route path="/quiz" element={<QuizPage />} />
             <Route path="/diagrams" element={<Diagrams />} />
             <Route path="/mindmaps" element={<MindMaps />} />
+            <Route path="/whiteboards" element={<Whiteboards />} />
+            <Route path="/whiteboards/:id" element={<WhiteboardEditor />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/trace" element={<Trace />} />

@@ -13,7 +13,7 @@ from scholarcli.api.schemas import CourseCreate, CourseOut, CourseStats, Artifac
 from scholarcli.storage import get_session
 from scholarcli.storage.models import (
     Course, Deck, Card, SavedQuiz, Notebook, Diagram, Mindmap,
-    DifferenceTable, SavedRevision, LearningPackage,
+    DifferenceTable, SavedRevision, LearningPackage, Whiteboard,
 )
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
@@ -109,6 +109,7 @@ def get_course_stats(course_id: int) -> CourseStats:
         notebook_count = session.query(Notebook).filter(Notebook.course == cname).count()
         diagram_count = session.query(Diagram).filter(Diagram.course == cname).count()
         mindmap_count = session.query(Mindmap).filter(Mindmap.course == cname).count()
+        whiteboard_count = session.query(Whiteboard).filter(Whiteboard.course == cname).count()
         diff_count = session.query(DifferenceTable).filter(DifferenceTable.course == cname).count()
         revision_count = session.query(SavedRevision).filter(SavedRevision.course == cname).count()
 
@@ -120,7 +121,7 @@ def get_course_stats(course_id: int) -> CourseStats:
 
         total_artifacts = (
             len(decks) + quiz_count + notebook_count +
-            diagram_count + mindmap_count + diff_count + revision_count
+            diagram_count + mindmap_count + whiteboard_count + diff_count + revision_count
         )
 
         # Compute last_updated from all document indexed_at timestamps
@@ -137,6 +138,7 @@ def get_course_stats(course_id: int) -> CourseStats:
             notebooks=notebook_count,
             diagrams=diagram_count,
             mindmaps=mindmap_count,
+            whiteboards=whiteboard_count,
             difference_tables=diff_count,
             revisions=revision_count,
             concepts=concept_count,
@@ -193,6 +195,13 @@ def get_course_artifacts(
                 items.append(ArtifactItem(
                     id=str(m.id), title=m.title, type="mindmap",
                     created_at=m.created_at.isoformat() if m.created_at else "",
+                ))
+
+        if type is None or type == "whiteboard":
+            for w in session.query(Whiteboard).filter(Whiteboard.course == cname).all():
+                items.append(ArtifactItem(
+                    id=str(w.id), title=w.title, type="whiteboard",
+                    created_at=w.created_at.isoformat() if w.created_at else "",
                 ))
 
         if type is None or type == "difference_table":

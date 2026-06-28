@@ -17,8 +17,9 @@ import {
   ZoomIn,
   ZoomOut,
   BookMarked,
+  PencilRuler,
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
@@ -42,6 +43,7 @@ export function Reading() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const pendingHighlightRef = useRef<{ page: number; rects: HighlightRect[] }>({ page: 1, rects: [] });
 
+  const navigate = useNavigate();
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [docsLoading, setDocsLoading] = useState(true);
   const [docId, setDocId] = useState<string | null>(null);
@@ -163,10 +165,27 @@ export function Reading() {
     }
   };
 
+  const onWhiteboard = async (text: string) => {
+    const courseName = documents.find((d) => d.id === docId)?.course ?? null;
+    const title = text.length > 48 ? `${text.slice(0, 48)}…` : text;
+    try {
+      const wb = await api.createWhiteboard({
+        title,
+        course: courseName,
+        source: "selection",
+      });
+      // Editor auto-generates a diagram from the selection via ?generate=.
+      navigate(`/whiteboards/${wb.id}?generate=${encodeURIComponent(text)}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to open whiteboard");
+    }
+  };
+
   const actions: SelectionAction[] = [
     { label: "Explain", icon: Wand2, onSelect: onExplain },
     { label: "Highlight", icon: Highlighter, onSelect: onHighlight },
     { label: "Bookmark", icon: Bookmark, onSelect: onBookmark },
+    { label: "Whiteboard", icon: PencilRuler, onSelect: onWhiteboard },
   ];
 
   // ---- When the user switches lens with active selection, re-fetch ----

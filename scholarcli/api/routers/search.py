@@ -23,7 +23,7 @@ def global_search(q: str, filter: str = "all", limit: int = 10) -> list[SearchRe
         return []
 
     results: list[SearchResultOut] = []
-    if filter not in ("all", "documents"):
+    if filter not in ("all", "documents", "whiteboards"):
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="Filter type not yet supported")
 
@@ -40,4 +40,31 @@ def global_search(q: str, filter: str = "all", limit: int = 10) -> list[SearchRe
                     course=s["course"],
                 )
             )
+
+    if filter in ("all", "whiteboards"):
+        from scholarcli.storage import get_session
+        from scholarcli.storage.models import Whiteboard
+
+        session = get_session()
+        try:
+            rows = (
+                session.query(Whiteboard)
+                .filter(Whiteboard.title.ilike(f"%{query}%"))
+                .order_by(Whiteboard.updated_at.desc())
+                .limit(max(1, min(limit, 20)))
+                .all()
+            )
+            for wb in rows:
+                results.append(
+                    SearchResultOut(
+                        id=str(wb.id),
+                        group="Whiteboards",
+                        title=wb.title,
+                        snippet=(wb.course or "Whiteboard"),
+                        course=wb.course,
+                    )
+                )
+        finally:
+            session.close()
+
     return results

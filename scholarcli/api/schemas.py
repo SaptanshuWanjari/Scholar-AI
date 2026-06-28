@@ -517,6 +517,91 @@ class NotebookAppendResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Whiteboards (Excalidraw)
+# ---------------------------------------------------------------------------
+
+class WhiteboardMeta(BaseModel):
+    id: str
+    title: str
+    course: str
+    source: str = "manual"  # manual | ai | imported | selection
+    status: str = "saved"   # draft | saved | archived
+    thumbnail: str | None = None
+    revisions: int = 0
+    updated: str
+    createdAt: str
+
+
+class WhiteboardOut(BaseModel):
+    id: str
+    title: str
+    course: str
+    scene: dict = {}
+    thumbnail: str | None = None
+    source: str = "manual"
+    status: str = "saved"
+    quality: QualityScore | None = None
+    updated: str
+    createdAt: str
+
+
+class WhiteboardCreate(BaseModel):
+    title: str
+    course: str | None = None
+    scene: dict = {}
+    thumbnail: str | None = None
+    source: str = "manual"
+
+
+class WhiteboardPatch(BaseModel):
+    title: str | None = None
+    course: str | None = None
+    scene: dict | None = None
+    thumbnail: str | None = None
+    status: str | None = None
+
+
+class WhiteboardRevisionOut(BaseModel):
+    id: str
+    whiteboardId: str
+    revisionNumber: int
+    changeSummary: str = ""
+    scene: dict = {}
+    createdAt: str
+
+
+class WhiteboardRevisionCreate(BaseModel):
+    scene: dict = {}
+    change_summary: str = ""
+
+
+class WhiteboardGenerateRequest(BaseModel):
+    topic: str
+    course: str | None = None
+    document: str | None = None
+    type: str | None = None  # flowchart | decision_tree | concept_map
+    rag_mode: str = "fallback"
+
+
+class WhiteboardGenerateResponse(BaseModel):
+    title: str
+    mermaid: str
+    grounded: bool = True
+
+
+class WhiteboardAssistRequest(BaseModel):
+    action: Literal["explain", "expand"] = "explain"
+    text: str  # serialized canvas labels (explain) or a single node label (expand)
+    course: str | None = None
+    document: str | None = None
+
+
+class WhiteboardAssistResponse(BaseModel):
+    text: str = ""       # for "explain"
+    mermaid: str = ""    # for "expand" (a sub-graph to merge)
+
+
+# ---------------------------------------------------------------------------
 # Reading
 # ---------------------------------------------------------------------------
 
@@ -1052,6 +1137,7 @@ class CourseStats(BaseModel):
     notebooks: int = 0
     diagrams: int = 0
     mindmaps: int = 0
+    whiteboards: int = 0
     difference_tables: int = 0
     revisions: int = 0
     concepts: int = 0
@@ -1062,6 +1148,6 @@ class CourseStats(BaseModel):
 class ArtifactItem(BaseModel):
     id: str
     title: str
-    type: str  # deck | quiz | notebook | diagram | mindmap | difference_table | revision
+    type: str  # deck | quiz | notebook | diagram | mindmap | whiteboard | difference_table | revision
     created_at: str
     source_doc_title: str | None = None
