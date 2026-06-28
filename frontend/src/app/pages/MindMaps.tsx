@@ -156,6 +156,7 @@ export function MindMaps() {
         {/* Generate controls */}
         <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card/40 px-6 py-3">
           <Input
+            id="mindmap-topic-input"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !loading) generate(); }}
@@ -242,11 +243,24 @@ export function MindMaps() {
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-muted-foreground">
             <Network className="size-8 opacity-40" />
             <div>
-              <p className="text-sm font-medium text-foreground">No mind map selected</p>
-              <p className="mt-1 text-sm">
-                Enter a topic and press Generate, or select one from the sidebar.
+              <p className="text-sm font-medium text-foreground">
+                {items.length === 0 ? "No mind maps yet" : "No mind map selected"}
+              </p>
+              <p className="mt-1 text-sm max-w-sm mx-auto">
+                {items.length === 0
+                  ? "Generate one to get started mapping topics."
+                  : "Enter a topic and press Generate, or select one from the sidebar."}
               </p>
             </div>
+            {items.length === 0 && (
+              <Button 
+                variant="outline"
+                className="mt-2"
+                onClick={() => document.getElementById("mindmap-topic-input")?.focus()}
+              >
+                Generate Mind Map
+              </Button>
+            )}
           </div>
         )}
       </div>

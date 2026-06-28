@@ -129,11 +129,16 @@ export function Whiteboards() {
             <div className="flex size-14 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-500">
               <PencilRuler className="size-7" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              {activeTab === "active" && "No whiteboards yet."}
+            <div className="text-sm text-muted-foreground mt-2 mb-4">
+              {activeTab === "active" && (
+                <>
+                  <span className="block font-semibold text-foreground mb-1">No whiteboards yet</span>
+                  Create a blank canvas to organize your thoughts.
+                </>
+              )}
               {activeTab === "archived" && "No archived whiteboards."}
               {activeTab === "binned" && "Bin is empty."}
-            </p>
+            </div>
             {activeTab === "active" && (
               <Button variant="outline" onClick={handleCreate} disabled={creating}>
                 <Plus className="mr-1.5 size-4" /> Create your first whiteboard
