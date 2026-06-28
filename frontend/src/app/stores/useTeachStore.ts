@@ -100,6 +100,8 @@ interface TeachState {
   sessionId: string | null;
   approvedNotes: string;
 
+  generationId: string | null;
+
   setField: <K extends keyof TeachState>(key: K, value: TeachState[K]) => void;
   toggleArtifact: (key: ArtifactKey) => void;
   fetchRecommendations: (topic: string) => Promise<void>;
@@ -163,6 +165,8 @@ export const useTeachStore = create<TeachState>((set, get) => ({
   isPaused: false,
   sessionId: null,
   approvedNotes: "",
+  
+  generationId: null,
 
   setField: (key, value) => set({ [key]: value } as Partial<TeachState>),
 
@@ -232,6 +236,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       set({ topic: enhResult.prompt });
     }
     const finalTopic = get().topic.trim();
+    const newGenerationId = crypto.randomUUID();
 
     // Seed workspace: overview loading, selected artifacts queued (paused).
     const artifacts = freshArtifacts();
@@ -251,12 +256,17 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       isPaused: false,
       sessionId: null,
       approvedNotes: "",
+      generationId: newGenerationId,
     });
 
     // Phase 1: generate draft notes via HITL graph (pauses before artifacts).
     try {
       const selectedCourse = get().course === "none" ? null : get().course;
       const draft = await api.generateOverview(finalTopic, depth, selectedCourse, get().document);
+      
+      // Prevent race conditions
+      if (get().generationId !== newGenerationId) return;
+
       set({
         overview: { title: draft.title, markdown: draft.draft_markdown, grounded: draft.grounded },
         sources: draft.sources,
@@ -272,6 +282,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
         status: "success",
       });
     } catch (err) {
+      if (get().generationId !== newGenerationId) return;
       set({ overviewStatus: "error", generating: false, currentTask: null });
       toast.error(err instanceof Error ? err.message : "Failed to generate draft notes");
     }
@@ -291,6 +302,8 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       toast.error("Select at least one artifact to generate");
       return;
     }
+    
+    const newGenerationId = crypto.randomUUID();
 
     // Mark all queued slots as loading.
     set((s) => {
@@ -298,11 +311,14 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       for (const key of artifactsToGenerate) {
         artifacts[key] = { status: "loading", data: null, error: null };
       }
-      return { artifacts, generating: true, currentTask: "notes", isPaused: false };
+      return { artifacts, generating: true, currentTask: "notes", isPaused: false, generationId: newGenerationId };
     });
 
     try {
       const result = await api.resumeTeach(sessionId, approvedNotes, artifactsToGenerate);
+      
+      if (get().generationId !== newGenerationId) return;
+
       applyResumeResult(result, artifactsToGenerate, set);
       set({ generating: false, currentTask: null });
       useNotificationStore.getState().add({
@@ -310,6 +326,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
         status: "success",
       });
     } catch (err) {
+      if (get().generationId !== newGenerationId) return;
       // Mark all loading slots as error.
       set((s) => {
         const artifacts = { ...s.artifacts };
@@ -427,6 +444,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
         consistencyStatus: "idle",
         generating: false,
         currentTask: null,
+        generationId: crypto.randomUUID(),
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to open package");
@@ -452,6 +470,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       isPaused: false,
       sessionId: null,
       approvedNotes: "",
+      generationId: null,
     }),
 }));
 
@@ -487,6 +506,7 @@ async function generateArtifact(
   const setSlot = (slot: Partial<ArtifactSlot>) =>
     set((s) => ({ artifacts: { ...s.artifacts, [key]: { ...s.artifacts[key], ...slot } } }));
 
+  const currentGenId = get().generationId;
   setSlot({ status: "loading", error: null });
   try {
     const selectedCourse = get().course === "none" ? null : get().course;
@@ -512,8 +532,12 @@ async function generateArtifact(
         data = await api.generateDifference(t, selectedCourse, doc);
         break;
     }
-    setSlot({ status: "done", data });
+    if (get().generationId === currentGenId) {
+      setSlot({ status: "done", data });
+    }
   } catch (err) {
-    setSlot({ status: "error", error: err instanceof Error ? err.message : "Generation failed" });
+    if (get().generationId === currentGenId) {
+      setSlot({ status: "error", error: err instanceof Error ? err.message : "Generation failed" });
+    }
   }
 }

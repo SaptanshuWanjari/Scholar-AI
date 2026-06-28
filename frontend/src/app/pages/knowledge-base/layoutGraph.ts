@@ -1,6 +1,7 @@
 import type { Node, Edge } from "@xyflow/react";
 import type { ConceptData } from "../../lib/graph-data";
 import type { KGGraph } from "../../lib/api";
+import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, forceX, forceY } from "d3-force";
 
 export const CLUSTER_SOURCE: Record<string, string> = {
   rag: "Documents",
@@ -28,54 +29,63 @@ export function layoutGraph(graph: KGGraph): {
   nodes: Node<ConceptData>[];
   edges: Edge[];
 } {
-  const ordered = [...graph.nodes].sort((a, b) => {
-    const w = SIZE_WEIGHT[b.size] - SIZE_WEIGHT[a.size];
-    if (w !== 0) return w;
-    return b.refCount - a.refCount;
-  });
-
   const CENTER = { x: 560, y: 360 };
-  const RING_GAP = 230;
 
-  const nodes: Node<ConceptData>[] = ordered.map((n, i) => {
-    const data: ConceptData = {
-      label: n.label,
-      description: n.description,
-      size: n.size,
-      refCount: n.refCount,
-      sourceCount: n.sourceCount,
-      cluster: n.cluster as ConceptData["cluster"],
-    };
-
-    if (i === 0) {
-      return { id: n.id, type: "concept", position: { ...CENTER }, data };
-    }
-
-    let idx = i - 1;
-    let ring = 1;
-    while (idx >= 6 * ring) {
-      idx -= 6 * ring;
-      ring += 1;
-    }
-    const slots = 6 * ring;
-    const angle = (idx / slots) * 2 * Math.PI + (ring % 2 ? 0 : Math.PI / slots);
-    const radius = ring * RING_GAP;
-
+  const simNodes = graph.nodes.map((n) => {
     return {
       id: n.id,
-      type: "concept",
-      position: {
-        x: CENTER.x + radius * Math.cos(angle),
-        y: CENTER.y + radius * Math.sin(angle),
-      },
-      data,
+      data: {
+        label: n.label,
+        description: n.description,
+        size: n.size,
+        refCount: n.refCount,
+        sourceCount: n.sourceCount,
+        cluster: n.cluster as ConceptData["cluster"],
+      } as ConceptData,
+      x: CENTER.x + (Math.random() - 0.5) * 100,
+      y: CENTER.y + (Math.random() - 0.5) * 100,
+      radius: n.size === "large" ? 60 : n.size === "medium" ? 45 : 30, // for collision
     };
   });
 
-  const edges: Edge[] = graph.edges.map((e) => ({
+  const simLinks = graph.edges.map((e) => ({
     id: e.id,
     source: e.source,
     target: e.target,
+    label: e.label,
+  }));
+
+  const simulation = forceSimulation(simNodes)
+    .force(
+      "link",
+      forceLink(simLinks)
+        .id((d: any) => d.id)
+        .distance(150)
+    )
+    .force("charge", forceManyBody().strength(-800))
+    .force("collide", forceCollide().radius((d: any) => d.radius + 20).iterations(2))
+    .force("center", forceCenter(CENTER.x, CENTER.y))
+    .force("x", forceX(CENTER.x).strength(0.05))
+    .force("y", forceY(CENTER.y).strength(0.05))
+    .stop();
+
+  // Run simulation synchronously
+  const ticks = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
+  for (let i = 0; i < ticks; ++i) {
+    simulation.tick();
+  }
+
+  const nodes: Node<ConceptData>[] = simNodes.map((n) => ({
+    id: n.id,
+    type: "concept",
+    position: { x: n.x, y: n.y },
+    data: n.data,
+  }));
+
+  const edges: Edge[] = simLinks.map((e: any) => ({
+    id: e.id,
+    source: e.source.id,
+    target: e.target.id,
     label: e.label,
     ...edgeBase,
   }));

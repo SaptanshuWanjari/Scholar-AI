@@ -153,16 +153,31 @@ export const useQuizStore = create<QuizState>((set, get) => ({
 
   submit: (answers) => {
     const { active } = get();
+    if (_sessionTimer) {
+      clearTimeout(_sessionTimer);
+      _sessionTimer = null;
+    }
     if (active) {
-      if (_sessionTimer) clearTimeout(_sessionTimer);
       api.clearQuizSession(active.id).catch(() => {});
     }
     set({ answers, stage: "results", deadline: null });
   },
 
-  backToBuilder: () => set({ stage: "builder", deadline: null }),
+  backToBuilder: () => {
+    if (_sessionTimer) {
+      clearTimeout(_sessionTimer);
+      _sessionTimer = null;
+    }
+    set({ stage: "builder", deadline: null });
+  },
 
-  reset: () => set({ stage: "builder", active: null, answers: {}, idx: 0, deadline: null }),
+  reset: () => {
+    if (_sessionTimer) {
+      clearTimeout(_sessionTimer);
+      _sessionTimer = null;
+    }
+    set({ stage: "builder", active: null, answers: {}, idx: 0, deadline: null });
+  },
 
   restoreSession: (quiz) => {
     set({

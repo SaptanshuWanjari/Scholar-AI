@@ -510,7 +510,7 @@ export function Notebooks() {
           </div>
         </div>
 
-        <div ref={contentRef} className="mx-auto max-w-[900px] px-10 py-12">
+        <div ref={contentRef} className="mx-auto max-w-[1350px] px-6 md:px-10 py-12">
           {loadingNotebook ? (
             <div className="flex items-center gap-2 py-20 text-sm text-muted-foreground">
               <Loader2 className="size-4 animate-spin" /> Loading notebook…
@@ -547,7 +547,7 @@ export function Notebooks() {
                 </p>
               )}
 
-              <div className="mt-8 space-y-5">
+              <div className="mt-8 space-y-6">
                 {showDraftBanner && (
                   <div className="mb-3 flex items-center justify-between rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
                     <span>
@@ -577,7 +577,7 @@ export function Notebooks() {
                     customScrollParent={scrollParent}
                     data={blocks}
                     itemContent={(i, block) => (
-                      <div className="pb-5">
+                      <div className="pb-6">
                         <BlockView
                           block={block}
                           index={i}
@@ -616,8 +616,8 @@ export function Notebooks() {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="group flex w-full items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet">
-                      <Plus className="size-4" /> Add block
+                    <button className="group flex w-full items-center gap-2.5 rounded-xl border border-dashed border-border px-5 py-4 text-base text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet">
+                      <Plus className="size-5" /> Add block
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-[300px]">

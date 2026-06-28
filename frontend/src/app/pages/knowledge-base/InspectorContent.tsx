@@ -1,5 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import type { Node, Edge } from "@xyflow/react";
+import type { ConceptData } from "../../lib/graph-data";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
@@ -8,6 +10,7 @@ import { MarkdownRenderer } from "../../components/MarkdownRenderer";
 import { useConceptActionStore } from "../../stores/useConceptActionStore";
 import { api } from "../../lib/api";
 import { useNavigate } from "react-router";
+import { useKnowledgeBaseStore } from "../../stores/useKnowledgeBaseStore";
 import { useConcept } from "./useConcept";
 import { InspectorBlock } from "./shared";
 import {
@@ -27,11 +30,14 @@ import {
 
 export function InspectorContent({
   conceptId,
+  graph,
   onOpenDrawer,
 }: {
   conceptId: string;
+  graph?: { nodes: Node<ConceptData>[]; edges: Edge[] } | null;
   onOpenDrawer: () => void;
 }) {
+  const { setField } = useKnowledgeBaseStore();
   const { concept, loading } = useConcept(conceptId);
   const navigate = useNavigate();
   const [discoveries, setDiscoveries] = useState<string[] | null>(null);
@@ -39,6 +45,16 @@ export function InspectorContent({
   const { running, runningConceptId, result, resultConceptId, clearResult, runAction } =
     useConceptActionStore();
   const showResult = result && resultConceptId === conceptId;
+
+  const connectedNodes = useMemo(() => {
+    if (!graph) return [];
+    const connectedIds = new Set<string>();
+    for (const e of graph.edges) {
+      if (e.source === conceptId) connectedIds.add(e.target);
+      if (e.target === conceptId) connectedIds.add(e.source);
+    }
+    return graph.nodes.filter(n => connectedIds.has(n.id));
+  }, [graph, conceptId]);
 
   const onDiscover = useCallback(async () => {
     setDiscovering(true);
@@ -121,6 +137,24 @@ export function InspectorContent({
           </div>
         </InspectorBlock>
       </div>
+
+      {connectedNodes.length > 0 && (
+        <div className="p-4">
+          <InspectorBlock title="Connected Concepts">
+            <div className="flex flex-wrap gap-1.5">
+              {connectedNodes.map((n) => (
+                <button
+                  key={n.id}
+                  onClick={() => setField("selectedId", n.id)}
+                  className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground/80 transition-colors hover:border-violet/40 hover:text-violet"
+                >
+                  {n.data.label}
+                </button>
+              ))}
+            </div>
+          </InspectorBlock>
+        </div>
+      )}
 
       <div className="p-4">
         <InspectorBlock title="Referenced In">

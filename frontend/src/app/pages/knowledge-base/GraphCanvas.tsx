@@ -24,6 +24,8 @@ export function GraphCanvas({
   searchQuery,
   activeFilters,
   activeCollection,
+  degreeOfSeparation,
+  distances,
   onNodeClick,
   onNodeDoubleClick,
   onPaneClick,
@@ -34,6 +36,8 @@ export function GraphCanvas({
   searchQuery: string;
   activeFilters: string[];
   activeCollection: string | null;
+  degreeOfSeparation: number | "all";
+  distances: Record<string, number> | null;
   onNodeClick: (id: string) => void;
   onNodeDoubleClick: (id: string) => void;
   onPaneClick: () => void;
@@ -49,8 +53,13 @@ export function GraphCanvas({
         const collectionMatch = !activeCollection || `col-${cluster}` === activeCollection;
         const nodeSourceType = CLUSTER_SOURCE[cluster];
         const sourceMatch = !nodeSourceType || activeFilters.includes(nodeSourceType);
+        
+        let degreeMatch = true;
+        if (selectedId && degreeOfSeparation !== "all" && distances) {
+          degreeMatch = distances[n.id] !== undefined;
+        }
 
-        const visible = searchMatch && collectionMatch && sourceMatch;
+        const visible = searchMatch && collectionMatch && sourceMatch && degreeMatch;
 
         return {
           ...n,
@@ -58,7 +67,7 @@ export function GraphCanvas({
           style: { opacity: visible ? 1 : 0.12, transition: "opacity 0.2s" },
         };
       }),
-    [sourceNodes, selectedId, q, activeFilters, activeCollection],
+    [sourceNodes, selectedId, q, activeFilters, activeCollection, degreeOfSeparation, distances],
   );
 
   const [nodes, setNodes, onNodesChange] = useNodesState(styledNodes);

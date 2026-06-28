@@ -189,7 +189,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
             autoFocus
             rows={mode === "split" ? 8 : 5}
             className={cn(
-              "resize-y rounded-lg border border-border bg-input-background p-3 font-reading text-sm leading-relaxed outline-none focus:border-violet",
+              "resize-y rounded-lg border border-border bg-input-background p-3 font-reading text-base leading-relaxed outline-none focus:border-violet",
               mode === "split" ? "w-1/2" : "w-full",
             )}
           />
@@ -204,7 +204,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
             )}
           >
             {value.trim() ? (
-              <MarkdownRenderer content={value} className="text-sm" />
+              <MarkdownRenderer content={value} className="text-base leading-relaxed" />
             ) : (
               <p className="text-xs text-muted-foreground italic">Preview will appear here…</p>
             )}

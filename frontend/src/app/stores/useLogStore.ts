@@ -36,6 +36,29 @@ export const useLogStore = create<LogStore>()(
     }),
     {
       name: "scholar-logs",
+      version: 1,
+      merge: (persistedState: unknown, currentState: LogStore) => {
+        // Validation: ensure persistedState is an object and has logs array
+        if (
+          persistedState &&
+          typeof persistedState === "object" &&
+          "logs" in persistedState &&
+          Array.isArray((persistedState as any).logs)
+        ) {
+          const validLogs = ((persistedState as any).logs as unknown[]).filter((log: any) => {
+            return (
+              log &&
+              typeof log === "object" &&
+              typeof log.id === "string" &&
+              typeof log.timestamp === "number" &&
+              (log.level === "error" || log.level === "critical") &&
+              typeof log.message === "string"
+            );
+          });
+          return { ...currentState, logs: validLogs as LogEntry[] };
+        }
+        return currentState; // Fallback to current (default) state if malformed
+      }
     }
   )
 );
