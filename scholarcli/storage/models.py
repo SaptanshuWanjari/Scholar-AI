@@ -636,3 +636,42 @@ class PageOcrCache(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+
+class EmbeddingCache(Base):
+    """LRU cache for frequently embedded queries."""
+
+    __tablename__ = "embedding_cache"
+
+    query_text: Mapped[str] = mapped_column(String(1024), primary_key=True)
+    vector: Mapped[list] = mapped_column(JSON, nullable=False)
+    last_accessed: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), index=True
+    )
+
+
+def get_cached_embedding(session: Session, query: str) -> list[float] | None:
+    cache = session.get(EmbeddingCache, query)
+    if cache:
+        cache.last_accessed = datetime.now()
+        session.commit()
+        return cache.vector
+    return None
+
+def set_cached_embedding(session: Session, query: str, vector: list[float], max_size: int = 1000) -> None:
+    cache = session.get(EmbeddingCache, query)
+    if cache:
+        cache.vector = vector
+        cache.last_accessed = datetime.now()
+    else:
+        cache = EmbeddingCache(query_text=query, vector=vector)
+        session.add(cache)
+    session.commit()
+
+    count = session.query(EmbeddingCache).count()
+    if count > max_size:
+        oldest = session.query(EmbeddingCache).order_by(EmbeddingCache.last_accessed.asc()).limit(count - max_size).all()
+        for o in oldest:
+            session.delete(o)
+        session.commit()
+

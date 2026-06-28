@@ -18,7 +18,17 @@ window.addEventListener("unhandledrejection", (event) => {
 });
 
 
+import { SWRConfig } from "swr";
+import { fetcher } from "./app/lib/api";
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <SWRConfig value={{ 
+    fetcher,
+    provider: () => new Map(), // No persistent cache
+    keepPreviousData: false
+  }}>
+    <App />
+  </SWRConfig>
+);
 
   

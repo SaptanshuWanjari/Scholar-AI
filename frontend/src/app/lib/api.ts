@@ -111,6 +111,11 @@ export interface PackageFull {
   updatedAt: string;
 }
 
+export interface PaginatedSourcesOut {
+  sources: Source[];
+  total: number;
+}
+
 export interface SearchResult {
   id: string;
   group: string;
@@ -642,6 +647,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export const fetcher = (url: string) => request<any>(url);
+
 function json(body: unknown): RequestInit {
   return {
     method: "POST",
@@ -763,10 +770,10 @@ export const api = {
   },
 
   // ---- Sources / search ----
-  searchSources(q: string, course?: string, limit = 5): Promise<Source[]> {
-    const p = new URLSearchParams({ q, limit: String(limit) });
+  searchSources(q: string, course?: string, limit = 5, offset = 0): Promise<PaginatedSourcesOut> {
+    const p = new URLSearchParams({ q, limit: String(limit), offset: String(offset) });
     if (course && course !== "all") p.set("course", course);
-    return request<Source[]>(`/api/sources/search?${p.toString()}`);
+    return request<PaginatedSourcesOut>(`/api/sources/search?${p.toString()}`);
   },
 
   // ---- Generative study features ----

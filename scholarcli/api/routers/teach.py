@@ -10,6 +10,9 @@ Saved packages (``/api/teach/packages``) snapshot a completed workspace.
 
 from __future__ import annotations
 
+import asyncio
+from collections import defaultdict
+
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
 
@@ -29,6 +32,8 @@ from scholarcli.storage import get_session
 from scholarcli.storage.models import LearningPackage
 
 router = APIRouter(prefix="/api/teach", tags=["teach"])
+
+_session_locks: dict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
 
 
 # ---------------------------------------------------------------------------
@@ -54,7 +59,8 @@ async def generate_overview(req: TeachRequest) -> TeachDraftOut:
     }
     config = {"configurable": {"thread_id": thread_id}}
 
-    raw = await run_in_threadpool(get_teach_graph().invoke, state, config)
+    async with _session_locks[thread_id]:
+        raw = await run_in_threadpool(get_teach_graph().invoke, state, config)
     result: dict = raw  # type: ignore[assignment]
 
     record_activity("revision", f"Teach draft: {topic}", req.course or "")
@@ -86,11 +92,12 @@ async def resume_teach(session_id: str, req: TeachResumeRequest) -> TeachArtifac
     config = {"configurable": {"thread_id": session_id}}
 
     try:
-        raw2 = await run_in_threadpool(
-            get_teach_graph().invoke,
-            Command(resume=resume_value),
-            config,
-        )
+        async with _session_locks[session_id]:
+            raw2 = await run_in_threadpool(
+                get_teach_graph().invoke,
+                Command(resume=resume_value),
+                config,
+            )
         result: dict = raw2  # type: ignore[assignment]
     except Exception as exc:
         raise HTTPException(status_code=404, detail=f"Session not found or expired: {exc}") from exc

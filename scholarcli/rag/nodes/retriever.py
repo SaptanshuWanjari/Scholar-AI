@@ -6,6 +6,8 @@ from scholarcli.config import get_settings
 import scholarcli.llm
 from scholarcli.rag.state import GraphState
 from scholarcli.storage.vectors import hybrid_search, search
+from scholarcli.storage import get_session
+from scholarcli.storage.models import get_cached_embedding, set_cached_embedding
 
 
 def retrieve(state: GraphState) -> GraphState:
@@ -14,7 +16,15 @@ def retrieve(state: GraphState) -> GraphState:
     query = state.get("search_query") or state["query"]
     course = state.get("course")
 
-    query_vector: list[float] = emb.embed_query(query)
+    session = get_session()
+    try:
+        query_vector = get_cached_embedding(session, query)
+        if query_vector is None:
+            query_vector = emb.embed_query(query)
+            set_cached_embedding(session, query, query_vector)
+    finally:
+        session.close()
+
 
     if s.retrieval.hybrid_search:
         results = hybrid_search(

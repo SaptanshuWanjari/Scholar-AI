@@ -32,7 +32,7 @@ export function SettingsTab({ course, onUpdate }: SettingsTabProps) {
       <div className="space-y-3">
         <div>
           <label className="text-[20px] font-medium mb-1 block">
-            Custom System Prompt 
+            Custom System Prompt
           </label>
           <p className="text-[15px] text-muted-foreground mb-3">
             Instruct the AI on how to act when answering questions for this

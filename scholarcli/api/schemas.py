@@ -49,6 +49,12 @@ class SourceOut(BaseModel):
     imageUrl: str = ""
 
 
+class PaginatedSourcesOut(BaseModel):
+    sources: list[SourceOut]
+    total: int
+
+
+
 class AskRequest(BaseModel):
     question: str
     course: str | None = None
