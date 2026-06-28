@@ -865,8 +865,8 @@ export const api = {
       }
     }
   },
-  search(q: string, filter = "all"): Promise<SearchResult[]> {
-    const p = new URLSearchParams({ q, filter });
+  search(q: string, type = "all", course = "all", topic = "all"): Promise<SearchResult[]> {
+    const p = new URLSearchParams({ q, type, course, topic });
     return request<SearchResult[]>(`/api/search?${p.toString()}`);
   },
 

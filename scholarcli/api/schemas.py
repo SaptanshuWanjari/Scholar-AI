@@ -535,11 +535,12 @@ class WhiteboardMeta(BaseModel):
     title: str
     course: str
     source: str = "manual"  # manual | ai | imported | selection
-    status: str = "saved"   # draft | saved | archived
+    status: str = "saved"   # draft | saved | archived | binned
     thumbnail: str | None = None
     revisions: int = 0
     updated: str
     createdAt: str
+    deletedAt: str | None = None
 
 
 class WhiteboardOut(BaseModel):
@@ -553,6 +554,7 @@ class WhiteboardOut(BaseModel):
     quality: QualityScore | None = None
     updated: str
     createdAt: str
+    deletedAt: str | None = None
 
 
 class WhiteboardCreate(BaseModel):

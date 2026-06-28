@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search as SearchIcon, FileText, Layers, ListChecks, Workflow, Sparkles, Loader2 } from "lucide-react";
+import { Search as SearchIcon, FileText, Layers, ListChecks, Workflow, Sparkles, Loader2, BookOpen, Tag } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { Page } from "../components/Page";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import { api, type SearchResult } from "../lib/api";
+import { type Course } from "../lib/types";
 import { cn } from "../components/ui/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 
 const groupIcon: Record<string, typeof FileText> = {
   Documents: FileText,
@@ -15,7 +17,6 @@ const groupIcon: Record<string, typeof FileText> = {
   Diagrams: Workflow,
 };
 
-// UI label -> backend filter value. Only "all"/"documents" return data in v1.
 const filters: { label: string; value: string }[] = [
   { label: "All", value: "all" },
   { label: "Documents", value: "documents" },
@@ -24,17 +25,12 @@ const filters: { label: string; value: string }[] = [
   { label: "Diagrams", value: "diagrams" },
 ];
 
-// Filters with no backend data yet — show a "coming soon" empty state.
-const unindexedFilters = new Set(["flashcards", "quizzes", "diagrams"]);
-
 const MIN_QUERY_LEN = 2;
 
-// Escape regex metacharacters so user input can't break the highlighter.
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// Client-side highlight of query terms in a plain-text snippet.
 function highlight(snippet: string, query: string) {
   const terms = query
     .trim()
@@ -43,8 +39,6 @@ function highlight(snippet: string, query: string) {
     .map(escapeRegExp);
   if (terms.length === 0) return snippet;
   const re = new RegExp(`(${terms.join("|")})`, "gi");
-  // String.split with a capturing group yields alternating [text, match, text, …],
-  // so odd indices are the captured matches.
   const parts = snippet.split(re);
   return parts.map((part, i) =>
     i % 2 === 1 ? (
@@ -60,19 +54,23 @@ function highlight(snippet: string, query: string) {
 export function SearchPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
+  const [courseFilter, setCourseFilter] = useState("all");
+  const [topicFilter, setTopicFilter] = useState("all");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
 
-  // Guards against out-of-order responses clobbering newer ones.
   const requestId = useRef(0);
 
   const trimmed = query.trim();
   const tooShort = trimmed.length > 0 && trimmed.length < MIN_QUERY_LEN;
-  const isUnindexed = unindexedFilters.has(filter);
 
   useEffect(() => {
-    // Don't hit the backend for empty/too-short queries or unindexed filters.
-    if (trimmed.length < MIN_QUERY_LEN || isUnindexed) {
+    api.listCourses().then(setCourses).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (trimmed.length < MIN_QUERY_LEN) {
       setResults([]);
       setLoading(false);
       return;
@@ -82,9 +80,9 @@ export function SearchPage() {
     setLoading(true);
     const handle = window.setTimeout(() => {
       api
-        .search(trimmed, filter)
+        .search(trimmed, filter, courseFilter, topicFilter)
         .then((data) => {
-          if (id !== requestId.current) return; // stale response
+          if (id !== requestId.current) return;
           setResults(data);
         })
         .catch((err) => {
@@ -98,7 +96,7 @@ export function SearchPage() {
     }, 300);
 
     return () => window.clearTimeout(handle);
-  }, [trimmed, filter, isUnindexed]);
+  }, [trimmed, filter, courseFilter, topicFilter]);
 
   const grouped = useMemo(() => {
     const map: Record<string, SearchResult[]> = {};
@@ -129,36 +127,58 @@ export function SearchPage() {
         </Badge>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {filters.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => setFilter(f.value)}
-            className={cn(
-              "rounded-full border px-3.5 py-1.5 text-sm transition-colors",
-              filter === f.value
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-card text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
-        {hasQuery && !isUnindexed ? (
-          <span className="ml-auto self-center text-sm text-muted-foreground">
-            {results.length} results
-          </span>
-        ) : null}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="size-4 text-muted-foreground" />
+            <Select value={courseFilter} onValueChange={setCourseFilter}>
+              <SelectTrigger className="w-[180px] h-9 text-sm">
+                <SelectValue placeholder="Course" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Courses</SelectItem>
+                {courses.map(c => (
+                  <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Tag className="size-4 text-muted-foreground" />
+            <Input 
+              value={topicFilter === "all" ? "" : topicFilter} 
+              onChange={e => setTopicFilter(e.target.value || "all")} 
+              placeholder="Filter by topic..." 
+              className="w-[180px] h-9 text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {filters.map((f) => (
+            <button
+              key={f.value}
+              onClick={() => setFilter(f.value)}
+              className={cn(
+                "rounded-full border px-3.5 py-1.5 text-sm transition-colors",
+                filter === f.value
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+          {hasQuery ? (
+            <span className="ml-auto self-center text-sm text-muted-foreground">
+              {results.length} results
+            </span>
+          ) : null}
+        </div>
       </div>
 
-      {/* Unindexed filter (flashcards/quizzes/diagrams) — not yet searchable. */}
-      {isUnindexed ? (
-        <div className="flex flex-col items-center pt-16 text-center text-muted-foreground">
-          <Sparkles className="size-8" />
-          <p className="mt-3 text-sm">Coming soon — not yet indexed.</p>
-        </div>
-      ) : !hasQuery ? (
-        // Empty / suggestions state.
+      {!hasQuery ? (
         <div className="flex flex-col items-center pt-16 text-center text-muted-foreground">
           <SearchIcon className="size-8" />
           <p className="mt-3 text-sm">

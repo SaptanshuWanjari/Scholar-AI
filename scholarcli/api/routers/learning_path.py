@@ -9,10 +9,14 @@ recommendation, progress and analytics are computed server-side on read.
 
 from __future__ import annotations
 
+import copy
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
+from sqlalchemy import func
 
-from scholarcli.api import parsers
+from scholarcli.api import mastery_service, parsers
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.parsers import _VALID_STATUS
 from scholarcli.api.rag_service import run_ask
@@ -29,7 +33,7 @@ from scholarcli.api.schemas import (
     UpdateConceptStatusRequest,
 )
 from scholarcli.storage import get_session
-from scholarcli.storage.models import LearningPath, SavedRevision, TopicStat
+from scholarcli.storage.models import DepConcept, LearningPath, SavedRevision, TopicStat
 
 router = APIRouter(prefix="/api/learning-paths", tags=["learning-path"])
 
