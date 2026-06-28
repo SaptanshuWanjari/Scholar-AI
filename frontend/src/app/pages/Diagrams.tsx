@@ -1,11 +1,17 @@
 import { Component, useEffect, useState, type ReactNode } from "react";
-import { Workflow, Copy, Check, Download, FileImage, FileDown, Code2, Sparkles, Loader2, AlertCircle, Trash2 } from "lucide-react";
+import { Workflow, Copy, Check, Download, FileImage, FileDown, Code2, Sparkles, Loader2, AlertCircle, Trash2, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "../components/ui/dropdown-menu";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { toast } from "sonner";
 import { DiagramViewer } from "../components/DiagramViewer";
 import QualityBadge from "../components/QualityBadge";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
-import { Button } from "../components/ui/button";
+import { Button, buttonVariants } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
 import { ScrollArea } from "../components/ui/scroll-area";
@@ -329,15 +335,24 @@ export function Diagrams() {
                   course={active.course}
                 />
 
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportSvg}>
-                  <Download className="size-3.5" /> SVG
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportPng}>
-                  <FileImage className="size-3.5" /> PNG
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={exportPdf}>
-                  <FileDown className="size-3.5" /> PDF
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5 cursor-pointer")}>
+                      <Download className="size-3.5" /> Export <ChevronDown className="size-3.5" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={exportSvg}>
+                      <Download className="size-3.5" /> Export as SVG
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={exportPng}>
+                      <FileImage className="size-3.5" /> Export as PNG
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={exportPdf}>
+                      <FileDown className="size-3.5" /> Export as PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 

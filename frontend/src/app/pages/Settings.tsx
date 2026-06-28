@@ -486,38 +486,52 @@ export function SettingsPage() {
                 No plugins available.
               </div>
             ) : (
-              KNOWN_PLUGINS.map((plugin) => (
-                <div
-                  key={plugin.id}
-                  className="flex items-center justify-between gap-6 border-b border-border py-4 last:border-0"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-                      <plugin.icon className="size-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 text-sm font-medium">
-                        {plugin.name}
-                        {plugin.builtIn && (
-                          <span className="rounded bg-violet/10 px-1.5 py-0.5 text-[10px] font-medium text-violet">
-                            Built-in
-                          </span>
-                        )}
-                        <span className="text-[10px] text-muted-foreground font-mono">
-                          v{plugin.version}
-                        </span>
+              KNOWN_PLUGINS.map((plugin) => {
+                const enabled = pluginEnabled[plugin.id] ?? false;
+                return (
+                  <div
+                    key={plugin.id}
+                    className="border-b border-border py-4 last:border-0"
+                  >
+                    <div className="flex items-center justify-between gap-6">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                          <plugin.icon className="size-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 text-sm font-medium">
+                            {plugin.name}
+                            {plugin.builtIn && (
+                              <span className="rounded bg-violet/10 px-1.5 py-0.5 text-[10px] font-medium text-violet">
+                                Built-in
+                              </span>
+                            )}
+                            <span className="text-[10px] text-muted-foreground font-mono">
+                              v{plugin.version}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {plugin.description}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground truncate">
-                        {plugin.description}
-                      </div>
+                      <Switch
+                        checked={enabled}
+                        onCheckedChange={() => togglePlugin(plugin.id)}
+                      />
                     </div>
+                    {plugin.settingsTab && enabled && (
+                      <div className="mt-4 rounded-xl border border-border bg-muted/30 p-4">
+                        <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <plugin.settingsTab.icon className="size-3.5" />
+                          {plugin.settingsTab.label}
+                        </div>
+                        {plugin.settingsTab.content}
+                      </div>
+                    )}
                   </div>
-                  <Switch
-                    checked={pluginEnabled[plugin.id] ?? false}
-                    onCheckedChange={() => togglePlugin(plugin.id)}
-                  />
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </TabsContent>

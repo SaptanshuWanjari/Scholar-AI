@@ -30,6 +30,10 @@ from scholarcli.storage.models import Whiteboard, WhiteboardRevision
 
 router = APIRouter(prefix="/api/whiteboards", tags=["whiteboards"])
 
+# Cap on retained revisions per whiteboard. Old snapshots are pruned on each new
+# save so version history doesn't grow the database without bound.
+MAX_REVISIONS = 30
+
 
 def _fmt(dt) -> str:
     return dt.strftime("%Y-%m-%d %H:%M") if dt else ""
@@ -210,6 +214,13 @@ def save_revision(whiteboard_id: int, payload: WhiteboardRevisionCreate) -> Whit
         # Keep the live whiteboard in sync with the snapshotted scene.
         wb.scene = scene
         session.add(rev)
+        # Prune the oldest revisions beyond the retention cap to free space.
+        cutoff = next_number - MAX_REVISIONS
+        if cutoff > 0:
+            session.query(WhiteboardRevision).filter(
+                WhiteboardRevision.whiteboard_id == whiteboard_id,
+                WhiteboardRevision.revision_number <= cutoff,
+            ).delete(synchronize_session=False)
         session.commit()
         session.refresh(rev)
         return _revision(rev)

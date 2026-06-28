@@ -1,6 +1,7 @@
-import { PencilRuler } from "lucide-react";
+import { PencilRuler, Settings2 } from "lucide-react";
 import { Whiteboards } from "../../pages/Whiteboards";
 import { WhiteboardEditor } from "../../pages/WhiteboardEditor";
+import { WhiteboardSettings } from "./WhiteboardSettings";
 import type { PluginDefinition } from "../types";
 
 export const excalidrawPlugin: PluginDefinition = {
@@ -18,4 +19,9 @@ export const excalidrawPlugin: PluginDefinition = {
     { path: "/whiteboards", element: <Whiteboards /> },
     { path: "/whiteboards/:id", element: <WhiteboardEditor /> },
   ],
+  settingsTab: {
+    label: "Whiteboard settings",
+    icon: Settings2,
+    content: <WhiteboardSettings />,
+  },
 };

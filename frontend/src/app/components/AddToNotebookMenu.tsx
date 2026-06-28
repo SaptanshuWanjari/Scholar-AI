@@ -12,6 +12,7 @@ import { BookPlus, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { api, type NotebookMeta } from "../lib/api";
+import type { NotebookBlock } from "../lib/notebook-data";
 import { artifactLabel, serializeArtifact } from "../lib/serializers";
 import { Button } from "./ui/button";
 import {
@@ -44,6 +45,14 @@ interface AddToNotebookMenuProps {
   size?: React.ComponentProps<typeof Button>["size"];
   className?: string;
   course?: string | null;
+  /**
+   * When provided, the artifact is appended as this rich block instead of being
+   * serialized to a Markdown text block. Used for embed-style blocks (e.g. a
+   * whiteboard snapshot that links back to the live editor). The builder may be
+   * async so callers can compute a fresh thumbnail at insert time. Dedup is
+   * skipped in this mode.
+   */
+  customBlock?: () => NotebookBlock | Promise<NotebookBlock>;
 }
 
 interface DedupState {
@@ -62,6 +71,7 @@ export function AddToNotebookMenu({
   size = "sm",
   className,
   course,
+  customBlock,
 }: AddToNotebookMenuProps) {
   const [open, setOpen] = useState(false);
   const [notebooks, setNotebooks] = useState<NotebookMeta[] | null>(null);
@@ -114,6 +124,24 @@ export function AddToNotebookMenu({
 
   const addTo = useCallback(
     async (notebookId: string, notebookName: string) => {
+      // Embed-block mode: append a rich block directly (no serialize, no dedup).
+      if (customBlock) {
+        setBusy(true);
+        setPendingId(notebookId);
+        try {
+          const block = await customBlock();
+          const nb = await api.getNotebook(notebookId);
+          await api.updateNotebook(notebookId, { blocks: [...(nb.blocks ?? []), block] });
+          toast.success(`Added to ${notebookName}`);
+          setOpen(false);
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Failed to add to notebook");
+        } finally {
+          setBusy(false);
+          setPendingId(null);
+        }
+        return;
+      }
       const markdown = serialize();
       if (markdown === null) return;
       setBusy(true);
@@ -133,14 +161,13 @@ export function AddToNotebookMenu({
         setPendingId(null);
       }
     },
-    [serialize, artifactType, sourceId],
+    [customBlock, serialize, artifactType, sourceId],
   );
 
   const createAndAdd = useCallback(async () => {
     const name = newName.trim();
     if (!name) return;
-    const markdown = serialize();
-    if (markdown === null) return;
+    if (!customBlock && serialize() === null) return;
     setBusy(true);
     try {
       const nb = await api.createNotebook(name, course ?? null);
@@ -153,7 +180,7 @@ export function AddToNotebookMenu({
     } finally {
       setBusy(false);
     }
-  }, [newName, serialize, course, refresh, addTo]);
+  }, [newName, serialize, course, refresh, addTo, customBlock]);
 
   const forceAppend = useCallback(async () => {
     if (!dedup) return;

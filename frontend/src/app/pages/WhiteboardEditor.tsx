@@ -10,6 +10,7 @@ import {
   RotateCcw,
   X,
   Check,
+  Dot,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
@@ -28,22 +29,30 @@ import {
 } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { ExcalidrawCanvas } from "../components/whiteboard/ExcalidrawCanvas";
+import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
 import { api } from "../lib/api";
 import type { WhiteboardFull, WhiteboardRevision, WhiteboardScene } from "../lib/types";
 import { mermaidToScene, mergeMermaidIntoScene, sceneThumbnail } from "../lib/whiteboard";
+import { useWhiteboardPrefs } from "../plugins/excalidraw/useWhiteboardPrefs";
 import { cn } from "../components/ui/utils";
 
-const AUTOSAVE_MS = 1200;
+// "each-edit" debounce — short, just enough to batch a flurry of strokes.
+const EACH_EDIT_MS = 500;
+// "timed" mode flushes pending changes on this interval.
+const TIMED_INTERVAL_MS = 8000;
 
 export function WhiteboardEditor() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const autosaveMode = useWhiteboardPrefs((s) => s.autosaveMode);
+
   const [wb, setWb] = useState<WhiteboardFull | null>(null);
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false); // unsaved live-scene changes
   const [busy, setBusy] = useState<string | null>(null); // AI action in flight
 
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -55,7 +64,12 @@ export function WhiteboardEditor() {
 
   const apiRef = useRef<any>(null);
   const sceneRef = useRef<WhiteboardScene>({});
+  const dirtyRef = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Latest persist fn, so timer/interval/unmount always call the current one.
+  const persistRef = useRef<((scene: WhiteboardScene) => Promise<void>) | null>(null);
+  const modeRef = useRef(autosaveMode);
+  modeRef.current = autosaveMode;
   // Bumped to force-remount the canvas with a new initial scene (restore/generate).
   const [canvasKey, setCanvasKey] = useState(0);
 
@@ -97,6 +111,8 @@ export function WhiteboardEditor() {
       try {
         const thumbnail = await sceneThumbnail(scene);
         await api.updateWhiteboard(id, { scene, thumbnail });
+        dirtyRef.current = false;
+        setDirty(false);
       } catch {
         /* transient autosave failure — next change retries */
       } finally {
@@ -105,19 +121,42 @@ export function WhiteboardEditor() {
     },
     [id],
   );
+  persistRef.current = persist;
 
-  const scheduleSave = useCallback(
+  // Flush any pending changes immediately (used by timed interval, manual save,
+  // and unmount). No-op when nothing is dirty.
+  const flush = useCallback(() => {
+    if (!dirtyRef.current) return;
+    void persistRef.current?.(sceneRef.current);
+  }, []);
+
+  // Canvas onChange — behaviour depends on the chosen autosave mode.
+  const handleChange = useCallback(
     (scene: WhiteboardScene) => {
       sceneRef.current = scene;
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      saveTimer.current = setTimeout(() => void persist(scene), AUTOSAVE_MS);
+      dirtyRef.current = true;
+      setDirty(true);
+      if (modeRef.current === "each-edit") {
+        if (saveTimer.current) clearTimeout(saveTimer.current);
+        saveTimer.current = setTimeout(() => void persistRef.current?.(scene), EACH_EDIT_MS);
+      }
+      // "timed" is handled by the interval below; "manual" waits for an explicit save.
     },
-    [persist],
+    [],
   );
 
+  // Time-based autosave: periodically flush while there are pending changes.
+  useEffect(() => {
+    if (autosaveMode !== "timed") return;
+    const t = setInterval(flush, TIMED_INTERVAL_MS);
+    return () => clearInterval(t);
+  }, [autosaveMode, flush]);
+
+  // Flush on unmount so navigating away never loses work, regardless of mode.
   useEffect(
     () => () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
+      if (dirtyRef.current) void persistRef.current?.(sceneRef.current);
     },
     [],
   );
@@ -320,12 +359,21 @@ export function WhiteboardEditor() {
             <>
               <Loader2 className="size-3 animate-spin" /> Saving…
             </>
+          ) : dirty ? (
+            <>
+              <Dot className="size-4 text-amber-500" /> Unsaved
+            </>
           ) : (
             <>
               <Check className="size-3 text-emerald-500" /> Saved
             </>
           )}
         </span>
+        {autosaveMode === "manual" && (
+          <Button variant="outline" size="sm" onClick={flush} disabled={!dirty || saving}>
+            <Save className="mr-1.5 size-4" /> Save
+          </Button>
+        )}
 
         <div className="ml-auto flex items-center gap-1.5">
           <DropdownMenu>
@@ -345,6 +393,20 @@ export function WhiteboardEditor() {
               <DropdownMenuItem onClick={runExpand}>Expand selected node</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <AddToNotebookMenu
+            artifactType="whiteboard"
+            content={null}
+            sourceId={id}
+            course={wb?.course || null}
+            label="Add to notebook"
+            customBlock={async () => ({
+              type: "whiteboard",
+              whiteboardId: id,
+              title: wb?.title || title || "Whiteboard",
+              thumbnail: (await sceneThumbnail(sceneRef.current)) ?? undefined,
+            })}
+          />
 
           <Button variant="outline" size="sm" onClick={saveRevision}>
             <Save className="mr-1.5 size-4" /> Save revision
@@ -374,7 +436,7 @@ export function WhiteboardEditor() {
           key={canvasKey}
           initialScene={sceneRef.current}
           onApiReady={(a) => (apiRef.current = a)}
-          onChange={scheduleSave}
+          onChange={handleChange}
         />
 
         {/* History panel */}
