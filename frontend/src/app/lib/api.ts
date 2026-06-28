@@ -331,6 +331,11 @@ export interface KGNode {
   refCount: number;
   sourceCount: number;
   cluster: string;
+  masteryStatus: "Unknown" | "Learning" | "Weak" | "Needs Revision" | "Mastered";
+  masteryScore: number;
+  importance: number;
+  artifactCounts: { flashcards: number; whiteboards: number; revisions: number; packages: number };
+  depConceptId: number | null;
 }
 
 export interface KGEdge {
@@ -338,6 +343,8 @@ export interface KGEdge {
   source: string;
   target: string;
   label: string;
+  edgeType?: "semantic" | "prerequisite";
+  confidence?: number;
 }
 
 export interface KGGraph {

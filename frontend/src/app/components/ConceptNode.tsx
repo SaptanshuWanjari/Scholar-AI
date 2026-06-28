@@ -30,22 +30,43 @@ const sizeMap = {
   },
 };
 
+const MASTERY_BORDER: Record<string, string> = {
+  Mastered: "border-green-500/70 shadow-green-500/10",
+  Learning: "border-amber-400/70 shadow-amber-400/10",
+  Weak: "border-red-500/70 shadow-red-500/10",
+  "Needs Revision": "border-orange-400/70 shadow-orange-400/10",
+  Unknown: "border-border",
+};
+
+const MASTERY_BG_SELECTED: Record<string, string> = {
+  Mastered: "bg-green-500/10",
+  Learning: "bg-amber-400/10",
+  Weak: "bg-red-500/10",
+  "Needs Revision": "bg-orange-400/10",
+  Unknown: "bg-violet-soft/30",
+};
+
 export const ConceptNode = memo(function ConceptNode({
   data,
   selected,
 }: NodeProps & { data: ConceptData }) {
   const s = sizeMap[data.size];
+  const masteryBorder = MASTERY_BORDER[data.masteryStatus] ?? MASTERY_BORDER.Unknown;
+  const masteryBgSel = MASTERY_BG_SELECTED[data.masteryStatus] ?? MASTERY_BG_SELECTED.Unknown;
+
+  const artifacts = data.artifactCounts ?? { flashcards: 0, whiteboards: 0, revisions: 0, packages: 0 };
+  const hasBadges = artifacts.flashcards > 0 || artifacts.whiteboards > 0 || artifacts.revisions > 0 || artifacts.packages > 0;
+
   return (
     <div
       className={cn(
         "relative cursor-pointer rounded-xl border bg-card text-center transition-all duration-150",
         s.wrapper,
         selected
-          ? "border-violet bg-violet-soft/30 shadow-md shadow-violet/10"
-          : "border-border shadow-sm hover:border-foreground/25 hover:shadow-md",
+          ? cn(masteryBorder, masteryBgSel, "shadow-md")
+          : cn(masteryBorder, "shadow-sm hover:border-foreground/25 hover:shadow-md"),
       )}
     >
-      {/* Handles on all sides for flexible edge routing */}
       {positions.map((pos) => (
         <span key={pos}>
           <Handle type="target" position={pos} style={handleStyle} />
@@ -59,6 +80,23 @@ export const ConceptNode = memo(function ConceptNode({
       <div className={cn("mt-0.5 text-muted-foreground", s.meta)}>
         {data.refCount} refs · {data.sourceCount} src
       </div>
+
+      {hasBadges && (
+        <div className="mt-1.5 flex items-center justify-center gap-1">
+          {artifacts.flashcards > 0 && (
+            <span className="inline-block size-1.5 rounded-full bg-violet-500" title="Flashcards" />
+          )}
+          {artifacts.whiteboards > 0 && (
+            <span className="inline-block size-1.5 rounded-full bg-blue-400" title="Whiteboards" />
+          )}
+          {artifacts.revisions > 0 && (
+            <span className="inline-block size-1.5 rounded-full bg-green-500" title="Revisions" />
+          )}
+          {artifacts.packages > 0 && (
+            <span className="inline-block size-1.5 rounded-full bg-amber-400" title="Learning Package" />
+          )}
+        </div>
+      )}
     </div>
   );
 });
