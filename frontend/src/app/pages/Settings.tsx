@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass } from "lucide-react";
+import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle } from "lucide-react";
 import { Page } from "../components/Page";
 import { useGuidanceStore } from "../guidance/useGuidanceStore";
 import {
@@ -31,6 +31,8 @@ import {
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { navItems } from "../lib/nav";
 import { api, type ModelsList } from "../lib/api";
+import { KNOWN_PLUGINS } from "../plugins/registry";
+import { usePluginStore } from "../plugins/usePluginStore";
 
 function ModelOptions({
   models,
@@ -74,6 +76,8 @@ function Row({
 export function SettingsPage() {
   const s = useSettingsStore();
   const navigate = useNavigate();
+  const pluginEnabled = usePluginStore((st) => st.enabled);
+  const togglePlugin = usePluginStore((st) => st.toggle);
   const toursEnabled = useGuidanceStore((g) => g.prefs.toursEnabled);
   const tipsEnabled = useGuidanceStore((g) => g.prefs.tipsEnabled);
   const setGuidancePref = useGuidanceStore((g) => g.setPref);
@@ -137,6 +141,9 @@ export function SettingsPage() {
           </TabsTrigger>
           <TabsTrigger value="guidance" className="gap-1.5">
             <LifeBuoy className="size-4" /> Help &amp; Guidance
+          </TabsTrigger>
+          <TabsTrigger value="plugins" className="gap-1.5">
+            <Puzzle className="size-4" /> Plugins
           </TabsTrigger>
           <TabsTrigger value="data" className="gap-1.5">
             <Database className="size-4" /> Data
@@ -463,6 +470,49 @@ export function SettingsPage() {
                 placeholder="e.g. Visual, Hands-on"
               />
             </Row>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="plugins">
+          <div className="rounded-2xl border border-border bg-card px-5">
+            {KNOWN_PLUGINS.length === 0 ? (
+              <div className="py-10 text-center text-sm text-muted-foreground">
+                No plugins available.
+              </div>
+            ) : (
+              KNOWN_PLUGINS.map((plugin) => (
+                <div
+                  key={plugin.id}
+                  className="flex items-center justify-between gap-6 border-b border-border py-4 last:border-0"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                      <plugin.icon className="size-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        {plugin.name}
+                        {plugin.builtIn && (
+                          <span className="rounded bg-violet/10 px-1.5 py-0.5 text-[10px] font-medium text-violet">
+                            Built-in
+                          </span>
+                        )}
+                        <span className="text-[10px] text-muted-foreground font-mono">
+                          v{plugin.version}
+                        </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {plugin.description}
+                      </div>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={pluginEnabled[plugin.id] ?? false}
+                    onCheckedChange={() => togglePlugin(plugin.id)}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </TabsContent>
 

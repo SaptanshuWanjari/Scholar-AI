@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink } from "react-router";
 import {
   GraduationCap,
@@ -8,12 +8,13 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { navItems } from "../../lib/nav";
-// Removed mock courses import
 import { useUIStore } from "../../stores/useUIStore";
 import { cn } from "../ui/utils";
 import { api } from "../../lib/api";
 import type { Course } from "../../lib/types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { KNOWN_PLUGINS } from "../../plugins/registry";
+import { usePluginStore } from "../../plugins/usePluginStore";
 
 const groupLabels: Record<string, string> = {
   main: "Library",
@@ -26,6 +27,7 @@ export function AppSidebar() {
   const collapsed = useUIStore((s) => s.sidebarCollapsed);
   const toggle = useUIStore((s) => s.toggleSidebar);
   const [courses, setCourses] = useState<Course[]>([]);
+  const isEnabled = usePluginStore((s) => s.isEnabled);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,6 +41,13 @@ export function AppSidebar() {
       cancelled = true;
     };
   }, []);
+
+  const allNavItems = useMemo(() => {
+    const pluginItems = KNOWN_PLUGINS
+      .filter((p) => isEnabled(p.id))
+      .flatMap((p) => p.navItems ?? []);
+    return [...navItems, ...pluginItems];
+  }, [isEnabled]);
 
   const groups = ["main", "workspace", "study", "system"] as const;
 
@@ -75,7 +84,7 @@ export function AppSidebar() {
               </div>
             )}
             <div className="space-y-1">
-              {navItems
+              {allNavItems
                 .filter((i) => i.group === group)
                 .map((item) => {
                   const link = (
