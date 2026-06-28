@@ -67,6 +67,7 @@ def create_app() -> FastAPI:
         teach,
         trace,
         code_examples,
+        whiteboards,
     )
     from scholarcli.api import notebook_service
 
@@ -95,6 +96,7 @@ def create_app() -> FastAPI:
         teach,
         trace,
         code_examples,
+        whiteboards,
         notebook_service,
     ):
         app.include_router(module.router)

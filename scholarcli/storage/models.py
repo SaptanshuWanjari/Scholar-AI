@@ -206,6 +206,63 @@ class Mindmap(Base):
     )
 
 
+class Whiteboard(Base):
+    """An interactive Excalidraw canvas — a first-class visual artifact.
+
+    The full Excalidraw scene ({elements, appState, files}) is stored as JSON;
+    a rendered SVG/PNG ``thumbnail`` is cached for cards and search results.
+    Each save can snapshot a ``WhiteboardRevision`` for version history.
+    """
+
+    __tablename__ = "whiteboards"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
+    scene: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    thumbnail: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="manual"
+    )  # manual|ai|imported|selection
+    status: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="saved"
+    )  # draft|saved|archived
+    # Dependency-engine / knowledge-graph link (null = unlinked).
+    concept_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("dep_concepts.id"), nullable=True, index=True
+    )
+    quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    revisions: Mapped[list["WhiteboardRevision"]] = relationship(
+        back_populates="whiteboard", cascade="all, delete-orphan"
+    )
+
+
+class WhiteboardRevision(Base):
+    """A point-in-time snapshot of a whiteboard's scene for version history."""
+
+    __tablename__ = "whiteboard_revisions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    whiteboard_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("whiteboards.id"), nullable=False, index=True
+    )
+    revision_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    scene: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    change_summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    whiteboard: Mapped["Whiteboard"] = relationship(back_populates="revisions")
+
+
 class DifferenceTable(Base):
     __tablename__ = "difference_tables"
 

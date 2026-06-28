@@ -52,11 +52,50 @@ export interface CourseStats {
   notebooks: number;
   diagrams: number;
   mindmaps: number;
+  whiteboards: number;
   difference_tables: number;
   revisions: number;
   concepts: number;
   total_artifacts: number;
   last_updated: string | null;
+}
+
+export interface WhiteboardItem {
+  id: string;
+  title: string;
+  course: string;
+  source: string; // manual | ai | imported | selection
+  status: string; // draft | saved | archived
+  thumbnail?: string | null;
+  revisions: number;
+  updated: string;
+  createdAt: string;
+}
+
+// A full Excalidraw scene: { elements, appState, files }. Kept loosely typed
+// so we don't couple to Excalidraw's internal element shapes.
+export type WhiteboardScene = Record<string, any>;
+
+export interface WhiteboardFull {
+  id: string;
+  title: string;
+  course: string;
+  scene: WhiteboardScene;
+  thumbnail?: string | null;
+  source: string;
+  status: string;
+  quality?: QualityScore;
+  updated: string;
+  createdAt: string;
+}
+
+export interface WhiteboardRevision {
+  id: string;
+  whiteboardId: string;
+  revisionNumber: number;
+  changeSummary: string;
+  scene: WhiteboardScene;
+  createdAt: string;
 }
 
 export interface ArtifactItem {

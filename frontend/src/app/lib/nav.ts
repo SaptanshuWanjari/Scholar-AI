@@ -12,6 +12,7 @@ import {
   ListChecks,
   Workflow,
   Network,
+  PencilRuler,
   Lightbulb,
   Milestone,
   Search,
@@ -56,6 +57,7 @@ export const navItems: NavItem[] = [
   { label: "Quiz", to: "/quiz", icon: ListChecks, shortcut: "Q", group: "study" },
   { label: "Mind Maps", to: "/mindmaps", icon: Network, shortcut: "M", group: "study" },
   { label: "Diagrams", to: "/diagrams", icon: Workflow, shortcut: "G", group: "study" },
+  { label: "Whiteboards", to: "/whiteboards", icon: PencilRuler, group: "study" },
   { label: "Differences", to: "/differences", icon: Columns2, shortcut: "I", group: "study" },
   { label: "Consistency", to: "/consistency", icon: ShieldCheck, shortcut: "Z", group: "study" },
 

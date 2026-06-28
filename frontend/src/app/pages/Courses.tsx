@@ -16,6 +16,7 @@ import {
   Network,
   Columns2,
   NotebookPen,
+  PencilRuler,
   Brain,
   BookOpen,
   ArrowRight,
@@ -59,6 +60,7 @@ const ARTIFACT_LABEL: Record<string, string> = {
   notebook: "Notebook",
   diagram: "Diagram",
   mindmap: "Mind Map",
+  whiteboard: "Whiteboard",
   difference_table: "Difference Table",
   revision: "Revision Sheet",
 };
@@ -69,6 +71,7 @@ const ARTIFACT_ROUTE: Record<string, string> = {
   notebook: "/notebooks",
   diagram: "/diagrams",
   mindmap: "/mindmaps",
+  whiteboard: "/whiteboards",
   difference_table: "/differences",
   revision: "/revision",
 };
@@ -79,6 +82,7 @@ const ARTIFACT_ICON: Record<string, typeof FileText> = {
   notebook: Notebook,
   diagram: Workflow,
   mindmap: Network,
+  whiteboard: PencilRuler,
   difference_table: Columns2,
   revision: NotebookPen,
 };
@@ -521,6 +525,7 @@ function CourseWorkspace({
     { label: "Notebooks", value: stats.notebooks, icon: Notebook, color: "#f59e0b" },
     { label: "Diagrams", value: stats.diagrams, icon: Workflow, color: "#ec4899" },
     { label: "Mind Maps", value: stats.mindmaps, icon: Network, color: "#14b8a6" },
+    { label: "Whiteboards", value: stats.whiteboards, icon: PencilRuler, color: "#0ea5e9" },
     { label: "Differences", value: stats.difference_tables, icon: Columns2, color: "#f97316" },
     { label: "Revisions", value: stats.revisions, icon: NotebookPen, color: "#a855f7" },
     { label: "Concepts", value: stats.concepts, icon: Brain, color: "#64748b" },
