@@ -17,7 +17,7 @@ import { QuizPage } from "./pages/Quiz";
 import { Diagrams } from "./pages/Diagrams";
 import { MindMaps } from "./pages/MindMaps";
 import { Teach } from "./pages/Teach";
-import { LearningPath } from "./pages/LearningPath";
+import { LearningPath } from './pages/LearningPath.1';
 import { SearchPage } from "./pages/Search";
 import { SettingsPage } from "./pages/Settings";
 import { Trace } from "./pages/Trace";

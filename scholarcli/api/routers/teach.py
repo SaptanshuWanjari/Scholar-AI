@@ -1,10 +1,11 @@
 """Teach Me — a one-topic learning workspace.
 
-The ``/api/teach/overview`` endpoint generates the learning overview (and
-returns the retrieved sources that drive the package's Sources view). The
-remaining artifacts reuse the existing generative endpoints (flashcards, quiz,
-diagram, mind map, revision notes, differences). ``/api/teach/packages`` saves
-and restores a whole generated workspace as a single JSON snapshot.
+Phase 1: POST /api/teach/overview — RAG retrieval + draft notes. Returns a
+         ``session_id`` (LangGraph thread ID) so Phase 2 can resume.
+Phase 2: POST /api/teach/{session_id}/resume — inject approved notes, generate
+         all downstream artifacts from student-edited context.
+
+Saved packages (``/api/teach/packages``) snapshot a completed workspace.
 """
 
 from __future__ import annotations
@@ -14,46 +15,95 @@ from fastapi.concurrency import run_in_threadpool
 
 from scholarcli.api import dependency_service
 from scholarcli.api.activity_service import record_activity
-from scholarcli.api.rag_service import run_ask
 from scholarcli.api.schemas import (
-    OverviewOut,
     PackageIn,
     PackageMeta,
     PackageOut,
     SourceOut,
+    TeachArtifactsOut,
+    TeachDraftOut,
     TeachRequest,
+    TeachResumeRequest,
 )
 from scholarcli.storage import get_session
 from scholarcli.storage.models import LearningPackage
 
 router = APIRouter(prefix="/api/teach", tags=["teach"])
 
-_DEPTH_HINT = {
-    "quick": "Keep it brief — a short, high-level overview.",
-    "standard": "Provide a balanced, exam-ready overview.",
-    "deep": "Go in depth with thorough explanations and nuance.",
-}
 
+# ---------------------------------------------------------------------------
+# Phase 1: draft overview with HITL interrupt
+# ---------------------------------------------------------------------------
 
-@router.post("/overview", response_model=OverviewOut)
-async def generate_overview(req: TeachRequest) -> OverviewOut:
+@router.post("/overview", response_model=TeachDraftOut)
+async def generate_overview(req: TeachRequest) -> TeachDraftOut:
     topic = req.topic.strip()
     if not topic:
         raise HTTPException(status_code=400, detail="topic is required")
-    hint = _DEPTH_HINT.get(req.depth, _DEPTH_HINT["standard"])
-    query = (
-        f"Write a learning overview for: {topic}. {hint} "
-        "Use these markdown sections with '## ' headings, in this order: "
-        "Definition, Importance, Prerequisites, Related Topics, "
-        "Estimated Study Time, Difficulty."
-    )
-    result = await run_in_threadpool(run_ask, query, req.course, req.document, "study_notes", topic)
-    record_activity("revision", f"Teach overview: {topic}", "")
-    return OverviewOut(
+
+    from scholarcli.rag.teach_graph import get_teach_graph, new_thread_id
+
+    thread_id = new_thread_id()
+    doc_id = int(req.document) if req.document and req.document.isdigit() else None
+
+    state = {
+        "topic": topic,
+        "depth": req.depth,
+        "course": req.course,
+        "document_id": doc_id,
+    }
+    config = {"configurable": {"thread_id": thread_id}}
+
+    raw = await run_in_threadpool(get_teach_graph().invoke, state, config)
+    result: dict = raw  # type: ignore[assignment]
+
+    record_activity("revision", f"Teach draft: {topic}", req.course or "")
+    return TeachDraftOut(
+        session_id=thread_id,
         title=topic,
-        markdown=result["content"],
-        grounded=result["grounded"],
-        sources=[SourceOut(**s) for s in result["sources"]],
+        draft_markdown=result.get("draft_notes", ""),
+        grounded=result.get("grounded", False),
+        sources=[SourceOut(**s) for s in result.get("sources", [])],
+    )
+
+
+# ---------------------------------------------------------------------------
+# Phase 2: resume with approved notes
+# ---------------------------------------------------------------------------
+
+@router.post("/{session_id}/resume", response_model=TeachArtifactsOut)
+async def resume_teach(session_id: str, req: TeachResumeRequest) -> TeachArtifactsOut:
+    if not req.approved_notes_markdown.strip():
+        raise HTTPException(status_code=400, detail="approved_notes_markdown is required")
+
+    from langgraph.types import Command
+    from scholarcli.rag.teach_graph import get_teach_graph
+
+    resume_value = {
+        "approved_notes": req.approved_notes_markdown,
+        "artifacts_to_generate": req.artifacts_to_generate,
+    }
+    config = {"configurable": {"thread_id": session_id}}
+
+    try:
+        raw2 = await run_in_threadpool(
+            get_teach_graph().invoke,
+            Command(resume=resume_value),
+            config,
+        )
+        result: dict = raw2  # type: ignore[assignment]
+    except Exception as exc:
+        raise HTTPException(status_code=404, detail=f"Session not found or expired: {exc}") from exc
+
+    artifacts: dict = result.get("artifacts", {})
+    record_activity("revision", f"Teach artifacts generated (session {session_id[:8]})", "")
+    return TeachArtifactsOut(
+        notes=artifacts.get("notes"),
+        flashcards=artifacts.get("flashcards"),
+        quiz=artifacts.get("quiz"),
+        mindmap=artifacts.get("mindmap"),
+        diagram=artifacts.get("diagram"),
+        difference=artifacts.get("difference"),
     )
 
 

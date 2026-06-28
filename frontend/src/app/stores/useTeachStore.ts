@@ -9,6 +9,7 @@ import {
   type GeneratedRevision,
   type ConsistencyReport,
   type ArtifactRecommendation,
+  type TeachArtifacts,
 } from "../lib/api";
 import type { GeneratedDifference, Source, Course, DocumentItem } from "../lib/types";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
@@ -94,6 +95,11 @@ interface TeachState {
 
   saving: boolean;
 
+  // HITL state
+  isPaused: boolean;
+  sessionId: string | null;
+  approvedNotes: string;
+
   setField: <K extends keyof TeachState>(key: K, value: TeachState[K]) => void;
   toggleArtifact: (key: ArtifactKey) => void;
   fetchRecommendations: (topic: string) => Promise<void>;
@@ -101,6 +107,8 @@ interface TeachState {
   selectAll: () => void;
   clearSelection: () => void;
   startGenerate: () => Promise<void>;
+  setApprovedNotes: (markdown: string) => void;
+  approveAndResume: () => Promise<void>;
   retryArtifact: (key: ArtifactKey) => Promise<void>;
   runConsistency: () => Promise<void>;
   openView: (view: ViewKey) => void;
@@ -151,6 +159,10 @@ export const useTeachStore = create<TeachState>((set, get) => ({
   currentTask: null,
 
   saving: false,
+
+  isPaused: false,
+  sessionId: null,
+  approvedNotes: "",
 
   setField: (key, value) => set({ [key]: value } as Partial<TeachState>),
 
@@ -221,14 +233,14 @@ export const useTeachStore = create<TeachState>((set, get) => ({
     }
     const finalTopic = get().topic.trim();
 
-    // Seed the workspace: overview loading, selected artifacts queued.
+    // Seed workspace: overview loading, selected artifacts queued (paused).
     const artifacts = freshArtifacts();
     for (const key of ARTIFACT_KEYS) {
       if (selected[key]) artifacts[key].status = "queued";
     }
     set({
       phase: "workspace",
-      activeView: "overview",
+      activeView: "notes",
       packageId: null,
       overview: null,
       overviewStatus: "loading",
@@ -236,36 +248,79 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       artifacts,
       generating: true,
       currentTask: "overview",
+      isPaused: false,
+      sessionId: null,
+      approvedNotes: "",
     });
 
-    // 1) Overview (and the sources that drive the Sources view).
+    // Phase 1: generate draft notes via HITL graph (pauses before artifacts).
     try {
       const selectedCourse = get().course === "none" ? null : get().course;
-      const result = await api.generateOverview(finalTopic, depth, selectedCourse, get().document);
+      const draft = await api.generateOverview(finalTopic, depth, selectedCourse, get().document);
       set({
-        overview: { title: result.title, markdown: result.markdown, grounded: result.grounded },
-        sources: result.sources,
+        overview: { title: draft.title, markdown: draft.draft_markdown, grounded: draft.grounded },
+        sources: draft.sources,
         overviewStatus: "done",
+        sessionId: draft.session_id,
+        approvedNotes: draft.draft_markdown,
+        isPaused: true,
+        generating: false,
+        currentTask: null,
+      });
+      useNotificationStore.getState().add({
+        title: `Draft notes ready — review before generating study tools`,
+        status: "success",
       });
     } catch (err) {
-      set({ overviewStatus: "error" });
-      toast.error(err instanceof Error ? err.message : "Failed to generate overview");
+      set({ overviewStatus: "error", generating: false, currentTask: null });
+      toast.error(err instanceof Error ? err.message : "Failed to generate draft notes");
+    }
+  },
+
+  setApprovedNotes: (markdown) => set({ approvedNotes: markdown }),
+
+  approveAndResume: async () => {
+    const { sessionId, approvedNotes, selected } = get();
+    if (!sessionId) {
+      toast.error("No active session — start generation first");
+      return;
     }
 
-    // 2) Each selected artifact, one at a time (clear progress + one model
-    //    loaded at a time on local Ollama).
-    for (const key of ARTIFACT_KEYS) {
-      if (!get().selected[key]) continue;
-      set({ currentTask: key });
-      await generateArtifact(key, set, get);
+    const artifactsToGenerate = ARTIFACT_KEYS.filter((k) => selected[k]);
+    if (artifactsToGenerate.length === 0) {
+      toast.error("Select at least one artifact to generate");
+      return;
     }
 
-    set({ generating: false, currentTask: null });
-    const { overviewStatus } = get();
-    if (overviewStatus === "done") {
-      useNotificationStore.getState().add({ title: `"${finalTopic}" package generated`, status: "success" });
-    } else {
-      useNotificationStore.getState().add({ title: "Learning package generation failed", status: "error" });
+    // Mark all queued slots as loading.
+    set((s) => {
+      const artifacts = { ...s.artifacts };
+      for (const key of artifactsToGenerate) {
+        artifacts[key] = { status: "loading", data: null, error: null };
+      }
+      return { artifacts, generating: true, currentTask: "notes", isPaused: false };
+    });
+
+    try {
+      const result = await api.resumeTeach(sessionId, approvedNotes, artifactsToGenerate);
+      applyResumeResult(result, artifactsToGenerate, set);
+      set({ generating: false, currentTask: null });
+      useNotificationStore.getState().add({
+        title: `"${get().topic}" study tools generated`,
+        status: "success",
+      });
+    } catch (err) {
+      // Mark all loading slots as error.
+      set((s) => {
+        const artifacts = { ...s.artifacts };
+        for (const key of artifactsToGenerate) {
+          if (artifacts[key].status === "loading") {
+            artifacts[key] = { status: "error", data: null, error: "Generation failed" };
+          }
+        }
+        return { artifacts, generating: false, currentTask: null, isPaused: true };
+      });
+      toast.error(err instanceof Error ? err.message : "Failed to generate study tools");
     }
   },
 
@@ -394,8 +449,31 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       recommendationsLoading: false,
       generating: false,
       currentTask: null,
+      isPaused: false,
+      sessionId: null,
+      approvedNotes: "",
     }),
 }));
+
+// Apply the batch resume result from the backend into individual artifact slots.
+function applyResumeResult(
+  result: TeachArtifacts,
+  requested: ArtifactKey[],
+  set: (partial: Partial<TeachState> | ((s: TeachState) => Partial<TeachState>)) => void,
+): void {
+  set((s) => {
+    const artifacts = { ...s.artifacts };
+    for (const key of requested) {
+      const data = result[key as keyof TeachArtifacts];
+      if (data) {
+        artifacts[key] = { status: "done", data, error: null };
+      } else {
+        artifacts[key] = { status: "error", data: null, error: "Not returned by server" };
+      }
+    }
+    return { artifacts };
+  });
+}
 
 // Generate a single artifact and store it in its slot. Kept outside the store
 // object so the pipeline, retry and loadPackage can share it.

@@ -893,6 +893,28 @@ class PackageOut(BaseModel):
     updatedAt: str
 
 
+class TeachDraftOut(BaseModel):
+    session_id: str
+    title: str
+    draft_markdown: str
+    grounded: bool = True
+    sources: list[SourceOut] = []
+
+
+class TeachResumeRequest(BaseModel):
+    approved_notes_markdown: str
+    artifacts_to_generate: list[str] = []
+
+
+class TeachArtifactsOut(BaseModel):
+    notes: dict | None = None
+    flashcards: dict | None = None
+    quiz: dict | None = None
+    mindmap: dict | None = None
+    diagram: dict | None = None
+    difference: dict | None = None
+
+
 # ---------------------------------------------------------------------------
 # Learning Path — dependency-ordered roadmap
 # ---------------------------------------------------------------------------
