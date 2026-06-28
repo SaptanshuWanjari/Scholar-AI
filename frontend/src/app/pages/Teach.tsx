@@ -23,6 +23,8 @@ import {
   Star,
   FolderOpen,
   ChevronLeft,
+  PauseCircle,
+  PenLine,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -566,7 +568,7 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
       }
     }
 
-function StatusIcon({ status }: { status: SlotStatus }) {
+function StatusIcon({ status, paused }: { status: SlotStatus; paused?: boolean }) {
       switch (status) {
         case "loading":
           return <Loader2 className="size-3.5 shrink-0 animate-spin text-primary" />;
@@ -575,7 +577,9 @@ function StatusIcon({ status }: { status: SlotStatus }) {
         case "error":
           return <AlertTriangle className="size-3.5 shrink-0 text-danger" />;
         case "queued":
-          return <Clock className="size-3.5 shrink-0 text-muted-foreground/60" />;
+          return paused
+            ? <PauseCircle className="size-3.5 shrink-0 text-amber-500/70" />
+            : <Clock className="size-3.5 shrink-0 text-muted-foreground/60" />;
         default:
           return null;
       }
@@ -626,6 +630,7 @@ function WorkspacePhase() {
       const {
         topic, activeView, overview, overviewStatus, sources, packageId, pkgCourse, saving,
         artifacts, selected, generating, currentTask, consistencyStatus, openView, savePackage, reset,
+        isPaused, approvedNotes, setApprovedNotes, approveAndResume,
       } = useTeachStore();
       const navigate = useNavigate();
 
@@ -664,6 +669,11 @@ function WorkspacePhase() {
                       <Loader2 className="size-3 animate-spin text-primary" />
                       Generating {currentLabel ?? "…"}
                     </span>
+                  ) : isPaused ? (
+                    <span className="flex items-center gap-1.5 text-amber-500">
+                      <PauseCircle className="size-3" />
+                      Awaiting your review
+                    </span>
                   ) : done >= total ? (
                     "All artifacts ready"
                   ) : (
@@ -700,7 +710,7 @@ function WorkspacePhase() {
                     >
                       <item.icon className="size-4 shrink-0" />
                       <span className="flex-1 truncate">{item.label}</span>
-                      <StatusIcon status={st} />
+                      <StatusIcon status={st} paused={isPaused && st === "queued"} />
                     </button>
                   );
                 })}
@@ -734,7 +744,12 @@ function WorkspacePhase() {
           <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
             <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background/80 px-6 backdrop-blur-xl">
               <span className="text-sm font-medium">{NAV.find((n) => n.id === activeView)?.label}</span>
-              {grounded !== undefined && (
+              {isPaused && activeView === "notes" && (
+                <Badge variant="outline" className="gap-1 border-amber-400/40 bg-amber-50/60 text-[10px] text-amber-600 dark:bg-amber-900/20 dark:text-amber-400">
+                  <PenLine className="size-2.5" /> Draft — editable
+                </Badge>
+              )}
+              {grounded !== undefined && activeView !== "notes" && (
                 <Badge variant="outline" className={cn("text-[10px]", grounded ? "border-success/40 bg-success-soft text-success" : "border-warning/40 bg-warning-soft text-warning")}>
                   {grounded ? "From your documents" : "General knowledge"}
                 </Badge>
@@ -756,6 +771,38 @@ function WorkspacePhase() {
                   <ArtifactBody view={activeView as ArtifactKey} />
                 </motion.div>
               </div>
+            ) : activeView === "notes" && isPaused ? (
+              /* HITL draft editor: student reviews and edits before artifact generation */
+              <div className="flex min-h-0 flex-1 flex-col">
+                <div className="border-b border-amber-200/60 bg-amber-50/50 px-6 py-2.5 dark:border-amber-800/30 dark:bg-amber-900/10">
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    Review and edit the AI-generated notes below, then click <strong>Approve &amp; Generate Study Tools</strong> to create your flashcards, quiz, and more based on this content.
+                  </p>
+                </div>
+                <div className="min-h-0 flex-1 p-6">
+                  <textarea
+                    className="h-full w-full resize-none rounded-lg border border-border bg-background p-4 font-mono text-sm leading-relaxed text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                    value={approvedNotes}
+                    onChange={(e) => setApprovedNotes(e.target.value)}
+                    placeholder="Your draft notes will appear here…"
+                    spellCheck={false}
+                  />
+                </div>
+                <div className="flex shrink-0 items-center justify-between gap-4 border-t border-border bg-background/90 px-6 py-3 backdrop-blur-sm">
+                  <p className="text-sm text-muted-foreground">
+                    <PauseCircle className="mr-1 inline size-3.5 text-amber-500" />
+                    Flashcards, Quiz, Mind Map and Diagram are <strong>paused</strong> until you approve.
+                  </p>
+                  <Button
+                    onClick={() => void approveAndResume()}
+                    disabled={generating || !approvedNotes.trim()}
+                    className="gap-2"
+                  >
+                    {generating ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />}
+                    Approve &amp; Generate Study Tools
+                  </Button>
+                </div>
+              </div>
             ) : (
               <div className="min-h-0 flex-1">
                 <ScrollArea className="h-full">
@@ -767,7 +814,7 @@ function WorkspacePhase() {
                 >
                   {activeView === "overview" ? (
                     overviewStatus === "loading" ? (
-                      <Spinner message="Retrieving sources…" />
+                      <Spinner message="Generating draft notes…" />
                     ) : overviewStatus === "error" ? (
                       <ViewState icon={AlertTriangle} message="Failed to generate the overview." />
                     ) : overview ? (

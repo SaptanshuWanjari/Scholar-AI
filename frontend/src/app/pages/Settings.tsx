@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle } from "lucide-react";
+import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle, Terminal } from "lucide-react";
 import { Page } from "../components/Page";
 import { useGuidanceStore } from "../guidance/useGuidanceStore";
 import {
@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { useSettingsStore } from "../stores/useSettingsStore";
+import { useLogStore } from "../stores/useLogStore";
 import { navItems } from "../lib/nav";
 import { api, type ModelsList } from "../lib/api";
 import { KNOWN_PLUGINS } from "../plugins/registry";
@@ -75,6 +76,8 @@ function Row({
 
 export function SettingsPage() {
   const s = useSettingsStore();
+  const logs = useLogStore((state) => state.logs);
+  const clearLogs = useLogStore((state) => state.clearLogs);
   const navigate = useNavigate();
   const pluginEnabled = usePluginStore((st) => st.enabled);
   const togglePlugin = usePluginStore((st) => st.toggle);
@@ -144,6 +147,9 @@ export function SettingsPage() {
           </TabsTrigger>
           <TabsTrigger value="plugins" className="gap-1.5">
             <Puzzle className="size-4" /> Plugins
+          </TabsTrigger>
+          <TabsTrigger value="logs" className="gap-1.5">
+            <Terminal className="size-4" /> Logs
           </TabsTrigger>
           <TabsTrigger value="data" className="gap-1.5">
             <Database className="size-4" /> Data
@@ -513,6 +519,41 @@ export function SettingsPage() {
                 </div>
               ))
             )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="logs">
+          <div className="rounded-2xl border border-border bg-card px-5 py-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-medium">System Logs</h3>
+              <Button variant="outline" size="sm" onClick={() => clearLogs()}>
+                Clear Logs
+              </Button>
+            </div>
+            <div className="space-y-3">
+              {logs.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No high-importance logs found.</div>
+              ) : (
+                logs.map((log) => (
+                  <div key={log.id} className="rounded-lg border border-border bg-muted/50 p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${log.level === 'critical' ? 'bg-danger text-danger-foreground' : 'bg-amber-500/20 text-amber-500'}`}>
+                        {log.level.toUpperCase()}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(log.timestamp).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{log.message}</div>
+                    {log.details && (
+                      <pre className="mt-2 text-xs text-muted-foreground bg-background p-2 rounded overflow-x-auto whitespace-pre-wrap font-mono">
+                        {log.details}
+                      </pre>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </TabsContent>
 

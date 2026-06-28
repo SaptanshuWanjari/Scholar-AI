@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent } from "react";
+import { useMemo, useState, type MouseEvent } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { Search, BookOpen } from "lucide-react";
 import {
@@ -8,7 +8,6 @@ import {
   AccordionContent,
 } from "../components/ui/accordion";
 import { Input } from "../components/ui/input";
-import { Card } from "../components/ui/card";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { guideSections, type GuideArticle } from "../guidance/guideContent";
 

@@ -2,10 +2,22 @@
 import { createRoot } from "react-dom/client";
 import { pdfjs } from "react-pdf";
 import App from "./app/App.tsx";
+import { useLogStore } from "./app/stores/useLogStore";
 import "./styles/index.css";
 import "katex/dist/katex.min.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+
+// Intercept unhandled errors
+window.addEventListener("error", (event) => {
+  useLogStore.getState().addLog("error", event.message, event.error?.stack || "");
+});
+
+window.addEventListener("unhandledrejection", (event) => {
+  useLogStore.getState().addLog("error", "Unhandled Promise Rejection", String(event.reason));
+});
+
+
 
 createRoot(document.getElementById("root")!).render(<App />);
 

@@ -3,6 +3,7 @@
 // (see vite.config.ts). Override with VITE_API_BASE_URL for production.
 
 import type { ArtifactItem, Course, CourseStats, DiagramItem, DifferenceTableItem, DocumentItem, Flashcard, GeneratedDifference, QualityScore, Quiz, Source, PromptItem, WhiteboardItem, WhiteboardFull, WhiteboardRevision, WhiteboardScene } from "./types";
+import { useLogStore } from "../stores/useLogStore";
 
 const BASE: string = (import.meta as any).env?.VITE_API_BASE_URL ?? "";
 
@@ -70,6 +71,23 @@ export interface TeachOverview {
   markdown: string;
   grounded: boolean;
   sources: Source[];
+}
+
+export interface TeachDraft {
+  session_id: string;
+  title: string;
+  draft_markdown: string;
+  grounded: boolean;
+  sources: Source[];
+}
+
+export interface TeachArtifacts {
+  notes?: Record<string, unknown> | null;
+  flashcards?: Record<string, unknown> | null;
+  quiz?: Record<string, unknown> | null;
+  mindmap?: Record<string, unknown> | null;
+  diagram?: Record<string, unknown> | null;
+  difference?: Record<string, unknown> | null;
 }
 
 export interface PackageMeta {
@@ -612,6 +630,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       /* non-JSON error body */
     }
+    useLogStore.getState().addLog("error", `API Error: ${path}`, detail);
     throw new Error(detail);
   }
   if (res.status === 204) return undefined as T;
@@ -652,7 +671,9 @@ export const api = {
       signal: handlers.signal,
     });
     if (!res.ok || !res.body) {
-      handlers.onError?.(`Request failed (${res.status})`);
+      const msg = `Request failed (${res.status})`;
+      useLogStore.getState().addLog("error", `RAG/Generation Stream Error`, msg);
+      handlers.onError?.(msg);
       return;
     }
     const reader = res.body.getReader();
@@ -678,7 +699,10 @@ export const api = {
         if (evt.type === "token") handlers.onToken(evt.value);
         else if (evt.type === "done")
           handlers.onDone?.({ sources: evt.sources, confidence: evt.confidence, grounded: evt.grounded });
-        else if (evt.type === "error") handlers.onError?.(evt.value);
+        else if (evt.type === "error") {
+          useLogStore.getState().addLog("error", `Generation Stream Error`, evt.value);
+          handlers.onError?.(evt.value);
+        }
       }
     }
   },
@@ -792,7 +816,9 @@ export const api = {
       signal: handlers.signal,
     });
     if (!res.ok || !res.body) {
-      handlers.onError?.(`Request failed (${res.status})`);
+      const msg = `Request failed (${res.status})`;
+      useLogStore.getState().addLog("error", `Revision Stream Error`, msg);
+      handlers.onError?.(msg);
       return;
     }
     const reader = res.body.getReader();
@@ -812,7 +838,10 @@ export const api = {
         try { evt = JSON.parse(line.slice(5).trim()); } catch { continue; }
         if (evt.type === "token") handlers.onToken(evt.value);
         else if (evt.type === "done") handlers.onDone?.({ grounded: evt.grounded, title: evt.title ?? "", quality: evt.quality });
-        else if (evt.type === "error") handlers.onError?.(evt.value);
+        else if (evt.type === "error") {
+          useLogStore.getState().addLog("error", `Revision Generation Error`, evt.value);
+          handlers.onError?.(evt.value);
+        }
       }
     }
   },
@@ -1099,8 +1128,14 @@ export const api = {
   },
 
   // ---- Teach Me ----
-  generateOverview(topic: string, depth: "quick" | "standard" | "deep" = "standard", course?: string | null, document?: string | null): Promise<TeachOverview> {
-    return request<TeachOverview>("/api/teach/overview", json({ topic, depth, course: course ?? null, document: document ?? null }));
+  generateOverview(topic: string, depth: "quick" | "standard" | "deep" = "standard", course?: string | null, document?: string | null): Promise<TeachDraft> {
+    return request<TeachDraft>("/api/teach/overview", json({ topic, depth, course: course ?? null, document: document ?? null }));
+  },
+  resumeTeach(sessionId: string, approvedNotes: string, artifactsToGenerate: string[]): Promise<TeachArtifacts> {
+    return request<TeachArtifacts>(`/api/teach/${sessionId}/resume`, json({
+      approved_notes_markdown: approvedNotes,
+      artifacts_to_generate: artifactsToGenerate,
+    }));
   },
   listPackages(): Promise<PackageMeta[]> {
     return request<PackageMeta[]>("/api/teach/packages");
@@ -1277,6 +1312,17 @@ export const api = {
   // ---- System ----
   checkSystemHealth(): Promise<{ reasoning: string, vision: string, embedding: string, ocr: string }> {
     return request<{ reasoning: string, vision: string, embedding: string, ocr: string }>("/api/system/health");
+  },
+
+  // ---- Background Jobs ----
+  listJobs(): Promise<JobItem[]> {
+    return request<JobItem[]>("/api/jobs");
+  },
+  getJob(id: string): Promise<JobItem> {
+    return request<JobItem>(`/api/jobs/${id}`);
+  },
+  deleteJob(id: string): Promise<void> {
+    return request<void>(`/api/jobs/${id}`, { method: "DELETE" });
   },
 
   // ---- Prompt Enhancer ----
