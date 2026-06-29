@@ -66,10 +66,11 @@ export function Reading() {
   const [progress, setProgress] = useState(0);
   const [scale, setScale] = useState(1.0);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [rightCollapsed, setRightCollapsed] = useState(true);
 
   const pdfRef = useRef<PDFViewerRef>(null);
   const isScrollingRef = useRef(false);
+  const lastViewedPageRef = useRef(1);
 
   // Plugin gating: the workspace pane belongs to the "reading-annotations"
   // plugin; freehand drawing additionally needs the "excalidraw" plugin.
@@ -132,6 +133,7 @@ export function Reading() {
     setSelected(null);
     setExplanation(null);
     setProgress(0);
+    lastViewedPageRef.current = 1;
     api
       .getReading(docId)
       .then((d) => {
@@ -186,7 +188,7 @@ export function Reading() {
   }, [docId, readingAnnotEnabled, setNotes, clearNotes]);
 
   const handlePdfPageVisible = (page: number) => {
-    // Disabled auto-sync from PDF to text as per user request
+    lastViewedPageRef.current = page;
   };
 
   // ---- Lens: fetch an adaptive explanation for some text ----
@@ -585,12 +587,13 @@ export function Reading() {
                             scale={scale}
                             onTextSelect={handlePDFTextSelect}
                             onPageVisible={handlePdfPageVisible}
+                            initialPage={lastViewedPageRef.current}
                           />
                         </div>
                       </div>
                     )}
                     {(viewMode === "text" || viewMode === "split") && (
-                      <div className={`h-full ${viewMode === "split" ? "w-[50%]" : "w-full"}`}>
+                      <div className={`h-full ${viewMode === "split" ? "w-[50%]" : "w-full"} ${viewMode === "text" ? "pt-10" : ""}`}>
                         {readingAnnotEnabled ? (
                           <ReadingWorkspace
                             docId={docId!}
@@ -621,27 +624,29 @@ export function Reading() {
           </main>
 
           {/* Zoom pill — absolute on the non-scrolling wrapper, always visible */}
-          <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1 rounded-full border border-border bg-card/90 px-2 py-1 shadow-md backdrop-blur">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7 rounded-full"
-              onClick={() => setScale((s) => Math.max(0.25, +(s - 0.25).toFixed(2)))}
-            >
-              <ZoomOut className="size-3.5" />
-            </Button>
-            <span className="min-w-[3rem] text-center text-xs font-medium tabular-nums text-muted-foreground">
-              {Math.round(scale * 100)}%
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7 rounded-full"
-              onClick={() => setScale((s) => Math.min(3.0, +(s + 0.25).toFixed(2)))}
-            >
-              <ZoomIn className="size-3.5" />
-            </Button>
-          </div>
+          {viewMode !== "text" && (
+            <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1 rounded-full border border-border bg-card/90 px-2 py-1 shadow-md backdrop-blur">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 rounded-full"
+                onClick={() => setScale((s) => Math.max(0.25, +(s - 0.25).toFixed(2)))}
+              >
+                <ZoomOut className="size-3.5" />
+              </Button>
+              <span className="min-w-[3rem] text-center text-xs font-medium tabular-nums text-muted-foreground">
+                {Math.round(scale * 100)}%
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 rounded-full"
+                onClick={() => setScale((s) => Math.min(3.0, +(s + 0.25).toFixed(2)))}
+              >
+                <ZoomIn className="size-3.5" />
+              </Button>
+            </div>
+          )}
         </div>{/* end center wrapper */}
 
         {/* Right — Context */}
