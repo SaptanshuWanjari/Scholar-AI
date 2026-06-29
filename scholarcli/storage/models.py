@@ -265,6 +265,12 @@ class Whiteboard(Base):
     concept_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("dep_concepts.id"), nullable=True, index=True
     )
+    # Reading-mode region annotation link (null = standalone whiteboard).
+    # When ``source == "annotation"`` these tie the board to a PDF region.
+    document_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("documents.id"), nullable=True, index=True
+    )
+    page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
     quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -430,6 +436,35 @@ class ReadingState(Base):
     progress: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
 
 
+class StickyNote(Base):
+    """A categorized, region-anchored note attached to a document page.
+
+    Part of the optional "reading-annotations" plugin. Works independently of
+    the Excalidraw plugin (drawings are stored separately as Whiteboards).
+    """
+
+    __tablename__ = "sticky_notes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    document_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("documents.id"), nullable=False, index=True
+    )
+    page_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    # Normalized {x, y, width, height} of the anchor region (null = unanchored).
+    bounding_box: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    # insight | question | formula | confusing | general
+    category: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="general"
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
 class QuestionPaper(Base):
     """An uploaded previous-year question paper (PYQ)."""
 
@@ -509,6 +544,10 @@ class LearningPackage(Base):
     # Dependency-engine link for exact mastery rollup (null = unlinked).
     concept_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("dep_concepts.id"), nullable=True, index=True
+    )
+    # Notebook derived from this Teach session (null = standalone package).
+    notebook_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("notebooks.id", ondelete="SET NULL"), nullable=True, index=True
     )
     overview: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)  # {markdown, grounded}
     artifacts: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)  # {notes, flashcards, quiz, mindmap, diagram, difference}

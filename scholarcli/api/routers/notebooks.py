@@ -1,14 +1,17 @@
 """Notebook CRUD + AI writing assistance."""
 
 from __future__ import annotations
+import logging
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
 
+logger = logging.getLogger(__name__)
+
 from scholarcli.api.activity_service import record_activity
 from scholarcli.api.rag_service import run_ask
-from scholarcli.api.notebook_service import SIMILARITY_THRESHOLD, most_similar
+from scholarcli.api.notebook_service import SIMILARITY_THRESHOLD, most_similar, resolve_notebook_citations
 from scholarcli.api.schemas import (
     CollectionOut,
     NotebookAppendRequest,
@@ -20,8 +23,29 @@ from scholarcli.api.schemas import (
     NotebookOut,
     NotebookPatch,
 )
+from scholarcli.llm import get_embeddings
 from scholarcli.storage import get_session
 from scholarcli.storage.models import Notebook
+from scholarcli.storage.vectors import add_notebook_chunks, delete_notebook_chunks, notebook_block_text
+
+def _reindex_notebook_chunks(nb: Notebook) -> None:
+    """Re-index all blocks of a notebook into the notebook_chunks LanceDB table."""
+    try:
+        blocks = nb.blocks or []
+        texts = [notebook_block_text(b) for b in blocks]
+        valid = [(b, t) for b, t in zip(blocks, texts) if t.strip()]
+        if not valid:
+            delete_notebook_chunks(nb.id)
+            return
+        embed_model = get_embeddings()
+        vectors = embed_model.embed_documents([t for _, t in valid])
+        add_notebook_chunks(
+            nb.id, nb.course or "", nb.title,
+            [b for b, _ in valid], vectors,
+        )
+    except Exception as exc:
+        logger.warning("Failed to re-index notebook chunks: %s", exc)
+
 
 router = APIRouter(prefix="/api/notebooks", tags=["notebooks"])
 
@@ -45,16 +69,18 @@ def _meta(nb: Notebook) -> NotebookMetaOut:
 
 
 def _full(nb: Notebook) -> NotebookOut:
+    blocks = nb.blocks or []
     return NotebookOut(
         id=str(nb.id),
         title=nb.title,
         subtitle=nb.subtitle,
         course=nb.course,
         color=nb.color,
-        blocks=nb.blocks or [],
+        blocks=blocks,
         tags=nb.tags or [],
         updated=_fmt_updated(nb),
         is_draft=nb.is_draft,
+        resolvedCitations=resolve_notebook_citations(blocks),
     )
 
 
@@ -159,6 +185,7 @@ def update_notebook(notebook_id: int, patch: NotebookPatch) -> NotebookOut:
         session.refresh(nb)
         nb.last_opened_at = datetime.now()
         session.commit()
+        _reindex_notebook_chunks(nb)
         return _full(nb)
     finally:
         session.close()
@@ -173,6 +200,7 @@ def delete_notebook(notebook_id: int) -> None:
             raise HTTPException(status_code=404, detail="Notebook not found")
         session.delete(nb)
         session.commit()
+        delete_notebook_chunks(notebook_id)
     finally:
         session.close()
 
@@ -226,6 +254,7 @@ async def append_block(notebook_id: int, req: NotebookAppendRequest) -> Notebook
         session.commit()
         session.refresh(nb)
         record_activity("note", f"Added {req.artifact_type} to notebook: {nb.title}", nb.course)
+        _reindex_notebook_chunks(nb)
         return NotebookAppendResponse(
             appended=True,
             redundant=False,

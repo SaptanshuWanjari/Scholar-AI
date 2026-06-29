@@ -1,8 +1,8 @@
 import type { PromptItem, QualityScore } from "../types";
 import { request, json } from "./client";
 
-// ---- Settings & Models ----
 export interface BackendSettings {
+  name: string;
   fastModel: string;
   reasoningModel: string;
   embeddingModel: string;

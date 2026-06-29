@@ -12,16 +12,38 @@ import {
   CheckCircle2,
   Archive,
   Bookmark,
+  Network,
+  PenTool,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Page, SectionTitle } from "../components/Page";
 import { MetricCard } from "../components/MetricCard";
 import { Button } from "../components/ui/button";
 import { api, type DashboardData, type LearningPathMeta, type LearningPath } from "../lib/api";
+import { useSettingsStore } from "../stores/useSettingsStore";
 import type { Course, DocumentItem } from "../lib/types";
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const { name } = useSettingsStore();
+  const userName = name || "Student";
+  const getGreeting = () => {
+    const hr = new Date().getHours();
+    if (hr < 12) return "Good morning";
+    if (hr < 18) return "Good afternoon";
+    return "Good evening";
+  };
+  
+  const getArtifactIcon = (type: string) => {
+    switch (type) {
+      case "quiz": return ListChecks;
+      case "revision": return FileText;
+      case "diagram": 
+      case "mindmap": return Network;
+      case "whiteboard": return PenTool;
+      default: return Sparkles;
+    }
+  };
   const [courses, setCourses] = useState<Course[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
@@ -54,7 +76,7 @@ export function Dashboard() {
       >
         <div>
           <h1 className="mt-3 text-[2.5rem] leading-none">
-            Good evening, Student.
+            {getGreeting()}, {userName}.
           </h1>
         </div>
         <div className="flex gap-2" data-tour="dashboard-actions">
@@ -200,12 +222,65 @@ export function Dashboard() {
             </div>
           )}
 
-          {/* Metrics Row */}
-          <div className="grid gap-4 grid-cols-2" data-tour="dashboard-metrics">
-            <MetricCard label="Documents" value={metrics?.documents ?? documents.length} icon={FileText} accent="#8b5cf6" hint={`${courses.length} courses`} />
-            <MetricCard label="Flashcards" value={metrics?.flashcards ?? 0} icon={Layers} accent="#06b6d4" hint="across all decks" />
-            <MetricCard label="Quizzes" value={metrics?.quizzesTaken ?? 0} icon={ListChecks} accent="#22c55e" />
-            <MetricCard label="Sessions" value={metrics?.studySessions ?? 0} icon={Clock} accent="#f59e0b" />
+          {/* Unified Metrics List */}
+          <div className="rounded-2xl border border-border bg-card p-5" data-tour="dashboard-metrics">
+            <SectionTitle title="Your Stats" />
+            <div className="space-y-1">
+               <div className="flex items-center gap-3 rounded-lg p-2">
+                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#8b5cf614", color: "#8b5cf6" }}>
+                   <FileText className="size-4" />
+                 </div>
+                 <div className="min-w-0 flex-1">
+                   <div className="truncate text-sm font-medium">Documents</div>
+                   <div className="text-xs text-muted-foreground">{courses.length} courses</div>
+                 </div>
+                 <div className="font-display text-xl">{metrics?.documents ?? documents.length}</div>
+               </div>
+               
+               <div className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40 cursor-pointer" onClick={() => navigate("/flashcards")}>
+                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#eab30814", color: "#eab308" }}>
+                   <Layers className="size-4" />
+                 </div>
+                 <div className="min-w-0 flex-1">
+                   <div className="truncate text-sm font-medium">Cards due today</div>
+                   <div className="text-xs text-muted-foreground">Review today</div>
+                 </div>
+                 <div className="font-display text-xl">{metrics?.flashcardsDue ?? 0}</div>
+               </div>
+
+               <div className="flex items-center gap-3 rounded-lg p-2">
+                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#06b6d414", color: "#06b6d4" }}>
+                   <Layers className="size-4" />
+                 </div>
+                 <div className="min-w-0 flex-1">
+                   <div className="truncate text-sm font-medium">Total Flashcards</div>
+                   <div className="text-xs text-muted-foreground">Across all decks</div>
+                 </div>
+                 <div className="font-display text-xl">{metrics?.flashcards ?? 0}</div>
+               </div>
+
+               <div className="flex items-center gap-3 rounded-lg p-2">
+                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#22c55e14", color: "#22c55e" }}>
+                   <ListChecks className="size-4" />
+                 </div>
+                 <div className="min-w-0 flex-1">
+                   <div className="truncate text-sm font-medium">Quizzes taken</div>
+                   <div className="text-xs text-muted-foreground">Total attempts</div>
+                 </div>
+                 <div className="font-display text-xl">{metrics?.quizzesTaken ?? 0}</div>
+               </div>
+
+               <div className="flex items-center gap-3 rounded-lg p-2">
+                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#f59e0b14", color: "#f59e0b" }}>
+                   <Clock className="size-4" />
+                 </div>
+                 <div className="min-w-0 flex-1">
+                   <div className="truncate text-sm font-medium">Study sessions</div>
+                   <div className="text-xs text-muted-foreground">Recorded sessions</div>
+                 </div>
+                 <div className="font-display text-xl">{metrics?.studySessions ?? 0}</div>
+               </div>
+            </div>
           </div>
 
           {/* Recent sessions */}
@@ -233,6 +308,32 @@ export function Dashboard() {
               )}
             </div>
           </div>
+
+          {/* Recent artifacts */}
+          {dashboard?.recentArtifacts?.length ? (
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <SectionTitle title="Recently generated" />
+            <div className="space-y-2">
+                {dashboard.recentArtifacts.map((a) => {
+                  const Icon = getArtifactIcon(a.type);
+                  return (
+                    <div key={`${a.type}-${a.id}`} className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40 cursor-pointer" onClick={() => navigate(a.url)}>
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Icon className="size-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm">{a.title}</div>
+                        <div className="text-xs text-muted-foreground capitalize">{a.type}</div>
+                      </div>
+                      <div className="text-right text-xs text-muted-foreground">
+                        {a.time}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+          ) : null}
 
           {/* Recent bookmarks */}
           <div className="rounded-2xl border border-border bg-card p-5">

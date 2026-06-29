@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardR
 import { Document, Page } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import type { StickyNote, NoteRect } from "../lib/types";
+import { NOTE_CATEGORIES } from "../stores/useReadingNotesStore";
+import { cn } from "./ui/utils";
 
 export interface HighlightRect {
   x: number;
@@ -21,6 +24,8 @@ export interface HighlightItem {
 interface PDFViewerProps {
   pdfUrl: string;
   highlights: HighlightItem[];
+  notes?: StickyNote[];
+  onNoteClick?: (note: StickyNote) => void;
   scale?: number;
   onTextSelect: (text: string, page: number, rects: HighlightRect[]) => void;
   onPageVisible?: (page: number) => void;
@@ -28,11 +33,14 @@ interface PDFViewerProps {
 
 export interface PDFViewerRef {
   scrollToPage: (page: number) => void;
+  scrollToRegion: (page: number, bbox: NoteRect) => void;
 }
 
 const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
   pdfUrl,
   highlights,
+  notes = [],
+  onNoteClick,
   scale = 1.0,
   onTextSelect,
   onPageVisible,
@@ -55,7 +63,21 @@ const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "start" });
       }
-    }
+    },
+    scrollToRegion: (page: number, bbox: NoteRect) => {
+      const el = pageWrapperRefs.current.get(page);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Nudge the nearest scrollable ancestor toward the region's vertical offset.
+      let parent = el.parentElement;
+      while (parent && parent.scrollHeight <= parent.clientHeight) {
+        parent = parent.parentElement;
+      }
+      if (parent) {
+        const offset = bbox.y * el.clientHeight - el.clientHeight * 0.15;
+        parent.scrollBy({ top: offset, behavior: "smooth" });
+      }
+    },
   }));
 
   // Measure container width so pages fill it exactly (handles resize / panel collapse).
@@ -189,6 +211,7 @@ const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
         >
           {Array.from({ length: numPages }, (_, i) => i + 1).map((page) => {
             const pageHighlights = highlights.filter((h) => h.page_number === page);
+            const pageNotes = notes.filter((n) => n.page_number === page && n.bounding_box);
             const renderedHeight = getPageHeight(page);
 
             return (
@@ -251,6 +274,26 @@ const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
                       }
                       
                       return rects;
+                    })}
+
+                    {/* Sticky-note margin badges (reading-annotations plugin) */}
+                    {pageNotes.map((n) => {
+                      const meta = NOTE_CATEGORIES[n.category];
+                      const Icon = meta.icon;
+                      return (
+                        <button
+                          key={`note-${n.id}`}
+                          onClick={() => onNoteClick?.(n)}
+                          title={n.content}
+                          className={cn(
+                            "absolute z-10 flex size-6 items-center justify-center rounded-full border shadow-sm transition-transform hover:scale-110",
+                            meta.chip,
+                          )}
+                          style={{ left: 2, top: `${n.bounding_box!.y * 100}%` }}
+                        >
+                          <Icon className="size-3.5" />
+                        </button>
+                      );
                     })}
                   </>
                 ) : (

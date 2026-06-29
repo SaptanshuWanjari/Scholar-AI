@@ -88,6 +88,8 @@ def _meta(wb: Whiteboard) -> WhiteboardMeta:
         updated=_fmt(wb.updated_at),
         createdAt=_fmt(wb.created_at),
         deletedAt=_fmt(wb.deleted_at) if hasattr(wb, 'deleted_at') else None,
+        documentId=str(wb.document_id) if wb.document_id is not None else None,
+        pageNumber=wb.page_number,
     )
 
 
@@ -123,7 +125,7 @@ def _revision(rev: WhiteboardRevision) -> WhiteboardRevisionOut:
 # ---------------------------------------------------------------------------
 
 @router.get("", response_model=list[WhiteboardMeta])
-def list_whiteboards(course: str | None = None) -> list[WhiteboardMeta]:
+def list_whiteboards(course: str | None = None, document_id: int | None = None) -> list[WhiteboardMeta]:
     session = get_session()
     try:
         # Auto-delete binned whiteboards older than 10 days
@@ -140,6 +142,8 @@ def list_whiteboards(course: str | None = None) -> list[WhiteboardMeta]:
         q = session.query(Whiteboard)
         if course:
             q = q.filter(Whiteboard.course == course)
+        if document_id is not None:
+            q = q.filter(Whiteboard.document_id == document_id)
         return [_meta(wb) for wb in q.order_by(Whiteboard.last_opened_at.desc()).all()]
     finally:
         session.close()
@@ -158,6 +162,8 @@ def create_whiteboard(payload: WhiteboardCreate) -> WhiteboardOut:
             scene=payload.scene or {},
             thumbnail=payload.thumbnail,
             source=payload.source or "manual",
+            document_id=payload.document_id,
+            page_number=payload.page_number,
         )
         session.add(wb)
         session.commit()

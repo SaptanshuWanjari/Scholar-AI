@@ -1,13 +1,75 @@
+import re
+
 import numpy as np
 from fastapi import APIRouter, HTTPException
 from scholarcli.api.schemas import NotebookDeduplicateRequest, NotebookDeduplicateResponse
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Notebook
+from scholarcli.storage.models import Document, Notebook
 from scholarcli.llm import get_embeddings
 
 router = APIRouter(prefix="/api/notebooks", tags=["notebooks-deduplicate"])
 
 SIMILARITY_THRESHOLD = 0.85
+
+# [[cite:doc_id:page]] — inline source citation syntax.
+# Page is optional: [[cite:3:12]] or [[cite:3]].
+CITE_RE = re.compile(r"\[\[cite:(\d+)(?::(\d+))?\]\]")
+
+
+def resolve_notebook_citations(blocks: list[dict]) -> list[dict]:
+    """Parse all blocks for ``[[cite:...]]`` references and resolve them.
+
+    Returns a list of ``{doc_id, doc_title, page, raw}`` dicts sorted by
+    occurrence in the block text. References to deleted documents return
+    ``doc_title: "Unknown Source"``.
+    """
+    resolved: list[dict] = []
+    seen: set[str] = set()
+
+    def resolve(raw: str, doc_id: int, page: int | None) -> dict:
+        key = f"{doc_id}:{page}" if page else str(doc_id)
+        if key in seen:
+            return {}
+        seen.add(key)
+        session = get_session()
+        try:
+            doc = session.get(Document, doc_id)
+            title = doc.title if doc else "Unknown Source"
+        finally:
+            session.close()
+        return {
+            "raw": raw,
+            "docId": doc_id,
+            "docTitle": title,
+            "page": page,
+        }
+
+    for block in blocks:
+        if not isinstance(block, dict):
+            continue
+        text = block.get("text", "")
+        if not text:
+            continue
+        for m in CITE_RE.finditer(text):
+            doc_id = int(m.group(1))
+            page = int(m.group(2)) if m.group(2) else None
+            ref = resolve(m.group(0), doc_id, page)
+            if ref:
+                resolved.append(ref)
+    return resolved
+
+
+def render_citations_in_text(text: str, resolved: list[dict]) -> str:
+    """Replace ``[[cite:...]]`` tokens with display-safe placeholders.
+
+    The frontend uses these placeholder tokens to render styled badges.
+    """
+    for ref in resolved:
+        raw = ref.get("raw", "")
+        page_str = f", p.{ref['page']}" if ref.get("page") else ""
+        replacement = f"{{{{cite:{ref['docId']}:{ref['docTitle']}{page_str}}}}}"
+        text = text.replace(raw, replacement, 1)
+    return text
 
 
 def cosine_similarity(a: list[float], b: list[float]) -> float:

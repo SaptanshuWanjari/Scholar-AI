@@ -11,7 +11,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Activity, Card, Deck, Document, SavedQuiz, ReadingState
+from scholarcli.storage.models import Activity, Card, Deck, Document, SavedQuiz, ReadingState, Diagram, Mindmap, SavedRevision, Whiteboard
 
 # Rough per-event time estimates (minutes) when a caller doesn't pass one.
 _DEFAULT_MINUTES = {"ask": 3, "quiz": 10, "exam": 20, "diagram": 2, "flashcard": 1, "note": 4}
@@ -73,6 +73,11 @@ def dashboard() -> dict:
 
         documents = session.query(Document).count()
         flashcards = session.query(Card).count()
+        flashcards_due = 0
+        for c in session.query(Card).all():
+            if c.ease != "mastered":
+                if c.due == "Today" or str(c.due) <= now.isoformat():
+                    flashcards_due += 1
         quizzes_taken = sum(1 for a in acts if a.kind in ("quiz", "exam")) + session.query(SavedQuiz).count()
         study_sessions = sum(1 for a in acts if a.kind in _SESSION_KINDS)
 
@@ -149,15 +154,33 @@ def dashboard() -> dict:
         # Since we don't have created_at on bookmarks, we just reverse to get the last appended
         recent_bookmarks = all_bmarks[::-1][:5]
 
+        # Recent Artifacts
+        raw_artifacts = []
+        for q in session.query(SavedQuiz).order_by(SavedQuiz.created_at.desc()).limit(3).all():
+            raw_artifacts.append({"id": str(q.id), "title": q.title, "type": "quiz", "url": f"/quiz/{q.id}", "time": _ago(q.created_at or now, now), "stamp": q.created_at or now})
+        for r in session.query(SavedRevision).order_by(SavedRevision.created_at.desc()).limit(3).all():
+            raw_artifacts.append({"id": str(r.id), "title": r.title, "type": "revision", "url": f"/revision/{r.id}", "time": _ago(r.created_at or now, now), "stamp": r.created_at or now})
+        for d in session.query(Diagram).order_by(Diagram.created_at.desc()).limit(3).all():
+            raw_artifacts.append({"id": str(d.id), "title": d.title, "type": "diagram", "url": f"/diagram/{d.id}", "time": _ago(d.created_at or now, now), "stamp": d.created_at or now})
+        for m in session.query(Mindmap).order_by(Mindmap.created_at.desc()).limit(3).all():
+            raw_artifacts.append({"id": str(m.id), "title": m.title, "type": "mindmap", "url": f"/mindmap/{m.id}", "time": _ago(m.created_at or now, now), "stamp": m.created_at or now})
+        for w in session.query(Whiteboard).order_by(Whiteboard.created_at.desc()).limit(3).all():
+            raw_artifacts.append({"id": str(w.id), "title": w.title, "type": "whiteboard", "url": f"/whiteboard/{w.id}", "time": _ago(w.created_at or now, now), "stamp": w.created_at or now})
+            
+        raw_artifacts.sort(key=lambda x: x["stamp"], reverse=True)
+        recent_artifacts = [{"id": x["id"], "title": x["title"], "type": x["type"], "url": x["url"], "time": x["time"]} for x in raw_artifacts[:3]]
+
         return {
             "metrics": {
                 "documents": documents,
                 "flashcards": flashcards,
+                "flashcardsDue": flashcards_due,
                 "quizzesTaken": quizzes_taken,
                 "studySessions": study_sessions,
             },
             "studyActivity": study_activity,
             "recentSessions": recent_sessions,
+            "recentArtifacts": recent_artifacts,
             "activity": activity,
             "weakTopics": weak_topics[:4],
             "suggestedRevision": suggested[:3],

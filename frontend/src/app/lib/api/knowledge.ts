@@ -166,9 +166,10 @@ export interface LearningPathMeta {
 
 // ---- Dashboard ----
 export interface DashboardData {
-  metrics: { documents: number; flashcards: number; quizzesTaken: number; studySessions: number };
+  metrics: { documents: number; flashcards: number; flashcardsDue: number; quizzesTaken: number; studySessions: number };
   studyActivity: { day: string; minutes: number; cards: number }[];
   recentSessions: { id: string; title: string; course: string; duration: string; date: string }[];
+  recentArtifacts: { id: string; title: string; type: string; url: string; time: string }[];
   activity: { id: string; kind: string; text: string; time: string }[];
   weakTopics: { id: string; topic: string; course: string; mastery: number }[];
   suggestedRevision: { id: string; topic: string; reason: string; course: string }[];
