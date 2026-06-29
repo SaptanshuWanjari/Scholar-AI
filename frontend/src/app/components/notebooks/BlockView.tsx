@@ -4,6 +4,7 @@ import {
   ChevronDown,
   Wand2,
   Trash2,
+  Merge,
 } from "lucide-react";
 import { cn } from "../ui/utils";
 import { Button } from "../ui/button";
@@ -25,6 +26,9 @@ export function BlockView({
   onCancel,
   onDelete,
   onMerge,
+  onUngroup,
+  onDeleteNote,
+  onUpdateNote,
   onDragStart,
   onDragEnter,
   onDragEnd,
@@ -40,7 +44,10 @@ export function BlockView({
   onSave: (patch: Partial<NotebookBlock>) => void;
   onCancel: () => void;
   onDelete: () => void;
-  onMerge?: (targetIndex: number) => void;
+  onMerge?: () => void;
+  onUngroup?: (noteIndex: number) => void;
+  onDeleteNote?: (noteIndex: number) => void;
+  onUpdateNote?: (noteIndex: number, newRaw: string) => void;
   onDragStart: () => void;
   onDragEnter: () => void;
   onDragEnd: () => void;
@@ -86,6 +93,17 @@ export function BlockView({
               <ChevronDown className="size-3.5 text-muted-foreground" />
             )}
           </Button>
+          {onMerge && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6 bg-card/80 backdrop-blur hover:text-primary"
+              onClick={onMerge}
+              title="Group with note above"
+            >
+              <Merge className="size-3.5 text-muted-foreground hover:text-primary" />
+            </Button>
+          )}
           {editable && (
             <Button
               variant="ghost"
@@ -124,7 +142,7 @@ export function BlockView({
           </span>
         </button>
       ) : (
-        <BlockInner block={block} />
+        <BlockInner block={block} onUngroup={onUngroup} onDeleteNote={onDeleteNote} onUpdateNote={onUpdateNote} />
       )}
     </div>
   );

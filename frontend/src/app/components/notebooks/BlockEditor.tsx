@@ -9,6 +9,9 @@ import { cn } from "../ui/utils";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { MarkdownEditor } from "./MarkdownEditor";
+import { StickyNoteComposer } from "../StickyNoteComposer";
+import { parseNotes } from "./utils";
+import { NOTE_CATEGORIES, NOTE_CATEGORY_LIST } from "../../stores/useReadingNotesStore";
 
 export function BlockEditor({
   block,
@@ -54,11 +57,44 @@ export function BlockEditor({
         </>
       )}
 
-      {draft.type === "text" && (
+      {draft.type === "text" && draft.source?.type !== "reading" && (
         <MarkdownEditor
           value={d.text}
           onChange={(val) => field({ text: val })}
         />
+      )}
+
+      {draft.type === "text" && draft.source?.type === "reading" && (
+        <div className="space-y-4">
+          {parseNotes(d.text).map((note, idx, arr) => (
+            <div key={idx} className="mt-2">
+              <StickyNoteComposer
+                content={note.content}
+                onChangeContent={(newContent) => {
+                  const footer = note.raw.match(/\s*(?:—|–|-)\s*(.+?),\s*p\.(\d+)\s*(?:#\S+)?\s*$/);
+                  const footerStr = footer ? footer[0].trim() : "";
+                  const newRaw = footerStr ? `[ ${note.category}] ${newContent}\n\n${footerStr}` : `[ ${note.category}] ${newContent}`;
+                  
+                  const newArr = [...arr];
+                  newArr[idx] = { ...note, content: newContent, raw: newRaw };
+                  field({ text: newArr.map(n => n.raw).join("\n\n") });
+                }}
+                category={note.category}
+                onChangeCategory={(newCat) => {
+                  const footer = note.raw.match(/\s*(?:—|–|-)\s*(.+?),\s*p\.(\d+)\s*(?:#\S+)?\s*$/);
+                  const footerStr = footer ? footer[0].trim() : "";
+                  const newRaw = footerStr ? `[ ${newCat}] ${note.content}\n\n${footerStr}` : `[ ${newCat}] ${note.content}`;
+                  
+                  const newArr = [...arr];
+                  newArr[idx] = { ...note, category: newCat, raw: newRaw };
+                  field({ text: newArr.map(n => n.raw).join("\n\n") });
+                }}
+                isEditing={true}
+                hideActions={true}
+              />
+            </div>
+          ))}
+        </div>
       )}
 
       {draft.type === "callout" && (

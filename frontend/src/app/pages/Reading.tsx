@@ -23,8 +23,9 @@ import {
   Columns,
   BookOpenText,
   Save,
+  Trash2,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { cn } from "../components/ui/utils";
@@ -41,7 +42,7 @@ import { api, type ReadingDoc, type NotebookMeta } from "../lib/api";
 import type { DocumentItem } from "../lib/types";
 import { StickyNote as StickyNoteIcon, PenLine, PuzzleIcon } from "lucide-react";
 import PDFViewer, { type HighlightItem, type HighlightRect, type PDFViewerRef } from "../components/PDFViewer";
-import { ReadingWorkspace } from "../components/reading/ReadingWorkspace";
+import { ReadingWorkspace, type SubMode } from "../components/reading/ReadingWorkspace";
 import { usePluginStore } from "../plugins/usePluginStore";
 import { useReadingNotesStore } from "../stores/useReadingNotesStore";
 import type { NoteRect } from "../lib/types";
@@ -56,6 +57,7 @@ export function Reading() {
   const pendingHighlightRef = useRef<{ page: number; rects: HighlightRect[] }>({ page: 1, rects: [] });
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [docsLoading, setDocsLoading] = useState(true);
   const [docId, setDocId] = useState<string | null>(null);
@@ -63,7 +65,7 @@ export function Reading() {
   const [doc, setDoc] = useState<ReadingDoc | null>(null);
   const [docLoading, setDocLoading] = useState(false);
 
-  const [progress, setProgress] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [scale, setScale] = useState(1.0);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(true);
@@ -83,9 +85,25 @@ export function Reading() {
   const addNoteToStore = useReadingNotesStore((s) => s.addNote);
   const clearNotes = useReadingNotesStore((s) => s.clear);
 
-  const [viewMode, setViewMode] = useState<"pdf" | "text" | "split" | "compare">("pdf");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"pdf" | "text" | "split" | "compare">("split");
   const [compareDocId, setCompareDocId] = useState<string | null>(null);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Global Ctrl+F binding
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        e.stopPropagation();
+        setLeftCollapsed(false);
+        setTimeout(() => searchInputRef.current?.focus(), 50);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
+  }, []);
   const [compareDoc, setCompareDoc] = useState<ReadingDoc | null>(null);
 
   const [lens, setLens] = useState<Lens>("Intermediate");
@@ -94,6 +112,7 @@ export function Reading() {
   const [lensLoading, setLensLoading] = useState(false);
   const [notebooks, setNotebooks] = useState<NotebookMeta[]>([]);
   const [savingToNotebook, setSavingToNotebook] = useState(false);
+  const [annotSubMode, setAnnotSubMode] = useState<SubMode>("notes");
 
   // ---- Load the document list ----
   useEffect(() => {
@@ -132,7 +151,7 @@ export function Reading() {
     setDocLoading(true);
     setSelected(null);
     setExplanation(null);
-    setProgress(0);
+    setCurrentPage(1);
     lastViewedPageRef.current = 1;
     api
       .getReading(docId)
@@ -147,17 +166,6 @@ export function Reading() {
     };
   }, [docId]);
 
-  // ---- Scroll progress tracking ----
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const max = el.scrollHeight - el.clientHeight;
-      setProgress(max > 0 ? Math.min(100, Math.round((el.scrollTop / max) * 100)) : 0);
-    };
-    el.addEventListener("scroll", onScroll);
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [doc]);
 
   // ---- Compare doc loading ----
   useEffect(() => {
@@ -187,8 +195,20 @@ export function Reading() {
     };
   }, [docId, readingAnnotEnabled, setNotes, clearNotes]);
 
+  // ---- Handle page query parameter (from notebook anchor links) ----
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    if (pageParam && doc && pdfRef.current) {
+      const targetPage = parseInt(pageParam, 10);
+      if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= doc.pages) {
+        setTimeout(() => pdfRef.current?.scrollToPage(targetPage), 300);
+      }
+    }
+  }, [doc, searchParams]);
+
   const handlePdfPageVisible = (page: number) => {
     lastViewedPageRef.current = page;
+    setCurrentPage(page);
   };
 
   // ---- Lens: fetch an adaptive explanation for some text ----
@@ -250,9 +270,9 @@ export function Reading() {
 
   const onBookmark = async (text: string) => {
     if (!docId) return;
-    const page = pendingHighlightRef.current.page;
+    const { page, rects } = pendingHighlightRef.current;
     try {
-      const updated = await api.addBookmark(docId, `Page ${page}`, text);
+      const updated = await api.addBookmark(docId, `Page ${page}`, text, rects);
       setDoc(updated);
       toast.success("Bookmark saved");
     } catch (e) {
@@ -292,6 +312,30 @@ export function Reading() {
       toast.success("Note added — categorize it in the Workspace pane");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to add note");
+    }
+  };
+
+  const onRemoveBookmark = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!docId) return;
+    try {
+      await api.removeBookmark(docId, id);
+      setDoc(prev => prev ? { ...prev, bookmarks: prev.bookmarks.filter(b => b.id !== id) } : null);
+      toast.success("Bookmark removed");
+    } catch (e) {
+      toast.error("Failed to remove bookmark");
+    }
+  };
+
+  const onRemoveHighlight = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!docId) return;
+    try {
+      await api.removeHighlight(docId, id);
+      setDoc(prev => prev ? { ...prev, highlights: (prev.highlights as any).filter((h: any) => h.id !== id) } : null);
+      toast.success("Highlight removed");
+    } catch (e) {
+      toast.error("Failed to remove highlight");
     }
   };
 
@@ -355,7 +399,7 @@ export function Reading() {
   const highlights = allHighlights.filter(h => h.text.toLowerCase().includes(searchQuery.toLowerCase()));
   const bookmarks = allBookmarks.filter(b => b.section.toLowerCase().includes(searchQuery.toLowerCase()) || b.note.toLowerCase().includes(searchQuery.toLowerCase()));
   const pages = doc?.pages ?? 0;
-  const currentPage = pages > 0 ? Math.max(1, Math.round((progress / 100) * pages)) : 1;
+  const progress = pages > 0 ? Math.round((currentPage / pages) * 100) : 0;
 
   // ---- Empty state: no documents at all ----
   if (!docsLoading && documents.length === 0) {
@@ -415,6 +459,7 @@ export function Reading() {
               <div className="relative">
                 <Search className="absolute left-2 top-1.5 size-3.5 text-muted-foreground" />
                 <input
+                  ref={searchInputRef}
                   type="text"
                   placeholder="Search..."
                   value={searchQuery}
@@ -448,6 +493,29 @@ export function Reading() {
                 <ZoomIn className="size-3.5" />
               </Button>
             </div>
+            {doc?.sections && doc.sections.length > 0 && (
+              <div className="px-2 pb-2">
+                <div className="mb-1.5 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                  Contents
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  {doc.sections
+                    .filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .map((section) => (
+                    <button
+                      key={section.id}
+                      onClick={() => {
+                        const page = section.paragraphs?.[0]?.page;
+                        if (page) pdfRef.current?.scrollToPage(page);
+                      }}
+                      className="text-left px-2 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground rounded transition-colors"
+                    >
+                      {section.number} {section.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </Group>
 
           <Group label="Bookmarks" icon={Bookmark}>
@@ -455,9 +523,26 @@ export function Reading() {
               <p className="px-2.5 py-1.5 text-[11px] text-muted-foreground">No bookmarks yet.</p>
             ) : (
               bookmarks.map((b) => (
-                <div key={b.id} className="rounded-md px-2.5 py-1.5 hover:bg-accent/50">
+                <div 
+                  key={b.id} 
+                  className="group relative cursor-pointer rounded-md px-2.5 py-1.5 hover:bg-accent/50 pr-8"
+                  onClick={() => {
+                    const pageMatch = b.section.match(/Page (\d+)/);
+                    if (pageMatch) {
+                      pdfRef.current?.scrollToPage(parseInt(pageMatch[1], 10));
+                    }
+                  }}
+                >
                   <div className="text-sm text-foreground/80">{b.section}</div>
                   <div className="text-[11px] text-muted-foreground">{b.note}</div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute right-1 top-1.5 size-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => onRemoveBookmark(b.id, e)}
+                  >
+                    <Trash2 className="size-3.5 text-muted-foreground hover:text-destructive" />
+                  </Button>
                 </div>
               ))
             )}
@@ -468,11 +553,23 @@ export function Reading() {
               <p className="px-2.5 py-1.5 text-[11px] text-muted-foreground">No highlights yet.</p>
             ) : (
               highlights.map((h) => (
-                <div key={h.id} className="rounded-md px-2.5 py-1.5 hover:bg-accent/50">
+                <div 
+                  key={h.id} 
+                  className="group relative cursor-pointer rounded-md px-2.5 py-1.5 hover:bg-accent/50 pr-8"
+                  onClick={() => pdfRef.current?.scrollToPage(h.page_number)}
+                >
                   <div className="study-mark inline font-reading text-[13px] leading-snug text-foreground/80">
                     {h.text}
                   </div>
                   <div className="mt-1 text-[11px] text-muted-foreground">Page {h.page_number}</div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute right-1 top-1.5 size-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => onRemoveHighlight(h.id, e)}
+                  >
+                    <Trash2 className="size-3.5 text-muted-foreground hover:text-destructive" />
+                  </Button>
                 </div>
               ))
             )}
@@ -499,13 +596,39 @@ export function Reading() {
                 )}
               </div>
 
-              <div className="pointer-events-auto flex items-center justify-center">
+              <div className="pointer-events-auto flex items-center justify-center gap-2">
                 <div className="flex bg-card/90 shadow-sm border border-border rounded-lg p-1 backdrop-blur">
                   <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "pdf" ? "bg-accent" : ""}`} onClick={() => setViewMode("pdf")}><BookOpen className="size-3.5 mr-1" /> PDF</Button>
                   <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "text" ? "bg-accent" : ""}`} onClick={() => setViewMode("text")}><PencilLine className="size-3.5 mr-1" /> Annotate</Button>
                   <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "split" ? "bg-accent" : ""}`} onClick={() => setViewMode("split")}><Columns className="size-3.5 mr-1" /> Split</Button>
                   <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "compare" ? "bg-accent" : ""}`} onClick={() => { setViewMode("compare"); if (!compareDocId && documents.length > 1) setCompareDocId(documents.find(d => d.id !== docId)?.id ?? null); }}><Columns className="size-3.5 mr-1" /> Compare</Button>
                 </div>
+                
+                {(viewMode === "split" || viewMode === "text") && readingAnnotEnabled && (
+                  <div className="flex bg-card/90 shadow-sm border border-border rounded-lg p-1 backdrop-blur">
+                    {(
+                      [
+                        { v: "notes", label: "Notes", icon: StickyNoteIcon },
+                        { v: "draw", label: "Draw", icon: PencilRuler },
+                        { v: "both", label: "Both", icon: Columns },
+                      ] as { v: SubMode; label: string; icon: typeof StickyNoteIcon }[]
+                    ).map((t) => (
+                      <Button
+                        key={t.v}
+                        variant="ghost"
+                        size="sm"
+                        className={`h-7 px-2 text-xs font-medium transition-colors ${
+                          annotSubMode === t.v 
+                            ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" 
+                            : "text-muted-foreground hover:text-foreground hover:bg-transparent"
+                        }`}
+                        onClick={() => setAnnotSubMode(t.v)}
+                      >
+                        <t.icon className="size-3.5 mr-1" /> {t.label}
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="pointer-events-auto">
@@ -539,6 +662,7 @@ export function Reading() {
                         <PDFViewer
                           pdfUrl={`/api/documents/${docId}/raw`}
                           highlights={highlights}
+                          bookmarks={bookmarks}
                           scale={scale}
                           onTextSelect={handlePDFTextSelect}
                         />
@@ -582,6 +706,7 @@ export function Reading() {
                             ref={pdfRef}
                             pdfUrl={`/api/documents/${docId}/raw`}
                             highlights={highlights}
+                            bookmarks={bookmarks}
                             notes={readingAnnotEnabled ? notes : []}
                             onNoteClick={() => { if (viewMode === "pdf") setViewMode("split"); }}
                             scale={scale}
@@ -595,13 +720,14 @@ export function Reading() {
                     {(viewMode === "text" || viewMode === "split") && (
                       <div className={`h-full ${viewMode === "split" ? "w-[50%]" : "w-full"} ${viewMode === "text" ? "pt-10" : ""}`}>
                         {readingAnnotEnabled ? (
-                          <ReadingWorkspace
-                            docId={docId!}
-                            course={documents.find((d) => d.id === docId)?.course ?? null}
-                            excalidrawEnabled={excalidrawEnabled}
-                            notebooks={notebooks}
-                            onScrollToRegion={(page, bbox) => pdfRef.current?.scrollToRegion(page, bbox)}
-                          />
+                            <ReadingWorkspace
+                              docId={docId!}
+                              course={documents.find((d) => d.id === docId)?.course ?? null}
+                              excalidrawEnabled={excalidrawEnabled}
+                              notebooks={notebooks}
+                              subMode={annotSubMode}
+                              onScrollToRegion={(page, bbox) => pdfRef.current?.scrollToRegion(page, bbox)}
+                            />
                         ) : (
                           <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
                             <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
@@ -766,10 +892,10 @@ export function Reading() {
       {/* Bottom — Reading progress */}
       <div className="flex h-12 shrink-0 items-center gap-6 border-t border-border bg-card/60 px-6 text-xs text-muted-foreground backdrop-blur">
         <span className="flex items-center gap-1.5">
-          <BookOpen className="size-3.5" /> Page {Math.max(1, Math.round((progress / 100) * pages))} of {Math.max(1, pages)}
+          <BookOpen className="size-3.5" /> Page {doc ? currentPage : 1} of {Math.max(1, pages)}
         </span>
         <span className="flex items-center gap-1.5">
-          <Clock className="size-3.5" /> ~{Math.max(1, pages - Math.round((progress / 100) * pages))} min left
+          <Clock className="size-3.5" /> ~{Math.max(1, pages - currentPage)} min left
         </span>
         <span className="flex items-center gap-1.5">
           <Highlighter className="size-3.5" /> {highlights.length} highlights

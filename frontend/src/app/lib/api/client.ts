@@ -8,7 +8,11 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
     let detail = res.statusText;
     try {
       const body = await res.json();
-      detail = body.detail ?? detail;
+      if (Array.isArray(body.detail)) {
+        detail = body.detail.map((e: any) => `${e.loc?.join(".") || "Field"}: ${e.msg}`).join(", ");
+      } else {
+        detail = body.detail ?? detail;
+      }
     } catch {
       /* non-JSON error body */
     }

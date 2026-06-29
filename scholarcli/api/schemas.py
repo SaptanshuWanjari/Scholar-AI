@@ -684,6 +684,7 @@ class HighlightCreate(BaseModel):
 class BookmarkCreate(BaseModel):
     section: str
     note: str = ""
+    rects: list[HighlightRect] = []
 
 
 class LensResponse(BaseModel):

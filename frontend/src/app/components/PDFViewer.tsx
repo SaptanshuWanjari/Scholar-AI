@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardR
 import { Document, Page } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { Bookmark } from "lucide-react";
 import type { StickyNote, NoteRect } from "../lib/types";
 import { NOTE_CATEGORIES } from "../stores/useReadingNotesStore";
 import { cn } from "./ui/utils";
@@ -24,6 +25,7 @@ export interface HighlightItem {
 interface PDFViewerProps {
   pdfUrl: string;
   highlights: HighlightItem[];
+  bookmarks?: { id: string; section: string; note: string }[];
   notes?: StickyNote[];
   onNoteClick?: (note: StickyNote) => void;
   scale?: number;
@@ -40,6 +42,7 @@ export interface PDFViewerRef {
 const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
   pdfUrl,
   highlights,
+  bookmarks = [],
   notes = [],
   onNoteClick,
   scale = 1.0,
@@ -69,15 +72,22 @@ const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
     scrollToRegion: (page: number, bbox: NoteRect) => {
       const el = pageWrapperRefs.current.get(page);
       if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      // Nudge the nearest scrollable ancestor toward the region's vertical offset.
+      
       let parent = el.parentElement;
       while (parent && parent.scrollHeight <= parent.clientHeight) {
         parent = parent.parentElement;
       }
+      
       if (parent) {
-        const offset = bbox.y * el.clientHeight - el.clientHeight * 0.15;
-        parent.scrollBy({ top: offset, behavior: "smooth" });
+        const parentRect = parent.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+        const currentRelTop = elRect.top - parentRect.top;
+        const targetOffsetInsidePage = bbox.y * el.clientHeight - el.clientHeight * 0.15;
+        const targetScrollTop = parent.scrollTop + currentRelTop + targetOffsetInsidePage;
+        
+        parent.scrollTo({ top: targetScrollTop, behavior: "smooth" });
+      } else {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     },
   }));
@@ -254,6 +264,30 @@ const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
                         setNativeDims((prev) => new Map(prev).set(page, { w: vp.width, h: vp.height }));
                       }}
                     />
+                    {bookmarks.some(b => b.section === `Page ${page}`) && (
+                      <div className="absolute top-0 right-8 z-20 w-8 h-12 bg-primary/90 rounded-b-md shadow-md flex items-center justify-center pointer-events-none transition-all">
+                        <Bookmark className="size-4 text-primary-foreground fill-primary-foreground" />
+                      </div>
+                    )}
+                    {/* Bookmark overlays */}
+                    {bookmarks.filter(b => b.section === `Page ${page}`).flatMap((bm) => {
+                      if (!bm.rects) return [];
+                      return bm.rects.map((rect, ri) => (
+                        <div
+                          key={`bm-${bm.id}-${ri}`}
+                          style={{
+                            position: "absolute",
+                            left: `${rect.x * 100}%`,
+                            top: `${rect.y * 100}%`,
+                            width: `${rect.width * 100}%`,
+                            height: `${rect.height * 100}%`,
+                            background: "coral",
+                            opacity: 0.35,
+                            pointerEvents: "none",
+                          }}
+                        />
+                      ));
+                    })}
                     {/* Highlight overlays and margin notes */}
                     {pageHighlights.flatMap((hl) => {
                       const rects = hl.rects.map((rect, ri) => (

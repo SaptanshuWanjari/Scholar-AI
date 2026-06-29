@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { api, type NotebookMeta } from "../lib/api";
 import type { NotebookBlock } from "../lib/notebook-data";
 import { artifactLabel, serializeArtifact } from "../lib/serializers";
+import { NOTE_CATEGORIES, type CategoryMeta } from "../stores/useReadingNotesStore";
 import { useNotificationStore } from "../stores/useNotificationStore";
 import { Button } from "./ui/button";
 import {
@@ -46,6 +47,10 @@ interface AddToNotebookMenuProps {
   size?: React.ComponentProps<typeof Button>["size"];
   className?: string;
   course?: string | null;
+  /**
+   * Optional note data to embed the id into the footer if this is a reading note.
+   */
+  noteData?: { docId: string; page: number; id: string; cat: string };
   /**
    * When provided, the artifact is appended as these rich blocks instead of being
    * serialized to a Markdown text block. Used for embed-style blocks (e.g. a

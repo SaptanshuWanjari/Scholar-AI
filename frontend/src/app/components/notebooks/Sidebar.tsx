@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import {
   PanelLeftClose,
   Plus,
@@ -74,6 +75,25 @@ export function Sidebar({
   onCreateNotebook: () => void;
   onToggleCollapse: () => void;
 }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        e.stopPropagation();
+        setTimeout(() => searchInputRef.current?.focus(), 50);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
+  }, []);
+
+  const filteredList = list.filter((n) =>
+    (n.name || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <aside
       className={cn(
@@ -110,6 +130,9 @@ export function Sidebar({
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
+            ref={searchInputRef}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search notes…"
             className="h-8 bg-input-background pl-8 text-xs"
           />
@@ -128,8 +151,12 @@ export function Sidebar({
           >
             <Plus className="size-3.5" /> Create your first notebook
           </button>
+        ) : filteredList.length === 0 ? (
+          <div className="flex items-center gap-2 px-2.5 py-3 text-xs text-muted-foreground">
+            No notebooks match your search.
+          </div>
         ) : (
-          list.map((n) => {
+          filteredList.map((n) => {
             const Icon = iconFor(n.id);
             if (renamingId === n.id) {
               return (

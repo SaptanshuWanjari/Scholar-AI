@@ -1,6 +1,7 @@
 import { Children, isValidElement, type ReactNode, cloneElement, memo, useMemo, lazy, Suspense } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import rehypeRaw from "rehype-raw";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -10,6 +11,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger, DialogClose } from "
 import { cn } from "./ui/utils";
 import { usePluginStore } from "../plugins/usePluginStore";
 import type { Components } from "react-markdown";
+import { useNavigate } from "react-router";
 
 const LazyPlantUMLViewer = lazy(() =>
   import("../plugins/plantuml/PlantUMLViewer").then((m) => ({ default: m.PlantUMLViewer }))
@@ -105,7 +107,8 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
   className,
 }: MarkdownRendererProps) {
   const plantumlEnabled = usePluginStore((s) => s.isEnabled("plantuml"));
-  const remarkPlugins = useMemo(() => [remarkGfm, remarkMath], []);
+  const navigate = useNavigate();
+  const remarkPlugins = useMemo(() => [remarkBreaks, remarkGfm, remarkMath], []);
   const rehypePlugins = useMemo(() => [rehypeRaw, rehypeKatex], []);
 
   const components: Components = useMemo(() => ({
@@ -196,16 +199,35 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
         )}
       </figure>
     ),
-    a: ({ children, href }) => (
-      <a
-        href={href}
-        className="text-cyan underline-offset-2 hover:underline"
-        target="_blank"
-        rel="noreferrer"
-      >
-        {children}
-      </a>
-    ),
+    a: ({ children, href }) => {
+      // Handle #doc{id}-p{page} anchors from sticky notes
+      const match = href?.match(/^#doc(\d+)-p(\d+)$/);
+      if (match) {
+        const [, docId, page] = match;
+        return (
+          <a
+            href={href}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(`/reading/${docId}?page=${page}`);
+            }}
+            className="text-cyan underline-offset-2 hover:underline cursor-pointer"
+          >
+            {children}
+          </a>
+        );
+      }
+      return (
+        <a
+          href={href}
+          className="text-cyan underline-offset-2 hover:underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {children}
+        </a>
+      );
+    },
     blockquote: ({ children }) => (
       <blockquote className="my-4 rounded-r-lg border-l-2 border-primary bg-violet-soft/40 py-2 pl-4 pr-3 italic text-foreground/80">
         {children}

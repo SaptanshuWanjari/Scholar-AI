@@ -31,6 +31,7 @@ from scholarcli.llm import get_llm
 from scholarcli.storage import get_session
 from scholarcli.storage.models import Document, Notebook, ReadingState, StickyNote
 from scholarcli.storage.vectors import get_document_chunks
+from .reading_sync import sync_note_across_notebooks
 
 router = APIRouter(prefix="/api/reading", tags=["reading"])
 
@@ -154,7 +155,12 @@ def add_bookmark(document_id: int, payload: BookmarkCreate) -> ReadingDocOut:
             raise HTTPException(status_code=404, detail="Document not found")
         state = _get_state(session, document_id)
         bms = list(state.bookmarks or [])
-        bms.append({"id": f"bm{len(bms) + 1}", "section": payload.section, "note": payload.note})
+        bms.append({
+            "id": f"bm{len(bms) + 1}", 
+            "section": payload.section, 
+            "note": payload.note,
+            "rects": [r.model_dump() for r in payload.rects]
+        })
         state.bookmarks = bms
         session.commit()
         return get_reading(document_id)
@@ -256,7 +262,7 @@ def _sync_note_to_notebook(
     if not nb:
         return
     emoji, label = _CATEGORY_META.get(note.category, _CATEGORY_META["general"])
-    anchor = f"#doc{note.document_id}-p{note.page_number}"
+    anchor = f"#{note.document_id}-n{note.id}"
     md = (
         f"> [{emoji} {label}] {note.content}\n>\n"
         f"> — {doc_title}, p.{note.page_number} {anchor}"
@@ -264,7 +270,7 @@ def _sync_note_to_notebook(
     block = {
         "type": "text",
         "text": md,
-        "source": {"type": "reading", "id": str(note.document_id)},
+        "source": {"type": "reading", "id": str(note.id)},
     }
     nb.blocks = [*(nb.blocks or []), block]
 
@@ -320,6 +326,11 @@ def update_note(document_id: int, note_id: int, payload: StickyNotePatch) -> Sti
             note.content = payload.content
         if payload.category is not None:
             note.category = payload.category
+            
+        doc = session.get(Document, document_id)
+        if doc and (payload.content is not None or payload.category is not None):
+            sync_note_across_notebooks(session, note, doc.title)
+            
         session.commit()
         session.refresh(note)
         return _note_out(note)
