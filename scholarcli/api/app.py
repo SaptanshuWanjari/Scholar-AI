@@ -25,7 +25,9 @@ async def lifespan(app: FastAPI):
     import asyncio
     from scholarcli.api.rag_service import warmup_embedding_cache
     asyncio.create_task(warmup_embedding_cache())
-    
+    from scholarcli.services.backup_service import start_backup_scheduler
+    asyncio.create_task(start_backup_scheduler())
+
     yield
     stop_pool()
 
@@ -53,6 +55,7 @@ def create_app() -> FastAPI:
 
     from scholarcli.api.routers import (
         ask,
+        backup,
         consistency,
         courses,
         dashboard,
@@ -82,6 +85,7 @@ def create_app() -> FastAPI:
 
     for module in (
         ask,
+        backup,
         consistency,
         courses,
         dashboard,

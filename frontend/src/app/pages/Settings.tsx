@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle, Terminal, Paintbrush } from "lucide-react";
+import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle, Terminal, Paintbrush, Save } from "lucide-react";
 import { Page } from "../components/Page";
 import { useGuidanceStore } from "../guidance/useGuidanceStore";
 import {
@@ -99,6 +99,27 @@ export function SettingsPage() {
   const [nukeModalOpen, setNukeModalOpen] = useState(false);
   const [nukeStep, setNukeStep] = useState<1 | 2>(1);
   const [isNuking, setIsNuking] = useState(false);
+
+  const [backingUp, setBackingUp] = useState(false);
+  const [backups, setBackups] = useState<Array<{ path: string; stamp: string; size_mb: number }>>([]);
+  const [backupMsg, setBackupMsg] = useState("");
+
+  const handleBackup = async () => {
+    setBackingUp(true);
+    setBackupMsg("");
+    try {
+      const res = await api.createBackup();
+      setBackupMsg(`Backup created: ${res.backup.stamp} (${res.backup.size_mb} MB)`);
+      setBackups(await api.listBackups());
+    } catch (e: any) {
+      setBackupMsg(`Backup failed: ${e.message}`);
+    }
+    setBackingUp(false);
+  };
+
+  useEffect(() => {
+    api.listBackups().then(setBackups).catch(() => {});
+  }, []);
 
   const handleNuke = async () => {
     setIsNuking(true);
@@ -710,6 +731,36 @@ export function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="data">
+          <div className="rounded-2xl border border-border bg-card px-5 mb-4">
+            <Row
+              title="Backup LanceDB"
+              desc="Save a snapshot of the vector database. Nightly backups run automatically; last 3 are kept."
+            >
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={handleBackup}
+                disabled={backingUp}
+              >
+                <Save className="size-4" />
+                {backingUp ? "Backing up..." : "Backup Now"}
+              </Button>
+            </Row>
+            {backupMsg && (
+              <div className="pb-4 text-xs text-muted-foreground">{backupMsg}</div>
+            )}
+            {backups.length > 0 && (
+              <div className="pb-4 space-y-1">
+                <div className="text-xs font-medium text-muted-foreground">Recent backups</div>
+                {backups.map((b) => (
+                  <div key={b.stamp} className="text-xs text-muted-foreground flex justify-between">
+                    <span>{b.stamp}</span>
+                    <span>{b.size_mb} MB</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="rounded-2xl border border-border bg-card px-5">
             <Row
               title="Danger Zone"
