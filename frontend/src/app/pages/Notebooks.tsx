@@ -16,6 +16,7 @@ import {
   Hash,
   Layers,
   Workflow,
+  StickyNote,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -36,6 +37,7 @@ import { Sidebar } from "../components/notebooks/Sidebar";
 import { InspectorPanel } from "../components/notebooks/InspectorPanel";
 import { BlockView } from "../components/notebooks/BlockView";
 import { CreateNotebookDialog } from "../components/notebooks/CreateNotebookDialog";
+import { parseNotes } from "../components/notebooks/utils";
 
 import { Code } from "lucide-react";
 export function Notebooks() {
@@ -49,7 +51,7 @@ export function Notebooks() {
   const navigate = useNavigate();
 
   const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [rightCollapsed, setRightCollapsed] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -284,6 +286,79 @@ export function Notebooks() {
   function deleteBlock(index: number) {
     if (editingIndex === index) setEditingIndex(null);
     persistBlocks(blocks.filter((_, i) => i !== index));
+  }
+
+  function ungroupNote(blockIndex: number, noteIndex: number) {
+    const block = blocks[blockIndex];
+    if (!block) return;
+    const notes = parseNotes(block.text);
+    if (notes.length <= 1) return;
+
+    const ungroupedNote = notes[noteIndex];
+    const remainingNotes = notes.filter((_, idx) => idx !== noteIndex);
+
+    const formatNote = (n: typeof notes[0]) => {
+      const clean = n.raw.replace(/(?:^|\n)[ \t]*>[ \t]*/g, "\n").replace(/^\n/, "");
+      return clean.split("\n").map(line => `> ${line}`).join("\n");
+    };
+
+    const next = [...blocks];
+    next[blockIndex] = {
+      ...block,
+      text: remainingNotes.map(formatNote).join("\n\n")
+    };
+
+    const newBlock: NotebookBlock = {
+      ...block,
+      text: formatNote(ungroupedNote)
+    };
+
+    next.splice(blockIndex + 1, 0, newBlock);
+    persistBlocks(next);
+  }
+
+  function deleteNoteFromGroup(blockIndex: number, noteIndex: number) {
+    const block = blocks[blockIndex];
+    if (!block) return;
+    const notes = parseNotes(block.text);
+    if (notes.length <= 1) {
+      deleteBlock(blockIndex);
+      return;
+    }
+
+    const remainingNotes = notes.filter((_, idx) => idx !== noteIndex);
+    const formatNote = (n: typeof notes[0]) => {
+      const clean = n.raw.replace(/(?:^|\n)[ \t]*>[ \t]*/g, "\n").replace(/^\n/, "");
+      return clean.split("\n").map(line => `> ${line}`).join("\n");
+    };
+
+    const next = [...blocks];
+    next[blockIndex] = {
+      ...block,
+      text: remainingNotes.map(formatNote).join("\n\n")
+    };
+    persistBlocks(next);
+  }
+
+  function updateNoteInGroup(blockIndex: number, noteIndex: number, newRaw: string) {
+    const block = blocks[blockIndex];
+    if (!block) return;
+    const notes = parseNotes(block.text);
+    if (!notes[noteIndex]) return;
+
+    notes[noteIndex].raw = newRaw;
+
+    const formatNote = (n: typeof notes[0]) => {
+      const clean = n.raw.replace(/(?:^|\n)[ \t]*>[ \t]*/g, "\n").replace(/^\n/, "");
+      return clean.split("\n").map(line => `> ${line}`).join("\n");
+    };
+
+    const next = [...blocks];
+    next[blockIndex] = {
+      ...block,
+      text: notes.map(formatNote).join("\n\n")
+    };
+    persistBlocks(next);
   }
 
   function moveBlock(from: number, to: number) {
@@ -607,7 +682,20 @@ export function Notebooks() {
                           }}
                           onCancel={() => setEditingIndex(null)}
                           onDelete={() => deleteBlock(i)}
-                          onMerge={(targetIdx) => mergeBlock(i, targetIdx)}
+                          onMerge={
+                            (() => {
+                              if (block.source?.type !== "reading") return undefined;
+                              for (let j = i - 1; j >= 0; j--) {
+                                if (blocks[j].source?.type === "reading" && parseNotes(blocks[j].text).length + parseNotes(block.text).length <= 4) {
+                                  return () => mergeBlock(i, j);
+                                }
+                              }
+                              return undefined;
+                            })()
+                          }
+                          onUngroup={(noteIndex) => ungroupNote(i, noteIndex)}
+                          onDeleteNote={(noteIndex) => deleteNoteFromGroup(i, noteIndex)}
+                          onUpdateNote={(noteIndex, newRaw) => updateNoteInGroup(i, noteIndex, newRaw)}
                           onDragStart={() => setDragIndex(i)}
                           onDragEnter={() =>
                             dragIndex !== null && setOverIndex(i)
@@ -631,6 +719,18 @@ export function Notebooks() {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-[300px]">
+                    <DropdownMenuItem
+                      onClick={() =>
+                        addBlock({
+                          type: "text",
+                          text: "[ General] New note...",
+                          source: { type: "reading", id: "new" },
+                        })
+                      }
+                    >
+                      <StickyNote className="mr-2 size-4 text-muted-foreground" />{" "}
+                      Sticky Note
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() =>
                         addBlock({

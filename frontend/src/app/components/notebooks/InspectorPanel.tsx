@@ -24,9 +24,9 @@ function InspectorBlock({
 
 function MetaRow({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex items-center justify-between py-0.5 text-sm">
-      <span className="text-muted-foreground">{k}</span>
-      <span className="font-medium">{v}</span>
+    <div className="flex items-start justify-between gap-4 py-1 text-sm">
+      <span className="text-muted-foreground shrink-0">{k}</span>
+      <span className="font-medium text-right break-words">{v}</span>
     </div>
   );
 }

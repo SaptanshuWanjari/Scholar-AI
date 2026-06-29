@@ -19,8 +19,11 @@ import {
   Italic,
   List,
   Sigma,
+  BookPlus,
 } from "lucide-react";
 import { MarkdownRenderer } from "../MarkdownRenderer";
+import { AddToNotebookMenu } from "../AddToNotebookMenu";
+import { StickyNoteComposer } from "../StickyNoteComposer";
 import { cn } from "../ui/utils";
 import { Button } from "../ui/button";
 import {
@@ -38,13 +41,15 @@ import {
   useReadingNotesStore,
 } from "../../stores/useReadingNotesStore";
 
-type SubMode = "notes" | "draw" | "both";
+export type SubMode = "notes" | "draw" | "both";
 
 export interface ReadingWorkspaceProps {
   docId: string;
   course?: string | null;
   excalidrawEnabled: boolean;
   notebooks: NotebookMeta[];
+  notebooks: NotebookMeta[];
+  subMode: SubMode;
   onScrollToRegion?: (page: number, bbox: NoteRect) => void;
 }
 
@@ -53,38 +58,11 @@ export function ReadingWorkspace({
   course,
   excalidrawEnabled,
   notebooks,
+  subMode,
   onScrollToRegion,
 }: ReadingWorkspaceProps) {
-  const [subMode, setSubMode] = useState<SubMode>("notes");
-
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      {/* Sub-mode toggle */}
-      <div className="flex shrink-0 items-center justify-center border-b border-border bg-card/40 px-3 py-1">
-        <div className="flex rounded-lg border border-border bg-card p-0.5">
-          {(
-            [
-              { v: "notes", label: "Notes", icon: StickyNoteIcon },
-              { v: "draw", label: "Draw", icon: PencilRuler },
-              { v: "both", label: "Both", icon: Columns },
-            ] as { v: SubMode; label: string; icon: typeof StickyNoteIcon }[]
-          ).map((t) => (
-            <button
-              key={t.v}
-              onClick={() => setSubMode(t.v)}
-              className={cn(
-                "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition-colors",
-                subMode === t.v
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <t.icon className="size-3.5" /> {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <div className={cn("flex min-h-0 flex-1", subMode === "both" ? "flex-col" : "")}>
         {(subMode === "notes" || subMode === "both") && (
           <div className={cn("min-h-0 overflow-y-auto", subMode === "both" ? "h-1/2 border-b border-border" : "flex-1")}>
@@ -129,6 +107,7 @@ function NotesPanel({
   const [notebookId, setNotebookId] = useState<string>("none");
   const [saving, setSaving] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [isComposerOpen, setIsComposerOpen] = useState(false);
 
   const visible = filter === "all" ? notes : notes.filter((n) => n.category === filter);
 
@@ -146,6 +125,7 @@ function NotesPanel({
         setEditId(null);
         setDraft("");
         setDraftCat("general");
+        setIsComposerOpen(false);
         toast.success("Note updated");
       } else {
         const note = await api.createNote(docId, {
@@ -156,6 +136,7 @@ function NotesPanel({
         });
         addNote(note);
         setDraft("");
+        setIsComposerOpen(false);
         toast.success("Note added");
       }
     } catch (e) {
@@ -181,17 +162,14 @@ function NotesPanel({
     setEditId(note.id);
     setDraft(note.content);
     setDraftCat(note.category);
-    const textarea = document.getElementById('draft-textarea');
-    if (textarea) {
-      textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => textarea.focus(), 300);
-    }
+    setIsComposerOpen(true);
   };
 
   const cancelEdit = () => {
     setEditId(null);
     setDraft("");
     setDraftCat("general");
+    setIsComposerOpen(false);
   };
 
   const insertMarkdown = (before: string, after: string = "") => {
@@ -230,97 +208,67 @@ function NotesPanel({
   };
 
   return (
-    <div className="flex flex-col px-4 pt-2 pb-4 bg-[#faf9f6] text-slate-800 min-h-full font-sans shadow-inner overflow-x-hidden relative">
+    <div className="flex flex-col px-4 pt-2 pb-4 bg-[#faf9f6] dark:bg-card text-slate-800 dark:text-foreground min-h-full font-sans shadow-inner overflow-x-hidden relative">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-300/60 pb-2 mb-3">
+      <div className="flex items-center justify-between border-b border-slate-300/60 dark:border-border pb-2 mb-3">
         <div className="flex items-center gap-3">
           <Pin className="size-6 -rotate-45 text-slate-400 drop-shadow-sm" />
           <div>
-            <h2 className="text-xl font-bold tracking-[0.2em] text-slate-700">STICKY NOTES</h2>
-            <p className="text-[13px] text-slate-500 font-medium mt-0.5">Notes anchored to this PDF ({notes.length} notes)</p>
+            <h2 className="text-xl font-bold tracking-[0.2em] text-slate-700 dark:text-foreground">STICKY NOTES</h2>
+            <p className="text-[13px] text-slate-500 dark:text-muted-foreground font-medium mt-0.5">Notes anchored to this PDF ({notes.length} notes)</p>
           </div>
         </div>
         <button 
-          onClick={() => { cancelEdit(); document.getElementById('draft-textarea')?.focus(); }}
-          className="bg-[#fef3c7] hover:bg-[#fde68a] text-amber-900 border border-amber-200/50 rounded-sm px-3 py-1.5 text-xs font-bold tracking-wider flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 shadow-[2px_3px_6px_rgba(0,0,0,0.06)]"
+          onClick={() => { 
+            setEditId(null);
+            setDraft("");
+            setDraftCat("general");
+            setIsComposerOpen(true); 
+            setTimeout(() => document.getElementById('draft-textarea')?.focus(), 100);
+          }}
+          className="bg-[#fef3c7] hover:bg-[#fde68a] text-amber-900 border border-amber-200/50 rounded-sm px-3 py-1.5 text-xs font-bold tracking-wider flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 shadow-[2px_3px_6px_rgba(0,0,0,0.06)] dark:bg-amber-950 dark:hover:bg-amber-900 dark:text-amber-200 dark:border-amber-800"
         >
           <Plus className="size-4" /> NEW NOTE
         </button>
       </div>
 
-      {/* Composer */}
-      <div className={cn("rounded-xl border-2 border-dashed border-slate-300 bg-white/40 p-3 mb-4 shadow-sm relative transition-colors", editId ? "border-primary/50 bg-primary/5" : "")}>
-        {editId && (
-          <div className="absolute -top-3 -right-3 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">
-            EDITING
-          </div>
-        )}
-        <div className="absolute -top-3 -left-3">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 -rotate-12"><path d="M13.22 19.03a1.4 1.4 0 0 0 1.98 0l6.77-6.77a1.4 1.4 0 0 0 0-1.98l-7.78-7.78a1.4 1.4 0 0 0-1.98 0L2.44 12.27a1.4 1.4 0 0 0 0 1.98z"/><path d="m9 16 3-3"/></svg>
+      {/* Inline Composer */}
+      {isComposerOpen && (
+        <div className="mb-6">
+          <StickyNoteComposer
+            content={draft}
+            onChangeContent={setDraft}
+            category={draftCat}
+            onChangeCategory={(cat) => setDraftCat(cat as NoteCategory)}
+            onSave={submit}
+            onCancel={cancelEdit}
+            saving={saving}
+            isEditing={!!editId}
+            placeholder="Write a note... &#10;Select text in the PDF to anchor a note to that region."
+            autoFocus
+            extraControls={
+              !editId && (
+                <>
+                  <span className="text-xs font-medium text-slate-600 dark:text-muted-foreground">Sync:</span>
+                  <Select value={notebookId} onValueChange={setNotebookId}>
+                    <SelectTrigger className="h-8 w-auto min-w-[130px] text-xs bg-white border-slate-300 text-slate-700 dark:bg-background dark:border-border dark:text-foreground">
+                      <SelectValue placeholder="Sync to notebook…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none" className="text-xs">No notebook sync</SelectItem>
+                      {notebooks.map((nb) => (
+                        <SelectItem key={nb.id} value={nb.id} className="text-xs">
+                          {nb.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </>
+              )
+            }
+          />
         </div>
-        
-        {/* Markdown Toolbar */}
-        <div className="flex items-center gap-1 mb-2 border-b border-slate-200/50 pb-2">
-          <button onClick={() => insertMarkdown("**", "**")} className="p-1 hover:bg-slate-200 rounded text-slate-500" title="Bold"><Bold className="size-3.5" /></button>
-          <button onClick={() => insertMarkdown("*", "*")} className="p-1 hover:bg-slate-200 rounded text-slate-500" title="Italic"><Italic className="size-3.5" /></button>
-          <button onClick={() => insertMarkdown("- ")} className="p-1 hover:bg-slate-200 rounded text-slate-500" title="List"><List className="size-3.5" /></button>
-          <button onClick={() => insertMarkdown("$$ ", " $$")} className="p-1 hover:bg-slate-200 rounded text-slate-500" title="Equation"><Sigma className="size-3.5" /></button>
-        </div>
-
-        <textarea
-          id="draft-textarea"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="Write a note... (markdown supported)&#10;Select text in the PDF to anchor a note to that region."
-          rows={3}
-          className="w-full resize-none bg-transparent p-2 text-base font-kalam text-slate-700 placeholder:text-slate-400 outline-none focus:ring-0"
-        />
-        <div className="mt-2 flex flex-wrap items-center gap-3 border-t border-dashed border-slate-300 pt-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-slate-600">Note Type:</span>
-            <CategoryPicker value={draftCat} onChange={setDraftCat} />
-          </div>
-          <div className="ml-auto flex items-center gap-2">
-            {!editId && (
-              <>
-                <span className="text-xs font-medium text-slate-600">Sync:</span>
-                <Select value={notebookId} onValueChange={setNotebookId}>
-                  <SelectTrigger className="h-8 w-auto min-w-[130px] text-xs bg-white border-slate-300 text-slate-700">
-                    <SelectValue placeholder="Sync to notebook…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none" className="text-xs">No notebook sync</SelectItem>
-                    {notebooks.map((nb) => (
-                      <SelectItem key={nb.id} value={nb.id} className="text-xs">
-                        {nb.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {editId && (
-              <button 
-                className="h-8 rounded border border-slate-300 px-3 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-100" 
-                onClick={cancelEdit} 
-              >
-                Cancel
-              </button>
-            )}
-            <button 
-              className="h-8 rounded bg-primary px-3 text-xs font-medium text-primary-foreground shadow-sm hover:bg-primary/90 flex items-center disabled:opacity-50" 
-              onClick={submit} 
-              disabled={saving || !draft.trim()}
-            >
-              {saving ? <Loader2 className="mr-1 size-3.5 animate-spin" /> : <Check className="mr-1 size-3.5" />}
-              {editId ? "Save changes" : "Add note"}
-            </button>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Filter and Sort */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -339,9 +287,9 @@ function NotesPanel({
           })}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-slate-600">Sort:</span>
+          <span className="text-xs font-medium text-slate-600 dark:text-muted-foreground">Sort:</span>
           <Select defaultValue="page">
-            <SelectTrigger className="h-8 w-[100px] text-xs bg-white border-slate-300">
+            <SelectTrigger className="h-8 w-[100px] text-xs bg-white border-slate-300 dark:bg-background dark:border-border dark:text-foreground">
               <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
@@ -363,19 +311,19 @@ function NotesPanel({
         ) : (
           <div className="flex flex-wrap items-start gap-5 pb-8">
             {visible.map((note, idx) => {
-              const meta = NOTE_CATEGORIES[note.category];
-              
+              const categoryStr = (note.category || "general").toLowerCase() as NoteCategory;
+              const meta = NOTE_CATEGORIES[categoryStr] || NOTE_CATEGORIES["general"];              
               const rotations = ["-rotate-1", "rotate-1", "-rotate-[1.5deg]", "rotate-[1.5deg]"];
               const rotation = rotations[idx % rotations.length];
               
               const bgColors: Record<string, string> = {
-                insight: "bg-[#fef3c7]",
-                question: "bg-[#f3e8ff]",
-                formula: "bg-[#d1fae5]",
-                confusing: "bg-[#ffe4e6]",
-                general: "bg-[#e0f2fe]"
+                insight: "bg-[#fef3c7] dark:bg-amber-950/30 dark:text-amber-100 dark:border-amber-800/60 border border-transparent",
+                question: "bg-[#f3e8ff] dark:bg-violet-950/30 dark:text-violet-100 dark:border-violet-800/60 border border-transparent",
+                formula: "bg-[#d1fae5] dark:bg-emerald-950/30 dark:text-emerald-100 dark:border-emerald-800/60 border border-transparent",
+                confusing: "bg-[#ffe4e6] dark:bg-rose-950/30 dark:text-rose-100 dark:border-rose-800/60 border border-transparent",
+                general: "bg-[#e0f2fe] dark:bg-blue-950/30 dark:text-blue-100 dark:border-blue-800/60 border border-transparent"
               };
-              const colorClass = bgColors[note.category] || "bg-[#fef3c7]";
+              const colorClass = bgColors[note.category] || "bg-[#fef3c7] dark:bg-amber-950/30 dark:text-amber-100 dark:border-amber-800/60 border border-transparent";
               
               const isEditing = editId === note.id;
 
@@ -391,26 +339,26 @@ function NotesPanel({
                   )}
                 >
                   {/* Tape */}
-                  <div className="absolute -top-3 left-1/2 w-10 h-6 -translate-x-1/2 bg-yellow-600/15 mix-blend-multiply rotate-2 shadow-[0_1px_2px_rgba(0,0,0,0.1)]" />
+                  <div className="absolute -top-3 left-1/2 w-10 h-6 -translate-x-1/2 bg-yellow-600/15 dark:bg-yellow-600/5 mix-blend-multiply rotate-2 shadow-[0_1px_2px_rgba(0,0,0,0.1)]" />
 
                   <div className="flex items-start justify-between mb-4 mt-1">
                     <span className={cn("flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase", meta.dot)}>
                       <meta.icon className="size-4" /> {meta.label}
                     </span>
-                    <span className="text-xs font-medium text-slate-600/70">p. {note.page_number}</span>
+                    <span className="text-xs font-medium text-slate-600/70 dark:text-slate-400/80">p. {note.page_number}</span>
                   </div>
 
-                  <div className="font-kalam text-2xl leading-relaxed flex-1 text-slate-800 break-words mb-4 whitespace-pre-wrap">
-                    <MarkdownRenderer content={note.content} />
+                  <div className="flex-1 mb-4">
+                    <MarkdownRenderer content={note.content} className="!font-kalam text-2xl text-slate-800 dark:text-slate-200 break-words [&_p]:!mb-1.5 [&_p]:!leading-snug [&_ul]:!mb-1.5 [&_ul]:!space-y-0.5 [&_li]:!mb-0.5" />
                   </div>
 
-                  <hr className="border-t border-dashed border-black/10 my-3" />
+                  <hr className="border-t border-dashed border-black/10 dark:border-white/10 my-3" />
                   
                   <div className="mb-4">
-                    <div className="text-[10px] font-medium text-slate-500 mb-1.5">Anchored region:</div>
+                    <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1.5">Anchored region:</div>
                     <div className={cn(
-                      "p-2 rounded text-xs text-black/60 italic",
-                      note.bounding_box ? "bg-black/5" : "text-black/40"
+                      "p-2 rounded text-xs text-black/60 dark:text-slate-300 italic",
+                      note.bounding_box ? "bg-black/5 dark:bg-white/5" : "text-black/40 dark:text-slate-500"
                     )}>
                       {note.bounding_box ? `Region attached on page ${note.page_number}` : "No region anchored."}
                     </div>
@@ -419,28 +367,42 @@ function NotesPanel({
                   <div className="flex items-center justify-between pt-2 relative">
                     <button 
                       onClick={() => note.bounding_box && onScrollToRegion?.(note.page_number, note.bounding_box)} 
-                      className="flex flex-col items-center gap-1.5 text-[10px] font-medium text-slate-600 hover:text-black transition-colors disabled:opacity-40" 
+                      className="flex flex-col items-center gap-1.5 text-[10px] font-medium text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 hover:text-black transition-colors disabled:opacity-40" 
                       disabled={!note.bounding_box}
                     >
                       <MapPin className="size-4" /> Go to
                     </button>
                     <button 
                       onClick={() => startEdit(note)} 
-                      className="flex flex-col items-center gap-1.5 text-[10px] font-medium text-slate-600 hover:text-black transition-colors"
+                      className="flex flex-col items-center gap-1.5 text-[10px] font-medium text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 hover:text-black transition-colors"
                     >
                       <Pencil className="size-4" /> Edit
                     </button>
+                    <AddToNotebookMenu
+                      artifactType="reading"
+                      sourceId={note.id}
+                      customBlocks={() => [{
+                        type: "text",
+                        text: `[ ${meta.label}] ${note.content}\n\n— ${docId}, p.${note.page_number} #${docId}-n${note.id}`,
+                        source: { type: "reading", id: note.id }
+                      }]}
+                      trigger={
+                        <button className="flex flex-col items-center gap-1.5 text-[10px] font-medium text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 hover:text-black transition-colors">
+                          <BookPlus className="size-4" /> Sync
+                        </button>
+                      }
+                    />
                     <div className="relative">
                       <button 
                         onClick={() => setActiveTagPopup(activeTagPopup === note.id ? null : note.id)} 
-                        className={cn("flex flex-col items-center gap-1.5 text-[10px] font-medium transition-colors", activeTagPopup === note.id ? "text-primary" : "text-slate-600 hover:text-black")}
+                        className={cn("flex flex-col items-center gap-1.5 text-[10px] font-medium transition-colors", activeTagPopup === note.id ? "text-primary" : "text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 hover:text-black")}
                       >
                         <Tag className="size-4" /> Tag
                       </button>
                       
                       {activeTagPopup === note.id && (
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-white rounded-lg shadow-xl border border-slate-200 z-50 w-max">
-                          <div className="text-[10px] font-semibold text-slate-400 mb-1.5 px-1 uppercase tracking-wider">Change Type</div>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-white dark:bg-popover rounded-lg shadow-xl border border-slate-200 dark:border-border z-50 w-max">
+                          <div className="text-[10px] font-semibold text-slate-400 dark:text-muted-foreground mb-1.5 px-1 uppercase tracking-wider">Change Type</div>
                           <div className="grid grid-cols-2 gap-1.5">
                             {NOTE_CATEGORY_LIST.map(cat => {
                               const cMeta = NOTE_CATEGORIES[cat];
@@ -448,7 +410,7 @@ function NotesPanel({
                                 <button
                                   key={cat}
                                   onClick={() => updateCategoryInline(note, cat)}
-                                  className={cn("flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] font-medium border text-left", note.category === cat ? cMeta.chip : "border-slate-100 hover:bg-slate-50")}
+                                  className={cn("flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] font-medium border text-left", note.category === cat ? cMeta.chip : "border-slate-100 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 dark:text-zinc-300")}
                                 >
                                   <cMeta.icon className={cn("size-3", note.category === cat ? cMeta.dot : "text-slate-400")} /> {cMeta.label}
                                 </button>
@@ -460,7 +422,7 @@ function NotesPanel({
                     </div>
                     <button 
                       onClick={() => remove(note)} 
-                      className="flex flex-col items-center gap-1.5 text-[10px] font-medium text-slate-600 hover:text-red-600 transition-colors"
+                      className="flex flex-col items-center gap-1.5 text-[10px] font-medium text-slate-600 dark:text-slate-400 dark:hover:text-red-400 hover:text-red-600 transition-colors"
                     >
                       <Trash2 className="size-4" /> Delete
                     </button>
@@ -495,8 +457,8 @@ function CategoryPicker({
             onClick={() => onChange(cat)}
             title={meta.label}
             className={cn(
-              "flex items-center gap-1.5 rounded-sm border px-2 py-1 text-[11px] font-medium transition-colors bg-white shadow-sm",
-              active ? cn(meta.chip, "border-opacity-50 ring-1 ring-black/10") : "border-slate-200 text-slate-500 hover:bg-slate-50"
+              "flex items-center gap-1.5 rounded-sm border px-2 py-1 text-[11px] font-medium transition-colors bg-white dark:bg-zinc-900 shadow-sm",
+              active ? cn(meta.chip, "border-opacity-50 ring-1 ring-black/10") : "border-slate-200 dark:border-zinc-800 text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800"
             )}
           >
             <meta.icon className={cn("size-3.5", active ? meta.dot : "text-slate-400")} /> {meta.label}
@@ -523,7 +485,7 @@ function FilterChip({
       onClick={onClick}
       className={cn(
         "flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-xs transition-colors shadow-sm",
-        active ? cn("ring-1 ring-black/5", className || "border-slate-400 bg-slate-700 text-white") : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+        active ? cn("ring-1 ring-black/5", className || "border-slate-400 dark:border-zinc-700 bg-slate-700 dark:bg-zinc-800 text-white") : "border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800"
       )}
     >
       {children}

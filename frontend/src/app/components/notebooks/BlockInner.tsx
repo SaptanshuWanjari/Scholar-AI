@@ -1,3 +1,4 @@
+import { useState, useRef } from "react";
 import {
   BookPlus,
   Sparkles,
@@ -8,15 +9,34 @@ import {
   Check,
   PencilRuler,
   ExternalLink,
+  Scissors,
+  Pencil,
+  Trash2,
+  X,
+  Bold,
+  Italic,
+  List,
+  Sigma,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { cn } from "../ui/utils";
 import { Badge } from "../ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "../ui/dialog";
 import { MarkdownRenderer } from "../MarkdownRenderer";
 import { DiagramViewer } from "../DiagramViewer";
+import { StickyNoteComposer } from "../StickyNoteComposer";
 import type { NotebookBlock } from "../../lib/notebook-data";
 import { artifactLabel } from "../../lib/serializers";
-import { calloutMeta } from "./utils";
+import { calloutMeta, parseNotes } from "./utils";
+import { NOTE_CATEGORIES, NOTE_CATEGORY_LIST } from "../../stores/useReadingNotesStore";
+import type { NoteCategory } from "../../lib/types";
+import { api } from "../../lib/api";
 
 const CITE_RE = /\[\[cite:(\d+)(?::(\d+))?\]\]/;
 
@@ -51,8 +71,24 @@ function hasCitations(text: string): boolean {
   return CITE_RE.test(text);
 }
 
-export function BlockInner({ block }: { block: NotebookBlock }) {
+export function BlockInner({
+  block,
+  onUngroup,
+  onDeleteNote,
+  onUpdateNote,
+}: {
+  block: NotebookBlock;
+  onUngroup?: (noteIndex: number) => void;
+  onDeleteNote?: (noteIndex: number) => void;
+  onUpdateNote?: (noteIndex: number, newRaw: string) => void;
+}) {
   const navigate = useNavigate();
+  const [editModalIdx, setEditModalIdx] = useState<number | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [editCat, setEditCat] = useState<string>("General");
+  const [editSaving, setEditSaving] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   switch (block.type) {
     case "heading":
       return block.level === 1 ? (
@@ -60,7 +96,162 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
       ) : (
         <h2 className="mt-5 text-2xl font-semibold">{block.text}</h2>
       );
-    case "text":
+    case "text": {
+      if (block.source?.type === "reading") {
+        const parsedNotes = parseNotes(block.text);
+        
+        const saveEditModal = async (idx: number, note: (typeof parsedNotes)[number]) => {
+          if (!editContent.trim()) return;
+          setEditSaving(true);
+          try {
+            const footer = note.raw.match(/\s*(?:—|–|-)\s*(.+?),\s*p\.(\d+)\s*(?:#\S+)?\s*$/);
+            const footerStr = footer ? footer[0].trim() : "";
+            const newRaw = footerStr
+              ? `[ ${editCat}] ${editContent}\n\n${footerStr}`
+              : `[ ${editCat}] ${editContent}`;
+            
+            onUpdateNote?.(idx, newRaw);
+            
+            const catKey = NOTE_CATEGORY_LIST.find((k) => NOTE_CATEGORIES[k].label === editCat);
+            if (block.source?.type === "reading" && note.docId && note.noteId && catKey) {
+              api
+                .updateNote(note.docId, note.noteId, {
+                  content: editContent,
+                  category: catKey,
+                })
+                .catch(() => toast.error("Failed to sync note to reading page"));
+            }
+            
+            setEditModalIdx(null);
+          } catch {
+            toast.error("Failed to save note");
+          } finally {
+            setEditSaving(false);
+          }
+        };
+        
+        const insertMd = (before: string, after: string = "") => {
+          const ta = textareaRef.current;
+          if (!ta) return;
+          const start = ta.selectionStart;
+          const end = ta.selectionEnd;
+          const sel = editContent.substring(start, end);
+          setEditContent(editContent.substring(0, start) + before + sel + after + editContent.substring(end));
+          setTimeout(() => {
+            ta.focus();
+            ta.setSelectionRange(start + before.length, end + before.length);
+          }, 0);
+        };
+        
+        return (
+          <>
+          <div className="flex flex-wrap items-start gap-5 py-4">
+            {parsedNotes.map((note, idx) => {
+              const categoryStr = (note.category || "general").toLowerCase() as NoteCategory;
+              const meta = NOTE_CATEGORIES[categoryStr] || NOTE_CATEGORIES["general"];
+              
+              const rotations = ["-rotate-1", "rotate-1", "-rotate-[1.5deg]", "rotate-[1.5deg]"];
+              const rotationClass = rotations[idx % rotations.length];
+              
+              const bgColors: Record<string, string> = {
+                insight: "bg-[#fef3c7]",
+                question: "bg-[#f3e8ff]",
+                formula: "bg-[#d1fae5]",
+                confusing: "bg-[#ffe4e6]",
+                general: "bg-[#e0f2fe]"
+              };
+              const colorClass = bgColors[categoryStr] || "bg-[#fef3c7]";
+
+              return (
+                <div 
+                  key={idx}
+                  className={cn(
+                    "relative w-full max-w-[260px] p-4 flex flex-col min-h-[280px] group/card",
+                    "shadow-[2px_4px_12px_rgba(0,0,0,0.12)] transition-transform hover:z-10 hover:scale-105",
+                    colorClass, 
+                    rotationClass,
+                  )}
+                >
+                  {/* Tape */}
+                  <div className="absolute -top-3 left-1/2 w-10 h-6 -translate-x-1/2 bg-yellow-600/15 mix-blend-multiply rotate-2 shadow-[0_1px_2px_rgba(0,0,0,0.1)]" />
+                  
+                  <div className="flex items-start justify-between mb-4 mt-1">
+                    <span className={cn("flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase", meta.dot)}>
+                      <meta.icon className="size-4" /> {meta.label}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setEditModalIdx(idx);
+                          setEditContent(note.content);
+                          setEditCat(note.category);
+                          setTimeout(() => textareaRef.current?.focus(), 100);
+                        }}
+                        className="opacity-0 group-hover/card:opacity-100 transition-opacity text-slate-500 hover:text-primary p-0.5 rounded hover:bg-black/5"
+                        title="Edit note"
+                      >
+                        <Pencil className="size-3.5" />
+                      </button>
+                      {parsedNotes.length > 1 && onUngroup && (
+                        <button
+                          onClick={() => onUngroup(idx)}
+                          className="opacity-0 group-hover/card:opacity-100 transition-opacity text-slate-500 hover:text-primary p-0.5 rounded hover:bg-black/5"
+                          title="Ungroup note"
+                        >
+                          <Scissors className="size-3.5" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => onDeleteNote?.(idx)}
+                        className="opacity-0 group-hover/card:opacity-100 transition-opacity text-slate-500 hover:text-destructive p-0.5 rounded hover:bg-black/5"
+                        title="Delete note"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                      {note.pageNum && <span className="text-xs font-medium text-slate-600/70">p. {note.pageNum}</span>}
+                    </div>
+                  </div>
+
+                  <div className="font-kalam text-2xl leading-relaxed flex-1 text-slate-800 break-words mb-2 whitespace-pre-wrap">
+                    <MarkdownRenderer content={note.content} className="!font-kalam text-2xl" />
+                  </div>
+                  
+                  {note.docTitle && (
+                    <div className="mt-4 text-[11px] font-medium text-slate-400 italic text-right border-t border-black/5 pt-2">
+                      from {note.docTitle}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          <Dialog open={editModalIdx !== null} onOpenChange={(open) => { if (!open) setEditModalIdx(null); }}>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogTitle>Edit Note</DialogTitle>
+              {editModalIdx !== null && (
+                <div className="mt-2">
+                  <StickyNoteComposer
+                    content={editContent}
+                    onChangeContent={setEditContent}
+                    category={editCat}
+                    onChangeCategory={setEditCat}
+                    onSave={() => {
+                      const note = parsedNotes[editModalIdx];
+                      if (note) saveEditModal(editModalIdx, note);
+                    }}
+                    onCancel={() => setEditModalIdx(null)}
+                    saving={editSaving}
+                    isEditing={true}
+                    autoFocus
+                  />
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+        </>
+        );
+      }
       return (
         <>
           {block.source && (
@@ -78,6 +269,7 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
           )}
         </>
       );
+    }
     case "callout": {
       const m = calloutMeta[block.tone];
       return (

@@ -68,7 +68,7 @@ export interface ReadingDoc {
     page_number: number;
     rects: { x: number; y: number; width: number; height: number }[];
   }[];
-  bookmarks: { id: string; section: string; note: string }[];
+  bookmarks: { id: string; section: string; note: string; rects?: { x: number; y: number; width: number; height: number }[] }[];
   progress: number;
 }
 
@@ -115,8 +115,14 @@ export const notebooksApi = {
   addHighlight(documentId: string, text: string, pageNumber: number, rects: { x: number; y: number; width: number; height: number }[], annotation?: string): Promise<ReadingDoc> {
     return request<ReadingDoc>(`/api/reading/${documentId}/highlights`, json({ text, page_number: pageNumber, rects, annotation }));
   },
-  addBookmark(documentId: string, section: string, note: string): Promise<ReadingDoc> {
-    return request<ReadingDoc>(`/api/reading/${documentId}/bookmarks`, json({ section, note }));
+  addBookmark(documentId: string, section: string, note: string, rects?: { x: number; y: number; width: number; height: number }[]): Promise<ReadingDoc> {
+    return request<ReadingDoc>(`/api/reading/${documentId}/bookmarks`, json({ section, note, rects: rects || [] }));
+  },
+  removeHighlight(documentId: string, highlightId: string): Promise<void> {
+    return request<void>(`/api/reading/${documentId}/highlights/${highlightId}`, { method: "DELETE" });
+  },
+  removeBookmark(documentId: string, bookmarkId: string): Promise<void> {
+    return request<void>(`/api/reading/${documentId}/bookmarks/${bookmarkId}`, { method: "DELETE" });
   },
   readingLens(documentId: string, text: string, level: string): Promise<{ level: string; text: string }> {
     const p = new URLSearchParams({ text, level });

@@ -36,13 +36,86 @@ export const calloutMeta: Record<
   },
 };
 
+export interface ParsedNote {
+  category: string;
+  content: string;
+  docTitle: string;
+  pageNum: string;
+  raw: string;
+  docId?: string;
+  noteId?: string;
+}
+
+export function parseNotes(text: string | undefined): ParsedNote[] {
+  if (!text) return [];
+  const cleanText = text.replace(/(?:^|\n)[ \t]*>[ \t]*/g, "\n").replace(/^\n/, "");
+  const parts = cleanText.split(/(?:^|\n\n+)(?=\s*\[)/).filter((p) => p.trim().length > 0);
+  return parts.map((part) => {
+    let categoryRaw = "General";
+    let content = part;
+    let docTitle = "";
+    let pageNum = "";
+
+    const catMatch = content.match(/^\s*\[\s*(?:[^\s\]]+\s+)?([^\]]+?)\s*\]\s*/);
+    if (catMatch) {
+      categoryRaw = catMatch[1];
+      content = content.substring(catMatch[0].length);
+    }
+
+    const footerMatch = content.match(/\s*(?:—|–|-)\s*(.+?),\s*p\.(\d+)\s*(?:#(\S+))?\s*$/);
+    if (footerMatch) {
+      docTitle = footerMatch[1].trim();
+      pageNum = footerMatch[2];
+      const hash = footerMatch[3];
+      let docId: string | undefined;
+      let noteId: string | undefined;
+      if (hash) {
+        const m = hash.match(/^(?:doc)?(\d+)-n(\d+)$/);
+        if (m) {
+          docId = m[1];
+          noteId = m[2];
+        } else {
+          const dashIdx = hash.lastIndexOf("-p");
+          docId = dashIdx > 0 ? hash.substring(hash.startsWith("doc") ? 3 : 0, dashIdx) : undefined;
+        }
+      }
+      content = content.substring(0, content.length - footerMatch[0].length);
+      return {
+        category: categoryRaw.trim(),
+        content: content.trim(),
+        docTitle,
+        pageNum,
+        raw: part.trim(),
+        docId,
+        noteId,
+      };
+    }
+
+    return {
+      category: categoryRaw.trim(),
+      content: content.trim(),
+      docTitle,
+      pageNum,
+      raw: part.trim(),
+    };
+  });
+}
+
 export function blockLabel(block: NotebookBlock): string {
   switch (block.type) {
     case "heading":
       return block.text || "Heading";
     case "text":
     case "callout": {
-      const txt = block.text ?? "";
+      let txt = block.text ?? "";
+      if (block.type === "text" && block.source?.type === "reading") {
+        const notes = parseNotes(txt);
+        if (notes.length > 0) {
+          const cat = notes[0].category;
+          const firstLine = notes[0].content.split("\n")[0] || "";
+          return `[${cat}] ${firstLine.slice(0, 40)}`;
+        }
+      }
       const h = txt.match(/^\s*#{1,6}\s+(.+)$/m);
       if (h) return h[1].trim();
       const first = txt
