@@ -29,6 +29,7 @@ interface PDFViewerProps {
   scale?: number;
   onTextSelect: (text: string, page: number, rects: HighlightRect[]) => void;
   onPageVisible?: (page: number) => void;
+  initialPage?: number;
 }
 
 export interface PDFViewerRef {
@@ -44,6 +45,7 @@ const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
   scale = 1.0,
   onTextSelect,
   onPageVisible,
+  initialPage = 1,
 }, ref) => {
   const containerDivRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -134,6 +136,12 @@ const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
     }
   }, []);
 
+  const hasScrolledToInitial = useRef(false);
+
+  useEffect(() => {
+    hasScrolledToInitial.current = false;
+  }, [pdfUrl, initialPage]);
+
   useEffect(() => {
     return () => observerRef.current?.disconnect();
   }, []);
@@ -142,6 +150,13 @@ const PDFViewer = forwardRef<PDFViewerRef, PDFViewerProps>(({
     if (el) {
       pageWrapperRefs.current.set(page, el);
       observerRef.current?.observe(el);
+
+      if (page === initialPage && !hasScrolledToInitial.current) {
+        hasScrolledToInitial.current = true;
+        setTimeout(() => {
+          el.scrollIntoView({ block: "start" });
+        }, 100);
+      }
     } else {
       const prev = pageWrapperRefs.current.get(page);
       if (prev) {

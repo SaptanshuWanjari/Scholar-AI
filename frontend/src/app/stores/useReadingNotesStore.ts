@@ -47,15 +47,15 @@ export const NOTE_CATEGORIES: Record<NoteCategory, CategoryMeta> = {
     label: "Confusing",
     emoji: "⚠️",
     icon: AlertTriangle,
-    chip: "bg-red-100 text-red-800 border-red-300 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800",
-    dot: "text-red-500",
+    chip: "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800",
+    dot: "text-rose-500",
   },
   general: {
     label: "General",
     emoji: "📝",
     icon: StickyNoteIcon,
-    chip: "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800/60 dark:text-slate-300 dark:border-slate-700",
-    dot: "text-slate-400",
+    chip: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800",
+    dot: "text-blue-500",
   },
 };
 

@@ -41,7 +41,7 @@ export function SettingsTab({ course, onUpdate }: SettingsTabProps) {
           <textarea
             value={systemPrompt}
             onChange={(e) => setSystemPrompt(e.target.value)}
-            className="w-full h-32 rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-y"
+            className="w-full h-32 rounded-lg bg-white border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-y"
             placeholder="e.g., You are an expert in Data Structures and Algorithms..."
           />
         </div>
