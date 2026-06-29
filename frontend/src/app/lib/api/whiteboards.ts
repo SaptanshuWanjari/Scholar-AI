@@ -11,14 +11,20 @@ export const whiteboardsApi = {
   getWhiteboard(id: string): Promise<WhiteboardFull> {
     return request<WhiteboardFull>(`/api/whiteboards/${id}`);
   },
-  createWhiteboard(data: { title: string; course?: string | null; scene?: WhiteboardScene; thumbnail?: string | null; source?: string }): Promise<WhiteboardFull> {
+  createWhiteboard(data: { title: string; course?: string | null; scene?: WhiteboardScene; thumbnail?: string | null; source?: string; documentId?: number | null; pageNumber?: number | null }): Promise<WhiteboardFull> {
     return request<WhiteboardFull>("/api/whiteboards", json({
       title: data.title,
       course: data.course ?? null,
       scene: data.scene ?? {},
       thumbnail: data.thumbnail ?? null,
       source: data.source ?? "manual",
+      document_id: data.documentId ?? null,
+      page_number: data.pageNumber ?? null,
     }));
+  },
+  // Annotation whiteboards linked to a specific document (reading mode).
+  listDocAnnotations(documentId: string): Promise<WhiteboardItem[]> {
+    return request<WhiteboardItem[]>(`/api/whiteboards?document_id=${documentId}`);
   },
   updateWhiteboard(id: string, patch: { title?: string; course?: string | null; scene?: WhiteboardScene; thumbnail?: string | null; status?: string }): Promise<WhiteboardFull> {
     return request<WhiteboardFull>(`/api/whiteboards/${id}`, { ...json(patch), method: "PUT" });

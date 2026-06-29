@@ -72,6 +72,29 @@ export interface WhiteboardItem {
   updated: string;
   createdAt: string;
   deletedAt?: string | null;
+  documentId?: string | null;
+  pageNumber?: number | null;
+}
+
+// ---- Reading-mode sticky notes (reading-annotations plugin) ----
+export type NoteCategory = "insight" | "question" | "formula" | "confusing" | "general";
+
+export interface NoteRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface StickyNote {
+  id: string;
+  document_id: string;
+  page_number: number;
+  bounding_box?: NoteRect | null;
+  content: string;
+  category: NoteCategory;
+  created_at: string;
+  updated_at: string;
 }
 
 // A full Excalidraw scene: { elements, appState, files }. Kept loosely typed

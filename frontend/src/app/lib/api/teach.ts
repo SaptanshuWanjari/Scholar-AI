@@ -33,6 +33,7 @@ export interface PackageMeta {
   depth: string;
   artifactCount: number;
   createdAt: string;
+  notebookId?: string | null;
 }
 
 export interface PackageFull {
@@ -45,6 +46,7 @@ export interface PackageFull {
   sources: Source[];
   createdAt: string;
   updatedAt: string;
+  notebookId?: string | null;
 }
 
 // ---- Cross-artifact consistency ----
@@ -90,7 +92,7 @@ export const teachApi = {
   getPackage(id: string): Promise<PackageFull> {
     return request<PackageFull>(`/api/teach/packages/${id}`);
   },
-  savePackage(pkg: { title: string; course?: string | null; depth: string; overview: Record<string, any>; artifacts: Record<string, any>; sources: Source[] }): Promise<PackageFull> {
+  savePackage(pkg: { title: string; course?: string | null; depth: string; overview: Record<string, any>; artifacts: Record<string, any>; sources: Source[]; notebookId?: string | null }): Promise<PackageFull> {
     return request<PackageFull>("/api/teach/packages", json(pkg));
   },
   deletePackage(id: string): Promise<void> {

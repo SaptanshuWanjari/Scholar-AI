@@ -18,6 +18,39 @@ import type { NotebookBlock } from "../../lib/notebook-data";
 import { artifactLabel } from "../../lib/serializers";
 import { calloutMeta } from "./utils";
 
+const CITE_RE = /\[\[cite:(\d+)(?::(\d+))?\]\]/;
+
+function renderCiteText(text: string): (string | React.ReactNode)[] {
+  const parts: (string | React.ReactNode)[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  const re = new RegExp(CITE_RE.source, "g");
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    const docId = m[1];
+    const page = m[2] ? ` p.${m[2]}` : "";
+    parts.push(
+      <Badge
+        key={m.index}
+        variant="outline"
+        className="mx-0.5 inline-flex cursor-help gap-1 border-cyan/30 bg-cyan-soft/30 px-1.5 py-0.5 text-[11px] font-medium text-cyan hover:bg-cyan-soft/50"
+        title={`Source document #${docId}${page}`}
+      >
+        <BookPlus className="mr-0.5 size-3" />
+        Source {docId}{page}
+      </Badge>,
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
+
+function hasCitations(text: string): boolean {
+  CITE_RE.lastIndex = 0;
+  return CITE_RE.test(text);
+}
+
 export function BlockInner({ block }: { block: NotebookBlock }) {
   const navigate = useNavigate();
   switch (block.type) {
@@ -36,7 +69,13 @@ export function BlockInner({ block }: { block: NotebookBlock }) {
               {artifactLabel(block.source.type)}
             </span>
           )}
-          <MarkdownRenderer content={block.text} className="text-[18px] leading-relaxed" />
+          {hasCitations(block.text) ? (
+            <div className="text-[18px] leading-relaxed [&>p]:mb-4">
+              {renderCiteText(block.text)}
+            </div>
+          ) : (
+            <MarkdownRenderer content={block.text} className="text-[18px] leading-relaxed" />
+          )}
         </>
       );
     case "callout": {

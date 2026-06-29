@@ -94,6 +94,7 @@ interface TeachState {
   currentTask: ViewKey | null;
 
   saving: boolean;
+  notebookId: string | null;
 
   // HITL state
   isPaused: boolean;
@@ -161,6 +162,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
   currentTask: null,
 
   saving: false,
+  notebookId: null,
 
   isPaused: false,
   sessionId: null,
@@ -376,7 +378,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
   },
 
   savePackage: async () => {
-    const { topic, depth, overview, sources, artifacts, saving } = get();
+    const { topic, depth, overview, sources, artifacts, saving, notebookId } = get();
     if (saving) return;
     if (!overview) {
       toast.error("Nothing to save yet");
@@ -395,6 +397,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
         artifacts: artifactPayload,
         sources,
         course: get().course === "none" ? null : get().course,
+        notebookId,
       });
       set({ packageId: saved.id });
       toast.success("Learning package saved");
@@ -445,6 +448,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
         generating: false,
         currentTask: null,
         generationId: crypto.randomUUID(),
+        notebookId: pkg.notebookId ?? null,
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to open package");
@@ -471,6 +475,7 @@ export const useTeachStore = create<TeachState>((set, get) => ({
       sessionId: null,
       approvedNotes: "",
       generationId: null,
+      notebookId: null,
     }),
 }));
 

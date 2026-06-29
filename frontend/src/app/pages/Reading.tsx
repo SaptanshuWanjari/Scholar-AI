@@ -39,9 +39,15 @@ import {
 import { SelectionToolbar, type SelectionAction } from "../components/SelectionToolbar";
 import { api, type ReadingDoc, type NotebookMeta } from "../lib/api";
 import type { DocumentItem } from "../lib/types";
+import { StickyNote as StickyNoteIcon, PenLine, PuzzleIcon } from "lucide-react";
 import PDFViewer, { type HighlightItem, type HighlightRect, type PDFViewerRef } from "../components/PDFViewer";
-import { ReadingTextPane, type ReadingTextPaneRef } from "../components/ReadingTextPane";
+import { ReadingWorkspace } from "../components/reading/ReadingWorkspace";
+import { usePluginStore } from "../plugins/usePluginStore";
+import { useReadingNotesStore } from "../stores/useReadingNotesStore";
+import type { NoteRect } from "../lib/types";
+import { snapshotRegion, buildSnapshotScene, unionRects } from "../lib/pdf-snapshot";
 
+import { PencilLine } from "lucide-react";
 type Lens = "Beginner" | "Intermediate" | "Expert";
 
 export function Reading() {
@@ -63,8 +69,18 @@ export function Reading() {
   const [rightCollapsed, setRightCollapsed] = useState(false);
 
   const pdfRef = useRef<PDFViewerRef>(null);
-  const textRef = useRef<ReadingTextPaneRef>(null);
   const isScrollingRef = useRef(false);
+
+  // Plugin gating: the workspace pane belongs to the "reading-annotations"
+  // plugin; freehand drawing additionally needs the "excalidraw" plugin.
+  const readingAnnotEnabled = usePluginStore((s) => s.isEnabled("reading-annotations"));
+  const excalidrawEnabled = usePluginStore((s) => s.isEnabled("excalidraw"));
+
+  // Sticky notes are shared between this page and the PDF margin badges.
+  const notes = useReadingNotesStore((s) => s.notes);
+  const setNotes = useReadingNotesStore((s) => s.setNotes);
+  const addNoteToStore = useReadingNotesStore((s) => s.addNote);
+  const clearNotes = useReadingNotesStore((s) => s.clear);
 
   const [viewMode, setViewMode] = useState<"pdf" | "text" | "split" | "compare">("pdf");
   const [searchQuery, setSearchQuery] = useState("");
@@ -101,7 +117,7 @@ export function Reading() {
     let cancelled = false;
     api.listNotebooks().then(nbs => {
       if (!cancelled) setNotebooks(nbs);
-    }).catch(() => {});
+    }).catch(() => { });
     return () => { cancelled = true; };
   }, []);
 
@@ -147,16 +163,30 @@ export function Reading() {
     let cancelled = false;
     api.getReading(compareDocId)
       .then(d => { if (!cancelled) setCompareDoc(d); })
-      .catch(() => {});
+      .catch(() => { });
     return () => { cancelled = true; };
   }, [viewMode, compareDocId]);
 
+  // ---- Load sticky notes for the document into the shared store ----
+  useEffect(() => {
+    if (!docId || !readingAnnotEnabled) {
+      clearNotes();
+      return;
+    }
+    let cancelled = false;
+    api
+      .getNotes(docId)
+      .then((ns) => {
+        if (!cancelled) setNotes(docId, ns);
+      })
+      .catch(() => { });
+    return () => {
+      cancelled = true;
+    };
+  }, [docId, readingAnnotEnabled, setNotes, clearNotes]);
+
   const handlePdfPageVisible = (page: number) => {
     // Disabled auto-sync from PDF to text as per user request
-  };
-
-  const handleTextPageVisible = (page: number) => {
-    // Disabled auto-sync from text to PDF as per user request
   };
 
   // ---- Lens: fetch an adaptive explanation for some text ----
@@ -244,11 +274,72 @@ export function Reading() {
     }
   };
 
+  // ---- Add a region-anchored sticky note from the current selection ----
+  const onAddNote = async (text: string) => {
+    if (!docId) return;
+    const { page, rects } = pendingHighlightRef.current;
+    const bbox = unionRects(rects as NoteRect[]);
+    try {
+      const note = await api.createNote(docId, {
+        content: text,
+        category: "general",
+        pageNumber: page,
+        boundingBox: bbox,
+      });
+      addNoteToStore(note);
+      toast.success("Note added — categorize it in the Workspace pane");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to add note");
+    }
+  };
+
+  // ---- Open an Excalidraw board over a snapshot of the selected region ----
+  const onAnnotateRegion = async (text: string) => {
+    if (!docId) return;
+    if (!excalidrawEnabled) {
+      toast.error("Enable the Excalidraw plugin to annotate regions");
+      return;
+    }
+    const { page, rects } = pendingHighlightRef.current;
+    const bbox = unionRects(rects as NoteRect[]);
+    if (!bbox) {
+      toast.error("Select a region in the PDF first");
+      return;
+    }
+    const snap = snapshotRegion(page, bbox);
+    if (!snap) {
+      toast.error("Could not capture the region — make sure the PDF page is visible");
+      return;
+    }
+    try {
+      const courseName = documents.find((d) => d.id === docId)?.course ?? null;
+      const title = text.length > 40 ? `${text.slice(0, 40)}…` : text || "Annotation";
+      const wb = await api.createWhiteboard({
+        title,
+        course: courseName,
+        source: "annotation",
+        documentId: Number(docId),
+        pageNumber: page,
+        scene: buildSnapshotScene(snap),
+        thumbnail: snap.dataURL,
+      });
+      navigate(`/whiteboards/${wb.id}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to open annotation board");
+    }
+  };
+
   const actions: SelectionAction[] = [
     { label: "Explain", icon: Wand2, onSelect: onExplain },
     { label: "Highlight", icon: Highlighter, onSelect: onHighlight },
     { label: "Bookmark", icon: Bookmark, onSelect: onBookmark },
     { label: "Whiteboard", icon: PencilRuler, onSelect: onWhiteboard },
+    ...(readingAnnotEnabled
+      ? [
+        { label: "Add Note", icon: StickyNoteIcon, onSelect: onAddNote },
+        { label: "Annotate Region", icon: PenLine, onSelect: onAnnotateRegion },
+      ]
+      : []),
   ];
 
   // ---- When the user switches lens with active selection, re-fetch ----
@@ -388,152 +479,169 @@ export function Reading() {
 
         {/* Center — Reader + overlay wrapper */}
         <div className="relative min-w-0 flex-1">
-        <main data-tour="reading-reader" className="h-full overflow-y-auto" ref={scrollRef}>
-          <SelectionToolbar containerRef={readerRef} actions={actions} />
+          <main data-tour="reading-reader" className="h-full overflow-y-auto" ref={scrollRef}>
+            <SelectionToolbar containerRef={readerRef} actions={actions} />
 
-          {/* Sidebar Toggles & View Mode */}
-          <div className="pointer-events-none sticky top-4 z-10 flex w-full justify-between px-4">
-            <div className="pointer-events-auto">
-              {leftCollapsed && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-8 rounded-full bg-card/80 shadow-sm backdrop-blur"
-                  onClick={() => setLeftCollapsed(false)}
-                >
-                  <PanelLeftOpen className="size-4" />
-                </Button>
-              )}
-            </div>
+            {/* Sidebar Toggles & View Mode */}
+            <div className="pointer-events-none sticky top-4 z-10 flex w-full justify-between px-4">
+              <div className="pointer-events-auto">
+                {leftCollapsed && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-8 rounded-full bg-card/80 shadow-sm backdrop-blur"
+                    onClick={() => setLeftCollapsed(false)}
+                  >
+                    <PanelLeftOpen className="size-4" />
+                  </Button>
+                )}
+              </div>
 
-            <div className="pointer-events-auto flex items-center justify-center">
-              <div className="flex bg-card/90 shadow-sm border border-border rounded-lg p-1 backdrop-blur">
-                <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "pdf" ? "bg-accent" : ""}`} onClick={() => setViewMode("pdf")}><BookOpen className="size-3.5 mr-1" /> PDF</Button>
-                <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "text" ? "bg-accent" : ""}`} onClick={() => setViewMode("text")}><BookOpenText className="size-3.5 mr-1" /> Text</Button>
-                <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "split" ? "bg-accent" : ""}`} onClick={() => setViewMode("split")}><Columns className="size-3.5 mr-1" /> Split</Button>
-                <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "compare" ? "bg-accent" : ""}`} onClick={() => { setViewMode("compare"); if (!compareDocId && documents.length > 1) setCompareDocId(documents.find(d => d.id !== docId)?.id ?? null); }}><Columns className="size-3.5 mr-1" /> Compare</Button>
+              <div className="pointer-events-auto flex items-center justify-center">
+                <div className="flex bg-card/90 shadow-sm border border-border rounded-lg p-1 backdrop-blur">
+                  <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "pdf" ? "bg-accent" : ""}`} onClick={() => setViewMode("pdf")}><BookOpen className="size-3.5 mr-1" /> PDF</Button>
+                  <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "text" ? "bg-accent" : ""}`} onClick={() => setViewMode("text")}><PencilLine className="size-3.5 mr-1" /> Annotate</Button>
+                  <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "split" ? "bg-accent" : ""}`} onClick={() => setViewMode("split")}><Columns className="size-3.5 mr-1" /> Split</Button>
+                  <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "compare" ? "bg-accent" : ""}`} onClick={() => { setViewMode("compare"); if (!compareDocId && documents.length > 1) setCompareDocId(documents.find(d => d.id !== docId)?.id ?? null); }}><Columns className="size-3.5 mr-1" /> Compare</Button>
+                </div>
+              </div>
+
+              <div className="pointer-events-auto">
+                {rightCollapsed && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-8 rounded-full bg-card/80 shadow-sm backdrop-blur"
+                    onClick={() => setRightCollapsed(false)}
+                  >
+                    <PanelRightOpen className="size-4" />
+                  </Button>
+                )}
               </div>
             </div>
 
-            <div className="pointer-events-auto">
-              {rightCollapsed && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-8 rounded-full bg-card/80 shadow-sm backdrop-blur"
-                  onClick={() => setRightCollapsed(false)}
-                >
-                  <PanelRightOpen className="size-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {docLoading ? (
-            <div className="flex h-full items-center justify-center text-muted-foreground">
-              <Loader2 className="size-5 animate-spin" />
-            </div>
-          ) : !doc ? (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              Select a document to start reading.
-            </div>
-          ) : (
-            <div ref={readerRef} className="flex h-full">
-              {viewMode === "compare" ? (
-                <>
-                  <div className="h-full overflow-y-auto w-[50%] border-r border-border flex flex-col">
-                    <div className="px-6 py-6">
-                      <PDFViewer
-                        pdfUrl={`/api/documents/${docId}/raw`}
-                        highlights={highlights}
-                        scale={scale}
-                        onTextSelect={handlePDFTextSelect}
-                      />
-                    </div>
-                  </div>
-                  <div className="h-full overflow-y-auto w-[50%] flex flex-col relative">
-                    <div className="absolute top-2 right-6 z-10 w-48">
-                      <Select value={compareDocId ?? undefined} onValueChange={setCompareDocId}>
-                        <SelectTrigger className="w-full bg-card shadow-sm text-xs h-8">
-                          <SelectValue placeholder="Select document..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {documents.map((d) => (
-                            <SelectItem key={d.id} value={d.id}>{d.title}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {compareDoc ? (
-                      <div className="px-6 py-6 mt-8">
-                        <PDFViewer
-                          pdfUrl={`/api/documents/${compareDocId}/raw`}
-                          highlights={(compareDoc.highlights ?? []) as HighlightItem[]}
-                          scale={scale}
-                          onTextSelect={() => {}}
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-muted-foreground mt-8">
-                        Select a secondary document to compare.
-                      </div>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <>
-                  {(viewMode === "pdf" || viewMode === "split") && (
-                    <div className={`h-full overflow-y-auto ${viewMode === "split" ? "w-[50%] border-r border-border" : "w-full"}`}>
+            {docLoading ? (
+              <div className="flex h-full items-center justify-center text-muted-foreground">
+                <Loader2 className="size-5 animate-spin" />
+              </div>
+            ) : !doc ? (
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                Select a document to start reading.
+              </div>
+            ) : (
+              <div ref={readerRef} className="flex h-full">
+                {viewMode === "compare" ? (
+                  <>
+                    <div className="h-full overflow-y-auto w-[50%] border-r border-border flex flex-col">
                       <div className="px-6 py-6">
                         <PDFViewer
-                          ref={pdfRef}
                           pdfUrl={`/api/documents/${docId}/raw`}
                           highlights={highlights}
                           scale={scale}
                           onTextSelect={handlePDFTextSelect}
-                          onPageVisible={handlePdfPageVisible}
                         />
                       </div>
                     </div>
-                  )}
-                  {(viewMode === "text" || viewMode === "split") && (
-                    <div className={`h-full ${viewMode === "split" ? "w-[50%]" : "w-full"}`}>
-                      <ReadingTextPane
-                        ref={textRef}
-                        sections={doc.sections}
-                        searchQuery={searchQuery}
-                        onPageVisible={handleTextPageVisible}
-                      />
+                    <div className="h-full overflow-y-auto w-[50%] flex flex-col relative">
+                      <div className="absolute top-2 right-6 z-10 w-48">
+                        <Select value={compareDocId ?? undefined} onValueChange={setCompareDocId}>
+                          <SelectTrigger className="w-full bg-card shadow-sm text-xs h-8">
+                            <SelectValue placeholder="Select document..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {documents.map((d) => (
+                              <SelectItem key={d.id} value={d.id}>{d.title}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {compareDoc ? (
+                        <div className="px-6 py-6 mt-8">
+                          <PDFViewer
+                            pdfUrl={`/api/documents/${compareDocId}/raw`}
+                            highlights={(compareDoc.highlights ?? []) as HighlightItem[]}
+                            scale={scale}
+                            onTextSelect={() => { }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-sm text-muted-foreground mt-8">
+                          Select a secondary document to compare.
+                        </div>
+                      )}
                     </div>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </main>
+                  </>
+                ) : (
+                  <>
+                    {(viewMode === "pdf" || viewMode === "split") && (
+                      <div className={`h-full overflow-y-auto ${viewMode === "split" ? "w-[50%] border-r border-border" : "w-full"}`}>
+                        <div className="px-6 py-6">
+                          <PDFViewer
+                            ref={pdfRef}
+                            pdfUrl={`/api/documents/${docId}/raw`}
+                            highlights={highlights}
+                            notes={readingAnnotEnabled ? notes : []}
+                            onNoteClick={() => { if (viewMode === "pdf") setViewMode("split"); }}
+                            scale={scale}
+                            onTextSelect={handlePDFTextSelect}
+                            onPageVisible={handlePdfPageVisible}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {(viewMode === "text" || viewMode === "split") && (
+                      <div className={`h-full ${viewMode === "split" ? "w-[50%]" : "w-full"}`}>
+                        {readingAnnotEnabled ? (
+                          <ReadingWorkspace
+                            docId={docId!}
+                            course={documents.find((d) => d.id === docId)?.course ?? null}
+                            excalidrawEnabled={excalidrawEnabled}
+                            notebooks={notebooks}
+                            onScrollToRegion={(page, bbox) => pdfRef.current?.scrollToRegion(page, bbox)}
+                          />
+                        ) : (
+                          <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+                            <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground">
+                              <PuzzleIcon className="size-6" />
+                            </div>
+                            <p className="text-sm font-medium">Reading Annotations plugin not configured</p>
+                            <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
+                              Enable the{" "}
+                              <span className="font-medium text-foreground">Reading Annotations</span>{" "}
+                              plugin in Settings to use sticky notes and region annotations here.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </main>
 
-        {/* Zoom pill — absolute on the non-scrolling wrapper, always visible */}
-        <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1 rounded-full border border-border bg-card/90 px-2 py-1 shadow-md backdrop-blur">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7 rounded-full"
-            onClick={() => setScale((s) => Math.max(0.25, +(s - 0.25).toFixed(2)))}
-          >
-            <ZoomOut className="size-3.5" />
-          </Button>
-          <span className="min-w-[3rem] text-center text-xs font-medium tabular-nums text-muted-foreground">
-            {Math.round(scale * 100)}%
-          </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7 rounded-full"
-            onClick={() => setScale((s) => Math.min(3.0, +(s + 0.25).toFixed(2)))}
-          >
-            <ZoomIn className="size-3.5" />
-          </Button>
-        </div>
+          {/* Zoom pill — absolute on the non-scrolling wrapper, always visible */}
+          <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1 rounded-full border border-border bg-card/90 px-2 py-1 shadow-md backdrop-blur">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 rounded-full"
+              onClick={() => setScale((s) => Math.max(0.25, +(s - 0.25).toFixed(2)))}
+            >
+              <ZoomOut className="size-3.5" />
+            </Button>
+            <span className="min-w-[3rem] text-center text-xs font-medium tabular-nums text-muted-foreground">
+              {Math.round(scale * 100)}%
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 rounded-full"
+              onClick={() => setScale((s) => Math.min(3.0, +(s + 0.25).toFixed(2)))}
+            >
+              <ZoomIn className="size-3.5" />
+            </Button>
+          </div>
         </div>{/* end center wrapper */}
 
         {/* Right — Context */}
@@ -607,7 +715,7 @@ export function Reading() {
                           {explanation ?? "No explanation available."}
                         </p>
                       )}
-                      
+
                       {explanation && !lensLoading && (
                         <div className="mt-3 flex justify-end">
                           <Select onValueChange={handleSaveToNotebook} disabled={savingToNotebook}>

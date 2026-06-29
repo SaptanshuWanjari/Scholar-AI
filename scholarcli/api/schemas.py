@@ -215,6 +215,7 @@ class TraceFeedbackRequest(BaseModel):
 # ---------------------------------------------------------------------------
 
 class SettingsOut(BaseModel):
+    name: str = ""
     fastModel: str
     reasoningModel: str
     embeddingModel: str
@@ -237,6 +238,7 @@ class SettingsOut(BaseModel):
 
 
 class SettingsPatch(BaseModel):
+    name: str | None = None
     fastModel: str | None = None
     reasoningModel: str | None = None
     embeddingModel: str | None = None
@@ -484,6 +486,7 @@ class NotebookOut(BaseModel):
     tags: list[str] = []
     updated: str
     is_draft: bool = False
+    resolvedCitations: list[dict] = []
 
 
 class CollectionOut(BaseModel):
@@ -561,6 +564,8 @@ class WhiteboardMeta(BaseModel):
     updated: str
     createdAt: str
     deletedAt: str | None = None
+    documentId: str | None = None
+    pageNumber: int | None = None
 
 
 class WhiteboardOut(BaseModel):
@@ -583,6 +588,8 @@ class WhiteboardCreate(BaseModel):
     scene: dict = {}
     thumbnail: str | None = None
     source: str = "manual"
+    document_id: int | None = None
+    page_number: int | None = None
 
 
 class WhiteboardPatch(BaseModel):
@@ -682,6 +689,34 @@ class BookmarkCreate(BaseModel):
 class LensResponse(BaseModel):
     level: str
     text: str
+
+
+NoteCategory = Literal["insight", "question", "formula", "confusing", "general"]
+
+
+class StickyNoteOut(BaseModel):
+    id: str
+    document_id: str
+    page_number: int
+    bounding_box: HighlightRect | None = None
+    content: str
+    category: NoteCategory
+    created_at: str = ""
+    updated_at: str = ""
+
+
+class StickyNoteCreate(BaseModel):
+    content: str
+    category: NoteCategory = "general"
+    page_number: int = 1
+    bounding_box: HighlightRect | None = None
+    # When set, the note is also appended to this notebook as a colored block.
+    notebook_id: str | None = None
+
+
+class StickyNotePatch(BaseModel):
+    content: str | None = None
+    category: NoteCategory | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -914,6 +949,7 @@ class PackageIn(BaseModel):
     overview: dict = {}
     artifacts: dict = {}
     sources: list = []
+    notebookId: str | None = None
 
 
 class PackageMeta(BaseModel):
@@ -923,6 +959,7 @@ class PackageMeta(BaseModel):
     depth: str
     artifactCount: int
     createdAt: str
+    notebookId: str | None = None
 
 
 class PackageOut(BaseModel):
@@ -935,6 +972,7 @@ class PackageOut(BaseModel):
     sources: list = []
     createdAt: str
     updatedAt: str
+    notebookId: str | None = None
 
 
 class TeachDraftOut(BaseModel):

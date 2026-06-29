@@ -134,6 +134,7 @@ def _meta(pkg: LearningPackage) -> PackageMeta:
         depth=pkg.depth,
         artifactCount=_artifact_count(pkg),
         createdAt=pkg.created_at.isoformat(),
+        notebookId=str(pkg.notebook_id) if pkg.notebook_id else None,
     )
 
 
@@ -148,6 +149,7 @@ def _full(pkg: LearningPackage) -> PackageOut:
         sources=pkg.sources or [],
         createdAt=pkg.created_at.isoformat(),
         updatedAt=pkg.updated_at.isoformat(),
+        notebookId=str(pkg.notebook_id) if pkg.notebook_id else None,
     )
 
 
@@ -184,11 +186,13 @@ def save_package(payload: PackageIn) -> PackageOut:
         raise HTTPException(status_code=400, detail="title is required")
     session = get_session()
     try:
+        notebook_id = int(payload.notebookId) if payload.notebookId else None
         pkg = LearningPackage(
             title=title,
             course=payload.course or "",
             depth=payload.depth,
             concept_id=dependency_service.resolve_concept(title, payload.course),
+            notebook_id=notebook_id,
             overview=payload.overview,
             artifacts=payload.artifacts,
             sources=payload.sources,

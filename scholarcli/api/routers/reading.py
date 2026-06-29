@@ -19,6 +19,9 @@ from scholarcli.api.schemas import (
     ReadingDocOut,
     ReadingParagraph,
     ReadingSectionOut,
+    StickyNoteCreate,
+    StickyNoteOut,
+    StickyNotePatch,
 )
 from pydantic import BaseModel
 
@@ -26,7 +29,7 @@ class ProgressUpdate(BaseModel):
     progress: float
 from scholarcli.llm import get_llm
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Document, ReadingState
+from scholarcli.storage.models import Document, Notebook, ReadingState, StickyNote
 from scholarcli.storage.vectors import get_document_chunks
 
 router = APIRouter(prefix="/api/reading", tags=["reading"])
@@ -209,3 +212,128 @@ async def lens(document_id: int, text: str, level: str = "Intermediate") -> Lens
 
     explanation = await run_in_threadpool(_run)
     return LensResponse(level=level, text=explanation)
+
+
+# ---------------------------------------------------------------------------
+# Sticky notes (reading-annotations plugin) — work without the Excalidraw plugin
+# ---------------------------------------------------------------------------
+
+# emoji + label per category, used for the notebook-sync blockquote.
+_CATEGORY_META: dict[str, tuple[str, str]] = {
+    "insight": ("💡", "Insight"),
+    "question": ("❓", "Question"),
+    "formula": ("∑", "Formula"),
+    "confusing": ("⚠️", "Confusing"),
+    "general": ("📝", "General"),
+}
+
+
+def _fmt_dt(dt) -> str:
+    return dt.isoformat() if dt else ""
+
+
+def _note_out(note: StickyNote) -> StickyNoteOut:
+    return StickyNoteOut(
+        id=str(note.id),
+        document_id=str(note.document_id),
+        page_number=note.page_number,
+        bounding_box=note.bounding_box,
+        content=note.content,
+        category=note.category,  # type: ignore[arg-type]
+        created_at=_fmt_dt(note.created_at),
+        updated_at=_fmt_dt(note.updated_at),
+    )
+
+
+def _sync_note_to_notebook(
+    session, notebook_id: str, note: StickyNote, doc_title: str
+) -> None:
+    """Append the note to a notebook as a colored, anchored markdown blockquote."""
+    try:
+        nb = session.get(Notebook, int(notebook_id))
+    except (TypeError, ValueError):
+        nb = None
+    if not nb:
+        return
+    emoji, label = _CATEGORY_META.get(note.category, _CATEGORY_META["general"])
+    anchor = f"#doc{note.document_id}-p{note.page_number}"
+    md = (
+        f"> [{emoji} {label}] {note.content}\n>\n"
+        f"> — {doc_title}, p.{note.page_number} {anchor}"
+    )
+    block = {
+        "type": "text",
+        "text": md,
+        "source": {"type": "reading", "id": str(note.document_id)},
+    }
+    nb.blocks = [*(nb.blocks or []), block]
+
+
+@router.get("/{document_id}/notes", response_model=list[StickyNoteOut])
+def list_notes(document_id: int) -> list[StickyNoteOut]:
+    session = get_session()
+    try:
+        notes = (
+            session.query(StickyNote)
+            .filter(StickyNote.document_id == document_id)
+            .order_by(StickyNote.page_number, StickyNote.id)
+            .all()
+        )
+        return [_note_out(n) for n in notes]
+    finally:
+        session.close()
+
+
+@router.post("/{document_id}/notes", response_model=StickyNoteOut, status_code=201)
+def create_note(document_id: int, payload: StickyNoteCreate) -> StickyNoteOut:
+    session = get_session()
+    try:
+        doc = session.get(Document, document_id)
+        if not doc:
+            raise HTTPException(status_code=404, detail="Document not found")
+        note = StickyNote(
+            document_id=document_id,
+            page_number=payload.page_number,
+            bounding_box=payload.bounding_box.model_dump() if payload.bounding_box else None,
+            content=payload.content,
+            category=payload.category,
+        )
+        session.add(note)
+        session.flush()  # assign note.id before optional notebook sync
+        if payload.notebook_id:
+            _sync_note_to_notebook(session, payload.notebook_id, note, doc.title)
+        session.commit()
+        session.refresh(note)
+        return _note_out(note)
+    finally:
+        session.close()
+
+
+@router.patch("/{document_id}/notes/{note_id}", response_model=StickyNoteOut)
+def update_note(document_id: int, note_id: int, payload: StickyNotePatch) -> StickyNoteOut:
+    session = get_session()
+    try:
+        note = session.get(StickyNote, note_id)
+        if not note or note.document_id != document_id:
+            raise HTTPException(status_code=404, detail="Note not found")
+        if payload.content is not None:
+            note.content = payload.content
+        if payload.category is not None:
+            note.category = payload.category
+        session.commit()
+        session.refresh(note)
+        return _note_out(note)
+    finally:
+        session.close()
+
+
+@router.delete("/{document_id}/notes/{note_id}", status_code=204)
+def delete_note(document_id: int, note_id: int) -> None:
+    session = get_session()
+    try:
+        note = session.get(StickyNote, note_id)
+        if note and note.document_id == document_id:
+            session.delete(note)
+            session.commit()
+    finally:
+        session.close()

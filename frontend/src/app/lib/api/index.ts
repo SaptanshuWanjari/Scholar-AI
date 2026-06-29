@@ -14,6 +14,7 @@ export { notebooksApi, type NotebookMeta, type NotebookFull, type NotebookDedupl
 export { examApi, type ExamQuestionOut, type ExamSession, type ExamStatus, type ExamResult, type PyqPaper, type PyqQuestion, type PyqTopicFreq, type PyqDifferenceSuggestion, type PyqPattern, type PyqYearTrend, type PyqRevisionRisk, type PyqAnalysis } from "./exam";
 export { knowledgeApi, type DashboardData, type KGNode, type KGEdge, type KGGraph, type KGSidebar, type ConceptInspector, type DepLink, type DepConceptInspector, type ReadinessMissing, type Readiness, type ConceptStatus, type LearningPathConcept, type LearningPathStage, type LearningPathOverview, type NextRecommendation, type LearningProgress, type LearningAnalytics, type LearningPath, type LearningPathMeta } from "./knowledge";
 export { whiteboardsApi } from "./whiteboards";
+export { readingApi } from "./reading";
 export { teachApi, type TeachOverview, type TeachDraft, type TeachArtifacts, type PackageMeta, type PackageFull, type ArtifactCoverage, type ConsistencySuggestion, type ConsistencyReport } from "./teach";
 export { systemApi, type BackendSettings, type ModelsList, type HealthStatus, type PromptAnalysis, type JobItem } from "./system";
 
@@ -25,6 +26,7 @@ import { notebooksApi } from "./notebooks";
 import { examApi } from "./exam";
 import { knowledgeApi } from "./knowledge";
 import { whiteboardsApi } from "./whiteboards";
+import { readingApi } from "./reading";
 import { teachApi } from "./teach";
 import { systemApi } from "./system";
 
@@ -37,6 +39,7 @@ export const api = {
   ...examApi,
   ...knowledgeApi,
   ...whiteboardsApi,
+  ...readingApi,
   ...teachApi,
   ...systemApi,
 };

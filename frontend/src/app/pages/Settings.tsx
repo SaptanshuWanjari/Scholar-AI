@@ -156,40 +156,44 @@ export function SettingsPage() {
   }, []);
 
   return (
-    <Page className="max-w-4xl">
-      <Tabs defaultValue="models">
-        <TabsList className="mb-6 bg-card">
-          <TabsTrigger value="profile" className="gap-1.5">
+    <Page className="max-w-5xl">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col md:flex-row">
+        <Tabs defaultValue="models" orientation="vertical" className="flex flex-col md:flex-row w-full">
+          <div className="w-full md:w-64 shrink-0 border-b md:border-b-0 md:border-r border-border p-4 bg-muted/10">
+            <TabsList className="flex flex-col h-auto w-full items-stretch bg-transparent p-0 gap-1.5">
+          <TabsTrigger value="profile" className="justify-start gap-3 px-3 py-2.5 h-auto font-medium text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground border border-transparent">
             <User className="size-4" /> Profile
           </TabsTrigger>
-          <TabsTrigger value="appearance" className="gap-1.5">
+          <TabsTrigger value="appearance" className="justify-start gap-3 px-3 py-2.5 h-auto font-medium text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground border border-transparent">
             <Paintbrush className="size-4" /> Appearance
           </TabsTrigger>
-          <TabsTrigger value="models" className="gap-1.5">
+          <TabsTrigger value="models" className="justify-start gap-3 px-3 py-2.5 h-auto font-medium text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground border border-transparent">
             <Cpu className="size-4" /> Models
           </TabsTrigger>
-          <TabsTrigger value="retrieval" className="gap-1.5">
+          <TabsTrigger value="retrieval" className="justify-start gap-3 px-3 py-2.5 h-auto font-medium text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground border border-transparent">
             <Filter className="size-4" /> Retrieval
           </TabsTrigger>
-          <TabsTrigger value="shortcuts" className="gap-1.5">
+          <TabsTrigger value="shortcuts" className="justify-start gap-3 px-3 py-2.5 h-auto font-medium text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground border border-transparent">
             <Keyboard className="size-4" /> Shortcuts
           </TabsTrigger>
-          <TabsTrigger value="guidance" className="gap-1.5">
-            <LifeBuoy className="size-4" /> Help &amp; Guidance
+          <TabsTrigger value="guidance" className="justify-start gap-3 px-3 py-2.5 h-auto font-medium text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground border border-transparent">
+            <LifeBuoy className="size-4" /> Help & Guidance
           </TabsTrigger>
-          <TabsTrigger value="plugins" className="gap-1.5">
+          <TabsTrigger value="plugins" className="justify-start gap-3 px-3 py-2.5 h-auto font-medium text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground border border-transparent">
             <Puzzle className="size-4" /> Plugins
           </TabsTrigger>
-          <TabsTrigger value="logs" className="gap-1.5">
+          <TabsTrigger value="logs" className="justify-start gap-3 px-3 py-2.5 h-auto font-medium text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground border border-transparent">
             <Terminal className="size-4" /> Logs
           </TabsTrigger>
-          <TabsTrigger value="data" className="gap-1.5">
+          <TabsTrigger value="data" className="justify-start gap-3 px-3 py-2.5 h-auto font-medium text-danger data-[state=active]:bg-danger-soft data-[state=active]:text-danger border border-transparent">
             <Database className="size-4" /> Data
           </TabsTrigger>
         </TabsList>
+          </div>
 
-        <TabsContent value="appearance">
-          <div className="rounded-2xl border border-border bg-card px-5">
+          <div className="flex-1 w-full min-w-0 p-6 md:p-8 space-y-8">
+            <TabsContent value="appearance" className="mt-0">
+          <div className="">
             <Row title="Theme" desc="Application color theme">
               <Select
                 value={theme || "system"}
@@ -268,7 +272,7 @@ export function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="models">
-          <div className="rounded-2xl border border-border bg-card px-5">
+          <div className="">
             <Row
               title="AI Mode"
               desc={
@@ -358,7 +362,7 @@ export function SettingsPage() {
               />
             </Row>
           </div>
-          <div className="mt-6 rounded-2xl border border-border bg-card px-5">
+          <div className="mt-6 ">
             <h3 className="pt-4 text-sm font-semibold text-muted-foreground">
               Embedding &amp; Vision
             </h3>
@@ -411,7 +415,7 @@ export function SettingsPage() {
               </span>
             </Row>
           </div>
-          <div className="mt-6 rounded-2xl border border-border bg-card px-5">
+          <div className="mt-6 ">
             <h3 className="pt-4 text-sm font-semibold text-muted-foreground">
               Ingestion
             </h3>
@@ -462,7 +466,7 @@ export function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="retrieval">
-          <div className="rounded-2xl border border-border bg-card px-5">
+          <div className="">
             <Row
               title="Top-K results"
               desc={`Documents retrieved per query · ${s.topK}`}
@@ -522,7 +526,7 @@ export function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="shortcuts">
-          <div className="rounded-2xl border border-border bg-card px-5">
+          <div className="">
             <Row title="Command menu" desc="Open the global search palette">
               <kbd className="rounded border border-border bg-muted px-2 py-1 font-mono text-xs">
                 ⌘ K
@@ -539,7 +543,7 @@ export function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="guidance">
-          <div className="rounded-2xl border border-border bg-card px-5">
+          <div className="">
             <Row
               title="Interactive tours"
               desc="Show a guided walkthrough the first time you visit a page"
@@ -594,7 +598,15 @@ export function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="profile">
-          <div className="rounded-2xl border border-border bg-card px-5">
+          <div className="">
+            <Row title="Name" desc="What should we call you?">
+              <Input
+                className="w-56 bg-input-background"
+                value={s.name || ""}
+                onChange={(e) => s.set("name", e.target.value)}
+                placeholder="e.g. Student"
+              />
+            </Row>
             <Row title="Industry" desc="Your professional industry">
               <Input
                 className="w-56 bg-input-background"
@@ -639,7 +651,7 @@ export function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="plugins">
-          <div className="rounded-2xl border border-border bg-card px-5">
+          <div className="">
             {KNOWN_PLUGINS.length === 0 ? (
               <div className="py-10 text-center text-sm text-muted-foreground">
                 No plugins available.
@@ -696,7 +708,7 @@ export function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="logs">
-          <div className="rounded-2xl border border-border bg-card px-5 py-4">
+          <div className=" py-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-sm font-medium">System Logs</h3>
               <Button variant="outline" size="sm" onClick={() => clearLogs()}>
@@ -731,7 +743,7 @@ export function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="data">
-          <div className="rounded-2xl border border-border bg-card px-5 mb-4">
+          <div className=" mb-4">
             <Row
               title="Backup LanceDB"
               desc="Save a snapshot of the vector database. Nightly backups run automatically; last 3 are kept."
@@ -761,7 +773,7 @@ export function SettingsPage() {
               </div>
             )}
           </div>
-          <div className="rounded-2xl border border-border bg-card px-5">
+          <div className="">
             <Row
               title="Danger Zone"
               desc="Permanently delete all workspaces, documents, local cache, and settings."
@@ -780,7 +792,9 @@ export function SettingsPage() {
             </Row>
           </div>
         </TabsContent>
-      </Tabs>
+          </div>
+        </Tabs>
+      </div>
 
       <Dialog open={nukeModalOpen} onOpenChange={setNukeModalOpen}>
         <DialogContent>

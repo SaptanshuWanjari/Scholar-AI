@@ -30,6 +30,7 @@ from scholarcli.config import get_settings
 logger = logging.getLogger(__name__)
 
 TABLE_NAME = "chunks"
+NOTEB_TABLE_NAME = "notebook_chunks"
 
 # Columns that an up-to-date chunks table must carry. A pre-multimodal table
 # lacks these, so the first insert recreates it (chunks are rebuildable from
@@ -309,6 +310,124 @@ def hybrid_search(
         return results, total
         
     return results
+
+
+# ---------------------------------------------------------------------------
+# Notebook chunks (separate table, non-polluting)
+# ---------------------------------------------------------------------------
+
+def _noteb_table() -> lancedb.table.LanceTable | None:
+    """Open the notebook_chunks table, or None if it doesn't exist."""
+    try:
+        db = _db()
+        if NOTEB_TABLE_NAME not in db.list_tables():
+            return None
+        return db.open_table(NOTEB_TABLE_NAME)
+    except Exception:
+        return None
+
+
+def add_notebook_chunks(
+    notebook_id: int,
+    course: str,
+    title: str,
+    blocks: list[dict],
+    vectors: list[list[float]],
+) -> None:
+    """Index notebook blocks as searchable chunks.
+
+    Each text-bearing block becomes one chunk with its embedding vector.
+    Deletes any existing chunks for this notebook_id first.
+    """
+    if not blocks or not vectors:
+        delete_notebook_chunks(notebook_id)
+        return
+    if len(blocks) != len(vectors):
+        logger.warning("notebook_chunks: blocks/vectors length mismatch (%d vs %d)", len(blocks), len(vectors))
+        return
+
+    delete_notebook_chunks(notebook_id)
+
+    rows = []
+    for i, (block, vec) in enumerate(zip(blocks, vectors)):
+        block_type = block.get("type", "")
+        text = notebook_block_text(block)
+        if not text.strip():
+            continue
+        # heading = nearest preceding heading block
+        heading = ""
+        for j in range(i - 1, -1, -1):
+            if blocks[j].get("type") == "heading":
+                heading = blocks[j].get("text", "")
+                break
+        rows.append({
+            "id": f"nb-{notebook_id}-{i}",
+            "notebook_id": notebook_id,
+            "course": course or "",
+            "title": title,
+            "block_index": i,
+            "block_type": block_type,
+            "text": text,
+            "heading": heading,
+            "vector": vec,
+        })
+
+    if not rows:
+        return
+
+    db = _db()
+    try:
+        if NOTEB_TABLE_NAME in db.list_tables():
+            db.open_table(NOTEB_TABLE_NAME).add(rows)
+        else:
+            db.create_table(NOTEB_TABLE_NAME, data=rows)
+    except Exception as exc:
+        logger.warning("Failed to add notebook chunks: %s", exc)
+
+
+def notebook_block_text(block: dict) -> str:
+    """Extract searchable text from a notebook block."""
+    b_type = block.get("type")
+    if b_type in ("text", "callout", "heading"):
+        return block.get("text", "")
+    if b_type == "ai-answer":
+        return f"{block.get('question', '')}\n{block.get('answer', '')}"
+    if b_type in ("code", "mermaid"):
+        return block.get("code", "")
+    if b_type == "table":
+        headers = block.get("headers", [])
+        rows = block.get("rows", [])
+        lines = [" | ".join(headers)]
+        for r in rows:
+            lines.append(" | ".join(r))
+        return "\n".join(lines)
+    return ""
+
+
+def delete_notebook_chunks(notebook_id: int) -> None:
+    """Remove all indexed chunks for a notebook."""
+    tbl = _noteb_table()
+    if tbl is not None:
+        try:
+            tbl.delete(f"notebook_id = {notebook_id}")
+        except Exception:
+            pass
+
+
+def search_notebook_chunks(
+    query_vector: list[float],
+    top_k: int = 5,
+    offset: int = 0,
+    course: str | None = None,
+) -> list[dict]:
+    """Search notebook chunks by vector similarity."""
+    tbl = _noteb_table()
+    if tbl is None:
+        return []
+    q = tbl.search(query_vector, vector_column_name="vector").metric("cosine")
+    if course:
+        q = q.where(f"course = '{course}'", prefilter=True)
+    return q.limit(offset + top_k).to_list()[offset:]
 
 
 def detect_overlapping_document(

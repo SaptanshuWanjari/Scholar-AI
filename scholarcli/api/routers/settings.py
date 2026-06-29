@@ -32,6 +32,7 @@ def _defaults() -> dict:
     s = get_settings()
     routing = s.models.routing
     return {
+        "name": "",
         "fastModel": routing.get("quick_qa", "qwen3:8b"),
         "reasoningModel": routing.get("deep_analysis", routing.get("quick_qa", "qwen3:8b")),
         "embeddingModel": s.models.embedding,

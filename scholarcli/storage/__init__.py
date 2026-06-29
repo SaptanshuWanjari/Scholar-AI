@@ -64,6 +64,7 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
     "notebooks": [
         ("tags", "JSON"),
         ("is_draft", "INTEGER NOT NULL DEFAULT 0"),
+        ("last_opened_at", "DATETIME DEFAULT '2025-01-01 00:00:00'"),
     ],
     "cards": [
         ("interval", "INTEGER NOT NULL DEFAULT 0"),
@@ -75,9 +76,14 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
     # Concept Dependency Engine — link signal rows to dep_concepts.id.
     "topic_stats": [("concept_id", "INTEGER")],
     "revisions": [("concept_id", "INTEGER")],
-    "learning_packages": [("concept_id", "INTEGER")],
+    "learning_packages": [("concept_id", "INTEGER"), ("notebook_id", "INTEGER")],
     # Artifact quality scores (api/quality.py), added per artifact table.
-    "decks": [("quality_score", "JSON"), ("concept_id", "INTEGER"), ("source", "VARCHAR(256)")],
+    "decks": [
+        ("quality_score", "JSON"),
+        ("concept_id", "INTEGER"),
+        ("source", "VARCHAR(256)"),
+        ("last_opened_at", "DATETIME DEFAULT '2025-01-01 00:00:00'"),
+    ],
     "quizzes": [
         ("quality_score", "JSON"),
         ("session_answers", "JSON"),
@@ -85,7 +91,7 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("session_started_at", "TEXT"),
         ("source", "VARCHAR(256)"),
     ],
-    "diagrams": [("quality_score", "JSON")],
+    "diagrams": [("quality_score", "JSON"), ("last_opened_at", "DATETIME DEFAULT '2025-01-01 00:00:00'")],
     "mindmaps": [("quality_score", "JSON")],
     "difference_tables": [("quality_score", "JSON")],
     "exam_sessions": [
@@ -93,7 +99,13 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("expires_at", "TEXT"),
     ],
     "learning_paths": [("archived", "BOOLEAN NOT NULL DEFAULT 0")],
-    "whiteboards": [("deleted_at", "TEXT")],
+    "whiteboards": [
+        ("deleted_at", "TEXT"),
+        # Reading-mode region annotation link (source == "annotation").
+        ("document_id", "INTEGER"),
+        ("page_number", "INTEGER"),
+        ("last_opened_at", "DATETIME DEFAULT '2025-01-01 00:00:00'"),
+    ],
 }
 
 

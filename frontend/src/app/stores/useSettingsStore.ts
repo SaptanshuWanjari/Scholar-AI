@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { api, type BackendSettings } from "../lib/api";
 
 interface SettingsState {
+  name: string;
   fastModel: string;
   reasoningModel: string;
   embeddingModel: string;
@@ -27,6 +28,7 @@ interface SettingsState {
 }
 
 const PERSISTED: (keyof BackendSettings)[] = [
+  "name",
   "fastModel",
   "reasoningModel",
   "embeddingModel",
@@ -49,6 +51,7 @@ const PERSISTED: (keyof BackendSettings)[] = [
 ];
 
 export const useSettingsStore = create<SettingsState>((set) => ({
+  name: "",
   fastModel: "qwen3:8b",
   reasoningModel: "gemma4:12b",
   embeddingModel: "qwen3-embedding:0.6b",
