@@ -1,7 +1,7 @@
 """Notebook CRUD + AI writing assistance."""
-from datetime import datetime
 
 from __future__ import annotations
+from datetime import datetime
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
