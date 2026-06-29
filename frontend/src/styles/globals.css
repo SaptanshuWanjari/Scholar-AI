@@ -1,0 +1,90 @@
+/* ============================================================
+   Premium notebook dashboard — DEV-ONLY styles.
+   Everything is scoped under `.paper-root` so nothing leaks
+   into the production app. Used by /dashboard-clone.
+   ============================================================ */
+
+.paper-root {
+  --paper: #faf7f1;
+  --paper-card: #fffdf9;
+  --ink: #222222;
+  --ink-muted: #7a7a74;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* --- Warm, textured paper background (never flat, never white) --- */
+.paper-root .paper-bg {
+  position: relative;
+  background-color: var(--paper);
+  background-image:
+    /* almost-invisible coffee variation */
+    radial-gradient(120% 80% at 12% 8%, rgba(150, 120, 80, 0.05), transparent 60%),
+    radial-gradient(120% 90% at 92% 96%, rgba(120, 95, 60, 0.04), transparent 55%),
+    /* extremely soft vignette */
+    radial-gradient(140% 120% at 50% 40%, transparent 55%, rgba(70, 55, 35, 0.05) 100%);
+}
+
+/* fine paper grain via SVG turbulence (opacity < 5%) */
+.paper-root .paper-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --- Subtle fiber/noise overlay for cards (opacity < 5%) --- */
+.paper-root .paper-texture {
+  position: relative;
+}
+.paper-root .paper-texture::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+
+/* --- Thin, muted scrollbar --- */
+.paper-root .paper-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #d6d0c2 transparent;
+}
+.paper-root .paper-scrollbar::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+.paper-root .paper-scrollbar::-webkit-scrollbar-thumb {
+  background: #d6d0c2;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.paper-root .paper-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #c4bdab;
+  background-clip: content-box;
+}
+
+/* --- Restrained motion --- */
+@keyframes paper-marker-sweep {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes paper-sticky-wiggle {
+  0% { transform: rotate(var(--rot, -2deg)); }
+  50% { transform: rotate(calc(var(--rot, -2deg) + 1.5deg)); }
+  100% { transform: rotate(var(--rot, -2deg)); }
+}
+
+.paper-root .paper-lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.paper-root .paper-lift:hover {
+  transform: translateY(-2px);
+}

@@ -422,6 +422,68 @@ export function Reading() {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
+      {/* Sticky top header bar */}
+      <div className="flex h-11 shrink-0 items-center justify-between border-b border-border bg-card px-4 z-20">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8"
+            onClick={() => setLeftCollapsed(!leftCollapsed)}
+            title={leftCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {leftCollapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
+          </Button>
+        </div>
+
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex bg-muted/50 border border-border rounded-lg p-0.5">
+            <Button variant="ghost" size="sm" className={`h-7 px-2.5 text-xs rounded-md ${viewMode === "pdf" ? "bg-background shadow-sm border border-border/10 font-semibold" : "text-muted-foreground hover:text-foreground"}`} onClick={() => setViewMode("pdf")}><BookOpen className="size-3.5 mr-1" /> PDF</Button>
+            <Button variant="ghost" size="sm" className={`h-7 px-2.5 text-xs rounded-md ${viewMode === "text" ? "bg-background shadow-sm border border-border/10 font-semibold" : "text-muted-foreground hover:text-foreground"}`} onClick={() => setViewMode("text")}><PencilLine className="size-3.5 mr-1" /> Annotate</Button>
+            <Button variant="ghost" size="sm" className={`h-7 px-2.5 text-xs rounded-md ${viewMode === "split" ? "bg-background shadow-sm border border-border/10 font-semibold" : "text-muted-foreground hover:text-foreground"}`} onClick={() => setViewMode("split")}><Columns className="size-3.5 mr-1" /> Split</Button>
+            <Button variant="ghost" size="sm" className={`h-7 px-2.5 text-xs rounded-md ${viewMode === "compare" ? "bg-background shadow-sm border border-border/10 font-semibold" : "text-muted-foreground hover:text-foreground"}`} onClick={() => { setViewMode("compare"); if (!compareDocId && documents.length > 1) setCompareDocId(documents.find(d => d.id !== docId)?.id ?? null); }}><Columns className="size-3.5 mr-1" /> Compare</Button>
+          </div>
+          
+          {(viewMode === "split" || viewMode === "text") && readingAnnotEnabled && (
+            <div className="flex bg-muted/50 border border-border rounded-lg p-0.5">
+              {(
+                [
+                  { v: "notes", label: "Notes", icon: StickyNoteIcon },
+                  { v: "draw", label: "Draw", icon: PencilRuler },
+                  { v: "both", label: "Both", icon: Columns },
+                ] as { v: SubMode; label: string; icon: typeof StickyNoteIcon }[]
+              ).map((t) => (
+                <Button
+                  key={t.v}
+                  variant="ghost"
+                  size="sm"
+                  className={`h-7 px-2.5 text-xs rounded-md font-medium transition-colors ${
+                    annotSubMode === t.v 
+                      ? "bg-background shadow-sm border border-border/10 font-semibold text-foreground" 
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setAnnotSubMode(t.v)}
+                >
+                  <t.icon className="size-3.5 mr-1" /> {t.label}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8"
+            onClick={() => setRightCollapsed(!rightCollapsed)}
+            title={rightCollapsed ? "Expand context" : "Collapse context"}
+          >
+            {rightCollapsed ? <PanelRightOpen className="size-4" /> : <PanelRightClose className="size-4" />}
+          </Button>
+        </div>
+      </div>
+
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Left — Content */}
         <aside className={cn(
@@ -579,71 +641,8 @@ export function Reading() {
         {/* Center — Reader + overlay wrapper */}
         <div className="relative min-w-0 flex-1">
           <main data-tour="reading-reader" className="h-full overflow-y-auto" ref={scrollRef}>
+            {/* Selection Toolbar inside reader */}
             <SelectionToolbar containerRef={readerRef} actions={actions} />
-
-            {/* Sidebar Toggles & View Mode */}
-            <div className="pointer-events-none sticky top-4 z-10 flex w-full justify-between px-4">
-              <div className="pointer-events-auto">
-                {leftCollapsed && (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-8 rounded-full bg-card/80 shadow-sm backdrop-blur"
-                    onClick={() => setLeftCollapsed(false)}
-                  >
-                    <PanelLeftOpen className="size-4" />
-                  </Button>
-                )}
-              </div>
-
-              <div className="pointer-events-auto flex items-center justify-center gap-2">
-                <div className="flex bg-card/90 shadow-sm border border-border rounded-lg p-1 backdrop-blur">
-                  <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "pdf" ? "bg-accent" : ""}`} onClick={() => setViewMode("pdf")}><BookOpen className="size-3.5 mr-1" /> PDF</Button>
-                  <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "text" ? "bg-accent" : ""}`} onClick={() => setViewMode("text")}><PencilLine className="size-3.5 mr-1" /> Annotate</Button>
-                  <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "split" ? "bg-accent" : ""}`} onClick={() => setViewMode("split")}><Columns className="size-3.5 mr-1" /> Split</Button>
-                  <Button variant="ghost" size="sm" className={`h-7 px-2 text-xs ${viewMode === "compare" ? "bg-accent" : ""}`} onClick={() => { setViewMode("compare"); if (!compareDocId && documents.length > 1) setCompareDocId(documents.find(d => d.id !== docId)?.id ?? null); }}><Columns className="size-3.5 mr-1" /> Compare</Button>
-                </div>
-                
-                {(viewMode === "split" || viewMode === "text") && readingAnnotEnabled && (
-                  <div className="flex bg-card/90 shadow-sm border border-border rounded-lg p-1 backdrop-blur">
-                    {(
-                      [
-                        { v: "notes", label: "Notes", icon: StickyNoteIcon },
-                        { v: "draw", label: "Draw", icon: PencilRuler },
-                        { v: "both", label: "Both", icon: Columns },
-                      ] as { v: SubMode; label: string; icon: typeof StickyNoteIcon }[]
-                    ).map((t) => (
-                      <Button
-                        key={t.v}
-                        variant="ghost"
-                        size="sm"
-                        className={`h-7 px-2 text-xs font-medium transition-colors ${
-                          annotSubMode === t.v 
-                            ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" 
-                            : "text-muted-foreground hover:text-foreground hover:bg-transparent"
-                        }`}
-                        onClick={() => setAnnotSubMode(t.v)}
-                      >
-                        <t.icon className="size-3.5 mr-1" /> {t.label}
-                      </Button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="pointer-events-auto">
-                {rightCollapsed && (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-8 rounded-full bg-card/80 shadow-sm backdrop-blur"
-                    onClick={() => setRightCollapsed(false)}
-                  >
-                    <PanelRightOpen className="size-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
 
             {docLoading ? (
               <div className="flex h-full items-center justify-center text-muted-foreground">
@@ -718,7 +717,7 @@ export function Reading() {
                       </div>
                     )}
                     {(viewMode === "text" || viewMode === "split") && (
-                      <div className={`h-full ${viewMode === "split" ? "w-[50%]" : "w-full"} ${viewMode === "text" ? "pt-10" : ""}`}>
+                      <div className={`h-full ${viewMode === "split" ? "w-[50%]" : "w-full"}`}>
                         {readingAnnotEnabled ? (
                             <ReadingWorkspace
                               docId={docId!}

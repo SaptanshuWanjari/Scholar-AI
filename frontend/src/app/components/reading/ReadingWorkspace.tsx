@@ -48,7 +48,6 @@ export interface ReadingWorkspaceProps {
   course?: string | null;
   excalidrawEnabled: boolean;
   notebooks: NotebookMeta[];
-  notebooks: NotebookMeta[];
   subMode: SubMode;
   onScrollToRegion?: (page: number, bbox: NoteRect) => void;
 }

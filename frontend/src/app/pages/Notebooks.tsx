@@ -4,7 +4,6 @@ import {
   PanelLeftOpen,
   PanelRightOpen,
   Plus,
-  Search,
   Sparkles,
   ScrollText,
   Wand2,
@@ -17,6 +16,7 @@ import {
   Layers,
   Workflow,
   StickyNote,
+  Image as ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -25,7 +25,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../components/ui/dropdown-menu";
-import { cn } from "../components/ui/utils";
 import { Button } from "../components/ui/button";
 import { SelectionToolbar } from "../components/SelectionToolbar";
 import { type NotebookBlock } from "../lib/notebook-data";
@@ -37,7 +36,7 @@ import { Sidebar } from "../components/notebooks/Sidebar";
 import { InspectorPanel } from "../components/notebooks/InspectorPanel";
 import { BlockView } from "../components/notebooks/BlockView";
 import { CreateNotebookDialog } from "../components/notebooks/CreateNotebookDialog";
-import { parseNotes } from "../components/notebooks/utils";
+import { parseNotes, getBlockText, getBlockSource } from "../components/notebooks/utils";
 
 import { Code } from "lucide-react";
 export function Notebooks() {
@@ -45,6 +44,7 @@ export function Notebooks() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [active, setActive] = useState<NotebookFull | null>(null);
   const [blocks, setBlocks] = useState<NotebookBlock[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingNotebook, setLoadingNotebook] = useState(false);
   const [assisting, setAssisting] = useState(false);
@@ -215,6 +215,42 @@ export function Notebooks() {
     }
   }
 
+  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+        const max = 1920;
+        if (width > max || height > max) {
+          const ratio = Math.min(max / width, max / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/webp", 0.8);
+        addBlock({
+          type: "image",
+          url: dataUrl,
+          width,
+          height,
+          alt: file.name,
+        });
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
+
   function addBlock(block: NotebookBlock) {
     const next = [...blocks, block];
     persistBlocks(next);
@@ -288,76 +324,109 @@ export function Notebooks() {
     persistBlocks(blocks.filter((_, i) => i !== index));
   }
 
+  async function moveBlockToNotebook(blockIndex: number, targetNotebookId: string) {
+    if (!activeId) return;
+    const block = blocks[blockIndex];
+    if (!block) return;
+    try {
+      const targetNb = await api.getNotebook(targetNotebookId);
+      const targetBlocks = (targetNb.blocks ?? []) as NotebookBlock[];
+      targetBlocks.push(block);
+      await api.updateNotebook(targetNotebookId, { blocks: targetBlocks });
+      deleteBlock(blockIndex);
+      toast.success("Block moved to notebook");
+    } catch (e: any) {
+      toast.error(`Failed to move block: ${e.message}`);
+    }
+  }
+
   function ungroupNote(blockIndex: number, noteIndex: number) {
     const block = blocks[blockIndex];
     if (!block) return;
-    const notes = parseNotes(block.text);
+    const notes = parseNotes(getBlockText(block));
     if (notes.length <= 1) return;
 
     const ungroupedNote = notes[noteIndex];
     const remainingNotes = notes.filter((_, idx) => idx !== noteIndex);
 
-    const formatNote = (n: typeof notes[0]) => {
-      const clean = n.raw.replace(/(?:^|\n)[ \t]*>[ \t]*/g, "\n").replace(/^\n/, "");
-      return clean.split("\n").map(line => `> ${line}`).join("\n");
+    const formatNote = (n: (typeof notes)[0]) => {
+      const clean = n.raw
+        .replace(/(?:^|\n)[ \t]*>[ \t]*/g, "\n")
+        .replace(/^\n/, "");
+      return clean
+        .split("\n")
+        .map((line) => `> ${line}`)
+        .join("\n");
     };
 
     const next = [...blocks];
     next[blockIndex] = {
       ...block,
-      text: remainingNotes.map(formatNote).join("\n\n")
-    };
+      text: remainingNotes.map(formatNote).join("\n\n"),
+    } as NotebookBlock;
 
     const newBlock: NotebookBlock = {
       ...block,
-      text: formatNote(ungroupedNote)
-    };
-
-    next.splice(blockIndex + 1, 0, newBlock);
+      text: formatNote(ungroupedNote),
+    } as NotebookBlock;
     persistBlocks(next);
   }
 
   function deleteNoteFromGroup(blockIndex: number, noteIndex: number) {
     const block = blocks[blockIndex];
     if (!block) return;
-    const notes = parseNotes(block.text);
+    const notes = parseNotes(getBlockText(block));
     if (notes.length <= 1) {
       deleteBlock(blockIndex);
       return;
     }
 
     const remainingNotes = notes.filter((_, idx) => idx !== noteIndex);
-    const formatNote = (n: typeof notes[0]) => {
-      const clean = n.raw.replace(/(?:^|\n)[ \t]*>[ \t]*/g, "\n").replace(/^\n/, "");
-      return clean.split("\n").map(line => `> ${line}`).join("\n");
+    const formatNote = (n: (typeof notes)[0]) => {
+      const clean = n.raw
+        .replace(/(?:^|\n)[ \t]*>[ \t]*/g, "\n")
+        .replace(/^\n/, "");
+      return clean
+        .split("\n")
+        .map((line) => `> ${line}`)
+        .join("\n");
     };
 
     const next = [...blocks];
     next[blockIndex] = {
       ...block,
-      text: remainingNotes.map(formatNote).join("\n\n")
-    };
+      text: remainingNotes.map(formatNote).join("\n\n"),
+    } as NotebookBlock;
     persistBlocks(next);
   }
 
-  function updateNoteInGroup(blockIndex: number, noteIndex: number, newRaw: string) {
+  function updateNoteInGroup(
+    blockIndex: number,
+    noteIndex: number,
+    newRaw: string,
+  ) {
     const block = blocks[blockIndex];
     if (!block) return;
-    const notes = parseNotes(block.text);
+    const notes = parseNotes(getBlockText(block));
     if (!notes[noteIndex]) return;
 
     notes[noteIndex].raw = newRaw;
 
-    const formatNote = (n: typeof notes[0]) => {
-      const clean = n.raw.replace(/(?:^|\n)[ \t]*>[ \t]*/g, "\n").replace(/^\n/, "");
-      return clean.split("\n").map(line => `> ${line}`).join("\n");
+    const formatNote = (n: (typeof notes)[0]) => {
+      const clean = n.raw
+        .replace(/(?:^|\n)[ \t]*>[ \t]*/g, "\n")
+        .replace(/^\n/, "");
+      return clean
+        .split("\n")
+        .map((line) => `> ${line}`)
+        .join("\n");
     };
 
     const next = [...blocks];
     next[blockIndex] = {
       ...block,
-      text: notes.map(formatNote).join("\n\n")
-    };
+      text: notes.map(formatNote).join("\n\n"),
+    } as NotebookBlock;
     persistBlocks(next);
   }
 
@@ -557,13 +626,13 @@ export function Notebooks() {
       >
         <SelectionToolbar containerRef={contentRef} actions={actions} />
 
-        <div className="pointer-events-none absolute left-0 top-4 z-10 flex w-full justify-between px-4">
+        <div className="pointer-events-none sticky left-0 top-4 z-10 flex h-0 w-full justify-between px-4">
           <div className="pointer-events-auto">
             {leftCollapsed && (
               <Button
                 variant="outline"
                 size="icon"
-                className="size-8 rounded-full bg-card/80 backdrop-blur shadow-sm"
+                className="size-8 rounded-full sticky bg-card/80 backdrop-blur shadow-sm"
                 onClick={() => setLeftCollapsed(false)}
               >
                 <PanelLeftOpen className="size-4" />
@@ -575,7 +644,7 @@ export function Notebooks() {
               <Button
                 variant="outline"
                 size="icon"
-                className="size-8 rounded-full bg-card/80 backdrop-blur shadow-sm"
+                className="size-8 rounded-full sticky bg-card/80 backdrop-blur shadow-sm"
                 onClick={() => setRightCollapsed(false)}
               >
                 <PanelRightOpen className="size-4" />
@@ -597,11 +666,13 @@ export function Notebooks() {
               <BookOpen className="size-10 opacity-40" />
               <div>
                 <div className="text-base font-medium text-foreground">
-                  {list.length === 0 ? "No notebooks found" : "No notebook selected"}
+                  {list.length === 0
+                    ? "No notebooks found"
+                    : "No notebook selected"}
                 </div>
                 <p className="mt-1 max-w-sm text-sm">
-                  {list.length === 0 
-                    ? "Create a notebook. Use Teach Me to generate structured notes first." 
+                  {list.length === 0
+                    ? "Create a notebook. Use Teach Me to generate structured notes first."
                     : "Pick a notebook from the sidebar or create a new one."}
                 </p>
               </div>
@@ -682,20 +753,28 @@ export function Notebooks() {
                           }}
                           onCancel={() => setEditingIndex(null)}
                           onDelete={() => deleteBlock(i)}
-                          onMerge={
-                            (() => {
-                              if (block.source?.type !== "reading") return undefined;
-                              for (let j = i - 1; j >= 0; j--) {
-                                if (blocks[j].source?.type === "reading" && parseNotes(blocks[j].text).length + parseNotes(block.text).length <= 4) {
-                                  return () => mergeBlock(i, j);
-                                }
-                              }
+                          onMerge={(() => {
+                            if (getBlockSource(block)?.type !== "reading")
                               return undefined;
-                            })()
-                          }
+                            for (let j = i - 1; j >= 0; j--) {
+                              if (
+                                getBlockSource(blocks[j])?.type === "reading" &&
+                                parseNotes(getBlockText(blocks[j])).length +
+                                parseNotes(getBlockText(block)).length <=
+                                4
+                              ) {
+                                return () => mergeBlock(i, j);
+                              }
+                            }
+                            return undefined;
+                          })()}
                           onUngroup={(noteIndex) => ungroupNote(i, noteIndex)}
-                          onDeleteNote={(noteIndex) => deleteNoteFromGroup(i, noteIndex)}
-                          onUpdateNote={(noteIndex, newRaw) => updateNoteInGroup(i, noteIndex, newRaw)}
+                          onDeleteNote={(noteIndex) =>
+                            deleteNoteFromGroup(i, noteIndex)
+                          }
+                          onUpdateNote={(noteIndex, newRaw) =>
+                            updateNoteInGroup(i, noteIndex, newRaw)
+                          }
                           onDragStart={() => setDragIndex(i)}
                           onDragEnter={() =>
                             dragIndex !== null && setOverIndex(i)
@@ -706,6 +785,8 @@ export function Notebooks() {
                             setDragIndex(null);
                             setOverIndex(null);
                           }}
+                          availableNotebooks={list.filter(n => n.id !== activeId)}
+                          onMoveToNotebook={(notebookId) => moveBlockToNotebook(i, notebookId)}
                         />
                       </div>
                     )}
@@ -801,8 +882,21 @@ export function Notebooks() {
                       <Layers className="mr-2 size-4 text-muted-foreground" />{" "}
                       Table
                     </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <ImageIcon className="mr-2 size-4 text-muted-foreground" />{" "}
+                      Image
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                />
               </div>
             </>
           )}

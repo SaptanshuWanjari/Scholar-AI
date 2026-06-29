@@ -290,6 +290,13 @@
     );
     background-size: 20px 20px;
   }
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 button {
   @apply cursor-pointer;

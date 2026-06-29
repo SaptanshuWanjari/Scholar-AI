@@ -40,6 +40,7 @@ const OnboardingImport = lazy(() => import("./pages/onboarding/OnboardingImport"
 const OnboardingAnalyzing = lazy(() => import("./pages/onboarding/OnboardingAnalyzing").then((m) => ({ default: m.OnboardingAnalyzing })));
 const OnboardingReady = lazy(() => import("./pages/onboarding/OnboardingReady").then((m) => ({ default: m.OnboardingReady })));
 const DashboardClone = lazy(() => import("./pages/DashboardClone").then((m) => ({ default: m.DashboardClone })));
+const ComponentsShowcase = lazy(() => import("./pages/ComponentsShowcase"));
 
 function FirstLaunchGuard({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
@@ -112,6 +113,7 @@ export default function App() {
 
             {/* Dashboard Clone - No Layout for exact match with design */}
             <Route path="/dashboard-clone" element={<DashboardClone />} />
+            <Route path="/components" element={<ComponentsShowcase />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

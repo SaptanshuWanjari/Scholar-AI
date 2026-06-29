@@ -311,6 +311,24 @@ export function BlockEditor({
         </>
       )}
 
+      {draft.type === "image" && (
+        <div className="space-y-4">
+          <div className="flex justify-center bg-muted/20 rounded-lg p-2 border">
+            <img src={d.url} alt={d.alt || "Preview"} className="max-h-[300px] object-contain rounded" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Alt text / Description</label>
+            <Input
+              value={d.alt || ""}
+              onChange={(e) => field({ alt: e.target.value })}
+              placeholder="Describe the image..."
+              autoFocus
+            />
+          </div>
+        </div>
+      )}
+
+
       <div className="flex justify-end gap-2">
         <Button variant="ghost" size="sm" onClick={onCancel}>
           Cancel

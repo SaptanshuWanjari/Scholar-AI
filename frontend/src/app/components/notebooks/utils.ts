@@ -154,6 +154,15 @@ export function blockOutlineLevel(block: NotebookBlock): number {
   return 2;
 }
 
+export function getBlockText(block: NotebookBlock): string {
+  if ("text" in block) return (block as any).text as string;
+  return "";
+}
+
+export function getBlockSource(block: NotebookBlock): { type: string; id: string } | undefined {
+  return "source" in block ? (block as any).source as { type: string; id: string } | undefined : undefined;
+}
+
 export const EDITABLE_TYPES = new Set([
   "heading",
   "text",
