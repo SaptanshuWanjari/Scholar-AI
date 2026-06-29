@@ -149,10 +149,6 @@ export function AskAI() {
             >
               <MessageSquare className="size-4" />
             </Button>
-            <div className="flex items-center gap-1.5 text-sm font-medium mr-1 shrink-0">
-              <BookOpen className="size-4 text-muted-foreground" />
-              <span className="hidden xs:inline">Answer</span>
-            </div>
             
             {/* Filters */}
             <div className="flex items-center gap-2 flex-1 sm:flex-none">

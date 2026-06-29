@@ -97,7 +97,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "hidden shrink-0 flex-col overflow-y-auto border-r border-border bg-card/40 transition-all duration-300 lg:flex",
+        "hidden shrink-0 flex-col overflow-y-auto scrollbar-none border-r border-border bg-card/40 transition-all duration-300 lg:flex",
         collapsed ? "w-0 border-r-0" : "w-[280px]",
       )}
     >

@@ -82,7 +82,7 @@ export function PromptCoachModal() {
   return (
     <>
       {analyzing && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 rounded-full bg-violet-600 px-4 py-2 text-sm font-medium text-white shadow-lg animate-in fade-in slide-in-from-bottom-4">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-medium text-white shadow-lg animate-in fade-in slide-in-from-bottom-4">
           <Loader2 className="size-4 animate-spin" />
           Analyzing prompt...
         </div>
@@ -91,7 +91,7 @@ export function PromptCoachModal() {
         <DialogContent className="max-w-lg gap-0 p-0 overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2 text-base font-semibold">
-            <Sparkles className="size-4 text-violet-500" />
+            <Sparkles className="size-4 text-black" />
             Prompt Coach
           </DialogTitle>
         </DialogHeader>

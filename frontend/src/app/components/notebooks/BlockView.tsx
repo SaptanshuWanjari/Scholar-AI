@@ -5,10 +5,18 @@ import {
   Wand2,
   Trash2,
   Merge,
+  FolderOutput,
 } from "lucide-react";
 import { cn } from "../ui/utils";
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import type { NotebookBlock } from "../../lib/notebook-data";
+import type { NotebookMeta } from "../../lib/api";
 import { BlockEditor } from "./BlockEditor";
 import { BlockInner } from "./BlockInner";
 import { EDITABLE_TYPES, blockLabel } from "./utils";
@@ -32,6 +40,8 @@ export function BlockView({
   onDragStart,
   onDragEnter,
   onDragEnd,
+  availableNotebooks,
+  onMoveToNotebook,
 }: {
   block: NotebookBlock;
   index: number;
@@ -51,6 +61,8 @@ export function BlockView({
   onDragStart: () => void;
   onDragEnter: () => void;
   onDragEnd: () => void;
+  availableNotebooks?: NotebookMeta[];
+  onMoveToNotebook?: (notebookId: string) => void;
 }) {
   const editable = EDITABLE_TYPES.has(block.type);
   return (
@@ -114,6 +126,30 @@ export function BlockView({
             >
               <Wand2 className="size-3.5 text-muted-foreground" />
             </Button>
+          )}
+          {availableNotebooks && availableNotebooks.length > 0 && onMoveToNotebook && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6 bg-card/80 backdrop-blur hover:text-primary"
+                  title="Move to notebook"
+                >
+                  <FolderOutput className="size-3.5 text-muted-foreground hover:text-primary" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[200px]">
+                {availableNotebooks.map((nb) => (
+                  <DropdownMenuItem
+                    key={nb.id}
+                    onClick={() => onMoveToNotebook(nb.id)}
+                  >
+                    {nb.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
           <Button
             variant="ghost"

@@ -23,6 +23,7 @@ import { api, type DashboardData, type LearningPathMeta, type LearningPath } fro
 import { useSettingsStore } from "../stores/useSettingsStore";
 import type { Course, DocumentItem } from "../lib/types";
 
+
 export function Dashboard() {
   const navigate = useNavigate();
   const { name } = useSettingsStore();

@@ -17,9 +17,24 @@ import type { Course, DocumentItem } from "../lib/types";
 export function Consistency() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
-  const [course, setCourse] = useState<string>("none");
-  const [document, setDocument] = useState<string>("all"); // document TITLE or "all"
-  const [report, setReport] = useState<Report | null>(null);
+  const [course, setCourse] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem("scholar_consistency_state");
+      return saved ? JSON.parse(saved).course : "none";
+    } catch { return "none"; }
+  });
+  const [document, setDocument] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem("scholar_consistency_state");
+      return saved ? JSON.parse(saved).document : "all";
+    } catch { return "all"; }
+  });
+  const [report, setReport] = useState<Report | null>(() => {
+    try {
+      const saved = localStorage.getItem("scholar_consistency_state");
+      return saved ? JSON.parse(saved).report : null;
+    } catch { return null; }
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -44,6 +59,10 @@ export function Consistency() {
       const doc = document === "all" ? null : document;
       const result = await api.analyzeLibraryConsistency(course, doc);
       setReport(result);
+      localStorage.setItem(
+        "scholar_consistency_state",
+        JSON.stringify({ course, document, report: result })
+      );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to analyze consistency");
     } finally {

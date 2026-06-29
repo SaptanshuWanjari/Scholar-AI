@@ -76,13 +76,13 @@ export function layoutGraph(graph: KGGraph): {
       "link",
       forceLink(simLinks)
         .id((d: any) => d.id)
-        .distance(150)
+        .distance(240)
     )
-    .force("charge", forceManyBody().strength(-800))
-    .force("collide", forceCollide().radius((d: any) => d.radius + 20).iterations(2))
+    .force("charge", forceManyBody().strength(-1500))
+    .force("collide", forceCollide().radius((d: any) => d.radius + 45).iterations(2))
     .force("center", forceCenter(CENTER.x, CENTER.y))
-    .force("x", forceX(CENTER.x).strength(0.05))
-    .force("y", forceY(CENTER.y).strength(0.05))
+    .force("x", forceX(CENTER.x).strength(0.04))
+    .force("y", forceY(CENTER.y).strength(0.04))
     .stop();
 
   const ticks = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));

@@ -48,7 +48,8 @@ export type NotebookBlock =
   | { type: "flashdeck"; name: string; count: number; cards: { front: string; back: string }[] }
   | { type: "quiz-results"; title: string; score: number; total: number }
   | { type: "table"; headers: string[]; rows: string[][] }
-  | { type: "whiteboard"; whiteboardId: string; title: string; thumbnail?: string };
+  | { type: "whiteboard"; whiteboardId: string; title: string; thumbnail?: string }
+  | { type: "image"; url: string; alt?: string; width?: number; height?: number };
 
 export interface NotebookPage {
   notebookId: string;

@@ -25,7 +25,7 @@ export interface HighlightItem {
 interface PDFViewerProps {
   pdfUrl: string;
   highlights: HighlightItem[];
-  bookmarks?: { id: string; section: string; note: string }[];
+  bookmarks?: { id: string; section: string; note: string; rects?: HighlightRect[] }[];
   notes?: StickyNote[];
   onNoteClick?: (note: StickyNote) => void;
   scale?: number;

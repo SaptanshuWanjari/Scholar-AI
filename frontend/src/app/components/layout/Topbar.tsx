@@ -1,9 +1,7 @@
 import { useLocation } from "react-router";
-import { Command, Plus } from "lucide-react";
+import { Command } from "lucide-react";
 import { navItems } from "../../lib/nav";
 import { useUIStore } from "../../stores/useUIStore";
-import { Button } from "../ui/button";
-import { toast } from "sonner";
 import { JobsIndicator } from "../JobsIndicator";
 import { HelpMenu } from "../../guidance/components/HelpMenu";
 
@@ -86,7 +84,7 @@ export function Topbar() {
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border bg-background/70 px-6 backdrop-blur-xl">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          {current && <current.icon className="size-4 text-muted-foreground" />}
+          {current && <current.icon className="size-5 text-muted-foreground" />}
           <h2 className="truncate font-sans text-[15px] font-semibold tracking-tight">
             {meta.title}
           </h2>

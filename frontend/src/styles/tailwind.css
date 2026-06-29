@@ -6,4 +6,29 @@
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-kalam: 'Kalam', cursive;
+
+  /* Handwritten type system (dev notebook dashboard) */
+  --font-caveat: 'Caveat', 'Kalam', cursive;
+  --font-architect: 'Architects Daughter', 'Kalam', cursive;
+
+  /* Premium notebook palette — warm, desaturated, never neon */
+  --color-paper: #faf7f1;
+  --color-paper-card: #fffdf9;
+  --color-ink: #222222;
+  --color-ink-muted: #63635d;
+
+  --color-sage: #8ba888;        /* soft sage green */
+  --color-sage-soft: #dce7d7;
+  --color-ochre: #c9954f;       /* muted ochre/orange */
+  --color-ochre-soft: #ead6ba;
+  --color-sky: #8aa9c4;         /* dusty sky blue */
+  --color-sky-soft: #d3dfea;
+  --color-lavender: #9b8fc4;    /* lavender purple */
+  --color-lavender-soft: #ddddec;
+  --color-brick: #b5685e;       /* brick red */
+  --color-brick-soft: #e9c8c4;
+  --color-sticky: #fdf3b8;      /* sticky note yellow */
+  --color-sticky-deep: #f7e98a;
+  --color-tape: #e0d3b6;        /* masking tape */
+  --color-pencil: #9c9484;      /* pencil-line grey */
 }

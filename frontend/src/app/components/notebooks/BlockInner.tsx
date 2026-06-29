@@ -37,6 +37,7 @@ import { calloutMeta, parseNotes } from "./utils";
 import { NOTE_CATEGORIES, NOTE_CATEGORY_LIST } from "../../stores/useReadingNotesStore";
 import type { NoteCategory } from "../../lib/types";
 import { api } from "../../lib/api";
+import { ImageViewer } from "./ImageViewer";
 
 const CITE_RE = /\[\[cite:(\d+)(?::(\d+))?\]\]/;
 
@@ -423,6 +424,8 @@ export function BlockInner({
           </div>
         </button>
       );
+    case "image":
+      return <ImageViewer url={block.url} alt={block.alt} />;
     default:
       return null;
   }
