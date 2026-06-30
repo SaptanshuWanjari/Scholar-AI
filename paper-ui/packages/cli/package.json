@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "build:registry": "tsx src/scripts/build-registry.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +23,9 @@
     "@types/node": "^26.0.1",
     "@types/prompts": "^2.4.9",
     "tsup": "^8.5.1",
-    "typescript": "^6.0.3"
+    "tsx": "^4.19.0",
+    "typescript": "^6.0.3",
+    "vitest": "^2.1.0"
   },
   "bin": {
     "paper-ui": "dist/index.js"
