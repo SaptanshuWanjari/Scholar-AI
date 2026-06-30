@@ -1,0 +1,13 @@
+{
+  "name": "notebookspiralcard",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/cards/NotebookSpiralCard.tsx"
+  ]
+}

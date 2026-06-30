@@ -1,0 +1,13 @@
+{
+  "name": "paperformsections",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/advancedForms/PaperFormSections.tsx"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "insightbox",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/stats/InsightBox.tsx"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "separator",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/utility/Separator.tsx"
+  ]
+}

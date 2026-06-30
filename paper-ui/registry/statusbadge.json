@@ -1,0 +1,13 @@
+{
+  "name": "statusbadge",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/badges/StatusBadge.tsx"
+  ]
+}

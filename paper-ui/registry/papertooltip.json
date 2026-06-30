@@ -1,0 +1,13 @@
+{
+  "name": "papertooltip",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/dialogs/PaperTooltip.tsx"
+  ]
+}

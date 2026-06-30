@@ -23,7 +23,8 @@ import {
   useClickOutside,
   useMediaQuery,
   useToggle,
-  useLocalStorage
+  useLocalStorage,
+  useHotkeys
 } from '../../../paper-ui/src/hooks';
 
 const meta: Meta = {
@@ -323,6 +324,40 @@ export const UseMediaQueryStory: StoryObj = {
           <PaperBadge tone={isDesktop ? "sage" : "ochre"}>
             Current View: {isDesktop ? 'Desktop (Row)' : 'Mobile (Column)'}
           </PaperBadge>
+        </Stack>
+      </PaperCard>
+    );
+  }
+};
+
+export const UseHotkeysStory: StoryObj = {
+  name: 'useHotkeys',
+  render: () => {
+    const [logs, setLogs] = React.useState<string[]>([]);
+    const addLog = React.useCallback((msg: string) => setLogs((p: string[]) => [...p.slice(-9), msg]), []);
+
+    useHotkeys('?', () => addLog('Pressed ?'));
+    useHotkeys('Escape', () => addLog('Pressed Escape'));
+    useHotkeys('k', { meta: true }, () => addLog('Pressed Cmd/Ctrl+K'));
+
+    return (
+      <PaperCard className="p-8 min-w-[450px]">
+        <Stack spacing="lg">
+          <PaperH4>Global Hotkeys</PaperH4>
+          <p className="text-sm text-ink-muted font-architect">
+            Press <kbd className="font-architect text-xs border px-1 rounded">?</kbd>,{' '}
+            <kbd className="font-architect text-xs border px-1 rounded">Esc</kbd>, or{' '}
+            <kbd className="font-architect text-xs border px-1 rounded">⌘K</kbd>{' '}
+            anywhere on the page to trigger callbacks.
+          </p>
+          <Box className="min-h-[120px] p-4 bg-[#fbfbfb] rounded-md font-mono text-sm overflow-y-auto max-h-[200px]">
+            {logs.length === 0
+              ? <span className="text-ink-muted/50">No hotkeys pressed yet.</span>
+              : logs.map((log: string, i: number) => <Box key={i}>{log}</Box>)}
+          </Box>
+          <Flex justify="start">
+            <SketchButton onClick={() => setLogs([])}>Clear</SketchButton>
+          </Flex>
         </Stack>
       </PaperCard>
     );

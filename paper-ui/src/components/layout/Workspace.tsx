@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@paper-ui/utils";
 
-export interface WorkspaceProps extends React.HTMLAttributes<HTMLDivElement> {}
+export type WorkspaceProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const Workspace = React.forwardRef<HTMLDivElement, WorkspaceProps>(
   ({ className, ...props }, ref) => {

@@ -1,0 +1,13 @@
+{
+  "name": "courserow",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/rows/CourseRow.tsx"
+  ]
+}

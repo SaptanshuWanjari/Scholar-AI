@@ -1,0 +1,13 @@
+{
+  "name": "buttons",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/buttons/Buttons.tsx"
+  ]
+}

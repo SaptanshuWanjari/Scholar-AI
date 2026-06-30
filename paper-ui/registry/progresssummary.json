@@ -1,0 +1,13 @@
+{
+  "name": "progresssummary",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/stats/ProgressSummary.tsx"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "prioritybadge",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/badges/PriorityBadge.tsx"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "selectiontoolbar",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/pdf/SelectionToolbar.tsx"
+  ]
+}

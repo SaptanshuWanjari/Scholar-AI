@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { isShortcut } from '../utils/keyboard';
 
 // 1. useDisclosure
 export function useDisclosure(initialState = false) {
@@ -32,17 +33,39 @@ export function useClipboard({ timeout = 2000 } = {}) {
 }
 
 // 4. useHotkeys
-export function useHotkeys(key: string, callback: () => void) {
+type HotkeyModifiers = {
+  ctrl?: boolean
+  shift?: boolean
+  alt?: boolean
+  meta?: boolean
+}
+
+export function useHotkeys(
+  key: string,
+  modifiers: HotkeyModifiers,
+  callback: () => void,
+): void
+export function useHotkeys(
+  key: string,
+  callback: () => void,
+): void
+export function useHotkeys(
+  key: string,
+  modifiersOrCallback: HotkeyModifiers | (() => void),
+  callback?: () => void,
+) {
+  const modifiers: HotkeyModifiers = typeof modifiersOrCallback === 'function' ? {} : modifiersOrCallback
+  const fn = typeof modifiersOrCallback === 'function' ? modifiersOrCallback : callback!
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Basic implementation, handling full key combinations needs more logic
-      if (event.key.toLowerCase() === key.toLowerCase() || (event.ctrlKey && key.includes('ctrl'))) {
-        callback();
+      if (isShortcut(event, key, modifiers)) {
+        fn()
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [key, callback]);
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [key, modifiers, fn])
 }
 
 // 5. useDebounce

@@ -1,0 +1,13 @@
+{
+  "name": "paperslider",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/inputs/PaperSlider.tsx"
+  ]
+}

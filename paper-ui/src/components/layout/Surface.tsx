@@ -5,13 +5,13 @@ import { Box, type BoxProps } from "./Box";
 import { PaperShadow } from "../paper/PaperShadow";
 import { PaperTexture } from "../paper/PaperTexture";
 
-export interface SurfaceProps extends BoxProps {}
+export type SurfaceProps = BoxProps;
 
 export const Surface = React.forwardRef<HTMLDivElement, SurfaceProps>(
   ({ className, children, ...props }, ref) => {
     return (
       <div className="relative inline-block w-full">
-        <PaperShadow depth={2} />
+        <PaperShadow />
         <Box
           ref={ref}
           className={cn("bg-[#fdfbf7] text-ink relative rounded-sm z-10 shadow-sm border border-black/5 dark:border-white/10", className)}

@@ -1,0 +1,13 @@
+{
+  "name": "papertable",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/tables/PaperTable.tsx"
+  ]
+}
