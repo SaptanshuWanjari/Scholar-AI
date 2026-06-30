@@ -1,31 +1,27 @@
-import prompts from 'prompts';
-import ora from 'ora';
 import chalk from 'chalk';
+import fs from 'node:fs';
+import fsp from 'node:fs/promises';
+import path from 'node:path';
+import { loadConfig, writeConfig } from '../lib/config';
 
 export async function remove(component?: string) {
-  if (!component) {
-    const response = await prompts({
-      type: 'text',
-      name: 'component',
-      message: 'Which component would you like to remove?',
-    });
-    component = response.component;
-  }
+  const cwd = process.cwd();
+  if (!component) { console.log(chalk.red('No component specified.')); return; }
 
-  if (!component) {
-    console.log(chalk.red('No component selected.'));
-    return;
-  }
+  let config;
+  try { config = loadConfig(cwd); }
+  catch (e: any) { console.log(chalk.red(e.message)); return; }
 
-  const spinner = ora(`Removing ${component}...`).start();
+  const registryDir = path.resolve(cwd, config.registryDir);
+  const jsonPath = path.join(registryDir, `${component.toLowerCase()}.json`);
+  if (!fs.existsSync(jsonPath)) { console.log(chalk.red(`Unknown component "${component}".`)); return; }
 
-  try {
-    // In a real CLI, this would delete the component file and remove from a local tracking file
-    setTimeout(() => {
-      spinner.succeed(`Component ${component} removed successfully!`);
-    }, 1000);
-  } catch (error: any) {
-    spinner.fail(`Failed to remove component`);
-    console.error(chalk.red(error.message));
+  const entry = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  for (const relFromSrc of entry.files as string[]) {
+    const rel = path.relative('components', relFromSrc); // strip leading "components/"
+    const dest = path.resolve(cwd, config.componentsPath, rel);
+    if (fs.existsSync(dest)) await fsp.rm(dest);
   }
+  await writeConfig(cwd, { ...config, installed: config.installed.filter((n) => n !== component.toLowerCase()) });
+  console.log(chalk.green(`Removed ${component}. (Dependencies left in place.)`));
 }

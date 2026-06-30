@@ -1,43 +1,21 @@
-import ora from 'ora';
 import chalk from 'chalk';
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
+import { loadConfig } from '../lib/config';
 
 export async function doctor() {
-  console.log(chalk.bold('Running Paper UI Doctor...\n'));
-  
-  const checks = [
-    {
-      name: 'Checking components.json',
-      run: async () => {
-        await fs.access(path.join(process.cwd(), 'components.json'));
-      }
-    },
-    {
-      name: 'Checking Tailwind configuration',
-      run: async () => {
-        // Just mock for now
-        return true;
-      }
-    }
+  const cwd = process.cwd();
+  let config;
+  try { config = loadConfig(cwd); }
+  catch (e: any) { console.log(chalk.red(`✖ ${e.message}`)); return; }
+
+  const checks: Array<[string, boolean]> = [
+    ['components.json present', true],
+    ['utils installed', fs.existsSync(path.resolve(cwd, config.utilsPath, 'cn.ts'))],
+    ['core installed', fs.existsSync(path.resolve(cwd, config.corePath, 'PaperCard.tsx'))],
+    ['tokens CSS installed', fs.existsSync(path.resolve(cwd, config.tokensPath))],
+    ['registry reachable', fs.existsSync(path.resolve(cwd, config.registryDir))],
   ];
-
-  let hasErrors = false;
-
-  for (const check of checks) {
-    const spinner = ora(check.name).start();
-    try {
-      await check.run();
-      spinner.succeed();
-    } catch (e) {
-      spinner.fail();
-      hasErrors = true;
-    }
-  }
-
-  if (hasErrors) {
-    console.log(chalk.yellow('\nFound some issues. Please run `paper-ui init` to fix missing configurations.'));
-  } else {
-    console.log(chalk.green('\nAll checks passed! Your project is ready for Paper UI.'));
-  }
+  for (const [label, ok] of checks) console.log(`${ok ? chalk.green('✔') : chalk.red('✖')} ${label}`);
+  console.log(chalk.gray(`\nInstalled components: ${config.installed.join(', ') || '(none)'}`));
 }
