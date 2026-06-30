@@ -1,0 +1,13 @@
+{
+  "name": "scrollarea",
+  "category": "layout",
+  "files": [
+    "components/layout/ScrollArea.tsx"
+  ],
+  "registryDependencies": [],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react"
+  ]
+}
