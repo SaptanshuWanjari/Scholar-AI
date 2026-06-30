@@ -19,9 +19,9 @@ program
 
 program
   .command('add')
-  .description('Add a component to your project')
-  .argument('[component]', 'The component to add')
-  .action(add);
+  .description('Add component(s) to your project')
+  .argument('[components...]', 'Component(s) to add')
+  .action((components: string[]) => add(...(components ?? [])));
 
 program
   .command('remove')
