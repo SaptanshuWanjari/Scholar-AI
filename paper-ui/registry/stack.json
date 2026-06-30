@@ -1,13 +1,17 @@
 {
   "name": "stack",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "layout",
   "files": [
     "components/layout/Stack.tsx"
+  ],
+  "registryDependencies": [
+    "box",
+    "flex"
+  ],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "@radix-ui/react-slot",
+    "react"
   ]
 }

@@ -1,13 +1,13 @@
 {
   "name": "statscard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "cards",
   "files": [
     "components/cards/StatsCard.tsx"
+  ],
+  "registryDependencies": [],
+  "core": true,
+  "utils": false,
+  "npmDependencies": [
+    "react"
   ]
 }

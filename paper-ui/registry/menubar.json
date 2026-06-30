@@ -1,13 +1,17 @@
 {
   "name": "menubar",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "navigation",
   "files": [
     "components/navigation/Menubar.tsx"
+  ],
+  "registryDependencies": [
+    "sketchdivider"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "@radix-ui/react-menubar",
+    "lucide-react",
+    "react"
   ]
 }

@@ -1,13 +1,19 @@
 {
   "name": "confirmationdialog",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "dialogs",
   "files": [
     "components/dialogs/ConfirmationDialog.tsx"
+  ],
+  "registryDependencies": [
+    "buttons",
+    "papermodal",
+    "tape"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react",
+    "react-dom"
   ]
 }

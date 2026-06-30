@@ -1,13 +1,16 @@
 {
   "name": "keyboardhint",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "utility",
   "files": [
     "components/utility/KeyboardHint.tsx"
+  ],
+  "registryDependencies": [
+    "sketchsearch"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

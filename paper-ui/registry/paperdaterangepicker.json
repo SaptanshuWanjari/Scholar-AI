@@ -1,13 +1,17 @@
 {
   "name": "paperdaterangepicker",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "advancedForms",
   "files": [
     "components/advancedForms/PaperDateRangePicker.tsx"
+  ],
+  "registryDependencies": [
+    "papercalendar",
+    "paperinput"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

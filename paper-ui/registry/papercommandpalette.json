@@ -1,13 +1,11 @@
 {
   "name": "papercommandpalette",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "inputs",
   "files": [
     "components/inputs/PaperCommandPalette.tsx"
-  ]
+  ],
+  "registryDependencies": [],
+  "core": false,
+  "utils": false,
+  "npmDependencies": []
 }

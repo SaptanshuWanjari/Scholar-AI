@@ -1,8 +1,8 @@
 {
-  "name": "scribble",
-  "category": "decorations",
+  "name": "doodles",
+  "category": "doodles",
   "files": [
-    "components/decorations/Scribble.tsx"
+    "components/doodles/index.tsx"
   ],
   "registryDependencies": [],
   "core": false,

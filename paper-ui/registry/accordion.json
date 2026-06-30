@@ -1,13 +1,17 @@
 {
   "name": "accordion",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "navigation",
   "files": [
     "components/navigation/Accordion.tsx"
+  ],
+  "registryDependencies": [
+    "sketchdivider"
+  ],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "@radix-ui/react-accordion",
+    "lucide-react",
+    "react"
   ]
 }

@@ -1,13 +1,15 @@
 {
   "name": "descriptionlist",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "dataDisplay",
   "files": [
     "components/dataDisplay/DescriptionList.tsx"
+  ],
+  "registryDependencies": [
+    "decorations"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

@@ -1,13 +1,16 @@
 {
   "name": "tapelabel",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "decorations",
   "files": [
     "components/decorations/TapeLabel.tsx"
+  ],
+  "registryDependencies": [
+    "paperclip",
+    "pushpin"
+  ],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

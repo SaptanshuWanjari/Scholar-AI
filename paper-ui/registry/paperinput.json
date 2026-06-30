@@ -1,13 +1,13 @@
 {
   "name": "paperinput",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "inputs",
   "files": [
     "components/inputs/PaperInput.tsx"
+  ],
+  "registryDependencies": [],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

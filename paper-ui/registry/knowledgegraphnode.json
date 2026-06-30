@@ -1,13 +1,15 @@
 {
   "name": "knowledgegraphnode",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "teaching",
   "files": [
     "components/teaching/KnowledgeGraphNode.tsx"
+  ],
+  "registryDependencies": [
+    "conceptnode"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

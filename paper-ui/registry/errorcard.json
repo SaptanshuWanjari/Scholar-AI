@@ -1,13 +1,17 @@
 {
   "name": "errorcard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "feedback",
   "files": [
     "components/feedback/ErrorCard.tsx"
+  ],
+  "registryDependencies": [
+    "buttons",
+    "tape"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

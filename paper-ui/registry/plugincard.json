@@ -1,13 +1,18 @@
 {
   "name": "plugincard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "cards",
   "files": [
     "components/cards/PluginCard.tsx"
+  ],
+  "registryDependencies": [
+    "paperbadge",
+    "paperswitch"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react",
+    "roughjs"
   ]
 }

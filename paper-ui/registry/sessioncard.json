@@ -1,13 +1,19 @@
 {
   "name": "sessioncard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "cards",
   "files": [
     "components/cards/SessionCard.tsx"
+  ],
+  "registryDependencies": [
+    "doodles",
+    "sessionrow",
+    "sketchdivider",
+    "tape"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

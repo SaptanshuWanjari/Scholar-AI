@@ -1,13 +1,15 @@
 {
   "name": "dashboardlayout",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "layout",
   "files": [
     "components/layout/DashboardLayout.tsx"
+  ],
+  "registryDependencies": [
+    "appshell"
+  ],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }
