@@ -38,3 +38,5 @@ export type { FooterProps } from "./Footer";
 export { Workspace } from "./Workspace";
 export type { WorkspaceProps } from "./Workspace";
 export { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "./ResizablePanels";
+export { ScrollArea } from "./ScrollArea";
+export type { ScrollAreaProps } from "./ScrollArea";
