@@ -1,13 +1,13 @@
 {
   "name": "conceptnode",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "teaching",
   "files": [
     "components/teaching/ConceptNode.tsx"
+  ],
+  "registryDependencies": [],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

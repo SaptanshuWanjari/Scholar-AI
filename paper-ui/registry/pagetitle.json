@@ -1,13 +1,16 @@
 {
   "name": "pagetitle",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "utility",
   "files": [
     "components/utility/PageTitle.tsx"
+  ],
+  "registryDependencies": [
+    "breadcrumbs",
+    "markerhighlight"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

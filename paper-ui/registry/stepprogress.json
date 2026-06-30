@@ -1,13 +1,15 @@
 {
   "name": "stepprogress",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "progress",
   "files": [
     "components/progress/StepProgress.tsx"
+  ],
+  "registryDependencies": [
+    "doodles"
+  ],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

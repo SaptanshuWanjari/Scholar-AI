@@ -1,13 +1,13 @@
 {
   "name": "avatar",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "utility",
   "files": [
     "components/utility/Avatar.tsx"
+  ],
+  "registryDependencies": [],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

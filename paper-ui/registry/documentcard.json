@@ -1,13 +1,17 @@
 {
   "name": "documentcard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "cards",
   "files": [
     "components/cards/DocumentCard.tsx"
+  ],
+  "registryDependencies": [
+    "foldedcorner",
+    "paperbadge"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

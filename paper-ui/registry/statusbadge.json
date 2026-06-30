@@ -1,13 +1,16 @@
 {
   "name": "statusbadge",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "badges",
   "files": [
     "components/badges/StatusBadge.tsx"
+  ],
+  "registryDependencies": [
+    "paperbadge"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

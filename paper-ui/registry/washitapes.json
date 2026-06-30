@@ -1,13 +1,13 @@
 {
   "name": "washitapes",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "decorations",
   "files": [
     "components/decorations/WashiTapes.tsx"
+  ],
+  "registryDependencies": [],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

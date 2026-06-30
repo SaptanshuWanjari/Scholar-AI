@@ -1,13 +1,13 @@
 {
   "name": "conceptrow",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "rows",
   "files": [
     "components/rows/ConceptRow.tsx"
+  ],
+  "registryDependencies": [],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

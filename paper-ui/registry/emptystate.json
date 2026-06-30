@@ -1,13 +1,13 @@
 {
   "name": "emptystate",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "feedback",
   "files": [
     "components/feedback/EmptyState.tsx"
+  ],
+  "registryDependencies": [],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

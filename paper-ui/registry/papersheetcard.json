@@ -1,13 +1,13 @@
 {
   "name": "papersheetcard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "cards",
   "files": [
     "components/cards/PaperSheetCard.tsx"
+  ],
+  "registryDependencies": [],
+  "core": false,
+  "utils": false,
+  "npmDependencies": [
+    "react"
   ]
 }

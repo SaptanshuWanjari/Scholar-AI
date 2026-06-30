@@ -1,13 +1,17 @@
 {
   "name": "studyrecommendation",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "teaching",
   "files": [
     "components/teaching/StudyRecommendation.tsx"
+  ],
+  "registryDependencies": [
+    "buttons",
+    "doodles",
+    "tape"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

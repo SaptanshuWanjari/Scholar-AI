@@ -1,13 +1,19 @@
 {
   "name": "coursecard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "cards",
   "files": [
     "components/cards/CourseCard.tsx"
+  ],
+  "registryDependencies": [
+    "doodles",
+    "paperbadge",
+    "sketchprogress",
+    "tape"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

@@ -1,13 +1,13 @@
 {
   "name": "tape",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "decorations",
   "files": [
     "components/decorations/Tape.tsx"
+  ],
+  "registryDependencies": [],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

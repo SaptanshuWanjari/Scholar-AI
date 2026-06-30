@@ -1,13 +1,16 @@
 {
   "name": "flex",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "layout",
   "files": [
     "components/layout/Flex.tsx"
+  ],
+  "registryDependencies": [
+    "box"
+  ],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "@radix-ui/react-slot",
+    "react"
   ]
 }

@@ -1,13 +1,13 @@
 {
   "name": "scale",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "motion",
   "files": [
     "components/motion/Scale.tsx"
+  ],
+  "registryDependencies": [],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

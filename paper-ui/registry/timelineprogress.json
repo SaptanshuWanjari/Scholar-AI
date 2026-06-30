@@ -1,13 +1,13 @@
 {
   "name": "timelineprogress",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "progress",
   "files": [
     "components/progress/TimelineProgress.tsx"
-  ]
+  ],
+  "registryDependencies": [
+    "sketchprogress"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": []
 }

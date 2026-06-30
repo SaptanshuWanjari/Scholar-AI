@@ -1,13 +1,13 @@
 {
   "name": "statsgrid",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "stats",
   "files": [
     "components/stats/StatsGrid.tsx"
-  ]
+  ],
+  "registryDependencies": [
+    "statnumber"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": []
 }

@@ -1,13 +1,13 @@
 {
   "name": "loadingpaper",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "feedback",
   "files": [
     "components/feedback/LoadingPaper.tsx"
+  ],
+  "registryDependencies": [],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

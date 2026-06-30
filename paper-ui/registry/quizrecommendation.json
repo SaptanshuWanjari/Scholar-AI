@@ -1,13 +1,17 @@
 {
   "name": "quizrecommendation",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "teaching",
   "files": [
     "components/teaching/QuizRecommendation.tsx"
+  ],
+  "registryDependencies": [
+    "buttons",
+    "doodles",
+    "tape"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

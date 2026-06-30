@@ -1,13 +1,14 @@
 {
   "name": "metriccard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "cards",
   "files": [
     "components/cards/MetricCard.tsx"
+  ],
+  "registryDependencies": [],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

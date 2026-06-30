@@ -1,13 +1,14 @@
 {
   "name": "papercheckbox",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "inputs",
   "files": [
     "components/inputs/PaperCheckbox.tsx"
+  ],
+  "registryDependencies": [],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react",
+    "roughjs"
   ]
 }

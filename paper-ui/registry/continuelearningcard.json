@@ -1,13 +1,21 @@
 {
   "name": "continuelearningcard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "cards",
   "files": [
     "components/cards/ContinueLearningCard.tsx"
+  ],
+  "registryDependencies": [
+    "buttons",
+    "doodles",
+    "pushpin",
+    "sketchprogress",
+    "stickynote",
+    "tape"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

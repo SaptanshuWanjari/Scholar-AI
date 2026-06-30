@@ -1,13 +1,14 @@
 {
   "name": "minichart",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "stats",
   "files": [
     "components/stats/MiniChart.tsx"
+  ],
+  "registryDependencies": [],
+  "core": false,
+  "utils": true,
+  "npmDependencies": [
+    "react",
+    "roughjs"
   ]
 }

@@ -1,13 +1,16 @@
 {
   "name": "pinnedcard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "cards",
   "files": [
     "components/cards/PinnedCard.tsx"
+  ],
+  "registryDependencies": [
+    "pushpin",
+    "tape"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

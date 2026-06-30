@@ -1,13 +1,13 @@
 {
   "name": "sessionrow",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "rows",
   "files": [
     "components/rows/SessionRow.tsx"
+  ],
+  "registryDependencies": [],
+  "core": true,
+  "utils": false,
+  "npmDependencies": [
+    "lucide-react"
   ]
 }

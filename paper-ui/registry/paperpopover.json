@@ -1,13 +1,14 @@
 {
   "name": "paperpopover",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "dialogs",
   "files": [
     "components/dialogs/PaperPopover.tsx"
+  ],
+  "registryDependencies": [],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react",
+    "react-dom"
   ]
 }

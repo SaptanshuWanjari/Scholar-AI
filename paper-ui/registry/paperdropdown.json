@@ -1,13 +1,13 @@
 {
   "name": "paperdropdown",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "dialogs",
   "files": [
     "components/dialogs/PaperDropdown.tsx"
+  ],
+  "registryDependencies": [],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "react"
   ]
 }

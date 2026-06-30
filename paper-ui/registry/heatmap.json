@@ -1,13 +1,11 @@
 {
   "name": "heatmap",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "stats",
   "files": [
     "components/stats/Heatmap.tsx"
-  ]
+  ],
+  "registryDependencies": [],
+  "core": true,
+  "utils": true,
+  "npmDependencies": []
 }

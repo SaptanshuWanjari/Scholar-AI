@@ -1,13 +1,16 @@
 {
   "name": "pill",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "badges",
   "files": [
     "components/badges/Pill.tsx"
+  ],
+  "registryDependencies": [
+    "paperbadge"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

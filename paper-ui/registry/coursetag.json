@@ -1,13 +1,16 @@
 {
   "name": "coursetag",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "badges",
   "files": [
     "components/badges/CourseTag.tsx"
+  ],
+  "registryDependencies": [
+    "paperbadge"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }

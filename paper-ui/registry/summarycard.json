@@ -1,13 +1,18 @@
 {
   "name": "summarycard",
-  "type": "components:ui",
-  "dependencies": [
-    "framer-motion",
-    "clsx",
-    "tailwind-merge"
-  ],
-  "registryDependencies": [],
+  "category": "cards",
   "files": [
     "components/cards/SummaryCard.tsx"
+  ],
+  "registryDependencies": [
+    "doodles",
+    "markerhighlight",
+    "paperbadge"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
   ]
 }
