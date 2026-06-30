@@ -19,6 +19,17 @@ describe('parseImports', () => {
       '../doodles',
     ]);
   });
+
+  it('captures `export ... from` re-exports but not bare exports', () => {
+    const src = [
+      'export { MarkerHighlight } from "@paper-ui/core";',
+      "export type { Foo } from './Foo';",
+      'export * from "./bar";',
+      'export const x = 5;',
+      'export function y() {}',
+    ].join('\n');
+    expect(parseImports(src)).toEqual(['@paper-ui/core', './Foo', './bar']);
+  });
 });
 
 describe('classifyImport', () => {

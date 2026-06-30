@@ -5,7 +5,21 @@
     "components/dataDisplay/DataEmptyState.tsx"
   ],
   "registryDependencies": [
-    "decorations"
+    "coffeering",
+    "decorations",
+    "foldedcorner",
+    "markerhighlight",
+    "notebookedge",
+    "notebookspiral",
+    "paperclip",
+    "paperstamp",
+    "pushpin",
+    "scribble",
+    "sketchdivider",
+    "stickynote",
+    "tape",
+    "tapelabel",
+    "washitapes"
   ],
   "core": true,
   "utils": true,

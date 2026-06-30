@@ -5,7 +5,7 @@
     "components/paper/SketchBorder.tsx"
   ],
   "registryDependencies": [],
-  "core": false,
+  "core": true,
   "utils": false,
   "npmDependencies": []
 }
