@@ -1,0 +1,13 @@
+{
+  "name": "keyboardhint",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/utility/KeyboardHint.tsx"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "papersidebar",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/navigation/PaperSidebar.tsx"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "sketchskeleton",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/feedback/SketchSkeleton.tsx"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "descriptionlist",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/dataDisplay/DescriptionList.tsx"
+  ]
+}

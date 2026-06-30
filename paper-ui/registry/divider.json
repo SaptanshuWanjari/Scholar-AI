@@ -1,0 +1,13 @@
+{
+  "name": "divider",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/utility/Divider.tsx"
+  ]
+}

@@ -15,7 +15,9 @@
       "@paper-ui/utils":        ["../../paper-ui/src/utils"],
       "@paper-ui/core":         ["../../paper-ui/src/core"],
       "@paper-ui/components":   ["../../paper-ui/src/components"],
-      "@paper-ui/components/*": ["../../paper-ui/src/components/*"]
+      "@paper-ui/components/*": ["../../paper-ui/src/components/*"],
+      "@paper-ui/icons":        ["../../paper-ui/src/icons"],
+      "@paper-ui/icons/*":      ["../../paper-ui/src/icons/*"]
     }
   },
   "include": ["stories", "src", "../../paper-ui/src"]

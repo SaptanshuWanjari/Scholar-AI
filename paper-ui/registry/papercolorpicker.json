@@ -1,0 +1,13 @@
+{
+  "name": "papercolorpicker",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/advancedForms/PaperColorPicker.tsx"
+  ]
+}

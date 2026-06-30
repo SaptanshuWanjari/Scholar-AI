@@ -21,10 +21,10 @@ export const Collapse = React.forwardRef<HTMLDivElement, CollapseProps>(
     ref
   ) => {
     const internalRef = useRef<HTMLDivElement>(null);
-    const combinedRef = (node: HTMLDivElement) => {
-      internalRef.current = node;
+    const combinedRef = (node: HTMLDivElement | null) => {
+      (internalRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
       if (typeof ref === 'function') ref(node);
-      else if (ref) ref.current = node;
+      else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
     };
 
     const [shouldRender, setShouldRender] = useState(inProp);

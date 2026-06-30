@@ -1,0 +1,13 @@
+{
+  "name": "paperstamp",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/decorations/PaperStamp.tsx"
+  ]
+}

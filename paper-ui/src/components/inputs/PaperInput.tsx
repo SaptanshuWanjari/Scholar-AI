@@ -15,7 +15,7 @@ export interface PaperInputProps extends React.InputHTMLAttributes<HTMLInputElem
 
 export const PaperInput = React.forwardRef<HTMLInputElement, PaperInputProps>(
   function PaperInput(
-    { label, icon, trailingIcon, error, hint, className, wrapperClassName, id, ...props },
+    { label, icon, trailingIcon, error, hint, className, wrapperClassName, id, onFocus, onBlur, ...props },
     ref,
   ) {
     const [focused, setFocused] = useState(false);
@@ -43,8 +43,8 @@ export const PaperInput = React.forwardRef<HTMLInputElement, PaperInputProps>(
           <input
             ref={ref}
             id={inputId}
-            onFocus={(e) => { setFocused(true); props.onFocus?.(e); }}
-            onBlur={(e) => { setFocused(false); props.onBlur?.(e); }}
+            onFocus={(e) => { setFocused(true); onFocus?.(e); }}
+            onBlur={(e) => { setFocused(false); onBlur?.(e); }}
             className="relative z-[1] flex-1 border-none bg-transparent font-architect text-[15px] text-ink placeholder:text-ink-muted/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             {...props}
           />
@@ -74,7 +74,7 @@ export interface PaperTextareaProps extends React.TextareaHTMLAttributes<HTMLTex
 
 export const PaperTextarea = React.forwardRef<HTMLTextAreaElement, PaperTextareaProps>(
   function PaperTextarea(
-    { label, error, hint, className, wrapperClassName, id, rows = 4, ...props },
+    { label, error, hint, className, wrapperClassName, id, rows = 4, onFocus, onBlur, ...props },
     ref,
   ) {
     const [focused, setFocused] = useState(false);
@@ -100,8 +100,8 @@ export const PaperTextarea = React.forwardRef<HTMLTextAreaElement, PaperTextarea
             ref={ref}
             id={inputId}
             rows={rows}
-            onFocus={(e) => { setFocused(true); props.onFocus?.(e); }}
-            onBlur={(e) => { setFocused(false); props.onBlur?.(e); }}
+            onFocus={(e) => { setFocused(true); onFocus?.(e); }}
+            onBlur={(e) => { setFocused(false); onBlur?.(e); }}
             className="relative z-[1] w-full resize-y border-none bg-transparent font-architect text-[15px] leading-relaxed text-ink placeholder:text-ink-muted/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             {...props}
           />

@@ -24,6 +24,7 @@ const config: StorybookConfig = {
           '@paper-ui/utils':      path.resolve(__dirname, '../../../paper-ui/src/utils'),
           '@paper-ui/core':       path.resolve(__dirname, '../../../paper-ui/src/core'),
           '@paper-ui/components': path.resolve(__dirname, '../../../paper-ui/src/components'),
+          '@paper-ui/icons':      path.resolve(__dirname, '../../../paper-ui/src/icons/index.ts'),
         },
       },
     })

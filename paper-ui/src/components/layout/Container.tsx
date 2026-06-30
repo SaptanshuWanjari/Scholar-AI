@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "@paper-ui/utils";
 import { Box, type BoxProps } from "./Box";
 
-export interface ContainerProps extends BoxProps {}
+export type ContainerProps = BoxProps;
 
 export const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
   ({ className, ...props }, ref) => {

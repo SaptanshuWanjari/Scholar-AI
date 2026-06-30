@@ -1,0 +1,13 @@
+{
+  "name": "coffeering",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/decorations/CoffeeRing.tsx"
+  ]
+}

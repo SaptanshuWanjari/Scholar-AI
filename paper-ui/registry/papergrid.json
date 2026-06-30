@@ -1,0 +1,13 @@
+{
+  "name": "papergrid",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/layout/PaperGrid.tsx"
+  ]
+}

@@ -20,9 +20,9 @@ export interface PaperButtonProps extends React.ButtonHTMLAttributes<HTMLButtonE
 }
 
 const SIZES = {
-  sm: "h-8  px-3 text-[14px]",
-  md: "h-10 px-4 text-[15px]",
-  lg: "h-11 px-6 text-[16px]",
+  sm: "min-h-8 py-1 px-3 text-[14px]",
+  md: "min-h-10 py-2 px-4 text-[15px]",
+  lg: "min-h-11 py-2.5 px-6 text-[16px]",
 };
 
 /** Base hand-drawn button. Press lifts 1px up, active settles down. */

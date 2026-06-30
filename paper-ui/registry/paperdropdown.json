@@ -1,0 +1,13 @@
+{
+  "name": "paperdropdown",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/dialogs/PaperDropdown.tsx"
+  ]
+}

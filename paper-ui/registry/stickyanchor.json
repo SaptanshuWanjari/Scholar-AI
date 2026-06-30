@@ -1,0 +1,13 @@
+{
+  "name": "stickyanchor",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/pdf/StickyAnchor.tsx"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "paperbadge",
+  "type": "components:ui",
+  "dependencies": [
+    "framer-motion",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "registryDependencies": [],
+  "files": [
+    "components/badges/PaperBadge.tsx"
+  ]
+}
