@@ -25,3 +25,66 @@ export function packageName(spec: string): string {
   }
   return spec.split('/')[0];
 }
+
+import fs from 'node:fs';
+import path from 'node:path';
+
+export function resolveFile(fromFile: string, spec: string, srcRoot: string): string | null {
+  if (!spec.startsWith('.')) return null;
+  const base = path.resolve(path.dirname(fromFile), spec);
+  const candidates = [
+    base, base + '.tsx', base + '.ts',
+    path.join(base, 'index.tsx'), path.join(base, 'index.ts'),
+  ];
+  for (const c of candidates) {
+    if (c.startsWith(srcRoot) && fs.existsSync(c) && fs.statSync(c).isFile()) return c;
+  }
+  return null;
+}
+
+export interface GraphResult {
+  componentFiles: string[];
+  needsCore: boolean;
+  needsUtils: boolean;
+  npmDeps: string[];
+}
+
+export function resolveFileGraph(entryFiles: string[], srcRoot: string): GraphResult {
+  const componentsDir = path.join(srcRoot, 'components');
+  const coreDir = path.join(srcRoot, 'core');
+  const utilsDir = path.join(srcRoot, 'utils');
+
+  const visited = new Set<string>();
+  const npm = new Set<string>();
+  let needsCore = false;
+  let needsUtils = false;
+  const queue = [...entryFiles];
+
+  while (queue.length) {
+    const file = queue.shift()!;
+    if (visited.has(file)) continue;
+    visited.add(file);
+
+    const source = fs.readFileSync(file, 'utf8');
+    for (const spec of parseImports(source)) {
+      const kind = classifyImport(spec);
+      if (kind === 'core') { needsCore = true; continue; }
+      if (kind === 'utils') { needsUtils = true; continue; }
+      if (kind === 'tokens') continue;
+      if (kind === 'npm') { npm.add(packageName(spec)); continue; }
+      // relative:
+      const resolved = resolveFile(file, spec, srcRoot);
+      if (!resolved) continue;
+      if (resolved.startsWith(coreDir)) { needsCore = true; continue; }
+      if (resolved.startsWith(utilsDir)) { needsUtils = true; continue; }
+      if (resolved.startsWith(componentsDir) && !visited.has(resolved)) queue.push(resolved);
+    }
+  }
+
+  return {
+    componentFiles: [...visited].sort(),
+    needsCore,
+    needsUtils,
+    npmDeps: [...npm].sort(),
+  };
+}
