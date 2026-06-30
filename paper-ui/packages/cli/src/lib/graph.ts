@@ -3,7 +3,10 @@ import path from 'node:path';
 
 export type ImportKind = 'core' | 'utils' | 'tokens' | 'relative' | 'npm';
 
-const IMPORT_RE = /import\s+(?:[\w*${}\n\r\t, ]+\s+from\s+)?["']([^"']+)["']/g;
+// Matches `import ... from "x"`, side-effect `import "x"`, and `export ... from "x"`
+// re-exports. A bare `export { x }` / `export const` (no `from`) has no trailing
+// quoted specifier, so it never matches.
+const IMPORT_RE = /(?:import|export)\s+(?:[\w*${}\n\r\t, ]+\s+from\s+)?["']([^"']+)["']/g;
 
 export function parseImports(source: string): string[] {
   const specs: string[] = [];

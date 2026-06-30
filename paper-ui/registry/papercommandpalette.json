@@ -4,8 +4,13 @@
   "files": [
     "components/inputs/PaperCommandPalette.tsx"
   ],
-  "registryDependencies": [],
-  "core": false,
-  "utils": false,
-  "npmDependencies": []
+  "registryDependencies": [
+    "commandbar"
+  ],
+  "core": true,
+  "utils": true,
+  "npmDependencies": [
+    "lucide-react",
+    "react"
+  ]
 }
