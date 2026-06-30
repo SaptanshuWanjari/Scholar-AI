@@ -19,20 +19,14 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-import { AppShell } from "../components/paper/layout/AppShell";
-import {
-  ContentGrid,
-  ContentColumn,
-} from "../components/paper/layout/DashboardLayout";
-import { PaperGrid, NotebookGrid } from "../components/paper/layout/PaperGrid";
-import { PinnedSection } from "../components/paper/layout/PinnedSection";
+import { AppShell } from "@paper-ui/components/layout";
+import { ContentGrid, ContentColumn } from "@paper-ui/components/layout";
+import { PaperGrid, NotebookGrid } from "@paper-ui/components/layout";
+import { PinnedSection } from "@paper-ui/components/layout";
 
-import { PaperCard, PaperPanel } from "../components/paper/foundation/Paper";
-import {
-  SectionHeader,
-  SectionLabel,
-} from "../components/paper/foundation/SectionHeader";
-import { PaperIconCircle } from "../components/paper/foundation/PaperIconCircle";
+import { PaperCard, PaperPanel } from "@paper-ui/core";
+import { SectionHeader, SectionLabel } from "@paper-ui/core";
+import { PaperIconCircle } from "@paper-ui/core";
 import {
   PaperH1,
   PaperH2,
@@ -40,7 +34,7 @@ import {
   PaperH4,
   PaperH5,
   PaperH6,
-} from "../components/paper/foundation/Headings";
+} from "@paper-ui/core";
 
 import {
   PaperBadge,
@@ -51,7 +45,7 @@ import {
   TypeTag,
   CategoryTag,
   Pill,
-} from "../components/paper/badges";
+} from "@paper-ui/components/badges";
 
 import {
   PaperButton,
@@ -62,32 +56,23 @@ import {
   ChipButton,
   ToggleButton,
   GhostButton,
-} from "../components/paper/buttons/Buttons";
-import { PaperSheetButton } from "../components/paper/buttons";
+} from "@paper-ui/components/buttons";
+import { PaperSheetButton } from "@paper-ui/components/buttons";
 
-import {
-  PaperInput,
-  PaperTextarea,
-} from "../components/paper/inputs/PaperInput";
-import { PaperSelect } from "../components/paper/inputs/PaperSelect";
-import {
-  PaperCheckbox,
-  PaperCheckboxGroup,
-} from "../components/paper/inputs/PaperCheckbox";
-import { PaperSwitch } from "../components/paper/inputs/PaperSwitch";
-import {
-  PaperRadio,
-  PaperRadioGroup,
-} from "../components/paper/inputs/PaperRadio";
-import { PaperSlider } from "../components/paper/inputs/PaperSlider";
-import { SketchSearch } from "../components/paper/inputs/SketchSearch";
+import { PaperInput, PaperTextarea } from "@paper-ui/components/inputs";
+import { PaperSelect } from "@paper-ui/components/inputs";
+import { PaperCheckbox, PaperCheckboxGroup } from "@paper-ui/components/inputs";
+import { PaperSwitch } from "@paper-ui/components/inputs";
+import { PaperRadio, PaperRadioGroup } from "@paper-ui/components/inputs";
+import { PaperSlider } from "@paper-ui/components/inputs";
+import { SketchSearch } from "@paper-ui/components/inputs";
 
-import { Tape } from "../components/paper/decorations/Tape";
-import { PushPin } from "../components/paper/decorations/PushPin";
-import { StickyNote } from "../components/paper/decorations/StickyNote";
-import { NotebookSpiral } from "../components/paper/decorations/NotebookSpiral";
-import { MarkerHighlight } from "../components/paper/decorations/MarkerHighlight";
-import { SketchDivider } from "../components/paper/decorations/SketchDivider";
+import { Tape } from "@paper-ui/components/decorations";
+import { PushPin } from "@paper-ui/components/decorations";
+import { StickyNote } from "@paper-ui/components/decorations";
+import { NotebookSpiral } from "@paper-ui/components/decorations";
+import { MarkerHighlight } from "@paper-ui/components/decorations";
+import { SketchDivider } from "@paper-ui/components/decorations";
 
 import {
   SunDoodle,
@@ -106,23 +91,23 @@ import {
   BrainDoodle,
   LightbulbDoodle,
   CompassDoodle,
-} from "../components/paper/doodles";
+} from "@paper-ui/components/doodles";
 
-import { TopBar } from "../components/paper/navigation/TopBar";
-import { Breadcrumbs } from "../components/paper/navigation/Breadcrumbs";
-import { Tabs } from "../components/paper/navigation/Tabs";
+import { TopBar } from "@paper-ui/components/navigation";
+import { Breadcrumbs } from "@paper-ui/components/navigation";
+import { Tabs } from "@paper-ui/components/navigation";
 import {
   PaperSidebar,
   PaperSidebarCollapseButton,
   type PaperNavGroup,
-} from "../components/paper/navigation/PaperSidebar";
+} from "@paper-ui/components/navigation";
 
-import { Avatar, AvatarGroup } from "../components/paper/utility/Avatar";
-import { IconWrapper } from "../components/paper/utility/IconWrapper";
-import { KeyboardHint } from "../components/paper/utility/KeyboardHint";
-import { PageTitle } from "../components/paper/utility/PageTitle";
-import { Divider } from "../components/paper/utility/Divider";
-import { Separator } from "../components/paper/utility/Separator";
+import { Avatar, AvatarGroup } from "@paper-ui/components/utility";
+import { IconWrapper } from "@paper-ui/components/utility";
+import { KeyboardHint } from "@paper-ui/components/utility";
+import { PageTitle } from "@paper-ui/components/utility";
+import { Divider } from "@paper-ui/components/utility";
+import { Separator } from "@paper-ui/components/utility";
 
 import {
   StatRow,
@@ -134,7 +119,7 @@ import {
   TimelineRow,
   ConceptRow,
   PluginRow,
-} from "../components/paper/rows";
+} from "@paper-ui/components/rows";
 import {
   SketchProgress,
   CircularProgress,
@@ -142,7 +127,7 @@ import {
   LearningProgress,
   StageProgress,
   TimelineProgress,
-} from "../components/paper/progress";
+} from "@paper-ui/components/progress";
 
 import {
   MetricCard,
@@ -155,7 +140,7 @@ import {
   StickyNoteCard,
   NotebookSpiralCard,
   PaperSheetCard,
-} from "../components/paper/cards";
+} from "@paper-ui/components/cards";
 
 import {
   PaperTable,
@@ -166,7 +151,7 @@ import {
   PaperTd,
   EmptyTable,
   Pagination,
-} from "../components/paper/tables";
+} from "@paper-ui/components/tables";
 
 import {
   InsightBox,
@@ -175,7 +160,7 @@ import {
   MiniChart,
   StatsGrid,
   StatNumber,
-} from "../components/paper/stats";
+} from "@paper-ui/components/stats";
 
 import {
   StudyRecommendation,
@@ -188,7 +173,7 @@ import {
   ConceptEdgeLabel,
   MasteryFilterGroup,
   type MasteryFilterItem,
-} from "../components/paper/teaching";
+} from "@paper-ui/components/teaching";
 
 import {
   PaperModal,
@@ -198,7 +183,7 @@ import {
   PaperDropdown,
   ContextMenu,
   ConfirmationDialog,
-} from "../components/paper/dialogs";
+} from "@paper-ui/components/dialogs";
 
 import {
   LoadingPaper,
@@ -208,7 +193,19 @@ import {
   SuccessBanner,
   SketchSkeleton,
   PaperToast,
-} from "../components/paper/feedback";
+} from "@paper-ui/components/feedback";
+import {
+  TapeCrease,
+  TapeGraph,
+  TapeLabel,
+  TapePin,
+  TapeRibbon,
+  TapeScribble,
+  TapeStarry,
+  TapeStitch,
+  TapeWorn,
+  TapeZag,
+} from "@/app/components/paper";
 
 const AVATARS = [
   { name: "Alice Chen", tone: "sky" as const },
@@ -420,6 +417,34 @@ export default function ComponentsShowcase() {
               <Tape corner="bottom-right" />
               <Tape corner="top-center" />
             </div>
+            <div className="grid grid-cols-3 gap-6 pt-6">
+              <TapeStarry width={300} color="#f4a0c0" />
+              <TapeDoodle size={300} color="#f4a0c0" />
+              <TapeCrease width={300} color="#f4a0c0" />
+              <TapeGraph width={300} color="#f4a0c0" />
+              <TapePin width={300} color="#f4a0c0" />
+              <TapeZag width={300} color="#f4a0c0" />
+              <TapeStitch width={300} color="#f4a0c0" />
+              <TapeScribble width={300} color="#f4a0c0" />
+              <TapeRibbon width={300} color="#f4a0c0" />
+              <TapeWorn width={300} color="#f4a0c0" />
+            </div>
+            <Divider variant="dashed" label="TapeLabel" className="mt-8" />
+            <div className="grid grid-cols-3 gap-6 pt-6">
+              <TapeLabel color="cream" />
+              <TapeLabel color="yellow" fastener="bow" />
+              <TapeLabel color="sky" pattern="grid" />
+              <TapeLabel color="cream" fastener="push-pin" />
+              <TapeLabel color="yellow" fastener="clip" />
+              <TapeLabel color="tan" />
+              <TapeLabel color="sky" pattern="sparkle" fastener="clip" />
+              <TapeLabel
+                color="white"
+                pattern="scribble"
+                fastener="push-pin-green"
+                fastenerSide="right"
+              />{" "}
+            </div>
             <Divider variant="dashed" label="PushPin" className="mt-8" />
             <div className="mt-6 flex gap-8">
               <PushPin size={20} />
@@ -482,7 +507,7 @@ export default function ComponentsShowcase() {
               </div>
             </div>
             <Divider variant="dashed" label="PaperSheetCard" className="mt-8" />
-            <div className="mt-6 max-w-md">
+            <div className="mt-6  grid  gap-5">
               <PaperSheetCard title="Hand-Drawn Folded Corner">
                 This paper card has a dog-ear fold built into its SVG body. The
                 card is fully self-sizing — it measures its container and
@@ -497,6 +522,11 @@ export default function ComponentsShowcase() {
                 its SVG body. The card is fully self-sizing — it measures its
                 container and redraws hihihihoihihthe paper shape via
                 useLayoutEffect + ResizeObserver.
+              </PaperSheetCard>
+              <PaperSheetCard title="Hand-Drawn Folded Corner">
+                This paper card has a dog-ear fold built into its SVG body. The
+                card is fully self-sizing — it measures its container and
+                redraws the paper shape via useLayoutEffect + ResizeObserver.
               </PaperSheetCard>
             </div>
           </div>
@@ -624,7 +654,11 @@ export default function ComponentsShowcase() {
             <div className="mt-6">
               <GhostButton>Cancel</GhostButton>
             </div>
-            <Divider variant="dashed" label="PaperSheetButton" className="mt-8" />
+            <Divider
+              variant="dashed"
+              label="PaperSheetButton"
+              className="mt-8"
+            />
             <div className="mt-6 max-w-xs">
               <PaperSheetButton onClick={() => alert("Clicked!")}>
                 Hand-drawn SVG button
@@ -2025,7 +2059,11 @@ export default function ComponentsShowcase() {
             </p>
             <Divider variant="dashed" label="PaperModal" />
             <div className="mt-6 flex gap-4">
-              <PaperButton size="sm" tone="dark" onClick={() => setModalOpen(true)}>
+              <PaperButton
+                size="sm"
+                tone="dark"
+                onClick={() => setModalOpen(true)}
+              >
                 Open modal
               </PaperButton>
               <PaperModal
@@ -2033,7 +2071,11 @@ export default function ComponentsShowcase() {
                 onClose={() => setModalOpen(false)}
                 title="Paper Modal"
                 footer={
-                  <PaperButton size="sm" tone="dark" onClick={() => setModalOpen(false)}>
+                  <PaperButton
+                    size="sm"
+                    tone="dark"
+                    onClick={() => setModalOpen(false)}
+                  >
                     Close
                   </PaperButton>
                 }
@@ -2044,7 +2086,11 @@ export default function ComponentsShowcase() {
             </div>
             <Divider variant="dashed" label="PaperDrawer" className="mt-8" />
             <div className="mt-6 flex gap-4">
-              <PaperButton size="sm" tone="dark" onClick={() => setDrawerOpen(true)}>
+              <PaperButton
+                size="sm"
+                tone="dark"
+                onClick={() => setDrawerOpen(true)}
+              >
                 Open drawer
               </PaperButton>
               <PaperDrawer
@@ -2053,7 +2099,11 @@ export default function ComponentsShowcase() {
                 title="Paper Drawer"
                 side="right"
                 footer={
-                  <PaperButton size="sm" tone="dark" onClick={() => setDrawerOpen(false)}>
+                  <PaperButton
+                    size="sm"
+                    tone="dark"
+                    onClick={() => setDrawerOpen(false)}
+                  >
                     Close
                   </PaperButton>
                 }

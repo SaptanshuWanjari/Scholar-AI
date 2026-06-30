@@ -1,4 +1,5 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+@import '@paper-ui/tokens/paper.css';
 @import './globals.css';

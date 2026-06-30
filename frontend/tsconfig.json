@@ -16,9 +16,14 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@paper-ui/tokens": ["../paper-ui/src/tokens"],
+      "@paper-ui/utils": ["../paper-ui/src/utils"],
+      "@paper-ui/core": ["../paper-ui/src/core"],
+      "@paper-ui/components": ["../paper-ui/src/components"],
+      "@paper-ui/components/*": ["../paper-ui/src/components/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "../paper-ui/src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
