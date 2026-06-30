@@ -3,6 +3,9 @@ data/
 *.db
 *.sqlite3
 
+node_modules/
+paper-ui/node_modules
+
 # python
 .venv/
 __pycache__/
@@ -19,5 +22,3 @@ docs/
 bak/
 .claude/
 .superpowers/
-.claude/worktrees/
-.claude/

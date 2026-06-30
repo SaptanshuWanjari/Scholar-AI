@@ -1,0 +1,5 @@
+@import "../../../frontend/src/styles/tailwind.css";
+@source "../stories/**/*.{tsx,ts}";
+@source "../../../paper-ui/src/**/*.{tsx,ts}";
+@import "../../../frontend/src/styles/theme.css";
+@import "../../../paper-ui/src/tokens/paper.css";
