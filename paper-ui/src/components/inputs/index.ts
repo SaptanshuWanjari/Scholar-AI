@@ -32,3 +32,6 @@ export type {
   PaperCommandPaletteProps,
   CommandEntry,
 } from "./PaperCommandPalette";
+
+export { PaperLabel } from "./PaperLabel";
+export type { PaperLabelProps } from "./PaperLabel";
