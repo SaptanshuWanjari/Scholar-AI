@@ -1,5 +1,6 @@
 export type ToolType =
   | 'select'
+  | 'pan'
   | 'pen'
   | 'highlighter'
   | 'eraser'
@@ -51,18 +52,18 @@ export interface LineStyle {
 }
 
 export interface StickyStyle {
-  color: string  // background color: '#e8e0ff' | '#d1f0d8' | '#ffd6e0' | '#fff3b0' | '#b3e5fc'
+  color: string
 }
 
 export type SceneObject =
   | { type: 'stroke';    id: string; points: number[]; style: StrokeStyle }
   | { type: 'highlight'; id: string; points: number[]; style: HighlightStyle }
-  | { type: 'text';      id: string; x: number; y: number; content: string; style: TextStyle }
+  | { type: 'text';      id: string; x: number; y: number; content: string; rotation?: number; style: TextStyle }
   | { type: 'rect';      id: string; x: number; y: number; w: number; h: number; rotation: number; style: ShapeStyle }
   | { type: 'circle';    id: string; x: number; y: number; rx: number; ry: number; rotation: number; style: ShapeStyle }
   | { type: 'arrow';     id: string; points: number[]; style: ArrowStyle }
   | { type: 'line';      id: string; points: number[]; style: LineStyle }
-  | { type: 'sticky';    id: string; x: number; y: number; w: number; h: number; content: string; style: StickyStyle }
+  | { type: 'sticky';    id: string; x: number; y: number; w: number; h: number; content: string; rotation?: number; style: StickyStyle }
 
 export interface Viewport {
   x: number
