@@ -24,14 +24,26 @@ const BORDER_PATHS = {
   lg: "M 3,2 Q 57,1 111,3 Q 113,3 113,6 Q 115,25 112,43 Q 112,46 109,46 Q 57,48 4,46 Q 1,46 1,43 Q -1,25 2,6 Q 2,2 3,2 Z",
 };
 
+export type PaperStampPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center" | "none";
+
 export interface PaperStampProps {
   label: string;
   tone?: IconTone;
   /** Rotation in degrees. */
   rotate?: number;
   size?: "sm" | "md" | "lg";
+  position?: PaperStampPosition;
   className?: string;
 }
+
+const STAMP_PLACEMENT: Record<PaperStampPosition, string> = {
+  "top-left": "absolute top-4 left-4 z-10",
+  "top-right": "absolute top-4 right-4 z-10",
+  "bottom-left": "absolute bottom-4 left-4 z-10",
+  "bottom-right": "absolute bottom-4 right-4 z-10",
+  "center": "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10",
+  "none": "",
+};
 
 /** A rotatable rubber-stamp face with a hand-jittered border. */
 export function PaperStamp({
@@ -39,6 +51,7 @@ export function PaperStamp({
   tone = "brick",
   rotate = -8,
   size = "md",
+  position = "none",
   className,
 }: PaperStampProps) {
   const { stroke, fill } = STAMP_TONES[tone];
@@ -49,7 +62,7 @@ export function PaperStamp({
       width={vw}
       height={vh}
       viewBox={`0 0 ${vw} ${vh}`}
-      className={cn("pointer-events-none select-none", className)}
+      className={cn("pointer-events-none select-none", STAMP_PLACEMENT[position], className)}
       style={{ transform: `rotate(${rotate}deg)` }}
       aria-hidden
     >

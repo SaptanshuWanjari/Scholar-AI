@@ -15,3 +15,23 @@ export type { TabsProps, TabItem } from "./Tabs";
 
 export { CommandBar } from "./CommandBar";
 export type { CommandBarProps, CommandEntry } from "./CommandBar";
+
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./Accordion";
+export {
+  Menubar,
+  MenubarMenu,
+  MenubarTrigger,
+  MenubarContent,
+  MenubarItem,
+  MenubarSeparator,
+  MenubarLabel,
+  MenubarCheckboxItem,
+  MenubarRadioGroup,
+  MenubarRadioItem,
+  MenubarPortal,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarGroup,
+  MenubarSub,
+  MenubarShortcut,
+} from "./Menubar";

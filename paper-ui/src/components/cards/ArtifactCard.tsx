@@ -11,7 +11,7 @@ type ArtifactType = "quiz" | "flashcard" | "notes" | "summary" | "mindmap";
 
 const TYPE_META: Record<
   ArtifactType,
-  { label: string; tone: IconTone; Icon: React.ComponentType<{ size?: number; strokeWidth?: number }> }
+  { label: string; tone: IconTone; Icon: React.ElementType<any> }
 > = {
   quiz:      { label: "Quiz",          tone: "brick",    Icon: ListChecks },
   flashcard: { label: "Flashcard Set", tone: "sky",      Icon: BookOpen },

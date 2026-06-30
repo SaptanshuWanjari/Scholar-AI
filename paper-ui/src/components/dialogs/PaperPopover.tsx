@@ -180,7 +180,7 @@ export function PaperPopover({
         createPortal(
           <div
             ref={popoverRef}
-            className={cn("fixed z-50 p-3", className)}
+            className={cn("absolute z-50 p-3", className)}
             style={{
               top: pos?.top ?? -9999,
               left: pos?.left ?? -9999,

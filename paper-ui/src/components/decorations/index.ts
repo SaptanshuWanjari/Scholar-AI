@@ -30,3 +30,7 @@ export {
   TapeScribble,
 } from "./WashiTapes";
 export type { WashiTapeProps } from "./WashiTapes";
+export { NotebookEdge } from "./NotebookEdge";
+export type { NotebookEdgeProps } from "./NotebookEdge";
+export { Scribble } from "./Scribble";
+export type { ScribbleProps } from "./Scribble";

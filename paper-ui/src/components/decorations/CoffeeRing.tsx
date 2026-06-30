@@ -1,14 +1,26 @@
 import { cn } from "@paper-ui/utils";
 
+export type CoffeeRingPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center" | "none";
+
 export interface CoffeeRingProps {
   size?: number;
   rotate?: number;
   opacity?: number;
+  position?: CoffeeRingPosition;
   className?: string;
 }
 
+const RING_PLACEMENT: Record<CoffeeRingPosition, string> = {
+  "top-left": "absolute -top-4 -left-4 z-10",
+  "top-right": "absolute -top-4 -right-4 z-10",
+  "bottom-left": "absolute -bottom-8 -left-8 z-10",
+  "bottom-right": "absolute -bottom-8 -right-8 z-10",
+  "center": "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10",
+  "none": "",
+};
+
 /** A coffee-ring stain — two offset concentric ellipses with a drip channel. */
-export function CoffeeRing({ size = 64, rotate, opacity = 0.18, className }: CoffeeRingProps) {
+export function CoffeeRing({ size = 64, rotate, opacity = 0.18, position = "none", className }: CoffeeRingProps) {
   const cx = size / 2;
   const cy = size / 2;
   // Slightly non-circular for an organic feel
@@ -26,7 +38,7 @@ export function CoffeeRing({ size = 64, rotate, opacity = 0.18, className }: Cof
       width={size}
       height={size}
       viewBox={`0 0 ${size} ${size}`}
-      className={cn("pointer-events-none", className)}
+      className={cn("pointer-events-none", RING_PLACEMENT[position], className)}
       style={{
         transform: rotate ? `rotate(${rotate}deg)` : undefined,
         opacity,

@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "@paper-ui/utils";
+import { SketchBorder } from "@paper-ui/core";
 
 export interface TopBarProps {
   /** Left-aligned slot — typically Breadcrumbs or a page title. */
@@ -9,17 +10,30 @@ export interface TopBarProps {
   className?: string;
 }
 
-/** Minimal header strip above the main content area. */
+/** Paper-themed header strip. Renders as a floating paper island. */
 export function TopBar({ start, children, className }: TopBarProps) {
   return (
-    <header
-      className={cn("flex h-16 shrink-0 items-center gap-4 px-8", className)}
-      style={{ borderBottom: "1.5px solid rgba(0,0,0,0.08)" }}
-    >
-      {start && <div className="flex flex-1 items-center">{start}</div>}
-      <div className={cn("flex shrink-0 items-center gap-3", !start && "ml-auto")}>
-        {children}
-      </div>
-    </header>
+    <div className={cn("px-4 py-3 w-full", className)}>
+      <header className="relative flex h-16 w-full shrink-0 items-center px-6">
+        <SketchBorder
+          fill="var(--color-paper-card, #fffdf9)"
+          stroke="var(--color-border, #e4e0d6)"
+          strokeWidth={1.5}
+          roughness={1.2}
+          bowing={0.5}
+          radius={8}
+          shadow={3}
+          shadowColor="rgba(0,0,0,0.06)"
+          bleed={3}
+        />
+        
+        <div className="relative z-[1] flex w-full items-center gap-4">
+          {start && <div className="flex flex-1 items-center font-architect text-ink">{start}</div>}
+          <div className={cn("flex shrink-0 items-center gap-3", !start && "ml-auto")}>
+            {children}
+          </div>
+        </div>
+      </header>
+    </div>
   );
 }

@@ -32,7 +32,7 @@ function AccentLine({ mastery }: { mastery: MasteryLevel }) {
       height="100%"
       viewBox="0 0 6 100"
       preserveAspectRatio="none"
-      className="absolute -left-5 top-0 pointer-events-none"
+      className="absolute left-2 top-0 pointer-events-none"
       aria-hidden
     >
       <path
