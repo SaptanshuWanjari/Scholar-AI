@@ -26,8 +26,11 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      // Alias @ to the src directory
       '@': path.resolve(__dirname, './src'),
+      '@paper-ui/tokens':     path.resolve(__dirname, '../paper-ui/src/tokens'),
+      '@paper-ui/utils':      path.resolve(__dirname, '../paper-ui/src/utils'),
+      '@paper-ui/core':       path.resolve(__dirname, '../paper-ui/src/core'),
+      '@paper-ui/components': path.resolve(__dirname, '../paper-ui/src/components'),
     },
   },
 

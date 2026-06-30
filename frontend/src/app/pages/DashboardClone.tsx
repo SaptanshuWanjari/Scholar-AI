@@ -12,7 +12,7 @@ import {
   DocumentRow, SketchDivider,
   MarkerHighlight,
 } from "../components/paper";
-import { SunDoodle, ArrowDoodle } from "../components/paper/doodles";
+import { SunDoodle, ArrowDoodle } from "@paper-ui/components/doodles";
 import {
   SIDEBAR_GROUPS, GREETING, LEARNING_PATH, STATS,
   RECENT_DOCUMENTS, RECENT_SESSIONS, COMMAND_SEEDS,
