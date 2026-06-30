@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Page, SectionTitle } from "../components/Page";
-import { MetricCard } from "../components/MetricCard";
-import { Button } from "../components/ui/button";
+import { MetricCard } from "@/paper-ui/components/cards";
+import { PaperButton } from "@/paper-ui/components/buttons";
+import { SunDoodle } from "@/paper-ui/components/doodles";
 import { api, type DashboardData, type LearningPathMeta, type LearningPath } from "../lib/api";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import type { Course, DocumentItem } from "../lib/types";
@@ -34,12 +35,12 @@ export function Dashboard() {
     if (hr < 18) return "Good afternoon";
     return "Good evening";
   };
-  
+
   const getArtifactIcon = (type: string) => {
     switch (type) {
       case "quiz": return ListChecks;
       case "revision": return FileText;
-      case "diagram": 
+      case "diagram":
       case "mindmap": return Network;
       case "whiteboard": return PenTool;
       default: return Sparkles;
@@ -75,32 +76,26 @@ export function Dashboard() {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6"
       >
-        <div>
+        <div className="flex items-center gap-3">
+          <SunDoodle size={46} className="-mt-1" />
           <h1 className="mt-3 text-[2.5rem] leading-none">
             {getGreeting()}, {userName}.
           </h1>
         </div>
         <div className="flex gap-2" data-tour="dashboard-actions">
-          <Button
-            onClick={() => navigate("/ask")}
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
+          <PaperButton tone="dark" onClick={() => navigate("/ask")} className="gap-2">
             <Sparkles className="size-4" /> Ask AI
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/teach")}
-            className="gap-2"
-          >
+          </PaperButton>
+          <PaperButton tone="paper" onClick={() => navigate("/teach")} className="gap-2">
             <Lightbulb size={16} /> Teach Me
-          </Button>
+          </PaperButton>
         </div>
       </motion.div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left column (Primary Focus) */}
         <div className="space-y-6 lg:col-span-2">
-          
+
           {/* Active Learning Path */}
           {activePathDetails ? (
             <motion.div
@@ -139,12 +134,12 @@ export function Dashboard() {
               </div>
 
               <div className="flex justify-end gap-3">
-                <Button variant="outline" onClick={() => navigate("/learning-path")}>
+                <PaperButton tone="paper" onClick={() => navigate("/learning-path")}>
                   View All Paths
-                </Button>
-                <Button onClick={() => navigate(`/learning-path/${activePathDetails.id}`)} className="gap-2 bg-primary text-primary-foreground">
+                </PaperButton>
+                <PaperButton tone="dark" onClick={() => navigate(`/learning-path/${activePathDetails.id}`)} className="gap-2">
                   Continue <ArrowRight className="size-4" />
-                </Button>
+                </PaperButton>
               </div>
             </motion.div>
           ) : (
@@ -156,9 +151,9 @@ export function Dashboard() {
               <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
                 Generate a personalized learning path from your documents to get a structured study roadmap.
               </p>
-              <Button onClick={() => navigate("/learning-path")} className="gap-2 bg-primary text-primary-foreground">
+              <PaperButton tone="dark" onClick={() => navigate("/learning-path")} className="gap-2">
                 <Sparkles className="size-4" /> Generate Path
-              </Button>
+              </PaperButton>
             </div>
           )}
 
@@ -169,9 +164,9 @@ export function Dashboard() {
             <SectionTitle
               title="Recent documents"
               action={
-                <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs" onClick={() => navigate("/documents")}>
+                <PaperButton tone="paper" size="sm" className="h-7 gap-1 text-xs" onClick={() => navigate("/documents")}>
                   View all <ArrowRight className="size-3" />
-                </Button>
+                </PaperButton>
               }
             />
             <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -216,71 +211,54 @@ export function Dashboard() {
                 ))}
               </div>
               {archivedPaths.length > 3 && (
-                <Button variant="ghost" size="sm" className="w-full mt-2 text-xs" onClick={() => navigate("/learning-path")}>
+                <PaperButton tone="paper" size="sm" className="w-full mt-2 text-xs" onClick={() => navigate("/learning-path")}>
                   View all archives
-                </Button>
+                </PaperButton>
               )}
             </div>
           )}
 
-          {/* Unified Metrics List */}
+          {/* Unified Metrics (paper MetricCard grid) */}
           <div className="rounded-2xl border border-border bg-card p-5" data-tour="dashboard-metrics">
             <SectionTitle title="Your Stats" />
-            <div className="space-y-1">
-               <div className="flex items-center gap-3 rounded-lg p-2">
-                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#8b5cf614", color: "#8b5cf6" }}>
-                   <FileText className="size-4" />
-                 </div>
-                 <div className="min-w-0 flex-1">
-                   <div className="truncate text-sm font-medium">Documents</div>
-                   <div className="text-xs text-muted-foreground">{courses.length} courses</div>
-                 </div>
-                 <div className="font-display text-xl">{metrics?.documents ?? documents.length}</div>
-               </div>
-               
-               <div className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40 cursor-pointer" onClick={() => navigate("/flashcards")}>
-                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#eab30814", color: "#eab308" }}>
-                   <Layers className="size-4" />
-                 </div>
-                 <div className="min-w-0 flex-1">
-                   <div className="truncate text-sm font-medium">Cards due today</div>
-                   <div className="text-xs text-muted-foreground">Review today</div>
-                 </div>
-                 <div className="font-display text-xl">{metrics?.flashcardsDue ?? 0}</div>
-               </div>
-
-               <div className="flex items-center gap-3 rounded-lg p-2">
-                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#06b6d414", color: "#06b6d4" }}>
-                   <Layers className="size-4" />
-                 </div>
-                 <div className="min-w-0 flex-1">
-                   <div className="truncate text-sm font-medium">Total Flashcards</div>
-                   <div className="text-xs text-muted-foreground">Across all decks</div>
-                 </div>
-                 <div className="font-display text-xl">{metrics?.flashcards ?? 0}</div>
-               </div>
-
-               <div className="flex items-center gap-3 rounded-lg p-2">
-                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#22c55e14", color: "#22c55e" }}>
-                   <ListChecks className="size-4" />
-                 </div>
-                 <div className="min-w-0 flex-1">
-                   <div className="truncate text-sm font-medium">Quizzes taken</div>
-                   <div className="text-xs text-muted-foreground">Total attempts</div>
-                 </div>
-                 <div className="font-display text-xl">{metrics?.quizzesTaken ?? 0}</div>
-               </div>
-
-               <div className="flex items-center gap-3 rounded-lg p-2">
-                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "#f59e0b14", color: "#f59e0b" }}>
-                   <Clock className="size-4" />
-                 </div>
-                 <div className="min-w-0 flex-1">
-                   <div className="truncate text-sm font-medium">Study sessions</div>
-                   <div className="text-xs text-muted-foreground">Recorded sessions</div>
-                 </div>
-                 <div className="font-display text-xl">{metrics?.studySessions ?? 0}</div>
-               </div>
+            <div className="grid grid-cols-2 gap-3">
+              <MetricCard
+                label="Documents"
+                value={metrics?.documents ?? documents.length}
+                description={`${courses.length} courses`}
+                icon={<FileText className="size-4" />}
+                tone="lavender"
+              />
+              <div onClick={() => navigate("/flashcards")} className="cursor-pointer">
+                <MetricCard
+                  label="Cards due today"
+                  value={metrics?.flashcardsDue ?? 0}
+                  description="Review today"
+                  icon={<Layers className="size-4" />}
+                  tone="ochre"
+                />
+              </div>
+              <MetricCard
+                label="Total Flashcards"
+                value={metrics?.flashcards ?? 0}
+                description="Across all decks"
+                icon={<Layers className="size-4" />}
+                tone="sky"
+              />
+              <MetricCard
+                label="Quizzes taken"
+                value={metrics?.quizzesTaken ?? 0}
+                description="Total attempts"
+                icon={<ListChecks className="size-4" />}
+                tone="sage"
+              />
+              <MetricCard
+                label="Study sessions"
+                value={metrics?.studySessions ?? 0}
+                description="Recorded sessions"
+                icon={<Clock className="size-4" />}
+                tone="brick"
+              />
             </div>
           </div>
 
