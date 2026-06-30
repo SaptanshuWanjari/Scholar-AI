@@ -7,12 +7,27 @@
   "tokensPath": "src/styles/paper.css",
   "alias": "@/paper-ui",
   "installed": [
+    "artifactrow",
     "breadcrumbs",
     "buttons",
+    "documentrow",
     "doodles",
     "markerhighlight",
     "metriccard",
+    "notebookspiralcard",
     "pagetitle",
+    "paperbadge",
+    "papersheetcard",
+    "papertable",
+    "pinnedcard",
+    "pushpin",
+    "sessioncard",
+    "sessionrow",
+    "sketchdivider",
+    "stickynotecard",
+    "tablecell",
+    "tableheader",
+    "tablerow",
     "tape"
   ]
 }

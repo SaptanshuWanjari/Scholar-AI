@@ -6,24 +6,45 @@ import {
   ListChecks,
   Clock,
   Sparkles,
-  ArrowRight,
   Lightbulb,
-  Milestone,
   CheckCircle2,
   Archive,
   Bookmark,
   Network,
   PenTool,
+  FileQuestion,
+  Repeat,
+  LibraryBig,
+  type LucideIcon,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { Page, SectionTitle } from "../components/Page";
-import { MetricCard } from "@/paper-ui/components/cards";
-import { PaperButton } from "@/paper-ui/components/buttons";
-import { SunDoodle } from "@/paper-ui/components/doodles";
+import { Page } from "../components/Page";
+import { PaperButton } from "@paper-ui/components/buttons";
+import { NotebookSpiralCard } from "@paper-ui/components/cards/NotebookSpiralCard";
+import { PaperSheetCard } from "@paper-ui/components/cards/PaperSheetCard";
+import { PinnedCard } from "@paper-ui/components/cards/PinnedCard";
+import { StickyNoteCard } from "@paper-ui/components/cards/StickyNoteCard";
+import { MetricCard } from "@paper-ui/components/cards/MetricCard";
+import { PaperTable } from "@paper-ui/components/tables/PaperTable";
+import { TableHeader } from "@paper-ui/components/tables/TableHeader";
+import { TableRow } from "@paper-ui/components/tables/TableRow";
+import { TableCell } from "@paper-ui/components/tables/TableCell";
+import { SessionRow } from "@paper-ui/components/rows/SessionRow";
+import { SunDoodle, SignpostDoodle, ArrowDoodle } from "@paper-ui/components/doodles";
 import { api, type DashboardData, type LearningPathMeta, type LearningPath } from "../lib/api";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import type { Course, DocumentItem } from "../lib/types";
 
+type IconTone = "lavender" | "ochre" | "sky" | "sage" | "brick" | "ink";
+
+interface StatSpec {
+  label: string;
+  value: number;
+  description: string;
+  icon: LucideIcon;
+  tone: IconTone;
+  onClick?: () => void;
+}
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -36,7 +57,7 @@ export function Dashboard() {
     return "Good evening";
   };
 
-  const getArtifactIcon = (type: string) => {
+  const getArtifactIcon = (type: string): LucideIcon => {
     switch (type) {
       case "quiz": return ListChecks;
       case "revision": return FileText;
@@ -46,6 +67,7 @@ export function Dashboard() {
       default: return Sparkles;
     }
   };
+
   const [courses, setCourses] = useState<Course[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
@@ -68,17 +90,56 @@ export function Dashboard() {
   const metrics = dashboard?.metrics;
   const archivedPaths = paths.filter(p => p.archived);
 
+  const stats: StatSpec[] = [
+    {
+      label: "Documents",
+      value: metrics?.documents ?? documents.length,
+      description: `${courses.length} courses`,
+      icon: FileText,
+      tone: "lavender",
+    },
+    {
+      label: "Cards due today",
+      value: metrics?.flashcardsDue ?? 0,
+      description: "Review today",
+      icon: Layers,
+      tone: "ochre",
+      onClick: () => navigate("/flashcards"),
+    },
+    {
+      label: "Total Flashcards",
+      value: metrics?.flashcards ?? 0,
+      description: "Across all decks",
+      icon: LibraryBig,
+      tone: "sky",
+    },
+    {
+      label: "Quizzes taken",
+      value: metrics?.quizzesTaken ?? 0,
+      description: "Total attempts",
+      icon: ListChecks,
+      tone: "sage",
+    },
+    {
+      label: "Study sessions",
+      value: metrics?.studySessions ?? 0,
+      description: "Recorded sessions",
+      icon: Clock,
+      tone: "brick",
+    },
+  ];
+
   return (
     <Page className="space-y-6">
       {/* Welcome */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6"
+        className="flex flex-wrap items-end justify-between gap-4 border-b border-ink/15 pb-6"
       >
         <div className="flex items-center gap-3">
-          <SunDoodle size={46} className="-mt-1" />
-          <h1 className="mt-3 text-[2.5rem] leading-none">
+          <SunDoodle size={46} className="-mt-1 text-ink" />
+          <h1 className="font-caveat text-[2.75rem] font-bold leading-none text-ink">
             {getGreeting()}, {userName}.
           </h1>
         </div>
@@ -101,91 +162,147 @@ export function Dashboard() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-6 shadow-sm"
             >
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <p className="text-sm font-medium uppercase tracking-wide text-primary mb-1">Continue Learning</p>
-                  <h2 className="text-2xl font-bold text-foreground">{activePathDetails.title}</h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {Math.round((activePathDetails.progress.conceptsDone / Math.max(1, activePathDetails.progress.conceptsTotal)) * 100)}% completed
-                  </p>
+              <NotebookSpiralCard
+                title="Continue Learning"
+                spiralCount={12}
+                className="rounded-2xl"
+              >
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-architect text-[12px] uppercase tracking-[0.18em] text-ink/55">
+                      {activePathDetails.title}
+                    </p>
+                    <p className="mt-1 font-kalam text-[15px] text-ink-muted">
+                      {Math.round(
+                        (activePathDetails.progress.conceptsDone /
+                          Math.max(1, activePathDetails.progress.conceptsTotal)) *
+                          100,
+                      )}
+                      % completed
+                    </p>
+                  </div>
+                  <SignpostDoodle size={42} color="#3a3733" />
                 </div>
-                <div className="flex size-12 items-center justify-center rounded-xl bg-primary/20 text-primary">
-                  <Milestone className="size-6" />
-                </div>
-              </div>
 
-              <div className="rounded-xl bg-card border border-border p-5 mb-6">
-                <h3 className="text-sm font-medium text-foreground mb-2">Next up:</h3>
                 {activePathDetails.nextRecommendation ? (
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-8 items-center justify-center rounded-lg bg-muted text-muted-foreground shrink-0">
-                      <Sparkles className="size-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{activePathDetails.nextRecommendation.conceptTitle}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{activePathDetails.nextRecommendation.reason}</p>
-                    </div>
+                  <div className="mb-5 rounded-md border border-ink/15 bg-white/40 px-4 py-3">
+                    <p className="font-architect text-[11px] uppercase tracking-wider text-ink/55">
+                      Next up
+                    </p>
+                    <p className="mt-1 font-caveat text-[20px] font-bold text-ink">
+                      {activePathDetails.nextRecommendation.conceptTitle}
+                    </p>
+                    <p className="mt-0.5 font-kalam text-[13px] text-ink-muted">
+                      {activePathDetails.nextRecommendation.reason}
+                    </p>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">You are all caught up! Review your completed topics.</p>
+                  <div className="mb-5 rounded-md border border-ink/15 bg-white/40 px-4 py-3">
+                    <p className="font-kalam text-[14px] text-ink-muted">
+                      You are all caught up! Review your completed topics.
+                    </p>
+                  </div>
                 )}
-              </div>
 
-              <div className="flex justify-end gap-3">
-                <PaperButton tone="paper" onClick={() => navigate("/learning-path")}>
-                  View All Paths
-                </PaperButton>
-                <PaperButton tone="dark" onClick={() => navigate(`/learning-path/${activePathDetails.id}`)} className="gap-2">
-                  Continue <ArrowRight className="size-4" />
-                </PaperButton>
-              </div>
+                <div className="flex justify-end gap-2">
+                  <PaperButton
+                    tone="paper"
+                    size="sm"
+                    onClick={() => navigate("/learning-path")}
+                  >
+                    View All Paths
+                  </PaperButton>
+                  <PaperButton
+                    tone="dark"
+                    size="sm"
+                    onClick={() => navigate(`/learning-path/${activePathDetails.id}`)}
+                    className="gap-2"
+                  >
+                    Continue <ArrowDoodle size={15} />
+                  </PaperButton>
+                </div>
+              </NotebookSpiralCard>
             </motion.div>
           ) : (
-            <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
-              <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground mb-4">
-                <Milestone className="size-6" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">No active learning path</h3>
-              <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-                Generate a personalized learning path from your documents to get a structured study roadmap.
+            <StickyNoteCard color="yellow" title="No active learning path">
+              <p className="font-kalam text-[15px]">
+                Generate a personalized learning path from your documents to get a
+                structured study roadmap.
               </p>
-              <PaperButton tone="dark" onClick={() => navigate("/learning-path")} className="gap-2">
-                <Sparkles className="size-4" /> Generate Path
-              </PaperButton>
-            </div>
+              <div className="mt-4">
+                <PaperButton
+                  tone="dark"
+                  size="sm"
+                  onClick={() => navigate("/learning-path")}
+                  className="gap-2"
+                >
+                  <Sparkles className="size-4" /> Generate Path
+                </PaperButton>
+              </div>
+            </StickyNoteCard>
           )}
-
-
 
           {/* Recent documents */}
           <div data-tour="dashboard-recent">
-            <SectionTitle
-              title="Recent documents"
-              action={
-                <PaperButton tone="paper" size="sm" className="h-7 gap-1 text-xs" onClick={() => navigate("/documents")}>
-                  View all <ArrowRight className="size-3" />
-                </PaperButton>
-              }
-            />
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
-              {documents.slice(0, 4).map((d, i) => (
-                <div key={d.id} className={`flex items-center gap-3 px-4 py-3 hover:bg-accent/40 ${i !== 0 ? "border-t border-border" : ""}`}>
-                  <div className="flex size-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                    <FileText className="size-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm">{d.title}</div>
-                    <div className="text-xs text-muted-foreground">{d.course} · {d.pages} pages</div>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{d.addedAt}</span>
-                </div>
-              ))}
-              {documents.length === 0 && (
-                <div className="p-6 text-center text-sm text-muted-foreground">No documents found.</div>
-              )}
+            <div className="mb-3 flex items-baseline justify-between">
+              <h2 className="font-caveat text-[28px] font-bold text-ink">
+                Recent documents
+              </h2>
+              <button
+                onClick={() => navigate("/documents")}
+                className="inline-flex items-center gap-1.5 font-architect text-[13px] text-ink/70 transition-colors hover:text-ink"
+              >
+                View all <ArrowDoodle size={14} />
+              </button>
             </div>
+
+            <PaperTable>
+              <TableHeader>
+                <tr>
+                  <th className="font-architect text-[12px] uppercase tracking-wider text-ink-muted text-left px-4 py-3">
+                    Document
+                  </th>
+                  <th className="font-architect text-[12px] uppercase tracking-wider text-ink-muted text-left px-4 py-3">
+                    Course
+                  </th>
+                  <th className="font-architect text-[12px] uppercase tracking-wider text-ink-muted text-right px-4 py-3">
+                    Added
+                  </th>
+                </tr>
+              </TableHeader>
+              <tbody>
+                {documents.slice(0, 4).map((d) => (
+                  <TableRow key={d.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <FileText size={20} strokeWidth={1.6} className="shrink-0 text-ink-muted" />
+                        <span className="truncate font-kalam text-[15px] font-bold text-ink">
+                          {d.title}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell muted>
+                      <span className="font-kalam text-[14px]">
+                        {d.course} · {d.pages}p
+                      </span>
+                    </TableCell>
+                    <TableCell align="right" muted>
+                      <span className="font-architect text-[13px]">{d.addedAt}</span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {documents.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={3}>
+                      <p className="px-4 py-8 text-center font-kalam text-[14px] text-ink-muted">
+                        No documents found.
+                      </p>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </tbody>
+            </PaperTable>
           </div>
         </div>
 
@@ -194,147 +311,157 @@ export function Dashboard() {
 
           {/* Archived Paths */}
           {archivedPaths.length > 0 && (
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <SectionTitle title="Archived Paths" />
+            <PinnedCard title="Archived Paths" pinStyle="push-pin" rotate={-0.5}>
               <div className="space-y-2">
                 {archivedPaths.slice(0, 3).map((p) => (
-                  <div key={p.id} className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40 cursor-pointer" onClick={() => navigate(`/learning-path/${p.id}`)}>
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                      <Archive className="size-4" />
-                    </div>
+                  <div
+                    key={p.id}
+                    className="flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-black/[0.025] cursor-pointer"
+                    onClick={() => navigate(`/learning-path/${p.id}`)}
+                  >
+                    <Archive size={16} className="shrink-0 text-ink-muted" />
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">{p.title}</div>
-                      <div className="text-xs text-muted-foreground">{p.course}</div>
+                      <p className="truncate font-kalam text-[14px] font-bold text-ink">
+                        {p.title}
+                      </p>
+                      <p className="truncate font-kalam text-[12px] text-ink-muted">
+                        {p.course}
+                      </p>
                     </div>
-                    <CheckCircle2 className="size-4 text-success" />
+                    <CheckCircle2 size={16} className="text-[#3f7a4e]" />
                   </div>
                 ))}
               </div>
               {archivedPaths.length > 3 && (
-                <PaperButton tone="paper" size="sm" className="w-full mt-2 text-xs" onClick={() => navigate("/learning-path")}>
+                <PaperButton
+                  tone="paper"
+                  size="sm"
+                  className="w-full mt-3 text-xs"
+                  onClick={() => navigate("/learning-path")}
+                >
                   View all archives
                 </PaperButton>
               )}
-            </div>
+            </PinnedCard>
           )}
 
-          {/* Unified Metrics (paper MetricCard grid) */}
-          <div className="rounded-2xl border border-border bg-card p-5" data-tour="dashboard-metrics">
-            <SectionTitle title="Your Stats" />
+          {/* Stats — spiral notebook */}
+          <NotebookSpiralCard title="Your Stats" spiralCount={9}>
             <div className="grid grid-cols-2 gap-3">
-              <MetricCard
-                label="Documents"
-                value={metrics?.documents ?? documents.length}
-                description={`${courses.length} courses`}
-                icon={<FileText className="size-4" />}
-                tone="lavender"
-              />
-              <div onClick={() => navigate("/flashcards")} className="cursor-pointer">
-                <MetricCard
-                  label="Cards due today"
-                  value={metrics?.flashcardsDue ?? 0}
-                  description="Review today"
-                  icon={<Layers className="size-4" />}
-                  tone="ochre"
-                />
-              </div>
-              <MetricCard
-                label="Total Flashcards"
-                value={metrics?.flashcards ?? 0}
-                description="Across all decks"
-                icon={<Layers className="size-4" />}
-                tone="sky"
-              />
-              <MetricCard
-                label="Quizzes taken"
-                value={metrics?.quizzesTaken ?? 0}
-                description="Total attempts"
-                icon={<ListChecks className="size-4" />}
-                tone="sage"
-              />
-              <MetricCard
-                label="Study sessions"
-                value={metrics?.studySessions ?? 0}
-                description="Recorded sessions"
-                icon={<Clock className="size-4" />}
-                tone="brick"
-              />
+              {stats.map((s) => (
+                <div
+                  key={s.label}
+                  className={s.onClick ? "cursor-pointer" : undefined}
+                  onClick={s.onClick}
+                >
+                  <MetricCard
+                    label={s.label}
+                    value={s.value}
+                    description={s.description}
+                    icon={<s.icon className="size-4" />}
+                    tone={s.tone}
+                  />
+                </div>
+              ))}
             </div>
-          </div>
+          </NotebookSpiralCard>
 
-          {/* Recent sessions */}
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <SectionTitle title="Recent sessions" />
-            <div className="space-y-2">
-              {dashboard?.recentSessions?.length ? (
-                dashboard.recentSessions.map((s) => (
-                  <div key={s.id} className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40">
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-cyan-soft text-cyan">
-                      <Clock className="size-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm">{s.title}</div>
-                      <div className="text-xs text-muted-foreground">{s.course}</div>
-                    </div>
-                    <div className="text-right text-xs text-muted-foreground">
-                      <div>{s.duration}</div>
-                      <div>{s.date}</div>
-                    </div>
+          {/* Recent sessions — taped notebook sheet */}
+          <PaperSheetCard title="Recent sessions">
+            {dashboard?.recentSessions?.length ? (
+              <div className="space-y-3">
+                {dashboard.recentSessions.map((s) => (
+                  <div key={s.id} className="-mx-2">
+                    <SessionRow
+                      text={s.title}
+                      subtext={s.course}
+                      duration={s.duration}
+                      ago={s.date}
+                    />
                   </div>
-                ))
-              ) : (
-                <p className="py-4 text-center text-xs text-muted-foreground">No sessions yet</p>
-              )}
-            </div>
-          </div>
+                ))}
+              </div>
+            ) : (
+              <p className="py-4 text-center font-kalam text-[13px] text-ink-muted">
+                No sessions yet
+              </p>
+            )}
+          </PaperSheetCard>
 
-          {/* Recent artifacts */}
+          {/* Recently generated — sticky notes */}
           {dashboard?.recentArtifacts?.length ? (
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <SectionTitle title="Recently generated" />
-            <div className="space-y-2">
-                {dashboard.recentArtifacts.map((a) => {
+            <StickyNoteCard color="blue" title="Recently generated" pin="tape" rotate={-1}>
+              <div className="space-y-1">
+                {dashboard.recentArtifacts.slice(0, 4).map((a) => {
                   const Icon = getArtifactIcon(a.type);
                   return (
-                    <div key={`${a.type}-${a.id}`} className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40 cursor-pointer" onClick={() => navigate(a.url)}>
-                      <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Icon className="size-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm">{a.title}</div>
-                        <div className="text-xs text-muted-foreground capitalize">{a.type}</div>
-                      </div>
-                      <div className="text-right text-xs text-muted-foreground">
-                        {a.time}
+                    <div
+                      key={`${a.type}-${a.id}`}
+                      className="flex items-center gap-2 rounded px-2 py-1.5 hover:bg-black/[0.04] cursor-pointer"
+                      onClick={() => navigate(a.url)}
+                    >
+                      <Icon size={16} className="shrink-0 text-ink" />
+                      <div className="min-w-0 flex-1 leading-tight">
+                        <p className="truncate font-kalam text-[14px] font-bold text-ink">
+                          {a.title}
+                        </p>
+                        <p className="truncate font-kalam text-[11px] text-ink/60 capitalize">
+                          {a.type} · {a.time}
+                        </p>
                       </div>
                     </div>
                   );
                 })}
-            </div>
-          </div>
+              </div>
+            </StickyNoteCard>
           ) : null}
 
-          {/* Recent bookmarks */}
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <SectionTitle title="Recent bookmarks" />
+          {/* Recent bookmarks — pinned card */}
+          <PinnedCard title="Recent bookmarks" pinStyle="tape" rotate={0.5}>
             <div className="space-y-2">
               {dashboard?.recentBookmarks?.length ? (
                 dashboard.recentBookmarks.map((bm) => (
-                  <div key={bm.id} className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/40 cursor-pointer" onClick={() => navigate(`/reading?doc=${bm.docId}`)}>
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-soft text-emerald">
-                      <Bookmark className="size-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">{bm.section || "Untitled section"}</div>
-                      <div className="truncate text-xs text-muted-foreground">{bm.note || "No note"} · {bm.docTitle}</div>
+                  <div
+                    key={bm.id}
+                    className="flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-black/[0.025] cursor-pointer"
+                    onClick={() => navigate(`/reading?doc=${bm.docId}`)}
+                  >
+                    <Bookmark size={16} className="shrink-0 text-[#c9954f]" />
+                    <div className="min-w-0 flex-1 leading-tight">
+                      <p className="truncate font-kalam text-[14px] font-bold text-ink">
+                        {bm.section || "Untitled section"}
+                      </p>
+                      <p className="truncate font-kalam text-[12px] text-ink-muted">
+                        {bm.note || "No note"} · {bm.docTitle}
+                      </p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="py-4 text-center text-xs text-muted-foreground">No recent bookmarks</p>
+                <p className="py-4 text-center font-kalam text-[12px] text-ink-muted">
+                  No recent bookmarks
+                </p>
               )}
             </div>
-          </div>
+          </PinnedCard>
+
+          {/* Quick actions — sticky note cluster */}
+          <StickyNoteCard color="green" title="Quick practice" pin="none" rotate={1}>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => navigate("/quiz")}
+                className="flex items-center gap-2 rounded-md border border-ink/15 bg-white/30 px-3 py-2 font-architect text-[12px] text-ink hover:bg-white/50"
+              >
+                <FileQuestion size={14} /> Quiz
+              </button>
+              <button
+                onClick={() => navigate("/revision")}
+                className="flex items-center gap-2 rounded-md border border-ink/15 bg-white/30 px-3 py-2 font-architect text-[12px] text-ink hover:bg-white/50"
+              >
+                <Repeat size={14} /> Revise
+              </button>
+            </div>
+          </StickyNoteCard>
         </div>
       </div>
     </Page>
