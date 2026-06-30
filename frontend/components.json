@@ -1,0 +1,18 @@
+{
+  "sourceRoot": "../paper-ui",
+  "registryDir": "../paper-ui/registry",
+  "componentsPath": "src/paper-ui/components",
+  "utilsPath": "src/paper-ui/utils",
+  "corePath": "src/paper-ui/core",
+  "tokensPath": "src/styles/paper.css",
+  "alias": "@/paper-ui",
+  "installed": [
+    "breadcrumbs",
+    "buttons",
+    "doodles",
+    "markerhighlight",
+    "metriccard",
+    "pagetitle",
+    "tape"
+  ]
+}
