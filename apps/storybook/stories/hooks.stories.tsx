@@ -3,9 +3,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 // Layout and Core components
 import { Flex, Stack, Box } from '@paper-ui/components/layout';
-import { PaperCard } from '@paper-ui/core';
+import { PaperCard, PaperPanel } from '@paper-ui/core';
 import { SketchBorder } from '@paper-ui/core';
 import { PaperShadow } from '@paper-ui/components/paper';
+import { PaperH3, PaperH4, PaperH5 } from '@paper-ui/core';
 
 // Specialized components
 import { SketchButton } from '@paper-ui/components/buttons';
@@ -23,7 +24,7 @@ import {
   useMediaQuery,
   useToggle,
   useLocalStorage
-} from '../../../../paper-ui/src/hooks';
+} from '../../../paper-ui/src/hooks';
 
 const meta: Meta = {
   title: 'Hooks/UtilityHooks',
@@ -43,15 +44,15 @@ export const UseDisclosureStory: StoryObj = {
       <PaperCard className="p-8 min-w-[400px]">
         <Stack spacing="lg">
           <Flex align="center" justify="between">
-            <h3 className="font-serif text-xl font-bold">Project Settings</h3>
-            <PaperBadge tone={isOpen ? 'green' : 'gray'}>
+            <PaperH3>Project Settings</PaperH3>
+            <PaperBadge tone={isOpen ? 'sage' : 'ink'}>
               {isOpen ? 'Editing Mode' : 'View Mode'}
             </PaperBadge>
           </Flex>
           
           <SketchDivider variant="wavy" />
           
-          <p className="text-gray-500 font-inter">
+          <p className="text-gray-500 font-architect text-sm">
             Toggle the settings panel to configure your preferences.
           </p>
 
@@ -62,13 +63,13 @@ export const UseDisclosureStory: StoryObj = {
           </Flex>
 
           {isOpen && (
-            <Box className="p-4 mt-4 bg-gray-50 rounded-md relative">
+            <Box className="p-4 mt-4 bg-[#fffdf9] rounded-md relative">
               <SketchBorder />
               <Stack spacing="md" className="relative z-10">
                 <PaperInput label="Project Name" defaultValue="Paper UI Setup" />
                 <div className="flex items-center gap-2">
                    <PaperCheckbox defaultChecked />
-                   <span className="font-inter text-sm">Enable notifications</span>
+                   <span className="font-architect text-sm">Enable notifications</span>
                 </div>
                 <SketchButton onClick={close}>Save Changes</SketchButton>
               </Stack>
@@ -87,7 +88,7 @@ export const UseBooleanStory: StoryObj = {
     return (
       <PaperCard className="p-8 min-w-[400px]">
         <Stack spacing="lg">
-          <h4 className="font-serif text-lg font-bold">Focus Mode Tracker</h4>
+          <PaperH4>Focus Mode Tracker</PaperH4>
           
           <Flex gap="sm">
             <SketchButton onClick={setTrue}>Enable Focus</SketchButton>
@@ -97,12 +98,13 @@ export const UseBooleanStory: StoryObj = {
 
           <div className="relative mt-4">
             <PaperShadow depth={isFocused ? 3 : 1} />
-            <Box className={`p-6 relative z-10 transition-colors duration-300 ${isFocused ? 'bg-blue-50' : 'bg-gray-50'}`}>
-              <Flex direction="column" align="center" gap="md">
-                <span className="text-lg font-medium font-inter">
+            <Box className={`p-6 relative z-10 transition-colors duration-300 ${isFocused ? 'bg-blue-50/40' : 'bg-gray-50/40'}`}>
+              <SketchBorder />
+              <Flex direction="column" align="center" gap="md" className="relative z-10">
+                <span className="text-lg font-medium font-kalam">
                   {isFocused ? '🎯 Deep Work in Progress' : '☕ Taking a break'}
                 </span>
-                <PaperBadge tone={isFocused ? 'blue' : 'gray'}>
+                <PaperBadge tone={isFocused ? 'sky' : 'ink'}>
                   {isFocused ? 'Active' : 'Inactive'}
                 </PaperBadge>
               </Flex>
@@ -123,8 +125,8 @@ export const UseClipboardStory: StoryObj = {
     return (
       <PaperCard className="p-8">
         <Stack spacing="md">
-          <h4 className="font-serif text-lg font-bold">Installation</h4>
-          <p className="font-inter">Run this command to add Paper UI to your project:</p>
+          <PaperH4>Installation</PaperH4>
+          <p className="font-architect">Run this command to add Paper UI to your project:</p>
           
           <Flex align="center" gap="sm" className="p-2 bg-gray-100 rounded-sm border border-dashed border-gray-300">
             <span className="font-mono text-sm flex-1">{codeSnippet}</span>
@@ -147,25 +149,26 @@ export const UseDebounceStory: StoryObj = {
     return (
       <PaperCard className="p-8 min-w-[400px]">
         <Stack spacing="lg">
-          <h4 className="font-serif text-lg font-bold">Search Library</h4>
+          <PaperH4>Search Library</PaperH4>
           
           <PaperInput 
             placeholder="Type to search..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <p className="text-xs text-gray-500 font-inter">Results will update 500ms after you stop typing</p>
+          <p className="text-xs text-gray-500 font-architect">Results will update 500ms after you stop typing</p>
 
-          <Box className="p-4 bg-gray-50 rounded-md">
-            <Stack spacing="sm">
-              <span className="font-medium font-inter">Search State:</span>
-              <Flex justify="between" align="center" className="p-2 bg-white rounded">
-                <span className="text-sm text-gray-500 font-inter">Immediate Value:</span>
-                <PaperBadge tone="gray">{searchTerm || 'empty'}</PaperBadge>
+          <Box className="p-4 bg-gray-50/40 rounded-md relative">
+            <SketchBorder />
+            <Stack spacing="sm" className="relative z-10">
+              <span className="font-medium font-architect">Search State:</span>
+              <Flex justify="between" align="center" className="p-2 bg-[#fffdf9] rounded">
+                <span className="text-sm text-gray-500 font-architect">Immediate Value:</span>
+                <PaperBadge tone="ink">{searchTerm || 'empty'}</PaperBadge>
               </Flex>
-              <Flex justify="between" align="center" className="p-2 bg-white rounded">
-                <span className="text-sm text-gray-500 font-inter">Debounced Value:</span>
-                <PaperBadge tone="blue">{debouncedSearch || 'empty'}</PaperBadge>
+              <Flex justify="between" align="center" className="p-2 bg-[#fffdf9] rounded">
+                <span className="text-sm text-gray-500 font-architect">Debounced Value:</span>
+                <PaperBadge tone="sky">{debouncedSearch || 'empty'}</PaperBadge>
               </Flex>
             </Stack>
           </Box>
@@ -185,7 +188,7 @@ export const UseClickOutsideStory: StoryObj = {
 
     return (
       <Stack spacing="xl" align="center" className="p-8 min-h-[300px]">
-        <p className="text-gray-500 font-inter">Click anywhere outside the dropdown to close it</p>
+        <p className="text-gray-500 font-architect">Click anywhere outside the dropdown to close it</p>
         
         <Box className="relative">
           <SketchButton onClick={() => setIsOpen(!isOpen)}>
@@ -200,10 +203,10 @@ export const UseClickOutsideStory: StoryObj = {
               <PaperShadow depth={3} />
               <PaperCard className="p-2 relative z-10">
                 <Stack spacing="xs">
-                  <div className="p-2 hover:bg-gray-50 cursor-pointer font-inter text-sm">Profile</div>
-                  <div className="p-2 hover:bg-gray-50 cursor-pointer font-inter text-sm">Settings</div>
+                  <div className="p-2 hover:bg-gray-50 cursor-pointer font-architect text-sm">Profile</div>
+                  <div className="p-2 hover:bg-gray-50 cursor-pointer font-architect text-sm">Settings</div>
                   <SketchDivider variant="straight" />
-                  <div className="p-2 hover:bg-red-50 cursor-pointer font-inter text-sm text-red-600">Logout</div>
+                  <div className="p-2 hover:bg-red-50 cursor-pointer font-architect text-sm text-red-600">Logout</div>
                 </Stack>
               </PaperCard>
             </Box>
@@ -221,13 +224,14 @@ export const UseToggleStory: StoryObj = {
     return (
       <PaperCard className="p-8 min-w-[350px]">
         <Stack spacing="lg" align="center">
-          <h4 className="font-serif text-lg font-bold">Toggle Theme Settings</h4>
+          <PaperH4>Toggle Theme Settings</PaperH4>
           
           <div className="relative w-full">
             <PaperShadow depth={value ? 2 : 1} />
             <Box className={`p-6 relative z-10 transition-colors duration-300 rounded-md ${value ? 'bg-gray-800 text-white' : 'bg-gray-50 text-black'}`}>
-              <Flex direction="column" align="center" gap="md">
-                <span className="text-xl font-inter">{value ? '🌙 Dark Mode' : '☀️ Light Mode'}</span>
+              <SketchBorder />
+              <Flex direction="column" align="center" gap="md" className="relative z-10">
+                <span className="text-xl font-kalam">{value ? '🌙 Dark Mode' : '☀️ Light Mode'}</span>
                 <SketchButton onClick={() => toggle()}>
                   Toggle Theme
                 </SketchButton>
@@ -253,15 +257,15 @@ export const UseLocalStorageStory: StoryObj = {
     return (
       <PaperCard className="p-8 min-w-[400px]">
         <Stack spacing="lg">
-          <h4 className="font-serif text-lg font-bold">Profile Settings (Persisted)</h4>
-          <p className="text-gray-500 font-inter">This value will persist across page reloads.</p>
+          <PaperH4>Profile Settings (Persisted)</PaperH4>
+          <p className="text-gray-500 font-architect">This value will persist across page reloads.</p>
           
           <div className="relative p-4">
             <SketchBorder />
             <Stack spacing="md" className="relative z-10">
               <Flex align="center" gap="sm">
-                <span className="font-bold font-inter">Hello,</span>
-                <PaperBadge tone="blue">{name}</PaperBadge>
+                <span className="font-bold font-kalam">Hello,</span>
+                <PaperBadge tone="sky">{name}</PaperBadge>
               </Flex>
               
               <SketchDivider variant="wavy" />
@@ -286,41 +290,37 @@ export const UseMediaQueryStory: StoryObj = {
     const isDesktop = useMediaQuery('(min-width: 768px)');
     
     return (
-      <PaperCard className={`p-8 w-full max-w-[600px] transition-colors duration-300 ${isDesktop ? 'bg-blue-50' : 'bg-gray-50'}`}>
+      <PaperCard className={`p-8 w-full max-w-[600px] transition-colors duration-300 ${isDesktop ? 'bg-[#f0f9ff]' : 'bg-[#fffdf9]'}`}>
         <Stack spacing="md" align="center">
-          <h4 className="font-serif text-lg font-bold">Responsive Layout Demo</h4>
-          <p className="text-center text-gray-500 font-inter">
+          <PaperH4 className="text-center font-bold">Responsive Layout Demo</PaperH4>
+          <p className="text-center text-gray-500 font-architect text-sm">
             Resize your window to see the hook in action.
           </p>
           
-          <Box className="p-6 border-2 border-dashed border-gray-300 rounded-md w-full">
+          <Box className="p-6 border-2 border-dashed border-gray-300 rounded-md w-full relative">
+            <SketchBorder stroke="#9c9484" strokeWidth={1.4} />
             <Flex 
               direction={isDesktop ? 'row' : 'column'} 
               gap="md" 
               justify="center"
               align="center"
+              className="relative z-10"
             >
-              <div className="relative w-[150px]">
-                <PaperShadow depth={1} />
-                <Box className="p-4 bg-white text-center relative z-10">
-                  <span className="font-bold font-inter">Component A</span>
-                </Box>
-              </div>
+              <PaperPanel className="p-4 text-center w-[150px]">
+                <span className="font-bold font-kalam">Component A</span>
+              </PaperPanel>
               
-              <span className="text-gray-400">
+              <span className="text-gray-400 font-architect">
                 {isDesktop ? '→' : '↓'}
               </span>
               
-              <div className="relative w-[150px]">
-                <PaperShadow depth={1} />
-                <Box className="p-4 bg-white text-center relative z-10">
-                  <span className="font-bold font-inter">Component B</span>
-                </Box>
-              </div>
+              <PaperPanel className="p-4 text-center w-[150px]">
+                <span className="font-bold font-kalam">Component B</span>
+              </PaperPanel>
             </Flex>
           </Box>
           
-          <PaperBadge tone={isDesktop ? "green" : "orange"}>
+          <PaperBadge tone={isDesktop ? "sage" : "ochre"}>
             Current View: {isDesktop ? 'Desktop (Row)' : 'Mobile (Column)'}
           </PaperBadge>
         </Stack>
