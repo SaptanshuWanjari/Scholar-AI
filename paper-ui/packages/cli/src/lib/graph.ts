@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 export type ImportKind = 'core' | 'utils' | 'tokens' | 'relative' | 'npm';
 
 const IMPORT_RE = /import\s+(?:[\w*${}\n\r\t, ]+\s+from\s+)?["']([^"']+)["']/g;
@@ -26,9 +29,6 @@ export function packageName(spec: string): string {
   return spec.split('/')[0];
 }
 
-import fs from 'node:fs';
-import path from 'node:path';
-
 export function resolveFile(fromFile: string, spec: string, srcRoot: string): string | null {
   if (!spec.startsWith('.')) return null;
   const base = path.resolve(path.dirname(fromFile), spec);
@@ -37,7 +37,7 @@ export function resolveFile(fromFile: string, spec: string, srcRoot: string): st
     path.join(base, 'index.tsx'), path.join(base, 'index.ts'),
   ];
   for (const c of candidates) {
-    if (c.startsWith(srcRoot) && fs.existsSync(c) && fs.statSync(c).isFile()) return c;
+    if ((c === srcRoot || c.startsWith(srcRoot + path.sep)) && fs.existsSync(c) && fs.statSync(c).isFile()) return c;
   }
   return null;
 }
