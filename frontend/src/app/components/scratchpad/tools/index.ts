@@ -1,0 +1,6 @@
+export { penTool } from './pen'
+export { highlighterTool } from './highlighter'
+export { shapesTool } from './shapes'
+export { textTool } from './text'
+export { eraserTool } from './eraser'
+export { selectTool } from './select'

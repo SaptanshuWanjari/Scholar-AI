@@ -4,6 +4,8 @@ import { AppSidebar } from "./AppSidebar";
 import { Topbar } from "./Topbar";
 import { CommandMenu } from "../CommandMenu";
 import { TourAutoStart } from "../../guidance/components/TourAutoStart";
+import { ScratchpadDrawer } from "../scratchpad/ScratchpadDrawer";
+import { useScratchpadStore } from "../scratchpad/useScratchpadStore";
 import { navItems } from "../../lib/nav";
 import { useAppearanceStore } from "../../stores/useAppearanceStore";
 
@@ -13,6 +15,13 @@ export function AppLayout() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Ctrl+\ toggles scratchpad (handled before other guards)
+      if (e.ctrlKey && e.key === '\\') {
+        e.preventDefault();
+        useScratchpadStore.getState().toggleDrawer();
+        return;
+      }
+
       // Skip if a text input is focused or any modifier (except Shift) is held.
       const tag = (e.target as HTMLElement)?.tagName;
       const editable = (e.target as HTMLElement)?.isContentEditable;
@@ -41,6 +50,7 @@ export function AppLayout() {
       </div>
       <CommandMenu />
       <TourAutoStart />
+      <ScratchpadDrawer />
     </div>
   );
 }
