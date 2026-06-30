@@ -1,13 +1,23 @@
 import { cn } from "@paper-ui/utils";
 
+export type PaperClipPosition = "top-left" | "top-right" | "top-center" | "none";
+
 export interface PaperClipProps {
   size?: number;
   color?: string;
+  position?: PaperClipPosition;
   className?: string;
 }
 
+const CLIP_PLACEMENT: Record<PaperClipPosition, string> = {
+  "top-left": "absolute -top-4 left-6 z-20",
+  "top-right": "absolute -top-4 right-6 z-20",
+  "top-center": "absolute -top-4 left-1/2 -translate-x-1/2 z-20",
+  "none": "",
+};
+
 /** A Gem-style paperclip — two nested wire loops, open at the bottom. */
-export function PaperClip({ size = 28, color = "#8a8a8a", className }: PaperClipProps) {
+export function PaperClip({ size = 28, color = "#8a8a8a", position = "top-left", className }: PaperClipProps) {
   // viewBox 0 0 14 38 — narrow and tall, open at the bottom
   const scale = size / 38;
   const w = Math.round(14 * scale);
@@ -18,7 +28,7 @@ export function PaperClip({ size = 28, color = "#8a8a8a", className }: PaperClip
       width={w}
       height={h}
       viewBox="0 0 14 38"
-      className={cn("drop-shadow-[0px_1px_1px_rgba(0,0,0,0.15)]", className)}
+      className={cn("drop-shadow-[0px_1px_1px_rgba(0,0,0,0.15)]", CLIP_PLACEMENT[position], className)}
       aria-hidden
     >
       {/* Outer loop: up left side → over top → down right side → bridge to inner */}

@@ -104,7 +104,7 @@ export function PaperTooltip({
             ref={tooltipRef}
             role="tooltip"
             style={{
-              position: "fixed",
+              position: "absolute",
               top: pos?.top ?? -9999,
               left: pos?.left ?? -9999,
               zIndex: 9999,
