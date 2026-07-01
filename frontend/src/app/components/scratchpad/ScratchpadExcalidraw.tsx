@@ -22,7 +22,7 @@ const Excalidraw = lazy(() =>
 
 const loader = (
   <div className="flex h-full w-full items-center justify-center">
-    <Loader2 className="size-5 animate-spin text-violet" />
+    <Loader2 className="size-5 animate-spin text-ink-muted" />
   </div>
 )
 

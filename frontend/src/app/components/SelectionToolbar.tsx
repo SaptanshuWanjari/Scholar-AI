@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { LucideIcon } from "lucide-react";
+import { SelectionToolbar as PaperSelectionToolbar, type SelectionAction as PaperAction } from "@/paper-ui/components/pdf";
 
 export interface SelectionAction {
   label: string;
@@ -65,13 +66,22 @@ export function SelectionToolbar({
   actions: SelectionAction[];
 }) {
   const { selection, clear } = useTextSelection(containerRef);
-  const barRef = useRef<HTMLDivElement>(null);
+
+  const paperActions: PaperAction[] = actions.map(a => ({
+    label: a.label,
+    icon: <a.icon size={16} />,
+    onClick: () => {
+      if (selection) {
+        a.onSelect(selection.text);
+        clear();
+      }
+    },
+  }));
 
   return (
     <AnimatePresence>
       {selection && (
         <motion.div
-          ref={barRef}
           initial={{ opacity: 0, y: 6, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 6, scale: 0.96 }}
@@ -83,22 +93,8 @@ export function SelectionToolbar({
             transform: "translate(-50%, -100%)",
             zIndex: 60,
           }}
-          className="flex items-center gap-0.5 rounded-lg border border-border bg-popover p-1 shadow-lg shadow-foreground/5"
         >
-          {actions.map((a, i) => (
-            <button
-              key={a.label}
-              onClick={() => {
-                a.onSelect(selection.text);
-                clear();
-              }}
-              className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
-              style={{ borderLeft: i > 0 ? "1px solid var(--border)" : undefined }}
-            >
-              <a.icon className="size-3.5 text-violet" />
-              {a.label}
-            </button>
-          ))}
+          <PaperSelectionToolbar actions={paperActions} />
         </motion.div>
       )}
     </AnimatePresence>

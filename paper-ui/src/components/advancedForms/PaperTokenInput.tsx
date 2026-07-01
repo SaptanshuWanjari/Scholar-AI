@@ -34,8 +34,8 @@ export const PaperTokenInput = React.forwardRef<HTMLDivElement, PaperTokenInputP
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const filteredTokens = tokens.filter(t => 
-      !selectedTokens.find(st => st.id === t.id) && 
+    const filteredTokens = tokens.filter(t =>
+      !selectedTokens.find(st => st.id === t.id) &&
       t.label.toLowerCase().includes(inputValue.toLowerCase())
     );
 
@@ -70,7 +70,7 @@ export const PaperTokenInput = React.forwardRef<HTMLDivElement, PaperTokenInputP
             roughness={1.1}
             shadow={0}
           />
-          
+
           <div className="relative z-[1] flex flex-wrap gap-2 w-full items-center">
             <Search size={16} className="text-ink-muted shrink-0" />
             {selectedTokens.map((token) => (
@@ -99,7 +99,7 @@ export const PaperTokenInput = React.forwardRef<HTMLDivElement, PaperTokenInputP
               onKeyDown={handleKeyDown}
               onFocus={() => { setFocused(true); setIsOpen(true); }}
               onBlur={() => setFocused(false)}
-              className="flex-1 min-w-[80px] border-none bg-transparent font-architect text-[15px] text-ink placeholder:text-ink-muted/60 focus:outline-none"
+              className="flex-1 min-w-[80px] border-none bg-transparent font-architect text-[15px] text-ink placeholder:font-architect placeholder:text-ink-muted/60 focus:outline-none"
               placeholder="Search..."
             />
           </div>

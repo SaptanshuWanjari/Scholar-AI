@@ -4,7 +4,6 @@ import { cn } from "@paper-ui/utils";
 import { PaperCard } from "@paper-ui/core";
 import { SectionLabel } from "@paper-ui/core";
 import { PaperBadge } from "../badges/PaperBadge";
-import { FoldedCorner } from "../decorations/FoldedCorner";
 import type { IconTone } from "@paper-ui/core";
 
 type ArtifactType = "quiz" | "flashcard" | "notes" | "summary" | "mindmap";
@@ -58,7 +57,6 @@ export function ArtifactCard({
       )}
       onClick={onOpen}
     >
-      <FoldedCorner size={28} />
 
       <div className="mb-3 flex items-start justify-between gap-2">
         <PaperBadge tone={meta.tone}>

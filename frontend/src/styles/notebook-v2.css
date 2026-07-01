@@ -137,6 +137,85 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
+/* ─────────────────────────────────────────────────────────────
+   BlockSuite AffineEditorContainer — paper skin overrides
+   We suppress the native chrome and let our shell own layout.
+   ───────────────────────────────────────────────────────────── */
+
+/* The outer web-component: fill the mount div, no extra chrome */
+affine-editor-container {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+/* Hide the built-in doc-title fragment — our shell shows the title */
+doc-title {
+  display: none !important;
+}
+
+/* Hide the drag handle widget — too noisy on paper */
+affine-drag-handle-widget {
+  display: none !important;
+}
+
+/* The affine viewport / content host: let it fill, no added background */
+.affine-doc-viewport {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.affine-doc-page-block-container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 32px 64px 64px;
+}
+
+/* Typography: override BlockSuite defaults to use paper-ui tokens */
+.affine-paragraph-block-container,
+.affine-list-block__prefix,
+.affine-list-rich-text-wrapper {
+  font-family: var(--font-kalam, 'Kalam', cursive) !important;
+  font-size: 15px;
+  line-height: 2; /* aligns with 32px ruled lines */
+  color: var(--paper-ink, #211f1b);
+}
+
+.affine-paragraph-block-container rich-text {
+  caret-color: #5a5aba;
+}
+
+/* Headings use architect font */
+[data-v-type="h1"] .affine-paragraph-block-container,
+[data-v-type="h2"] .affine-paragraph-block-container,
+[data-v-type="h3"] .affine-paragraph-block-container {
+  font-family: var(--font-architect, 'Architects Daughter', cursive) !important;
+  color: var(--paper-ink, #211f1b);
+}
+
+[data-v-type="h1"] .affine-paragraph-block-container { font-size: 26px; }
+[data-v-type="h2"] .affine-paragraph-block-container { font-size: 21px; }
+[data-v-type="h3"] .affine-paragraph-block-container { font-size: 17px; }
+
+/* Code block: monospace, softened */
+affine-code {
+  border-radius: 6px;
+  background: rgba(33, 31, 27, 0.05) !important;
+  font-size: 13px;
+}
+
+/* Format bar: elevate so it floats above paper */
+affine-format-bar-widget {
+  z-index: 100;
+}
+
+/* Scholar embed blocks: full-width inside the content */
+.scholar-embed {
+  display: block;
+  width: 100%;
+}
+
 @media (max-width: 1200px) {
   .notebook-v2-spread {
     gap: 20px;

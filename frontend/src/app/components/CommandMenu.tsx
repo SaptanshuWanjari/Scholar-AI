@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "./ui/command";
+import { CommandBar } from "@paper-ui/components/navigation";
+import type { CommandEntry } from "@paper-ui/components/navigation";
 import { navItems } from "../lib/nav";
 import { useUIStore } from "../stores/useUIStore";
 import { api } from "../lib/api";
@@ -33,7 +26,6 @@ export function CommandMenu() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open, setOpen]);
 
-  // Fetch real data whenever the menu opens.
   useEffect(() => {
     if (!open) return;
     api.listCourses().then(setCourses).catch(() => setCourses([]));
@@ -45,45 +37,35 @@ export function CommandMenu() {
     setOpen(false);
   };
 
+  const commands: CommandEntry[] = [
+    ...navItems.map((item) => ({
+      key: `nav-${item.to}`,
+      label: item.label,
+      icon: <item.icon className="size-4" />,
+      shortcut: item.shortcut ? [item.shortcut.toUpperCase()] : undefined,
+      action: () => go(item.to),
+    })),
+    ...documents.slice(0, 4).map((d) => ({
+      key: `doc-${d.id}`,
+      label: d.title,
+      icon: <FileText className="size-4" />,
+      action: () => go("/documents"),
+    })),
+    ...courses.map((c) => ({
+      key: `course-${c.id}`,
+      label: c.name,
+      description: c.code,
+      icon: <GraduationCap className="size-4" />,
+      action: () => go("/knowledge"),
+    })),
+  ];
+
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Search pages, documents, courses…" />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Navigation">
-          {navItems.map((item) => (
-            <CommandItem key={item.to} onSelect={() => go(item.to)}>
-              <item.icon className="size-4 text-muted-foreground" />
-              <span>{item.label}</span>
-              {item.shortcut && (
-                <kbd className="ml-auto rounded border border-border bg-muted px-1.5 font-mono text-[10px] text-muted-foreground">
-                  {item.shortcut}
-                </kbd>
-              )}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup heading="Documents">
-          {documents.slice(0, 4).map((d) => (
-            <CommandItem key={d.id} onSelect={() => go("/documents")}>
-              <FileText className="size-4 text-muted-foreground" />
-              <span className="truncate">{d.title}</span>
-            </CommandItem>
-          ))}
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup heading="Courses">
-          {courses.map((c) => (
-            <CommandItem key={c.id} onSelect={() => go("/knowledge")}>
-              <GraduationCap className="size-4" style={{ color: c.color }} />
-              <span>{c.name}</span>
-              <span className="ml-auto text-xs text-muted-foreground">{c.code}</span>
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </CommandDialog>
+    <CommandBar
+      open={open}
+      onClose={() => setOpen(false)}
+      commands={commands}
+      placeholder="Search pages, documents, courses…"
+    />
   );
 }
-

@@ -3,8 +3,9 @@ import { AnimatePresence, motion } from "motion/react";
 import type { Node, Edge } from "@xyflow/react";
 import type { ConceptData } from "../../lib/graph-data";
 import { toast } from "sonner";
-import { Button } from "../../components/ui/button";
-import { Badge } from "../../components/ui/badge";
+import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
+import { Pill } from "@paper-ui/components/badges";
+import { PaperBadge } from "@paper-ui/components/badges";
 import { DependencyInspector } from "../../components/DependencyInspector";
 import { MarkdownRenderer } from "../../components/MarkdownRenderer";
 import { useConceptActionStore } from "../../stores/useConceptActionStore";
@@ -70,9 +71,9 @@ export function InspectorContent({
 
   if (loading || !concept) {
     return (
-      <div className="flex flex-col items-center gap-3 px-6 pt-20 text-muted-foreground">
-        <Loader2 className="size-5 animate-spin text-violet" />
-        <span className="text-sm">Loading concept…</span>
+      <div className="flex flex-col items-center gap-3 px-6 pt-20 text-ink-muted">
+        <Loader2 className="size-5 animate-spin text-[#6f63a3]" />
+        <span className="font-kalam text-sm">Loading concept…</span>
       </div>
     );
   }
@@ -98,46 +99,50 @@ export function InspectorContent({
   ];
 
   return (
-    <div className="space-y-0 divide-y divide-border">
+    <div className="space-y-0 divide-y divide-[#e8e3d8]">
+      {/* Header */}
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="font-display text-2xl leading-tight">{concept.name}</h2>
-          <Button variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={onOpenDrawer}>
+          <h2 className="font-architect text-2xl leading-tight text-ink">{concept.name}</h2>
+          <GhostButton size="sm" onClick={onOpenDrawer}>
             <ExternalLink className="size-3.5" /> Full page
-          </Button>
+          </GhostButton>
         </div>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{concept.description}</p>
+        <p className="mt-2 font-kalam text-sm leading-relaxed text-ink-muted">{concept.description}</p>
 
+        {/* Stats */}
         <div className="mt-4 flex gap-3">
-          <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-center">
-            <div className="font-display text-2xl leading-none">{(concept.confidence * 100).toFixed(0)}%</div>
-            <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Confidence</div>
+          <div className="flex-1 rounded border border-[#e8e3d8] bg-[#f9f6f0] px-3 py-2 text-center">
+            <div className="font-architect text-2xl leading-none text-ink">{(concept.confidence * 100).toFixed(0)}%</div>
+            <div className="mt-1 font-architect text-[10px] uppercase tracking-wider text-ink-muted">Confidence</div>
           </div>
-          <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-center">
-            <div className="font-display text-2xl leading-none">{concept.refCount}</div>
-            <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">References</div>
+          <div className="flex-1 rounded border border-[#e8e3d8] bg-[#f9f6f0] px-3 py-2 text-center">
+            <div className="font-architect text-2xl leading-none text-ink">{concept.refCount}</div>
+            <div className="mt-1 font-architect text-[10px] uppercase tracking-wider text-ink-muted">References</div>
           </div>
-          <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-center">
-            <div className="font-display text-2xl leading-none">{concept.sourceCount}</div>
-            <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Sources</div>
+          <div className="flex-1 rounded border border-[#e8e3d8] bg-[#f9f6f0] px-3 py-2 text-center">
+            <div className="font-architect text-2xl leading-none text-ink">{concept.sourceCount}</div>
+            <div className="mt-1 font-architect text-[10px] uppercase tracking-wider text-ink-muted">Sources</div>
           </div>
         </div>
       </div>
 
       <DependencyInspector conceptName={concept.name} />
 
+      {/* Related concepts */}
       <div className="p-4">
         <InspectorBlock title="Related Concepts">
           <div className="flex flex-wrap gap-1.5">
             {concept.relatedConcepts.map((c) => (
-              <span key={c} className="cursor-pointer rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground/80 hover:border-violet/40 hover:text-violet">
+              <Pill key={c} tone="lavender">
                 {c}
-              </span>
+              </Pill>
             ))}
           </div>
         </InspectorBlock>
       </div>
 
+      {/* Connected nodes */}
       {connectedNodes.length > 0 && (
         <div className="p-4">
           <InspectorBlock title="Connected Concepts">
@@ -146,9 +151,9 @@ export function InspectorContent({
                 <button
                   key={n.id}
                   onClick={() => setField("selectedId", n.id)}
-                  className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground/80 transition-colors hover:border-violet/40 hover:text-violet"
+                  className="font-architect"
                 >
-                  {n.data.label}
+                  <Pill tone="sky">{n.data.label}</Pill>
                 </button>
               ))}
             </div>
@@ -156,31 +161,33 @@ export function InspectorContent({
         </div>
       )}
 
+      {/* Referenced in */}
       <div className="p-4">
         <InspectorBlock title="Referenced In">
           <div className="space-y-1">
             {refInRows.map((r) => (
-              <div key={r.label} className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-accent/50">
-                <span className="flex items-center gap-2 text-sm text-foreground/80">
-                  <r.icon className="size-3.5 text-muted-foreground" /> {r.label}
+              <div key={r.label} className="flex items-center justify-between rounded px-2 py-1.5 hover:bg-black/5">
+                <span className="flex items-center gap-2 font-architect text-sm text-ink-muted">
+                  <r.icon className="size-3.5 text-ink-muted" /> {r.label}
                 </span>
-                <Badge variant="outline" className="text-xs">{r.count}</Badge>
+                <PaperBadge tone="ink">{r.count}</PaperBadge>
               </div>
             ))}
           </div>
         </InspectorBlock>
       </div>
 
+      {/* Source citations */}
       <div className="p-4">
         <InspectorBlock title="Source Citations">
           <div className="space-y-2">
             {concept.citations.map((c, i) => (
-              <div key={i} className="rounded-lg border border-border bg-card px-3 py-2">
+              <div key={i} className="rounded border border-[#e8e3d8] bg-[#f9f6f0] px-3 py-2">
                 <div className="flex items-start gap-2">
-                  <Quote className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                  <Quote className="mt-0.5 size-3.5 shrink-0 text-ink-muted" />
                   <div>
-                    <div className="text-sm font-medium">{c.source}</div>
-                    <div className="text-[11px] text-muted-foreground">{c.detail}</div>
+                    <div className="font-architect text-sm text-ink">{c.source}</div>
+                    <div className="font-kalam text-[11px] text-ink-muted">{c.detail}</div>
                   </div>
                 </div>
               </div>
@@ -189,6 +196,7 @@ export function InspectorContent({
         </InspectorBlock>
       </div>
 
+      {/* Generated assets */}
       <div className="p-4">
         <InspectorBlock title="Generated Assets">
           <div className="grid grid-cols-2 gap-2">
@@ -199,18 +207,20 @@ export function InspectorContent({
               { label: "Open Mind Map", icon: Network, to: "/mindmaps" },
               { label: "Open Notebook", icon: Notebook, to: "/notebooks" },
             ].map((a) => (
-              <button
+              <GhostButton
                 key={a.label}
+                size="sm"
                 onClick={() => navigate(a.to)}
-                className="flex items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-2 text-[12px] font-medium text-foreground/80 transition-colors hover:border-violet/40 hover:text-violet"
+                className="justify-start"
               >
                 <a.icon className="size-3.5" /> {a.label}
-              </button>
+              </GhostButton>
             ))}
           </div>
         </InspectorBlock>
       </div>
 
+      {/* AI actions */}
       <div className="p-4">
         <InspectorBlock title="AI Actions">
           <div className="space-y-1">
@@ -221,12 +231,12 @@ export function InspectorContent({
                   key={a.label}
                   onClick={() => concept && runAction(concept, conceptId, a.label, navigate)}
                   disabled={running !== null}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground/80 transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
+                  className="flex w-full items-center gap-2.5 rounded px-2.5 py-2 font-architect text-sm text-ink-muted transition-colors hover:bg-black/5 hover:text-ink disabled:opacity-50"
                 >
                   {isRunning ? (
-                    <Loader2 className="size-4 animate-spin text-violet" />
+                    <Loader2 className="size-4 animate-spin text-[#6f63a3]" />
                   ) : (
-                    <a.icon className="size-4 text-violet" />
+                    <a.icon className="size-4 text-[#6f63a3]" />
                   )}
                   {isRunning ? `${a.label}…` : a.label}
                 </button>
@@ -239,17 +249,17 @@ export function InspectorContent({
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mt-3 overflow-hidden rounded-lg border border-border bg-card"
+                className="mt-3 overflow-hidden rounded border border-[#e8e3d8] bg-[#f9f6f0]"
               >
-                <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                  <span className="text-xs font-medium">{result!.title}</span>
-                  <button onClick={clearResult} className="text-muted-foreground hover:text-foreground">
+                <div className="flex items-center justify-between border-b border-[#e8e3d8] px-3 py-2">
+                  <span className="font-architect text-xs text-ink">{result!.title}</span>
+                  <button onClick={clearResult} className="text-ink-muted hover:text-ink">
                     <X className="size-3.5" />
                   </button>
                 </div>
                 <div className="max-h-80 overflow-y-auto p-3">
                   {result!.mono ? (
-                    <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-foreground/80">{result!.body}</pre>
+                    <pre className="whitespace-pre-wrap font-kalam text-xs leading-relaxed text-ink/80">{result!.body}</pre>
                   ) : (
                     <MarkdownRenderer content={result!.body} />
                   )}
@@ -260,16 +270,17 @@ export function InspectorContent({
         </InspectorBlock>
       </div>
 
+      {/* Discover */}
       <div className="p-4">
-        <Button
+        <PaperButton
+          tone={discovering ? "paper" : "dark"}
           onClick={onDiscover}
-          variant="outline"
           disabled={discovering}
-          className="w-full gap-2 border-violet/30 text-violet hover:bg-violet-soft"
+          className="w-full"
         >
           {discovering ? <Loader2 className="size-4 animate-spin" /> : <Compass className="size-4" />}
           {discovering ? "Discovering…" : "Discover Related Concepts"}
-        </Button>
+        </PaperButton>
         <AnimatePresence>
           {discoveries && (
             <motion.div
@@ -278,20 +289,20 @@ export function InspectorContent({
               exit={{ opacity: 0, height: 0 }}
               className="mt-3 overflow-hidden"
             >
-              <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                <Sparkles className="size-3 text-violet" /> AI Suggestions
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="size-3 text-[#6f63a3]" />
+                <span className="font-architect text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+                  AI Suggestions
+                </span>
               </div>
               {discoveries.length === 0 ? (
-                <p className="mt-2 text-xs text-muted-foreground">No related concepts found.</p>
+                <p className="mt-2 font-kalam text-xs text-ink-muted">No related concepts found.</p>
               ) : (
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {discoveries.map((d) => (
-                    <button
-                      key={d}
-                      className="rounded-full border border-violet/30 bg-violet-soft px-2.5 py-1 text-[11px] text-violet"
-                    >
+                    <Pill key={d} tone="lavender">
                       + {d}
-                    </button>
+                    </Pill>
                   ))}
                 </div>
               )}

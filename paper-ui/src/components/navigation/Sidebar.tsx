@@ -18,7 +18,7 @@ export function SidebarItem({ icon: Icon, label, active, onClick }: SidebarItemP
       onClick={onClick}
       className={cn(
         "group relative flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left transition-colors",
-        active ? "text-ink" : "text-ink-muted hover:bg-black/[0.035]",
+        active ? "text-ink" : "text-ink-muted paper-hover-sweep",
       )}
     >
       {active && (

@@ -1,8 +1,8 @@
 import React from 'react';
 import type { Meta } from '@storybook/react';
-import { Paper } from '../../../../paper-ui/src/components/paper';
-import { Tape, PushPin, PaperClip, FoldedCorner, CoffeeRing, NotebookSpiral, PaperStamp, MarkerHighlight, NotebookEdge, Scribble } from '../../../../paper-ui/src/components/decorations';
-import { SketchButton } from '../../../../paper-ui/src/components/buttons';
+import { Paper } from '@paper-ui/components/paper';
+import { Tape, PushPin, PaperClip,  CoffeeRing, NotebookSpiral, PaperStamp, MarkerHighlight, NotebookEdge, Scribble } from '@paper-ui/components/decorations';
+import { SketchButton } from '@paper-ui/components/buttons';
 
 const meta = {
   title: 'Components/Decorations/Decorations',
@@ -86,7 +86,6 @@ export const MarksAndStamps = () => {
   return (
     <div className="p-12 flex gap-12 justify-center flex-wrap bg-[#f4f1ea]">
       <Paper className="w-72 p-8 pt-10">
-        <FoldedCorner position="bottom-right" size={40} />
         <CoffeeRing size={120} position="bottom-right" rotate={12} opacity={0.4} color="#5c4033" />
         <h3 className="font-serif text-xl font-bold mb-4">Well-Loved</h3>
         <p className="font-mono text-sm text-gray-700 relative z-10">

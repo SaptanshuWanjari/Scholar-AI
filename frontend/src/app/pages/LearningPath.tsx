@@ -22,26 +22,20 @@ import {
   Lock,
   Unlock,
 } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../components/ui/dialog";
-import { Page, SectionTitle } from "../components/Page";
+  PaperButton,
+  ChipButton,
+  GhostButton,
+} from "@paper-ui/components/buttons";
+import { PaperInput, PaperSelect } from "@paper-ui/components/inputs";
+import type { SelectOption } from "@paper-ui/components/inputs";
+import { PaperBadge } from "@paper-ui/components/badges";
+import { LearningProgress } from "@paper-ui/components/progress";
+import { PaperModal } from "@paper-ui/components/dialogs";
+import { PaperCard, SectionHeader, SectionLabel } from "@paper-ui/core";
+import { cn } from "@paper-ui/utils";
+import { Page } from "../components/Page";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
-import { cn } from "../components/ui/utils";
 import {
   type LearningPathConcept,
   type LearningPathStage,
@@ -59,7 +53,7 @@ const SUGGESTIONS = [
   "Machine Learning",
 ];
 
-const STATUS_OPTIONS: { value: ConceptStatus; label: string }[] = [
+const STATUS_OPTIONS: SelectOption[] = [
   { value: "not_started", label: "Not Started" },
   { value: "in_progress", label: "In Progress" },
   { value: "completed", label: "Completed" },
@@ -67,18 +61,10 @@ const STATUS_OPTIONS: { value: ConceptStatus; label: string }[] = [
   { value: "weak_area", label: "Weak Area" },
 ];
 
-const STATUS_COLOR: Record<ConceptStatus, string> = {
-  not_started: "border-border bg-background text-muted-foreground",
-  in_progress: "border-primary/40 bg-violet-soft text-primary",
-  completed: "border-success/40 bg-success-soft text-success",
-  needs_revision: "border-warning/40 bg-warning-soft text-warning",
-  weak_area: "border-danger/40 bg-danger-soft text-danger",
-};
-
 const DIFFICULTY_COLOR: Record<string, string> = {
-  Easy: "border-success/40 bg-success-soft text-success",
-  Medium: "border-warning/40 bg-warning-soft text-warning",
-  Hard: "border-danger/40 bg-danger-soft text-danger",
+  Easy: "text-[#3f7a4e]",
+  Medium: "text-[#a3771f]",
+  Hard: "text-[#9f3a36]",
 };
 
 const MASTERY_DOT: Record<string, string> = {
@@ -88,7 +74,6 @@ const MASTERY_DOT: Record<string, string> = {
   "Needs Revision": "bg-orange-400",
 };
 
-// Concept-card actions wired to existing generators via useConceptActionStore.
 const ACTIONS: { label: string; icon: typeof Sparkles; runLabel: string }[] = [
   { label: "Explain", icon: Sparkles, runLabel: "Explain Concept" },
   { label: "Summary", icon: NotebookPen, runLabel: "Generate Summary" },
@@ -136,89 +121,104 @@ function ConceptCard({
   };
 
   return (
-    <div className="flex flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-ring/40">
+    <PaperCard className="p-4 focus-within:z-10">
       <div className="flex items-start justify-between gap-2">
-        <h4 className="font-medium leading-snug text-foreground">{concept.title}</h4>
+        <h4 className="font-kalam text-[15px] font-bold leading-snug text-ink">
+          {concept.title}
+        </h4>
         <div className="flex items-center gap-1.5 shrink-0">
           {concept.masteryStatus && concept.masteryStatus !== "Unknown" && (
             <span
-              className={cn("size-2 rounded-full", MASTERY_DOT[concept.masteryStatus])}
+              className={cn(
+                "size-2 rounded-full",
+                MASTERY_DOT[concept.masteryStatus],
+              )}
               title={concept.masteryStatus}
             />
           )}
-          <Badge
-            variant="outline"
-            className={cn("text-[10px]", DIFFICULTY_COLOR[concept.difficulty] ?? "")}
+          <span
+            className={cn(
+              "font-architect text-[11px] font-medium",
+              DIFFICULTY_COLOR[concept.difficulty] ?? "",
+            )}
           >
             {concept.difficulty}
-          </Badge>
+          </span>
         </div>
       </div>
 
       {concept.summary && (
-        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{concept.summary}</p>
+        <p className="mt-1 line-clamp-2 font-kalam text-[13px] text-ink-muted">
+          {concept.summary}
+        </p>
       )}
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-architect text-[12px] text-ink-muted">
         <span className="flex items-center gap-1">
           <Clock className="size-3" /> {fmtMinutes(concept.estimatedMinutes)}
         </span>
         {concept.prerequisites.length > 0 && (
-          <span className="flex items-center gap-1" title={concept.prerequisites.join(", ")}>
+          <span
+            className="flex items-center gap-1"
+            title={concept.prerequisites.join(", ")}
+          >
             <Lock className="size-3" /> {concept.prerequisites.length} prereq
           </span>
         )}
         {concept.unlocks.length > 0 && (
-          <span className="flex items-center gap-1" title={concept.unlocks.join(", ")}>
+          <span
+            className="flex items-center gap-1"
+            title={concept.unlocks.join(", ")}
+          >
             <Unlock className="size-3" /> unlocks {concept.unlocks.length}
           </span>
         )}
       </div>
 
       <div className="mt-3">
-        <Select
+        <PaperSelect
           value={concept.status}
-          onValueChange={(v) => setConceptStatus(concept.title, v as ConceptStatus)}
-        >
-          <SelectTrigger className={cn("h-8 text-xs", STATUS_COLOR[concept.status])}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value} className="text-xs">
-                {o.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          onChange={(v) => setConceptStatus(concept.title, v as ConceptStatus)}
+          options={STATUS_OPTIONS}
+          className="h-8"
+        />
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
-        <button
-          onClick={openTeach}
-          className="flex items-center gap-1 rounded-md border border-primary/40 bg-violet-soft px-2 py-1 text-[11px] text-primary transition-colors hover:bg-violet-soft/70"
-        >
+        <GhostButton onClick={openTeach} size="sm" className="text-[#6f63a3]">
           <Lightbulb className="size-3" /> Teach Me
-        </button>
+        </GhostButton>
         {concept.depConceptId != null && (
-          <button
-            onClick={() => navigate(`/knowledge-base?conceptId=${concept.depConceptId}`)}
-            className="flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:border-ring/40 hover:text-foreground"
+          <GhostButton
+            size="sm"
+            onClick={() =>
+              navigate(`/knowledge-base?conceptId=${concept.depConceptId}`)
+            }
           >
             <Network className="size-3" /> Graph
-          </button>
+          </GhostButton>
         )}
         {ACTIONS.map((a) => {
           const isNotebook = a.label === "Notebook";
           const isSummary = a.label === "Summary";
           const isExplain = a.label === "Explain";
-          
+
           const btn = (
-            <button
+            <GhostButton
               key={a.label}
+              size="sm"
               disabled={!!running}
-              onClick={(!isNotebook && !isSummary && !isExplain) ? () => runAction({ name: concept.title }, conceptId, a.runLabel, navigate) : undefined}
-              className="flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:border-ring/40 hover:text-foreground disabled:opacity-50"
+              onClick={
+                !isNotebook && !isSummary && !isExplain
+                  ? () =>
+                    runAction(
+                      { name: concept.title },
+                      conceptId,
+                      a.runLabel,
+                      navigate,
+                    )
+                  : undefined
+              }
             >
               {busy && running === a.runLabel ? (
                 <Loader2 className="size-3 animate-spin" />
@@ -226,55 +226,70 @@ function ConceptCard({
                 <a.icon className="size-3" />
               )}
               {a.label}
-            </button>
+            </GhostButton>
           );
 
           if (isNotebook || isExplain) {
-             return (
-               <AddToNotebookMenu
-                 key={a.label}
-                 trigger={btn}
-                 asyncBackground
-                 backgroundTitle={`Explanation for ${concept.title}`}
-                 customBlocks={async () => {
-                   const ex = await api.ask(`Explain the concept: ${concept.title}`);
-                   return [
-                     { type: "heading", level: 1, text: concept.title },
-                     { type: "ai-answer", question: `Explain ${concept.title}`, answer: ex.content, confidence: 1, sources: 0 }
-                   ];
-                 }}
-               />
-             );
+            return (
+              <AddToNotebookMenu
+                key={a.label}
+                trigger={btn}
+                asyncBackground
+                backgroundTitle={`Explanation for ${concept.title}`}
+                customBlocks={async () => {
+                  const ex = await api.ask(
+                    `Explain the concept: ${concept.title}`,
+                  );
+                  return [
+                    { type: "heading", level: 1, text: concept.title },
+                    {
+                      type: "ai-answer",
+                      question: `Explain ${concept.title}`,
+                      answer: ex.content,
+                      confidence: 1,
+                      sources: 0,
+                    },
+                  ];
+                }}
+              />
+            );
           } else if (isSummary) {
-             return (
-               <AddToNotebookMenu
-                 key={a.label}
-                 trigger={btn}
-                 asyncBackground
-                 backgroundTitle={`Summary for ${concept.title}`}
-                 customBlocks={async () => {
-                   const r = await api.generateRevision({ topic: concept.title, format: "summary" });
-                   return [
-                     { type: "heading", level: 2, text: `Summary: ${concept.title}` },
-                     { type: "text", text: r.markdown }
-                   ];
-                 }}
-               />
-             );
+            return (
+              <AddToNotebookMenu
+                key={a.label}
+                trigger={btn}
+                asyncBackground
+                backgroundTitle={`Summary for ${concept.title}`}
+                customBlocks={async () => {
+                  const r = await api.generateRevision({
+                    topic: concept.title,
+                    format: "summary",
+                  });
+                  return [
+                    {
+                      type: "heading",
+                      level: 2,
+                      text: `Summary: ${concept.title}`,
+                    },
+                    { type: "text", text: r.markdown },
+                  ];
+                }}
+              />
+            );
           }
           return btn;
         })}
       </div>
-    </div>
+    </PaperCard>
   );
 }
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className="mt-1 text-lg font-semibold text-foreground">{value}</div>
-    </div>
+    <PaperCard className="px-4 py-3">
+      <SectionLabel className="text-[11px]">{label}</SectionLabel>
+      <div className="mt-1 font-caveat text-lg font-bold text-ink">{value}</div>
+    </PaperCard>
   );
 }
 
@@ -299,83 +314,74 @@ function InputPhase() {
         <div className="flex size-12 items-center justify-center rounded-2xl bg-violet-soft text-primary">
           <Milestone className="size-6" />
         </div>
-        <h1 className="mt-4 text-2xl font-semibold">Learning Path</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Turn your material into a dependency-ordered roadmap — concepts arranged so you
-          learn the foundations before the advanced topics that build on them.
+        <h1 className="mt-4 font-caveat text-[38px] font-bold text-ink">
+          Learning Path
+        </h1>
+        <p className="mt-1 max-w-lg font-kalam text-[14px] text-ink-muted">
+          Turn your material into a dependency-ordered roadmap — concepts
+          arranged so you learn the foundations before the advanced topics that
+          build on them.
         </p>
       </div>
 
-      <div className="mt-8 rounded-2xl border border-border bg-card p-5">
-        <Input
+      <PaperCard className="mt-8 p-5">
+        <PaperInput
           value={topic}
           onChange={(e) => setField("topic", e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") generate();
           }}
           placeholder="What subject do you want a roadmap for?"
-          className="h-11 bg-input-background text-base"
+          className="h-11"
           autoFocus
         />
 
         <div className="mt-3 flex flex-wrap gap-1.5">
           {SUGGESTIONS.map((ex) => (
-            <button
-              key={ex}
-              onClick={() => setField("topic", ex)}
-              className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground transition-colors hover:border-ring/40 hover:text-foreground"
-            >
+            <ChipButton key={ex} onClick={() => setField("topic", ex)}>
               {ex}
-            </button>
+            </ChipButton>
           ))}
         </div>
 
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <div className="flex-1">
-            <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Course
-            </div>
-            <Select value={course} onValueChange={setCourse}>
-              <SelectTrigger>
-                <SelectValue placeholder="All courses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">All courses</SelectItem>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SectionLabel className="mb-2 block">Course</SectionLabel>
+            <PaperSelect
+              value={course}
+              onChange={setCourse}
+              options={[
+                { value: "none", label: "All courses" },
+                ...courses.map((c) => ({ value: c.name, label: c.name })),
+              ]}
+              placeholder="All courses"
+            />
           </div>
 
           <div className="flex-1">
-            <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Document
-            </div>
-            <Select
+            <SectionLabel className="mb-2 block">Document</SectionLabel>
+            <PaperSelect
               value={document ?? "all"}
-              onValueChange={(v) => setDocument(v === "all" ? null : v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All documents" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All documents</SelectItem>
-                {(course === "none" ? documents : documents.filter((d) => d.course === course)).map(
-                  (d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.title}
-                    </SelectItem>
-                  ),
-                )}
-              </SelectContent>
-            </Select>
+              onChange={(v) => setDocument(v === "all" ? null : v)}
+              options={[
+                { value: "all", label: "All documents" },
+                ...(course === "none"
+                  ? documents
+                  : documents.filter((d) => d.course === course)
+                ).map((d) => ({ value: d.id, label: d.title })),
+              ]}
+              placeholder="All documents"
+            />
           </div>
         </div>
 
-        <Button onClick={generate} disabled={generating} className="mt-5 h-11 w-full">
+        <PaperButton
+          onClick={generate}
+          disabled={generating}
+          tone="dark"
+          size="lg"
+          className="mt-5 w-full text-lg py-4"
+        >
           {generating ? (
             <>
               <Loader2 className="size-4 animate-spin" /> Building roadmap…
@@ -385,31 +391,34 @@ function InputPhase() {
               <Milestone className="size-4" /> Generate learning path
             </>
           )}
-        </Button>
-      </div>
+        </PaperButton>
+      </PaperCard>
 
       {saved.length > 0 && (
         <div className="mt-8">
-          <SectionTitle title="Saved paths" />
+          <SectionHeader title="Saved paths" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {saved.map((p) => (
-              <div
-                key={p.id}
-                className="group flex items-start justify-between gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-ring/40"
-              >
-                <button onClick={() => loadPath(p.id)} className="flex-1 text-left">
-                  <div className="font-medium text-foreground">{p.title}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
+              <PaperCard className="group flex w-full items-center justify-between gap-3 p-4">
+                <button
+                  onClick={() => loadPath(p.id)}
+                  className="min-w-0 flex-1 text-left"
+                >
+                  <div className="font-kalam text-[15px] font-bold text-ink">
+                    {p.title}
+                  </div>
+                  <div className="mt-1 font-architect text-[12px] text-ink-muted">
                     {p.conceptCount} concepts{p.course ? ` · ${p.course}` : ""}
                   </div>
                 </button>
+
                 <button
                   onClick={() => deletePath(p.id)}
-                  className="rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger group-hover:opacity-100"
+                  className="shrink-0 rounded-md p-1.5 text-ink-muted opacity-0 transition-opacity hover:bg-[rgba(159,58,54,0.1)] hover:text-[#9f3a36] group-hover:opacity-100"
                 >
                   <Trash2 className="size-4" />
                 </button>
-              </div>
+              </PaperCard>
             ))}
           </div>
         </div>
@@ -435,15 +444,18 @@ function RoadmapPhase() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">{path.title}</h1>
-          <p className="text-xs text-muted-foreground">
+          <h1 className="font-caveat text-[28px] font-semibold text-ink">
+            {path.title}
+          </h1>
+          <p className="font-architect text-[12px] text-ink-muted">
             {path.course || "All courses"}
-            {!path.grounded && " · general knowledge (not grounded in your documents)"}
+            {!path.grounded &&
+              " · general knowledge (not grounded in your documents)"}
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={reset}>
+        <PaperButton size="sm" onClick={reset} tone="paper">
           <Plus className="size-4" /> New path
-        </Button>
+        </PaperButton>
       </div>
 
       {/* Overview */}
@@ -456,42 +468,40 @@ function RoadmapPhase() {
       </div>
 
       {/* Progress */}
-      <div className="rounded-xl border border-border bg-card p-4">
-        <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="font-medium text-foreground">Overall Progress</span>
-          <span className="text-muted-foreground">{progress.percent}%</span>
-        </div>
-        <Progress value={progress.percent} className="h-2" />
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          <span>
-            Concepts {progress.conceptsDone} / {progress.conceptsTotal}
-          </span>
-          <span>
-            Study {progress.studyHoursDone} / {progress.studyHoursTotal} h
-          </span>
-        </div>
-      </div>
+      <PaperCard className="p-4">
+        <LearningProgress
+          value={progress.percent}
+          label="Overall Progress"
+          done={`Concepts ${progress.conceptsDone} / ${progress.conceptsTotal}`}
+          total={`Study ${progress.studyHoursDone} / ${progress.studyHoursTotal} h`}
+        />
+      </PaperCard>
 
       {/* Next recommendation */}
       {nextRecommendation && (
-        <div className="rounded-xl border border-primary/30 bg-violet-soft/50 p-4">
-          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-primary">
+        <PaperCard className="p-4" surface="#f5f0ea">
+          <div className="flex items-center gap-2 font-architect text-[12px] font-medium uppercase tracking-wide text-[#6f63a3]">
             <Target className="size-3.5" /> Next Recommendation
           </div>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="text-base font-semibold text-foreground">
+              <div className="font-kalam text-[17px] font-bold leading-snug text-ink">
                 {nextRecommendation.conceptTitle}
               </div>
-              <div className="text-xs text-muted-foreground">
-                {nextRecommendation.reason} · {fmtMinutes(nextRecommendation.estimatedMinutes)}
+              <div className="font-architect text-[12px] text-ink-muted">
+                {nextRecommendation.reason} ·{" "}
+                {fmtMinutes(nextRecommendation.estimatedMinutes)}
               </div>
             </div>
-            <Button size="sm" onClick={() => openTeachFor(nextRecommendation.conceptTitle)}>
+            <PaperButton
+              size="sm"
+              tone="dark"
+              onClick={() => openTeachFor(nextRecommendation.conceptTitle)}
+            >
               <Lightbulb className="size-4" /> Start in Teach Me
-            </Button>
+            </PaperButton>
           </div>
-        </div>
+        </PaperCard>
       )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_260px]">
@@ -501,16 +511,18 @@ function RoadmapPhase() {
             <div key={i}>
               <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground">
+                  <h3 className="font-kalam text-[15px] font-bold text-ink">
                     Stage {i + 1} · {stage.title}
                   </h3>
                   {stage.summary && (
-                    <p className="text-xs text-muted-foreground">{stage.summary}</p>
+                    <p className="font-kalam text-[13px] text-ink-muted">
+                      {stage.summary}
+                    </p>
                   )}
                 </div>
-                <Badge variant="outline" className="shrink-0 text-[10px]">
+                <PaperBadge tone="ink" className="text-[10px]">
                   {stageCompletion(stage)}%
-                </Badge>
+                </PaperBadge>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {stage.concepts.map((c) => (
@@ -522,59 +534,82 @@ function RoadmapPhase() {
         </div>
 
         {/* Side rail: dependency order + analytics */}
-        <div className="space-y-6">
-          <div className="rounded-xl border border-border bg-card p-4">
-            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Learning Order
-            </div>
-            <div className="flex flex-col">
+        <div className="space-y-6 lg:sticky lg:top-6 self-start">
+          <PaperCard className="p-4">
+            <SectionLabel>Learning Order</SectionLabel>
+            <div className="mt-3 flex flex-col">
               {orderedConcepts.map((c, idx) => (
                 <div key={c.title} className="flex flex-col items-start">
                   <span
                     className={cn(
-                      "rounded-md px-2 py-1 text-xs",
+                      "rounded-md px-2 py-1 font-architect text-[12px]",
                       c.status === "completed"
-                        ? "text-success line-through"
-                        : "text-foreground",
+                        ? "text-[#3f7a4e] line-through"
+                        : "text-ink",
                     )}
                   >
                     {c.title}
                   </span>
                   {idx < orderedConcepts.length - 1 && (
-                    <ArrowDown className="ml-2 size-3 text-muted-foreground" />
+                    <ArrowDown className="ml-2 size-3 text-ink-muted" />
                   )}
                 </div>
               ))}
             </div>
-          </div>
+          </PaperCard>
 
-          <div className="rounded-xl border border-border bg-card p-4">
-            <div className="mb-3 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <PaperCard className="p-4">
+            <div className="mb-3 flex items-center gap-1.5 font-architect text-[12px] font-medium uppercase tracking-wide text-ink-muted">
               <TrendingUp className="size-3.5" /> Analytics
             </div>
-            <dl className="space-y-2 text-xs">
-              <AnalyticsRow label="Strongest stage" value={analytics.strongestStage} />
-              <AnalyticsRow label="Weakest stage" value={analytics.weakestStage} />
-              <AnalyticsRow label="Most revised" value={analytics.mostRevisedTopic} />
-              <AnalyticsRow label="Highest mistakes" value={analytics.highestMistakeTopic} />
-              <AnalyticsRow label="Concepts skipped" value={String(analytics.conceptsSkipped)} />
+            <dl className="space-y-2 font-architect text-[12px]">
+              <AnalyticsRow
+                label="Strongest stage"
+                value={analytics.strongestStage}
+              />
+              <AnalyticsRow
+                label="Weakest stage"
+                value={analytics.weakestStage}
+              />
+              <AnalyticsRow
+                label="Most revised"
+                value={analytics.mostRevisedTopic}
+              />
+              <AnalyticsRow
+                label="Highest mistakes"
+                value={analytics.highestMistakeTopic}
+              />
+              <AnalyticsRow
+                label="Concepts skipped"
+                value={String(analytics.conceptsSkipped)}
+              />
               <AnalyticsRow
                 label="Avg completion"
-                value={analytics.avgCompletionMinutes ? fmtMinutes(analytics.avgCompletionMinutes) : null}
+                value={
+                  analytics.avgCompletionMinutes
+                    ? fmtMinutes(analytics.avgCompletionMinutes)
+                    : null
+                }
               />
             </dl>
-          </div>
+          </PaperCard>
         </div>
       </div>
     </div>
   );
 }
 
-function AnalyticsRow({ label, value }: { label: string; value: string | null }) {
+function AnalyticsRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | null;
+}) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="text-right font-medium text-foreground">{value ?? "—"}</dd>
+      <dt className="text-ink-muted">{label}</dt>
+      <dd className="text-right font-medium text-ink">{value ?? "—"}</dd>
     </div>
   );
 }
@@ -583,28 +618,31 @@ function ActionResultDialog() {
   const result = useConceptActionStore((s) => s.result);
   const clearResult = useConceptActionStore((s) => s.clearResult);
   return (
-    <Dialog open={!!result} onOpenChange={(open) => !open && clearResult()}>
-      <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{result?.title}</DialogTitle>
-        </DialogHeader>
-        {result &&
-          (result.mono ? (
-            <pre className="whitespace-pre-wrap rounded-lg bg-muted p-3 font-mono text-xs">
-              {result.body}
-            </pre>
-          ) : (
-            <MarkdownRenderer content={result.body} />
-          ))}
-      </DialogContent>
-    </Dialog>
+    <PaperModal
+      open={!!result}
+      onClose={clearResult}
+      title={result?.title}
+      width={640}
+      className="max-h-[80vh] overflow-y-auto"
+    >
+      {result &&
+        (result.mono ? (
+          <pre className="whitespace-pre-wrap rounded-lg bg-muted p-3 font-mono text-xs">
+            {result.body}
+          </pre>
+        ) : (
+          <MarkdownRenderer content={result.body} />
+        ))}
+    </PaperModal>
   );
 }
 
 export function LearningPath() {
   const phase = useLearningPathStore((s) => s.phase);
   const path = useLearningPathStore((s) => s.path);
-  const fetchCoursesAndDocs = useLearningPathStore((s) => s.fetchCoursesAndDocs);
+  const fetchCoursesAndDocs = useLearningPathStore(
+    (s) => s.fetchCoursesAndDocs,
+  );
   const fetchSaved = useLearningPathStore((s) => s.fetchSaved);
 
   useEffect(() => {

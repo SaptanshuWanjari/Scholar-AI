@@ -3,12 +3,13 @@ import { Search as SearchIcon, FileText, Layers, ListChecks, Workflow, Sparkles,
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { Page } from "../components/Page";
-import { Input } from "../components/ui/input";
-import { Badge } from "../components/ui/badge";
+import { PaperInput } from "@/paper-ui/components/inputs";
+import { PaperSelect } from "@/paper-ui/components/inputs";
+import { PaperBadge } from "@/paper-ui/components/badges";
+import { ChipButton } from "@/paper-ui/components/buttons";
+import { cn } from "@/paper-ui/utils";
 import { api, type SearchResult } from "../lib/api";
 import { type Course } from "../lib/types";
-import { cn } from "../components/ui/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 
 const groupIcon: Record<string, typeof FileText> = {
   Documents: FileText,
@@ -111,67 +112,56 @@ export function SearchPage() {
   return (
     <Page className="space-y-5">
       <div className="relative">
-        <SearchIcon className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
-        <Input
+        <PaperInput
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Semantic search across all your knowledge…"
-          className="h-12 bg-input-background pl-12 text-base"
+          icon={<SearchIcon className="size-5 text-ink-muted" />}
+          trailingIcon={loading ? <Loader2 className="size-4 animate-spin text-ink-muted" /> : undefined}
           autoFocus
         />
-        {loading ? (
-          <Loader2 className="absolute right-32 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
-        ) : null}
-        <Badge variant="outline" className="absolute right-3 top-1/2 -translate-y-1/2 gap-1 border-primary/40 bg-violet-soft text-primary">
+        <PaperBadge tone="lavender" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
           <Sparkles className="size-3" /> Semantic
-        </Badge>
+        </PaperBadge>
       </div>
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <BookOpen className="size-4 text-muted-foreground" />
-            <Select value={courseFilter} onValueChange={setCourseFilter}>
-              <SelectTrigger className="w-[180px] h-9 text-sm">
-                <SelectValue placeholder="Course" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Courses</SelectItem>
-                {courses.map(c => (
-                  <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <BookOpen className="size-4 shrink-0 text-ink-muted" />
+            <PaperSelect
+              value={courseFilter}
+              onChange={setCourseFilter}
+              options={[
+                { value: "all", label: "All Courses" },
+                ...courses.map(c => ({ value: c.name, label: c.name })),
+              ]}
+              placeholder="Course"
+            />
           </div>
 
           <div className="flex items-center gap-2">
-            <Tag className="size-4 text-muted-foreground" />
-            <Input 
-              value={topicFilter === "all" ? "" : topicFilter} 
-              onChange={e => setTopicFilter(e.target.value || "all")} 
-              placeholder="Filter by topic..." 
-              className="w-[180px] h-9 text-sm"
+            <Tag className="size-4 shrink-0 text-ink-muted" />
+            <PaperInput
+              value={topicFilter === "all" ? "" : topicFilter}
+              onChange={e => setTopicFilter(e.target.value || "all")}
+              placeholder="Filter by topic..."
             />
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {filters.map((f) => (
-            <button
+            <ChipButton
               key={f.value}
+              selected={filter === f.value}
               onClick={() => setFilter(f.value)}
-              className={cn(
-                "rounded-full border px-3.5 py-1.5 text-sm transition-colors",
-                filter === f.value
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-muted-foreground hover:text-foreground",
-              )}
             >
               {f.label}
-            </button>
+            </ChipButton>
           ))}
           {hasQuery ? (
-            <span className="ml-auto self-center text-sm text-muted-foreground">
+            <span className="ml-auto self-center text-sm text-ink-muted">
               {results.length} results
             </span>
           ) : null}
@@ -207,9 +197,9 @@ export function SearchPage() {
                     >
                       <div className="flex items-center justify-between gap-3">
                         <span className="truncate text-sm font-medium">{r.title}</span>
-                        <Badge variant="outline" className="shrink-0 text-xs text-muted-foreground">
+                        <PaperBadge tone="ink" className="shrink-0 text-xs">
                           {r.course}
-                        </Badge>
+                        </PaperBadge>
                       </div>
                       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                         {highlight(r.snippet, trimmed)}

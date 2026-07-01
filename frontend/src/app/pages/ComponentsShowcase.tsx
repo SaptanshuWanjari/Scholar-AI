@@ -586,6 +586,7 @@ export default function ComponentsShowcase() {
               <PaperButton tone="dark">Dark</PaperButton>
               <PaperButton tone="paper">Paper</PaperButton>
               <PaperButton tone="green">Green</PaperButton>
+              <PaperButton tone="red">Red</PaperButton>
               <PaperButton tone="dark" size="sm">
                 Small
               </PaperButton>

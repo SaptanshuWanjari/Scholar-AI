@@ -8,8 +8,6 @@ export { MarkerHighlight } from "./MarkerHighlight";
 export type { MarkerHighlightProps } from "./MarkerHighlight";
 export { SketchDivider } from "./SketchDivider";
 export type { SketchDividerProps } from "./SketchDivider";
-export { FoldedCorner } from "./FoldedCorner";
-export type { FoldedCornerProps } from "./FoldedCorner";
 export { PaperClip } from "./PaperClip";
 export type { PaperClipProps } from "./PaperClip";
 export { CoffeeRing } from "./CoffeeRing";

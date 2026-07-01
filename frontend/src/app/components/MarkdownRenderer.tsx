@@ -113,16 +113,16 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
 
   const components: Components = useMemo(() => ({
     h1: ({ children }) => (
-      <h1 className="mb-3 mt-6 first:mt-0">{children}</h1>
+      <h1 className="font-caveat text-[32px] font-bold text-ink mb-3 mt-6 first:mt-0">{children}</h1>
     ),
     h2: ({ children }) => (
-      <h2 className="mb-3 mt-7 first:mt-0 text-xl">{children}</h2>
+      <h2 className="font-caveat text-[26px] font-semibold text-ink mb-3 mt-5 first:mt-0">{children}</h2>
     ),
     h3: ({ children }) => (
-      <h3 className="mb-2 mt-6 first:mt-0 text-lg">{children}</h3>
+      <h3 className="font-kalam text-[18px] font-bold text-ink mb-2 mt-4 first:mt-0">{children}</h3>
     ),
     p: ({ children }) => (
-      <p className="mb-4 leading-7">
+      <p className="font-kalam text-[14.5px] leading-relaxed text-ink mb-4">
         {withMathAndCitations(children, onCitationClick)}
       </p>
     ),
@@ -135,10 +135,9 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
       </ol>
     ),
     li: ({ children, className }) => {
-      // remark-gfm adds 'task-list-item' class to task list items
       if (className && className.includes("task-list-item")) {
         return (
-          <li className={cn("relative flex items-center gap-3 pl-1 mb-2", className)}>
+          <li className={cn("relative flex items-center gap-3 pl-1 mb-2 font-kalam text-[14.5px] text-ink", className)}>
             <span className="flex-1 flex items-center">
               {withMathAndCitations(children, onCitationClick)}
             </span>
@@ -146,8 +145,8 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
         );
       }
       return (
-        <li className="relative flex gap-3 pl-1 mb-2">
-          <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-primary/60" />
+        <li className="relative flex gap-3 pl-1 mb-2 font-kalam text-[14.5px] text-ink">
+          <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-[#3a3733]" />
           <span className="flex-1">
             {withMathAndCitations(children, onCitationClick)}
           </span>
@@ -277,24 +276,27 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
     },
     pre: ({ children }) => <>{children}</>,
     table: ({ children }) => (
-      <div className="mb-4 overflow-x-auto rounded-xl border border-border">
-        <table className="w-full border-collapse text-sm">{children}</table>
+      <div className="mb-4 overflow-x-auto w-full relative z-[1]">
+        <table className="w-full border-collapse text-left">{children}</table>
       </div>
     ),
     thead: ({ children }) => (
-      <thead className="bg-muted/60">{children}</thead>
+      <thead className="border-b-2 border-[#3a3733]">{children}</thead>
+    ),
+    tr: ({ children }) => (
+      <tr className="transition-colors hover:bg-black/[0.015]">{children}</tr>
     ),
     th: ({ children }) => (
-      <th className="border-b border-border px-4 py-2.5 text-left font-semibold text-foreground">
+      <th className="font-architect text-[14px] font-bold text-ink-muted uppercase tracking-wide px-4 py-3 text-left">
         {children}
       </th>
     ),
     td: ({ children }) => (
-      <td className="border-b border-border/60 px-4 py-2.5 text-foreground">
+      <td className="px-4 py-3 font-kalam text-[14.5px] leading-relaxed text-ink border-b border-[#e8e3d8]">
         {withMathAndCitations(children, onCitationClick)}
       </td>
     ),
-    hr: () => <hr className="my-6 border-border" />,
+    hr: () => <hr className="my-6 border-[#e8e3d8]" />,
   }), [onCitationClick, plantumlEnabled]);
 
   return (

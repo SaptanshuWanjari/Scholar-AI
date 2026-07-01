@@ -8,6 +8,7 @@ import { RenderText } from './renderers/renderText'
 import { RenderSticky } from './renderers/renderSticky'
 import { penTool, highlighterTool, shapesTool, textTool, eraserTool, selectTool } from './tools'
 import type { SceneObject, ToolType } from './types'
+import { SketchBorder } from '@/paper-ui/core'
 
 const TOOL_CURSORS: Record<string, string> = {
   select: 'default',
@@ -107,7 +108,6 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
     }
 
     const onKey = (ev: KeyboardEvent) => {
-      // Only fire when canvas is focused
       if (!document.activeElement?.closest('#scratchpad-canvas-container')) return
 
       const store = useScratchpadStore.getState()
@@ -121,7 +121,6 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
         return
       }
       if (ev.ctrlKey && ev.key === 'c') {
-        // Copy: store selection to clipboard state
         const selected = store.objects.filter((o) => store.selection.includes(o.id))
         ;(window as any).__scratchCopied = selected
         return
@@ -380,7 +379,6 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
             const store = useScratchpadStore.getState()
             const stage = e.target.getStage()
 
-            // Double-click on an existing text/sticky node → edit it (any tool)
             if (e.target !== stage) {
               const id = findNodeId(e.target)
               if (id) {
@@ -482,7 +480,8 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
       {editingId && (
         <textarea
           ref={textareaRef}
-          className="absolute z-50 min-w-[120px] min-h-[24px] resize-none bg-white/95 border border-violet-500 rounded px-1 py-0.5 outline-none"
+          className="absolute z-50 min-w-[120px] min-h-[24px] resize-none bg-[#fffdf9] rounded px-1 py-0.5 outline-none font-architect text-[14px] text-ink leading-relaxed"
+          style={{ border: '1.5px solid #262320' }}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
               setEditingId(null)
@@ -498,26 +497,38 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
         <>
           <div className="fixed inset-0 z-40" onClick={() => setContextMenu(null)} />
           <div
-            className="fixed z-50 bg-popover border border-border rounded-md shadow-md py-1 min-w-[140px]"
+            className="fixed z-50 min-w-[140px]"
             style={{ left: contextMenu.x, top: contextMenu.y }}
           >
-            <button
-              className="w-full px-3 py-1.5 text-sm text-left hover:bg-accent hover:text-accent-foreground"
-              onClick={() => { setEditingId(contextMenu.id); setContextMenu(null) }}
-            >
-              Edit note
-            </button>
-            <button
-              className="w-full px-3 py-1.5 text-sm text-left text-destructive hover:bg-accent"
-              onClick={() => {
-                const store = useScratchpadStore.getState()
-                store.pushHistory()
-                store.removeObjects([contextMenu.id])
-                setContextMenu(null)
-              }}
-            >
-              Delete
-            </button>
+            <div className="relative">
+              <SketchBorder
+                fill="#fffdf9"
+                stroke="#3a3733"
+                strokeWidth={1.6}
+                shadow={5}
+                radius={6}
+                bleed={6}
+              />
+              <div className="relative z-[1] py-1">
+                <button
+                  className="flex w-full items-center gap-2 px-3 py-1.5 font-architect text-[14px] text-ink hover:bg-black/[0.04] transition-colors text-left"
+                  onClick={() => { setEditingId(contextMenu.id); setContextMenu(null) }}
+                >
+                  Edit note
+                </button>
+                <button
+                  className="flex w-full items-center gap-2 px-3 py-1.5 font-architect text-[14px] text-[#9f3a36] hover:bg-black/[0.04] transition-colors text-left"
+                  onClick={() => {
+                    const store = useScratchpadStore.getState()
+                    store.pushHistory()
+                    store.removeObjects([contextMenu.id])
+                    setContextMenu(null)
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         </>
       )}

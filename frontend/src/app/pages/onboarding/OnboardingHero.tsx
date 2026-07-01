@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router";
 import { GraduationCap, Cpu, Lock, WifiOff, BookMarked } from "lucide-react";
 import { motion } from "motion/react";
-import { Button } from "../../components/ui/button";
-import { Badge } from "../../components/ui/badge";
+import { PaperButton, StickyButton } from "@paper-ui/components/buttons";
+import { PaperBadge } from "@paper-ui/components/badges";
+import { PaperH1, PaperH2, PaperIconCircle } from "@paper-ui/core";
+import { ArrowDoodle } from "@paper-ui/components/doodles";
 
 const formats = ["PDF", "DOCX", "PPTX", "Markdown", "Text"];
 
@@ -17,7 +19,7 @@ export function OnboardingHero() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex h-screen items-center justify-center bg-background px-6">
+    <div className="flex h-screen items-center justify-center bg-[#f5f0e8] px-6">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -29,36 +31,39 @@ export function OnboardingHero() {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
-          className="flex size-20 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg"
         >
-          <GraduationCap className="size-12" />
+          <PaperIconCircle tone="lavender" size={80}>
+            <GraduationCap size={40} />
+          </PaperIconCircle>
         </motion.div>
 
         {/* Brand */}
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.4 }}
-          className="mt-6 font-display text-5xl font-semibold tracking-tight text-foreground sm:text-6xl"
+          className="mt-6"
         >
-          ScholarAI
-        </motion.h1>
+          <PaperH1 marker markerColor="rgba(111,99,163,0.25)">ScholarAI</PaperH1>
+        </motion.div>
 
-        <motion.p
+        <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.4 }}
-          className="mt-4 max-w-2xl text-xl text-foreground font-medium text-balance"
+          className="mt-4"
         >
-          Turn your study materials into a personalized AI learning workspace.
-        </motion.p>
+          <PaperH2 className="text-[22px] text-ink/90 max-w-2xl">
+            Turn your study materials into a personalized AI learning workspace.
+          </PaperH2>
+        </motion.div>
 
         {/* Description */}
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.4 }}
-          className="mt-4 max-w-2xl leading-relaxed text-muted-foreground text-balance"
+          className="mt-4 max-w-2xl leading-relaxed font-kalam text-[15px] text-ink-muted text-balance"
         >
           Import textbooks, lecture notes, research papers and documentation.
           ScholarAI organizes everything using local AI and helps you study
@@ -76,13 +81,13 @@ export function OnboardingHero() {
           transition={{ delay: 0.5, duration: 0.4 }}
           className="mt-8 flex flex-col items-center w-full"
         >
-          <Button
-            size="lg"
-            className="w-full max-w-sm gap-2 bg-primary px-8 text-lg font-medium text-primary-foreground hover:bg-primary/90"
+          <StickyButton
+            tone="dark"
             onClick={() => navigate("/onboarding/setup")}
           >
             Get Started
-          </Button>
+            <ArrowDoodle size={18} color="#fbf8f2" />
+          </StickyButton>
         </motion.div>
 
         {/* Supported formats */}
@@ -93,13 +98,9 @@ export function OnboardingHero() {
           className="mt-8 flex flex-wrap justify-center gap-2"
         >
           {formats.map((fmt) => (
-            <Badge
-              key={fmt}
-              variant="secondary"
-              className="px-3 py-1 text-xs font-medium"
-            >
+            <PaperBadge key={fmt} tone="ink">
               {fmt}
-            </Badge>
+            </PaperBadge>
           ))}
         </motion.div>
 
@@ -108,14 +109,14 @@ export function OnboardingHero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.4 }}
-          className="mt-6 flex flex-wrap justify-center gap-5"
+          className="mt-6 flex flex-wrap justify-center gap-6"
         >
           {traits.map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-2 text-sm font-medium text-muted-foreground"
+              className="flex items-center gap-2 font-architect text-[13px] text-ink-muted"
             >
-              <Icon className="size-4" />
+              <Icon size={14} />
               <span>{label}</span>
             </div>
           ))}

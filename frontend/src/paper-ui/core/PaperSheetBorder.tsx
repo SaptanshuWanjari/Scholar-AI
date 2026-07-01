@@ -11,6 +11,7 @@ export interface PaperSheetBorderProps {
   /** Show a bottom-right dog-ear fold (card style). Default false. */
   fold?: boolean;
   className?: string;
+  attachedBottom?: boolean;
 }
 
 // All paths live in a 600-unit wide coordinate space.
@@ -28,7 +29,18 @@ function rnd(n: number) {
  * Left/right each use one cubic with control points at 30 % and 60 % of H
  * so they bow slightly inward/outward regardless of aspect ratio.
  */
-function makeOutline(H: number, fold: boolean): string {
+function makeOutline(H: number, fold: boolean, attachedBottom?: boolean): string {
+  if (attachedBottom) {
+    return [
+      "M -10 18",
+      "C 180 11, 360 23, 520 13",
+      `C 548 10, 575 17, 610 16`,
+      `L 610 ${rnd(H + 10)}`,
+      `L -10 ${rnd(H + 10)}`,
+      `Z`
+    ].join(" ");
+  }
+
   const yBot = H - 15;
   if (!fold) {
     return [
@@ -59,7 +71,18 @@ function makeOutline(H: number, fold: boolean): string {
  * Secondary sketch line — slightly offset from the main outline, drawn with
  * ~40 % opacity to give the double-outline hand-drawn look.
  */
-function makeSecondary(H: number, fold: boolean): string {
+function makeSecondary(H: number, fold: boolean, attachedBottom?: boolean): string {
+  if (attachedBottom) {
+    return [
+      "M -10 21",
+      "C 160 14, 360 26, 530 15",
+      `C 555 12, 578 20, 610 18`,
+      `L 610 ${rnd(H + 10)}`,
+      `L -10 ${rnd(H + 10)}`,
+      `Z`
+    ].join(" ");
+  }
+
   const yBot = H - 17;
   if (!fold) {
     return [
@@ -100,6 +123,7 @@ export function PaperSheetBorder({
   shadowColor = "rgba(0,0,0,0.18)",
   fold = false,
   className,
+  attachedBottom = false,
 }: PaperSheetBorderProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -159,16 +183,17 @@ export function PaperSheetBorder({
       >
         {/* Main paper body */}
         <path
-          d={makeOutline(svgH, fold)}
+          d={makeOutline(svgH, fold, attachedBottom)}
           fill={fill}
           stroke={stroke}
           strokeWidth={strokeWidth}
           strokeLinejoin="round"
           strokeLinecap="round"
+          strokeDasharray={attachedBottom ? undefined : undefined} // keep unchanged attributes
         />
         {/* Secondary double-outline — the hand-drawn "second pass" look */}
         <path
-          d={makeSecondary(svgH, fold)}
+          d={makeSecondary(svgH, fold, attachedBottom)}
           fill="none"
           stroke={stroke}
           strokeWidth={strokeWidth * 0.45}

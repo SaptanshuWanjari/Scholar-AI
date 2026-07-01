@@ -6,8 +6,10 @@ import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-} from "../components/ui/accordion";
-import { Input } from "../components/ui/input";
+} from "@/paper-ui/components/navigation";
+import { PaperInput } from "@/paper-ui/components/inputs";
+import { GhostButton } from "@/paper-ui/components/buttons";
+import { PaperPanel, PaperIconCircle, PaperH1, PaperH2, PaperH3, PaperH4 } from "@/paper-ui/core";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { guideSections, type GuideArticle } from "../guidance/guideContent";
 
@@ -88,20 +90,17 @@ export function Guide() {
       {/* Sidebar Navigation */}
       <aside className="hidden w-72 shrink-0 flex-col border-r border-border md:flex">
         <div className="border-b border-border p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search the guide…"
-              aria-label="Search the guide"
-              className="pl-9"
-            />
-          </div>
+          <PaperInput
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search the guide…"
+            icon={<Search className="size-4 text-ink-muted" />}
+            aria-label="Search the guide"
+          />
         </div>
         <nav className="min-h-0 flex-1 overflow-y-auto p-2">
           {filtered.length === 0 ? (
-            <p className="px-2 py-4 text-sm text-muted-foreground">No matches.</p>
+            <p className="px-2 py-4 font-architect text-sm text-ink-muted">No matches.</p>
           ) : (
             <Accordion
               type="multiple"
@@ -127,23 +126,25 @@ export function Guide() {
                   </AccordionTrigger>
                   <AccordionContent className="pb-1">
                     <ul className="space-y-0.5">
-                      {section.articles.map((a) => {
-                        const isActive = activeArticleId === a.id;
-                        return (
-                          <li key={a.id}>
-                            <button
-                              onClick={() => goToArticle(a.id)}
-                              className={`w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent/50 ${
-                                isActive
-                                  ? "bg-violet-soft text-violet font-medium"
-                                  : "text-foreground/80 hover:text-foreground"
-                              }`}
-                            >
-                              {a.title}
-                            </button>
-                          </li>
-                        );
-                      })}
+                        {section.articles.map((a) => {
+                          const isActive = activeArticleId === a.id;
+                          return (
+                            <li key={a.id}>
+                              <GhostButton
+                                size="sm"
+                                border={null}
+                                onClick={() => goToArticle(a.id)}
+                                className={`w-full justify-start rounded-md text-left ${
+                                  isActive
+                                    ? "bg-violet-soft text-violet font-medium"
+                                    : "text-foreground/80 hover:text-foreground"
+                                }`}
+                              >
+                                {a.title}
+                              </GhostButton>
+                            </li>
+                          );
+                        })}
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
@@ -162,30 +163,28 @@ export function Guide() {
         <div className="mx-auto w-full max-w-4xl px-6 py-8 md:py-12">
           <header className="mb-10 flex flex-col gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-violet-soft text-primary shadow-sm">
-                <BookOpen className="size-5 text-violet" />
-              </div>
-              <h1 className="text-3xl font-display font-semibold">ScholarAI Guide</h1>
+              <PaperIconCircle tone="lavender" size={40}>
+                <BookOpen className="size-5" />
+              </PaperIconCircle>
+              <PaperH1>ScholarAI Guide</PaperH1>
             </div>
-            <p className="text-base font-book text-muted-foreground ml-13">
+            <p className="font-architect text-base text-ink-muted ml-13">
               Everything you need to study smarter — searchable and organized.
             </p>
           </header>
 
-          {/* Mobile search */}
-          <div className="relative mb-8 md:hidden">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+          <div className="mb-8 md:hidden">
+            <PaperInput
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search the guide…"
+              icon={<Search className="size-4 text-ink-muted" />}
               aria-label="Search the guide"
-              className="pl-9"
             />
           </div>
 
           {filtered.length === 0 || !activeSection ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">
+            <p className="font-architect py-12 text-center text-sm text-ink-muted">
               No results for “{query}”.
             </p>
           ) : (() => {
@@ -194,34 +193,32 @@ export function Guide() {
             const nextSection = activeIndex >= 0 && activeIndex < filtered.length - 1 ? filtered[activeIndex + 1] : null;
             return (
             <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="mb-8 text-4xl font-display font-bold text-foreground border-b border-border pb-4">
+              <PaperH2 className="mb-8 border-b border-[#e8e3d8] pb-4 font-caveat text-[32px]">
                 {activeSection.title}
-              </h2>
+              </PaperH2>
               
               <div className="space-y-12">
                 {activeSection.articles.map((a) => (
                   <article 
                     key={a.id} 
                     id={`guide-${a.id}`} 
-                    className={`scroll-mt-6 flex flex-col transition-all rounded-md p-4 border border-transparent ${
-                      activeArticleId === a.id ? "ring-2 ring-violet bg-muted/10" : ""
+                    className={`scroll-mt-6 flex flex-col transition-all rounded-md p-4 ${
+                      activeArticleId === a.id ? "bg-ink/5" : ""
                     }`}
                   >
-                    <h3 className="mb-4 text-2xl font-display font-semibold text-foreground">
-                      {a.title}
-                    </h3>
+                    <PaperH3 className="mb-4">{a.title}</PaperH3>
                     <div className="w-full">
                       <MarkdownRenderer
                         content={a.body}
                         className="
-                          text-lg font-book leading-relaxed text-muted-foreground
+                          font-architect text-[15px] leading-relaxed text-ink-muted
                           prose-p:mb-5 last:prose-p:mb-0
-                          prose-strong:font-semibold prose-strong:text-foreground
+                          prose-strong:font-semibold prose-strong:text-ink
                           prose-a:text-violet prose-a:font-medium hover:prose-a:underline
                           prose-blockquote:border-l-4 prose-blockquote:border-violet 
                           prose-blockquote:bg-violet-soft/30 prose-blockquote:py-3 prose-blockquote:px-5 
                           prose-blockquote:rounded-r-md prose-blockquote:my-5 prose-blockquote:not-italic
-                          prose-blockquote:text-foreground/90 prose-blockquote:shadow-sm
+                          prose-blockquote:text-ink/90 prose-blockquote:shadow-sm
                         "
                       />
                     </div>
@@ -230,33 +227,37 @@ export function Guide() {
               </div>
               
               {(prevSection || nextSection) && (
-                <div className="mt-20 pt-10 border-t border-border grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mt-20 pt-10 border-t border-[#e8e3d8] grid grid-cols-1 md:grid-cols-2 gap-4">
                   {prevSection ? (
-                    <button
+                    <PaperPanel
+                      shadow="sm"
+                      lift
                       onClick={() => goToSection(prevSection.id)}
-                      className="group block rounded-xl border border-border bg-card p-6 text-left transition-all hover:border-violet/30 hover:bg-violet-soft/10 hover:shadow-sm"
+                      className="cursor-pointer p-6 text-left"
                     >
-                      <h4 className="mb-2 text-xl font-semibold text-foreground group-hover:text-violet">
-                        <span className="mr-1 inline-block transition-transform group-hover:-translate-x-1">&larr;</span> {prevSection.title}
-                      </h4>
-                      <p className="text-sm font-book text-muted-foreground line-clamp-1">
+                      <PaperH4 className="mb-2 flex items-center gap-2">
+                        <span className="transition-transform group-hover:-translate-x-1">&larr;</span> {prevSection.title}
+                      </PaperH4>
+                      <p className="font-architect text-sm text-ink-muted line-clamp-1">
                         {prevSection.articles.map(a => a.title).join(", ")}
                       </p>
-                    </button>
+                    </PaperPanel>
                   ) : <div />}
                   
                   {nextSection ? (
-                    <button
+                    <PaperPanel
+                      shadow="sm"
+                      lift
                       onClick={() => goToSection(nextSection.id)}
-                      className="group block rounded-xl border border-border bg-card p-6 text-right transition-all hover:border-violet/30 hover:bg-violet-soft/10 hover:shadow-sm"
+                      className="cursor-pointer p-6 text-right"
                     >
-                      <h4 className="mb-2 text-xl font-semibold text-foreground group-hover:text-violet">
-                        {nextSection.title} <span className="ml-1 inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
-                      </h4>
-                      <p className="text-sm font-book text-muted-foreground line-clamp-1">
+                      <PaperH4 className="mb-2 flex items-center justify-end gap-2">
+                        {nextSection.title} <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
+                      </PaperH4>
+                      <p className="font-architect text-sm text-ink-muted line-clamp-1">
                         {nextSection.articles.map(a => a.title).join(", ")}
                       </p>
-                    </button>
+                    </PaperPanel>
                   ) : <div />}
                 </div>
               )}

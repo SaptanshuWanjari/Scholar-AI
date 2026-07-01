@@ -4,8 +4,10 @@ import {
 } from 'lucide-react'
 import { useScratchpadStore } from './useScratchpadStore'
 import type { ToolType } from './types'
-import { cn } from '../ui/utils'
+import { cn } from '@/paper-ui/utils'
 import { ColorPickerPopover } from './ColorPickerPopover'
+import { SketchBorder } from '@/paper-ui/core'
+import { PaperTooltip } from '@/paper-ui/components/dialogs'
 
 const TOOLS: { id: ToolType; icon: React.ElementType; label: string; key: string }[] = [
   { id: 'select',      icon: MousePointer2, label: 'Select (V)',      key: 'V' },
@@ -25,35 +27,58 @@ export function SketchToolbar() {
   const { activeTool, setActiveTool, activeColor, activeFill, setActiveColor, setActiveFill } = useScratchpadStore()
 
   return (
-    <div className="flex flex-col items-center gap-1 py-2 px-1 bg-muted border-r border-border shrink-0 w-10">
-      {TOOLS.map(({ id, icon: Icon, label }) => (
-        <button
-          key={id}
-          title={label}
-          onClick={() => setActiveTool(id)}
-          className={cn(
-            'w-7 h-7 flex items-center justify-center rounded transition-colors',
-            activeTool === id
-              ? 'bg-foreground text-background'
-              : 'text-muted-foreground hover:text-foreground hover:bg-accent',
-          )}
-        >
-          <Icon size={14} />
-        </button>
-      ))}
-      <div className="flex flex-col items-center gap-1 mt-1">
-        <div className="w-5 h-px bg-border mb-0.5" />
-        <ColorPickerPopover
-          color={activeColor}
-          onChange={setActiveColor}
-          label="S"
-        />
-        <ColorPickerPopover
-          color={activeFill}
-          onChange={setActiveFill}
-          allowNone
-          label="F"
-        />
+    <div className="relative shrink-0 max-h-full flex flex-col">
+      <SketchBorder
+        fill="#fffdf9"
+        stroke="#3a3733"
+        strokeWidth={1.4}
+        radius={0}
+        roughness={1.0}
+        shadow={0}
+        bleed={4}
+      />
+      <div className="relative z-[1] flex flex-col items-center gap-1 py-2 px-1.5 w-11 overflow-y-auto overflow-x-hidden scrollbar-none">
+        {TOOLS.map(({ id, icon: Icon, label }) => (
+          <PaperTooltip key={id} content={label} placement="right" delay={600}>
+            <button
+              title={label}
+              onClick={() => setActiveTool(id)}
+              className={cn(
+                'relative w-7 h-7 flex items-center justify-center',
+                activeTool === id ? 'text-[#fbf8f2]' : 'text-ink-muted hover:text-ink',
+              )}
+            >
+              {activeTool === id && (
+                <SketchBorder
+                  fill="#262320"
+                  stroke="#262320"
+                  strokeWidth={1.2}
+                  radius={4}
+                  roughness={0.8}
+                  shadow={0}
+                  bleed={4}
+                />
+              )}
+              <span className={cn('relative z-[1]', activeTool === id ? 'text-[#fbf8f2]' : '')}>
+                <Icon size={14} />
+              </span>
+            </button>
+          </PaperTooltip>
+        ))}
+        <div className="flex flex-col items-center gap-1 mt-1">
+          <div className="w-5 h-px bg-[#e8e3d8] mb-0.5" />
+          <ColorPickerPopover
+            color={activeColor}
+            onChange={setActiveColor}
+            label="S"
+          />
+          <ColorPickerPopover
+            color={activeFill}
+            onChange={setActiveFill}
+            allowNone
+            label="F"
+          />
+        </div>
       </div>
     </div>
   )

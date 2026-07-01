@@ -41,6 +41,7 @@ const OnboardingAnalyzing = lazy(() => import("./pages/onboarding/OnboardingAnal
 const OnboardingReady = lazy(() => import("./pages/onboarding/OnboardingReady").then((m) => ({ default: m.OnboardingReady })));
 const DashboardClone = lazy(() => import("./pages/DashboardClone").then((m) => ({ default: m.DashboardClone })));
 const ComponentsShowcase = lazy(() => import("./pages/ComponentsShowcase"));
+const NotebookV2 = lazy(() => import("./pages/NotebookV2").then((m) => ({ default: m.NotebookV2 })));
 
 function FirstLaunchGuard({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
@@ -100,6 +101,7 @@ export default function App() {
               <Route path="/prompts" element={<PromptLibrary />} />
 
               <Route path="/guide" element={<Guide />} />
+              <Route path="/notebook-v2/:id?" element={<NotebookV2 />} />
               {KNOWN_PLUGINS.flatMap((plugin) =>
                 (plugin.routes ?? []).map((r) =>
                   isEnabled(plugin.id) ? (

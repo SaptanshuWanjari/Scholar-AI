@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { cn } from '../ui/utils'
+import { cn } from '@/paper-ui/utils'
+import { SketchBorder } from '@/paper-ui/core'
+import { PaperPopover } from '@/paper-ui/components/dialogs'
 
 const PRESETS = [
   '#000000', '#343a40', '#868e96', '#c92a2a',
@@ -16,66 +17,67 @@ interface ColorPickerPopoverProps {
 }
 
 export function ColorPickerPopover({ color, onChange, allowNone, label }: ColorPickerPopoverProps) {
-  const [open, setOpen] = useState(false)
-
-  const swatchStyle: React.CSSProperties =
-    color === 'none'
-      ? { background: 'linear-gradient(135deg, #fff 45%, #f03e3e 45%, #f03e3e 55%, #fff 55%)' }
-      : { background: color, outline: color === '#ffffff' ? '1px solid #d1d5db' : undefined }
+  const trigger = (
+    <button
+      className="relative w-5 h-5 rounded"
+      title={label}
+    >
+      <SketchBorder
+        fill={color === 'none' ? '#fffdf9' : color}
+        stroke="#262320"
+        strokeWidth={1.3}
+        radius={3}
+        roughness={1.2}
+        shadow={0}
+        bleed={4}
+      />
+    </button>
+  )
 
   return (
     <div className="relative flex flex-col items-center">
       {label && (
-        <span className="text-[8px] text-muted-foreground leading-none mb-0.5 select-none">{label}</span>
+        <span className="text-[8px] text-ink-muted leading-none mb-0.5 select-none font-architect">{label}</span>
       )}
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-5 h-5 rounded border-2 border-border hover:border-foreground/50 transition-colors"
-        style={swatchStyle}
-        title={label}
-      />
-      {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute left-full top-0 ml-2 z-50 bg-popover border border-border rounded-md shadow-lg p-2 w-[116px]">
-            <div className="grid grid-cols-4 gap-1 mb-2">
-              {allowNone && (
-                <button
-                  onClick={() => { onChange('none'); setOpen(false) }}
-                  className={cn(
-                    'w-6 h-6 rounded border-2 transition-colors',
-                    color === 'none' ? 'border-foreground' : 'border-transparent hover:border-border',
-                  )}
-                  style={{ background: 'linear-gradient(135deg, #fff 45%, #f03e3e 45%, #f03e3e 55%, #fff 55%)' }}
-                  title="No fill"
-                />
-              )}
-              {PRESETS.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => { onChange(c); setOpen(false) }}
-                  className={cn(
-                    'w-6 h-6 rounded border-2 transition-colors',
-                    color === c ? 'border-foreground' : 'border-transparent hover:border-border',
-                  )}
-                  style={{
-                    background: c,
-                    outline: c === '#ffffff' ? '1px solid #d1d5db' : undefined,
-                  }}
-                  title={c}
-                />
-              ))}
-            </div>
-            <input
-              type="color"
-              value={color === 'none' ? '#ffffff' : color}
-              onChange={(e) => onChange(e.target.value)}
-              className="w-full h-6 cursor-pointer rounded border border-border p-0"
-              title="Custom color"
-            />
+      <PaperPopover trigger={trigger} placement="right" maxWidth={150}>
+        <div className="flex flex-col">
+          <div className="grid grid-cols-4 gap-1 mb-2">
+            {allowNone && (
+              <button
+                onClick={() => onChange('none')}
+                className={cn(
+                  'w-6 h-6 rounded border-2 transition-colors cursor-pointer',
+                  color === 'none' ? 'border-ink' : 'border-transparent hover:border-border',
+                )}
+                style={{ background: 'linear-gradient(135deg, #fff 45%, #f03e3e 45%, #f03e3e 55%, #fff 55%)' }}
+                title="No fill"
+              />
+            )}
+            {PRESETS.map((c) => (
+              <button
+                key={c}
+                onClick={() => onChange(c)}
+                className={cn(
+                  'w-6 h-6 rounded border-2 transition-colors cursor-pointer',
+                  color === c ? 'border-ink' : 'border-transparent hover:border-border',
+                )}
+                style={{
+                  background: c,
+                  outline: c === '#ffffff' ? '1px solid #d1d5db' : undefined,
+                }}
+                title={c}
+              />
+            ))}
           </div>
-        </>
-      )}
+          <input
+            type="color"
+            value={color === 'none' ? '#ffffff' : color}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full h-6 cursor-pointer rounded border border-[#9c9484] p-0"
+            title="Custom color"
+          />
+        </div>
+      </PaperPopover>
     </div>
   )
 }

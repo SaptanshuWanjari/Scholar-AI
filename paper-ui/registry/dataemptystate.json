@@ -7,7 +7,6 @@
   "registryDependencies": [
     "coffeering",
     "decorations",
-    "foldedcorner",
     "markerhighlight",
     "notebookedge",
     "notebookspiral",

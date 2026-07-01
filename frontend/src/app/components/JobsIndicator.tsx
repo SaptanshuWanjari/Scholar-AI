@@ -7,12 +7,14 @@ import {
   XCircle,
 } from "lucide-react";
 import { api, JobItem } from "../lib/api";
-import { Button } from "./ui/button";
+import { IconButton } from "@paper-ui/components/buttons";
+import { PaperBadge } from "@paper-ui/components/badges";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./ui/popover";
+  Menubar,
+  MenubarMenu,
+  MenubarTrigger,
+  MenubarContent,
+} from "@paper-ui/components/navigation";
 import { useNotificationStore, type AppNotification } from "../stores/useNotificationStore";
 
 const POLL_INTERVAL_MS = 4000;
@@ -27,53 +29,39 @@ function elapsedLabel(ms: number): string {
   return `${Math.floor(mins / 60)}h ago`;
 }
 
+const STATUS_TONES: Record<string, "ochre" | "sky" | "sage" | "brick"> = {
+  queued: "ochre",
+  running: "sky",
+  done: "sage",
+  failed: "brick",
+  success: "sage",
+};
+
+const STATUS_ICONS: Record<string, typeof Clock> = {
+  queued: Clock,
+  running: Loader2,
+  done: CheckCircle2,
+  failed: XCircle,
+  success: CheckCircle2,
+};
+
 function StatusChip({ status }: { status: JobItem["status"] }) {
-  if (status === "queued") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-        <Clock className="size-3" />
-        queued
-      </span>
-    );
-  }
-  if (status === "running") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-        <Loader2 className="size-3 animate-spin" />
-        running
-      </span>
-    );
-  }
-  if (status === "done") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
-        <CheckCircle2 className="size-3" />
-        done
-      </span>
-    );
-  }
+  const Icon = STATUS_ICONS[status];
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
-      <XCircle className="size-3" />
-      failed
-    </span>
+    <PaperBadge tone={STATUS_TONES[status]}>
+      <Icon size={10} strokeWidth={2} className={status === "running" ? "animate-spin" : undefined} />
+      {status}
+    </PaperBadge>
   );
 }
 
 function NotifChip({ status }: { status: AppNotification["status"] }) {
-  if (status === "success") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
-        <CheckCircle2 className="size-3" />
-        done
-      </span>
-    );
-  }
+  const Icon = STATUS_ICONS[status];
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
-      <XCircle className="size-3" />
-      failed
-    </span>
+    <PaperBadge tone={STATUS_TONES[status]}>
+      <Icon size={10} strokeWidth={2} />
+      {status === "success" ? "done" : "failed"}
+    </PaperBadge>
   );
 }
 
@@ -145,84 +133,86 @@ export function JobsIndicator() {
   const isEmpty = merged.length === 0;
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative shrink-0">
-          <Bell className="size-[18px]" />
-          {activeCount > 0 && (
-            <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold leading-none text-primary-foreground animate-pulse">
-              {activeCount}
-            </span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <div>
-            <p className="text-sm font-semibold">Notifications</p>
+    <Menubar className="h-auto border-0 bg-transparent p-0 [&>div]:hidden">
+      <MenubarMenu>
+        <MenubarTrigger asChild>
+          <IconButton label="Notifications" className="relative overflow-hidden">
+            <Bell className="size-5" />
             {activeCount > 0 && (
-              <p className="text-xs text-muted-foreground">
-                {activeCount} job{activeCount !== 1 ? "s" : ""} in progress
-              </p>
+              <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary font-architect text-[9px] font-bold leading-none text-primary-foreground animate-pulse">
+                {activeCount}
+              </span>
+            )}
+          </IconButton>
+        </MenubarTrigger>
+        <MenubarContent align="end" className="w-80 p-0">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <div>
+              <p className="font-architect text-sm font-semibold">Notifications</p>
+              {activeCount > 0 && (
+                <p className="font-kalam text-xs text-ink-muted">
+                  {activeCount} job{activeCount !== 1 ? "s" : ""} in progress
+                </p>
+              )}
+            </div>
+            {notifications.length > 0 && (
+              <button
+                onClick={clearAll}
+                className="font-architect text-[11px] text-ink-muted hover:text-ink transition-colors"
+              >
+                Clear all
+              </button>
             )}
           </div>
-          {notifications.length > 0 && (
-            <button
-              onClick={clearAll}
-              className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Clear all
-            </button>
-          )}
-        </div>
 
-        {isEmpty ? (
-          <div className="flex flex-col items-center gap-2 px-4 py-8 text-center text-sm text-muted-foreground">
-            <Bell className="size-6 opacity-40" />
-            No notifications
-          </div>
-        ) : (
-          <ul className="divide-y divide-border">
-            {merged.map((item) =>
-              item._kind === "job" ? (
-                <li key={`job-${item.data.id}`} className="flex items-start gap-3 px-4 py-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium leading-tight">
-                      {item.data.label}
-                    </p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
-                      {elapsedLabel(new Date(item.data.createdAt).getTime())}
-                    </p>
-                    {item.data.error && (
-                      <p className="mt-1 truncate text-[11px] text-destructive">
-                        {item.data.error}
+          {isEmpty ? (
+            <div className="flex flex-col items-center gap-2 px-4 py-8 text-center font-architect text-sm text-ink-muted">
+              <Bell className="size-6 opacity-40" />
+              No notifications
+            </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {merged.map((item) =>
+                item._kind === "job" ? (
+                  <li key={`job-${item.data.id}`} className="flex items-start gap-3 px-4 py-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-architect text-sm leading-tight text-ink">
+                        {item.data.label}
                       </p>
-                    )}
-                  </div>
-                  <StatusChip status={item.data.status} />
-                </li>
-              ) : (
-                <li key={`notif-${item.data.id}`} className="flex items-start gap-3 px-4 py-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium leading-tight">
-                      {item.data.title}
-                    </p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
-                      {elapsedLabel(item.data.timestamp)}
-                    </p>
-                    {item.data.message && (
-                      <p className="mt-1 truncate text-[11px] text-destructive">
-                        {item.data.message}
+                      <p className="mt-0.5 font-kalam text-[11px] text-ink-muted">
+                        {elapsedLabel(new Date(item.data.createdAt).getTime())}
                       </p>
-                    )}
-                  </div>
-                  <NotifChip status={item.data.status} />
-                </li>
-              )
-            )}
-          </ul>
-        )}
-      </PopoverContent>
-    </Popover>
+                      {item.data.error && (
+                        <p className="mt-1 truncate font-kalam text-[11px] text-[#a3544a]">
+                          {item.data.error}
+                        </p>
+                      )}
+                    </div>
+                    <StatusChip status={item.data.status} />
+                  </li>
+                ) : (
+                  <li key={`notif-${item.data.id}`} className="flex items-start gap-3 px-4 py-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-architect text-sm leading-tight text-ink">
+                        {item.data.title}
+                      </p>
+                      <p className="mt-0.5 font-kalam text-[11px] text-ink-muted">
+                        {elapsedLabel(item.data.timestamp)}
+                      </p>
+                      {item.data.message && (
+                        <p className="mt-1 truncate font-kalam text-[11px] text-[#a3544a]">
+                          {item.data.message}
+                        </p>
+                      )}
+                    </div>
+                    <NotifChip status={item.data.status} />
+                  </li>
+                )
+              )}
+            </ul>
+          )}
+        </MenubarContent>
+      </MenubarMenu>
+    </Menubar>
   );
 }

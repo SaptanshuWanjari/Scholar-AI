@@ -33,7 +33,6 @@ export interface PaperSidebarItemProps {
 
 /**
  * Single nav row. Active state renders a hand-drawn sticker (SketchBorder fill +
- * FoldedCorner) so the current page looks physically "pinned" to the sidebar.
  */
 export function PaperSidebarItem({
   item,
@@ -50,7 +49,7 @@ export function PaperSidebarItem({
         "group relative flex w-full items-center rounded-md overflow-visible",
         "transition-colors",
         collapsed ? "justify-center p-[10px]" : "gap-[11px] px-2 py-[9px]",
-        !active && "hover:bg-black/[0.035]",
+        !active && "paper-hover-sweep",
       )}
     >
       {/* Active sticker surface */}
@@ -127,7 +126,7 @@ export function PaperSidebarCollapseButton({
       aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       className={cn(
         "flex items-center justify-center rounded-md p-2",
-        "text-ink-muted transition-colors hover:bg-black/[0.04] hover:text-ink",
+        "text-ink-muted transition-colors paper-hover-sweep hover:text-ink",
         className,
       )}
     >
@@ -264,7 +263,7 @@ export function PaperSidebar({
           onClick={() => onCollapse?.(!collapsed)}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className={cn(
-            "flex items-center rounded-md text-ink-muted transition-colors hover:bg-black/[0.035] hover:text-ink",
+            "flex items-center rounded-md text-ink-muted transition-colors paper-hover-sweep hover:text-ink",
             collapsed ? "justify-center p-2" : "w-full gap-3 px-3 py-2",
           )}
         >

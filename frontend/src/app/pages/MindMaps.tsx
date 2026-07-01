@@ -2,25 +2,20 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Network, Sparkles, Loader2, Trash2, ImageDown, FileDown } from "lucide-react";
 import { exportNodeToPng, exportNodeToPdf } from "../lib/export";
 import { GenerationSteps } from "../components/GenerationSteps";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import { Input } from "../components/ui/input";
-import { ScrollArea } from "../components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
 import { api, type GeneratedMindmap } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 import { useMindmapStore, ALL_COURSES } from "../stores/useMindmapStore";
 import { toast } from "sonner";
-import { cn } from "../components/ui/utils";
 import { MindMapTree, parseMindmapText, countNodes } from "../components/MindMapTree";
 import QualityBadge from "../components/QualityBadge";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
+import { PaperButton, GhostButton } from "@/paper-ui/components/buttons";
+import { PaperBadge } from "@/paper-ui/components/badges";
+import { PaperInput, PaperSelect } from "@/paper-ui/components/inputs";
+import { ScrollArea } from "@/paper-ui/components/layout";
+import { cn } from "@/paper-ui/utils";
+import { SketchDivider } from "@/paper-ui/components/decorations";
+import { PaperCard, PaperIconCircle } from "@/paper-ui/core";
 
 export function MindMaps() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -91,9 +86,14 @@ export function MindMaps() {
   return (
     <div className="flex h-full">
       {/* Sidebar */}
-      <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card/40">
-        <div className="border-b border-border px-4 py-3 text-sm font-medium">
+      <div className="relative flex w-72 shrink-0 flex-col bg-card/40">
+        {/* Hand-drawn vertical separator */}
+        <svg className="absolute top-0 bottom-0 right-0 w-2 h-full z-10" preserveAspectRatio="none" aria-hidden>
+          <path d="M1,0 Q3,20 0,40 T1,1000" fill="none" stroke="var(--color-pencil)" strokeWidth="1.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" className="opacity-30" />
+        </svg>
+        <div className="relative px-4 py-3 font-caveat text-[20px] font-bold text-ink/90">
           Mind Maps
+          <SketchDivider variant="wavy" className="absolute bottom-0 left-0 opacity-30" />
         </div>
         <ScrollArea className="flex-1">
           <div className="space-y-1 p-2">
@@ -114,38 +114,35 @@ export function MindMaps() {
               </div>
             )}
             {items.map((m) => (
-              <div
+              <PaperCard
                 key={m.id}
                 onClick={() => setActive(m)}
+                surface={active?.id === m.id ? "#fffdf9" : "transparent"}
+                shadow={active?.id === m.id ? "sm" : "none"}
+                border={active?.id === m.id ? undefined : null}
                 className={cn(
-                  "group flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-left transition-colors",
-                  active?.id === m.id ? "bg-violet-soft" : "hover:bg-accent/40",
+                  "group flex w-full cursor-pointer items-center gap-3 p-3 text-left transition-all",
+                  active?.id === m.id ? "" : "hover:bg-black/[0.02]"
                 )}
               >
-                <div
-                  className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-lg",
-                    active?.id === m.id ? "bg-primary text-white" : "bg-muted text-muted-foreground",
-                  )}
-                >
+                <PaperIconCircle tone={active?.id === m.id ? "sky" : "ink"} size={36}>
                   <Network className="size-4" />
+                </PaperIconCircle>
+                <div className="min-w-0 flex-1 font-kalam">
+                  <div className="truncate text-[14px] font-bold text-ink">{m.title}</div>
+                  <div className="truncate text-[11px] text-ink-muted/80 font-architect">{m.course}</div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{m.title}</div>
-                  <div className="truncate text-xs text-muted-foreground">{m.course}</div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
+                <GhostButton
+                  border={null}
+                  className="size-7 min-h-0 p-0 shrink-0 text-ink-muted opacity-0 hover:text-danger group-hover:opacity-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     void remove(m.id);
                   }}
                 >
                   <Trash2 className="size-3.5" />
-                </Button>
-              </div>
+                </GhostButton>
+              </PaperCard>
             ))}
           </div>
         </ScrollArea>
@@ -154,44 +151,43 @@ export function MindMaps() {
       {/* Main panel */}
       <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
         {/* Generate controls */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card/40 px-6 py-3">
-          <Input
+        <div className="relative flex flex-wrap items-center gap-2 bg-card/40 px-6 py-3">
+          <SketchDivider variant="wavy" className="absolute bottom-0 left-0 opacity-30" />
+          <PaperInput
             id="mindmap-topic-input"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !loading) generate(); }}
             placeholder="Topic to map…"
-            className="h-9 max-w-xs flex-1 bg-input-background"
+            className="max-w-xs flex-1"
             disabled={loading}
           />
-          <Select value={course} onValueChange={setCourse} disabled={loading}>
-            <SelectTrigger className="h-9 w-48 bg-input-background">
-              <SelectValue placeholder="All courses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL_COURSES}>All courses</SelectItem>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)} disabled={loading}>
-            <SelectTrigger className="h-9 w-48 bg-input-background">
-              <SelectValue placeholder="All documents" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All documents</SelectItem>
-              {documents.filter(d => course !== ALL_COURSES ? d.course === course : true).map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button size="sm" onClick={generate} disabled={loading} className="gap-1.5">
+          <PaperSelect
+            value={course}
+            onChange={setCourse}
+            options={[
+              { value: ALL_COURSES, label: "All courses" },
+              ...courses.map((c) => ({ value: c.name, label: c.name })),
+            ]}
+            placeholder="All courses"
+            wrapperClassName="w-48"
+            disabled={loading}
+          />
+          <PaperSelect
+            value={document ?? "all"}
+            onChange={(v) => setDocument(v === "all" ? null : v)}
+            options={[
+              { value: "all", label: "All documents" },
+              ...documents.filter(d => course !== ALL_COURSES ? d.course === course : true).map((d) => ({ value: d.id, label: d.title })),
+            ]}
+            placeholder="All documents"
+            wrapperClassName="w-48"
+            disabled={loading}
+          />
+          <PaperButton size="sm" onClick={generate} disabled={loading} className="gap-1.5">
             {loading ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
             {loading ? "Generating..." : "Generate"}
-          </Button>
+          </PaperButton>
         </div>
 
         <GenerationSteps
@@ -204,22 +200,23 @@ export function MindMaps() {
         {/* Tree viewer */}
         {active ? (
           <>
-            <div className="sticky top-0 z-10 flex h-12 items-center gap-2 border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-              <div className="flex min-w-0 flex-1 items-center gap-2">
+            <div className="sticky top-0 z-10 flex h-12 items-center gap-2 bg-background/80 px-6 backdrop-blur-xl">
+              <SketchDivider variant="wavy" className="absolute bottom-0 left-0 opacity-30" />
+              <div className="flex min-w-0 flex-1 items-center gap-2 font-kalam">
                 <Network className="size-4 shrink-0 text-primary" />
-                <span className="line-clamp-2 break-words text-sm font-medium" title={active.title}>{active.title}</span>
-                <Badge variant="outline" className="shrink-0 border-cyan/40 bg-cyan-soft text-cyan">
+                <span className="line-clamp-2 break-words text-[16px] font-bold text-ink" title={active.title}>{active.title}</span>
+                <PaperBadge tone="sky" className="shrink-0">
                   {nodeCount} {nodeCount === 1 ? "node" : "nodes"}
-                </Badge>
+                </PaperBadge>
                 <QualityBadge score={active.quality} />
               </div>
               <div className="ml-auto flex items-center gap-1">
-                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => exportTree("png")} title="Export PNG">
+                <GhostButton size="sm" className="gap-1.5" onClick={() => exportTree("png")} title="Export PNG">
                   <ImageDown className="size-3.5" /> PNG
-                </Button>
-                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => exportTree("pdf")} title="Export PDF">
+                </GhostButton>
+                <GhostButton size="sm" className="gap-1.5" onClick={() => exportTree("pdf")} title="Export PDF">
                   <FileDown className="size-3.5" /> PDF
-                </Button>
+                </GhostButton>
                 <AddToNotebookMenu
                   artifactType="mindmap"
                   content={{ title: active.title, text: active.text }}
@@ -231,7 +228,7 @@ export function MindMaps() {
             <ScrollArea className="flex-1">
               <div className="p-6" ref={treeRef}>
                 {active.course && (
-                  <p className="mb-4 text-xs uppercase tracking-wide text-muted-foreground">
+                  <p className="mb-4 text-xs uppercase tracking-wider text-ink-muted/80 font-architect font-bold">
                     {active.course}
                   </p>
                 )}
@@ -253,13 +250,13 @@ export function MindMaps() {
               </p>
             </div>
             {items.length === 0 && (
-              <Button 
-                variant="outline"
+              <PaperButton 
+                tone="paper"
                 className="mt-2"
                 onClick={() => window.document.getElementById("mindmap-topic-input")?.focus()}
               >
                 Generate Mind Map
-              </Button>
+              </PaperButton>
             )}
           </div>
         )}

@@ -4,7 +4,6 @@ import { cn } from "@paper-ui/utils";
 import { PaperCard } from "@paper-ui/core";
 import { SectionLabel } from "@paper-ui/core";
 import { PaperBadge } from "../badges/PaperBadge";
-import { FoldedCorner } from "../decorations/FoldedCorner";
 import type { IconTone } from "@paper-ui/core";
 
 const TYPE_TONES: Record<string, IconTone> = {
@@ -57,7 +56,6 @@ export function DocumentCard({
       lift
       className={cn("overflow-visible px-5 pb-6 pt-5", className)}
     >
-      <FoldedCorner size={30} />
 
       <div className="mb-3 flex items-start gap-3">
         <span className="mt-0.5 shrink-0 text-ink-muted/60">

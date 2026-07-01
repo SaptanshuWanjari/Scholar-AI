@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import {
   GraduationCap,
@@ -29,17 +29,6 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { Badge } from "../components/ui/badge";
-import { ScrollArea } from "../components/ui/scroll-area";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { FlashcardCard } from "../components/FlashcardCard";
 import { DiagramViewer } from "../components/DiagramViewer";
@@ -49,13 +38,27 @@ import { ConsistencyReport } from "../components/ConsistencyReport";
 import QualityBadge from "../components/QualityBadge";
 import { cn } from "../components/ui/utils";
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-} from "../components/ui/alert-dialog";
+  PaperButton,
+  GhostButton,
+  ChipButton,
+  IconButton,
+} from "@paper-ui/components/buttons";
+import { PaperInput, PaperSelect, PaperCheckbox, PaperSwitch } from "@paper-ui/components/inputs";
+import { PaperBadge } from "@paper-ui/components/badges";
+import { ScrollArea } from "@paper-ui/components/layout";
+import {
+  PaperCard,
+  PaperPanel,
+  PaperH1,
+  PaperH2,
+  PaperH3,
+  PaperH5,
+  PaperH6,
+  PaperIconCircle,
+} from "@paper-ui/core";
+import { PrerequisiteCard, ConceptNode } from "@paper-ui/components/teaching";
+import { StarDoodle, StarDoodleFilled } from "@paper-ui/components/doodles";
+import { PaperModal } from "@paper-ui/components/dialogs";
 import { api, type PackageMeta, type FlashcardSet, type GeneratedQuiz, type GeneratedDiagram, type GeneratedMindmap, type GeneratedRevision, type ReadinessMissing } from "../lib/api";
 import type { GeneratedDifference, Flashcard, QuizQuestion } from "../lib/types";
 import {
@@ -70,15 +73,12 @@ import {
 function StarRating({ stars }: { stars: number }) {
   return (
     <span className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }, (_, i) => (
-        <Star
-          key={i}
-          className={cn(
-            "size-2.5",
-            i < stars ? "fill-amber-400 text-amber-400" : "fill-muted text-muted-foreground/30",
-          )}
-        />
-      ))}
+      {Array.from({ length: 5 }, (_, i) => {
+        if (i < stars) {
+          return <StarDoodleFilled key={i} size={11} color="#c9954f" />;
+        }
+        return <StarDoodle key={i} size={11} color="#e5ded2" strokeWidth={2} />;
+      })}
     </span>
   );
 }
@@ -205,269 +205,264 @@ function InputPhase() {
     }
   };
 
-    const removePackage = async (id: string) => {
-      try {
-        await api.deletePackage(id);
-        setPackages((prev) => prev.filter((p) => p.id !== id));
-        toast.success("Package deleted");
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to delete");
-      }
-    };
+  const removePackage = async (id: string) => {
+    try {
+      await api.deletePackage(id);
+      setPackages((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Package deleted");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete");
+    }
+  };
 
-    return (
-      <ScrollArea className="h-full">
-        <div className="mx-auto max-w-2xl px-6 py-12">
-          <div className="flex flex-col items-center text-center">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-violet-soft text-primary">
-              <GraduationCap className="size-6" />
-            </div>
-            <h1 className="mt-4 text-2xl font-semibold">Teach Me</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Enter a topic and get a complete learning workspace — notes, flashcards, quiz,
-              mind map, diagram and more, all in one place.
-            </p>
+  const courseOptions = useMemo(() => [
+    { value: "none", label: "All courses" },
+    ...courses.map((c) => ({ value: c.name, label: c.name })),
+  ], [courses]);
+
+  const documentOptions = useMemo(() => [
+    { value: "all", label: "All documents" },
+    ...(course === "none" ? documents : documents.filter(d => d.course === course))
+      .map((d) => ({ value: d.id, label: d.title })),
+  ], [documents, course]);
+  const allSelected = ARTIFACT_KEYS.every((key) => selected[key]);
+  const handleSwitchChange = (checked: boolean) => {
+    if (checked) {
+      selectAll();
+    } else {
+      clearSelection();
+    }
+  };
+
+  return (
+    <ScrollArea className="h-full">
+      <div className="mx-auto max-w-2xl px-6 py-12">
+        <div className="flex flex-col items-center text-center">
+          <PaperIconCircle tone="lavender" size={50}>
+            <GraduationCap className="size-6" />
+          </PaperIconCircle>
+          <PaperH1 className="mt-4 text-4xl">Teach Me</PaperH1>
+          <p className="mt-1 text-[18px] font-architect text-ink-muted">
+            Enter a topic and get a complete learning workspace — notes, flashcards, quiz,
+            mind map, diagram and more, all in one place.
+          </p>
+        </div>
+
+        <PaperCard className="mt-8 p-5">
+          <PaperInput
+            data-tour="teach-input"
+            value={topic}
+            onChange={(e) => handleTopicChange(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") void handleGenerate(); }}
+            placeholder="What would you like to learn?"
+            className="h-11 bg-input-background text-base"
+            autoFocus
+          />
+
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {suggestions.map((ex) => (
+              <ChipButton
+                key={ex}
+                onClick={() => setField("topic", ex)}
+              >
+                {ex}
+              </ChipButton>
+            ))}
           </div>
 
-          <div className="mt-8 rounded-2xl border border-border bg-card p-5">
-            <Input
-              data-tour="teach-input"
-              value={topic}
-              onChange={(e) => handleTopicChange(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") void handleGenerate(); }}
-              placeholder="What would you like to learn?"
-              className="h-11 bg-input-background text-base"
-              autoFocus
-            />
+          {/* Context Pickers */}
+          <div className="mt-5 flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <PaperH5 className="mb-2 text-ink-muted">Course</PaperH5>
+              <PaperSelect
+                value={course}
+                onChange={(v) => setCourse(v)}
+                options={courseOptions}
+                placeholder="All courses"
+              />
+            </div>
 
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {suggestions.map((ex) => (
-                <button
-                  key={ex}
-                  onClick={() => setField("topic", ex)}
-                  className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground transition-colors hover:border-ring/40 hover:text-foreground"
+            <div className="flex-1">
+              <PaperH5 className="mb-2 text-ink-muted">Document</PaperH5>
+              <PaperSelect
+                value={document ?? "all"}
+                onChange={(v) => setDocument(v === "all" ? null : v)}
+                options={documentOptions}
+                placeholder="All documents"
+              />
+            </div>
+          </div>
+
+          {/* Depth */}
+          <div className="mt-5">
+            <PaperH5 className="mb-2 text-ink-muted">Depth</PaperH5>
+            <div className="flex gap-2">
+              {DEPTHS.map((d) => (
+                <PaperButton
+                  key={d.id}
+                  tone={depth === d.id ? "dark" : "paper"}
+                  onClick={() => setField("depth", d.id)}
+                  className="flex-1 justify-center"
                 >
-                  {ex}
-                </button>
+                  {d.label}
+                </PaperButton>
               ))}
             </div>
-
-            {/* Context Pickers */}
-            <div className="mt-5 flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
-                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Course</div>
-                <Select value={course} onValueChange={setCourse}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All courses" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">All courses</SelectItem>
-                    {courses.map((c) => (
-                      <SelectItem key={c.id} value={c.name}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex-1">
-                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Document</div>
-                <Select
-                  value={document ?? "all"}
-                  onValueChange={(v) => setDocument(v === "all" ? null : v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="All documents" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All documents</SelectItem>
-                    {(course === "none" ? documents : documents.filter(d => d.course === course)).map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
-                        {d.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Depth */}
-            <div className="mt-5">
-              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Depth</div>
-              <div className="flex gap-2">
-                {DEPTHS.map((d) => (
-                  <button
-                    key={d.id}
-                    onClick={() => setField("depth", d.id)}
-                    className={cn(
-                      "flex-1 rounded-lg border px-3 py-2 text-sm transition-colors",
-                      depth === d.id ? "border-primary bg-violet-soft text-primary" : "border-border bg-background hover:border-ring/40",
-                    )}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Artifacts */}
-            <div className="mt-5" data-tour="teach-artifacts">
-              <div className="mb-2 flex items-center justify-between">
-                <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Artifacts
-                  {recommendationsLoading && (
-                    <Loader2 className="ml-1.5 inline size-3 animate-spin text-muted-foreground" />
-                  )}
-                </div>
-                <div className="flex gap-1">
-                  {recommendations && (
-                    <button
-                      onClick={applyRecommendations}
-                      className="rounded px-2 py-0.5 text-xs text-primary transition-colors hover:bg-violet-soft/60"
-                    >
-                      Use Recommended
-                    </button>
-                  )}
-                  <button
-                    onClick={selectAll}
-                    className="rounded px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    All
-                  </button>
-                  <button
-                    onClick={clearSelection}
-                    className="rounded px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    None
-                  </button>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {ARTIFACT_KEYS.map((key) => {
-                  const rec = recommendations?.[key];
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => toggleArtifact(key)}
-                      className={cn(
-                        "flex flex-col gap-1 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
-                        selected[key] ? "border-primary/50 bg-violet-soft/60" : "border-border bg-background text-muted-foreground hover:border-ring/40",
-                      )}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span className={cn("flex size-4 shrink-0 items-center justify-center rounded border", selected[key] ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40")}>
-                          {selected[key] && <CheckCircle2 className="size-3" />}
-                        </span>
-                        {ARTIFACT_LABELS[key]}
-                      </span>
-                      {rec && (
-                        <span className="flex flex-col gap-0.5 pl-6">
-                          <StarRating stars={rec.stars} />
-                          <span className="line-clamp-2 text-[10px] leading-tight text-muted-foreground">{rec.reason}</span>
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {showHint && (
-              <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground relative">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="absolute right-2 top-2 size-6 text-muted-foreground hover:bg-primary/10 hover:text-foreground rounded-full"
-                  onClick={() => {
-                    localStorage.setItem("teach_hitl_hint_dismissed", "1");
-                    setShowHint(false);
-                  }}
-                >
-                  <X className="size-3.5" />
-                </Button>
-                <div className="flex items-start gap-3 pr-6">
-                  <div className="mt-0.5 rounded-full bg-primary/10 p-1 text-primary">
-                    <Sparkles className="size-3.5" />
-                  </div>
-                  <div className="leading-relaxed">
-                    <span className="font-medium text-foreground block mb-1">How Teach Me works:</span>
-                    <strong>Phase 1</strong> — AI generates a draft based on your materials. Review and refine it.<br />
-                    <strong>Phase 2</strong> — Approve to generate flashcards, quiz, diagram, and mind map from your approved notes.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <Button data-tour="teach-generate" onClick={handleGenerate} disabled={checking} className="mt-6 w-full gap-2">
-              {checking ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-              {checking ? "Checking prerequisites…" : "Generate learning package"}
-            </Button>
           </div>
 
-          {/* Dependency readiness gate */}
-          <AlertDialog open={!!gate} onOpenChange={(o) => !o && setGate(null)}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>This topic depends on concepts you haven't mastered</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Studying these prerequisites first will make <span className="font-medium text-foreground">{topic}</span> easier to understand.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="space-y-1.5">
-                {(gate ?? []).map((m) => (
-                  <div key={m.id} className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2">
-                    <span className="text-sm">{m.name}</span>
-                    <Badge variant="outline" className="text-[10px]">{m.masteryStatus}</Badge>
-                  </div>
-                ))}
-              </div>
-              <AlertDialogFooter>
-                <Button variant="outline" onClick={generateAnyway}>Generate anyway</Button>
-                <Button onClick={studyPrerequisiteFirst} className="gap-1.5">
-                  <GraduationCap className="size-4" /> Study {gate?.[0]?.name ?? "prerequisite"} first
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          {/* Library */}
-          {packages.length > 0 && (
-            <div className="mt-10">
-              <h2 className="mb-3 text-sm font-medium">Your learning packages</h2>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {packages.map((p) => (
-                  <div
-                    key={p.id}
-                    className="group flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-ring/40"
-                    onClick={() => loadPackage(p.id)}
+          {/* Artifacts */}
+          <div className="mt-5" data-tour="teach-artifacts">
+            <div className="mb-2 flex items-center justify-between">
+              <PaperH5 className="text-ink-muted">
+                Artifacts
+                {recommendationsLoading && (
+                  <Loader2 className="ml-1.5 inline size-3 animate-spin text-ink-muted" />
+                )}
+              </PaperH5>
+              <div className="flex items-center gap-3">
+                {recommendations && (
+                  <button
+                    onClick={applyRecommendations}
+                    className="rounded px-2 py-0.5 text-xs text-primary transition-colors hover:bg-violet-soft/60"
                   >
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-violet-soft text-primary">
-                      <GraduationCap className="size-4" />
+                    Use Recommended
+                  </button>
+                )}
+                <PaperSwitch
+                  checked={allSelected}
+                  onChange={handleSwitchChange}
+                  label="All"
+                  className="scale-90"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {ARTIFACT_KEYS.map((key) => {
+                const rec = recommendations?.[key];
+                return (
+                  <PaperCard
+                    key={key}
+                    shadow="none"
+                    surface={selected[key] ? "var(--color-violet-soft)" : "#fffdf9"}
+                    onClick={() => toggleArtifact(key)}
+                    className={cn(
+                      "flex flex-col gap-1 px-3 py-2 text-left text-sm cursor-pointer transition-all",
+                      selected[key] ? "border-primary/50" : "border-border hover:border-ink-muted/40",
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <PaperCheckbox
+                        checked={selected[key]}
+                        onChange={() => {}}
+                        label={ARTIFACT_LABELS[key]}
+                        className="pointer-events-none"
+                      />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">{p.title}</div>
-                      <div className="mt-0.5 text-xs text-muted-foreground capitalize">
-                        {p.depth} · {p.artifactCount} {p.artifactCount === 1 ? "artifact" : "artifacts"}
+                    {rec && (
+                      <div className="flex flex-col gap-0.5 pl-[27px]">
+                        <StarRating stars={rec.stars} />
+                        <span className="line-clamp-2 text-[10px] leading-tight text-ink-muted/80">{rec.reason}</span>
                       </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
+                    )}
+                  </PaperCard>
+                );
+              })}
+            </div>
+          </div>
+
+          {showHint && (
+            <PaperPanel className="mt-6 p-4 text-sm relative">
+              <IconButton
+                label="Dismiss hint"
+                className="absolute right-2 top-2 size-6"
+                onClick={() => {
+                  localStorage.setItem("teach_hitl_hint_dismissed", "1");
+                  setShowHint(false);
+                }}
+              >
+                <X className="size-3.5" />
+              </IconButton>
+              <div className="flex items-start gap-3 pr-6 font-kalam">
+                <PaperIconCircle tone="lavender" size={28}>
+                  <Sparkles className="size-3.5" />
+                </PaperIconCircle>
+                <div className="leading-relaxed text-ink">
+                  <span className="font-bold text-[15px] block mb-1">How Teach Me works:</span>
+                  <strong>Phase 1</strong> — AI generates a draft based on your materials. Review and refine it.<br />
+                  <strong>Phase 2</strong> — Approve to generate flashcards, quiz, diagram, and mind map from your approved notes.
+                </div>
+              </div>
+            </PaperPanel>
+          )}
+
+          <PaperButton
+            data-tour="teach-generate"
+            onClick={handleGenerate}
+            disabled={checking}
+            tone="dark"
+            size={"md"}
+            className="mt-6 w-full gap-2  text-lg"
+          >
+            {checking ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+            {checking ? "Checking prerequisites…" : "Generate learning package"}
+          </PaperButton>
+        </PaperCard>
+
+        {/* Dependency readiness gate */}
+        <PaperModal
+          open={!!gate}
+          onClose={() => setGate(null)}
+          title="Prerequisites Needed"
+          footer={
+            <>
+              <PaperButton tone="paper" onClick={generateAnyway}>Generate anyway</PaperButton>
+              <PaperButton tone="dark" onClick={studyPrerequisiteFirst} className="gap-1.5">
+                <GraduationCap className="size-4" /> Study {gate?.[0]?.name ?? "prerequisite"} first
+              </PaperButton>
+            </>
+          }
+        >
+          <p className="mb-4">
+            Studying these prerequisites first will make <span className="font-bold">{topic}</span> easier to understand.
+          </p>
+          <PrerequisiteCard
+            items={(gate ?? []).map((m) => ({
+              title: m.name,
+              mastery: m.masteryStatus === "mastered" ? "mastered" : m.masteryStatus === "learning" ? "learning" : m.masteryStatus === "weak" ? "weak" : "unknown",
+              done: m.masteryStatus === "mastered",
+            }))}
+          />
+        </PaperModal>
+
+        {/* Library */}
+        {packages.length > 0 && (
+          <div className="mt-10">
+            <PaperH3 className="mb-3">Your learning packages</PaperH3>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {packages.map((p) => (
+                <ConceptNode
+                  key={p.id}
+                  title={p.title}
+                  description={`${p.depth} · ${p.artifactCount} ${p.artifactCount === 1 ? "artifact" : "artifacts"}`}
+                  onClick={() => loadPackage(p.id)}
+                  actions={
+                    <IconButton
+                      label="Delete package"
+                      className="hover:text-danger text-ink-muted shrink-0 size-7"
                       onClick={(e) => { e.stopPropagation(); void removePackage(p.id); }}
                     >
                       <Trash2 className="size-3.5" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
+                    </IconButton>
+                  }
+                />
+              ))}
             </div>
-          )}
-        </div>
-      </ScrollArea>
-    );
-  }
+          </div>
+        )}
+      </div>
+    </ScrollArea>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Workspace views
@@ -533,9 +528,9 @@ function QuizReview({ questions }: { questions: QuizQuestion[] }) {
                       </div>
                     )
                   ) : (
-                    <Button variant="outline" size="sm" onClick={() => setRevealed((r) => ({ ...r, [q.id]: true }))}>
+                    <PaperButton tone="paper" size="sm" onClick={() => setRevealed((r) => ({ ...r, [q.id]: true }))}>
                       Show answer
-                    </Button>
+                    </PaperButton>
                   )}
                 </div>
               </div>
@@ -562,7 +557,7 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
           <div className="flex flex-col items-center gap-3 pt-24 text-center text-muted-foreground">
             <AlertTriangle className="size-7 text-danger/70" />
             <p className="max-w-sm text-sm">{slot.error}</p>
-            <Button variant="outline" size="sm" onClick={() => void retryArtifact(view)}>Retry</Button>
+            <PaperButton tone="paper" size="sm" onClick={() => void retryArtifact(view)}>Retry</PaperButton>
           </div>
         );
       }
@@ -586,9 +581,9 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
                   {cards.map((c) => <FlashcardCard key={c.id} card={c} />)}
                 </div>
                 <div className="flex justify-end">
-                  <Button
+                  <PaperButton
                     size="sm"
-                    variant="outline"
+                    tone="paper"
                     disabled={savedToLibrary}
                     onClick={async () => {
                       try {
@@ -610,7 +605,7 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
                     {savedToLibrary
                       ? <><CheckCircle2 className="mr-1.5 size-3.5" />Added to Decks</>
                       : <><Plus className="mr-1.5 size-3.5" />Add to Decks</>}
-                  </Button>
+                  </PaperButton>
                 </div>
               </div>
             );
@@ -621,9 +616,9 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
               <div className="space-y-4">
                 <QuizReview questions={q.questions} />
                 <div className="flex justify-end">
-                  <Button
+                  <PaperButton
                     size="sm"
-                    variant="outline"
+                    tone="paper"
                     disabled={savedToLibrary}
                     onClick={async () => {
                       try {
@@ -645,7 +640,7 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
                     {savedToLibrary
                       ? <><CheckCircle2 className="mr-1.5 size-3.5" />Quiz Saved</>
                       : <><Plus className="mr-1.5 size-3.5" />Save Quiz</>}
-                  </Button>
+                  </PaperButton>
                 </div>
               </div>
             );
@@ -658,9 +653,9 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
             const count = countNodes(parseMindmapText(text));
             return (
               <div>
-                <Badge variant="outline" className="mb-4 border-cyan/40 bg-cyan-soft text-cyan">
+                <PaperBadge tone="sky" className="mb-4">
                   {count} {count === 1 ? "node" : "nodes"}
-                </Badge>
+                </PaperBadge>
                 <MindMapTree text={text} />
               </div>
             );
@@ -707,22 +702,23 @@ function ConsistencyView() {
         <div className="space-y-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-base font-medium text-foreground">Cross-artifact consistency</h2>
-              <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+              <PaperH3>Cross-artifact consistency</PaperH3>
+              <p className="mt-1 max-w-xl text-sm text-ink-muted">
                 Check that every artifact covers the same concepts as the source material.
                 Detects missing, weak and under-represented concepts. Analysis only — nothing
                 is regenerated.
               </p>
             </div>
-            <Button
+            <PaperButton
               size="sm"
+              tone={report ? "paper" : "dark"}
               className="shrink-0 gap-2"
               disabled={generating || status === "loading"}
               onClick={() => void runConsistency()}
             >
               {status === "loading" ? <Loader2 className="size-3.5 animate-spin" /> : <ShieldCheck className="size-3.5" />}
               {report ? "Re-analyze" : "Analyze"}
-            </Button>
+            </PaperButton>
           </div>
 
           {status === "loading" ? (
@@ -830,24 +826,24 @@ function WorkspacePhase() {
               </ScrollArea>
             </div>
             <div className="space-y-2 border-t border-border p-3">
-              <Button onClick={savePackage} disabled={saving || !overview} className="w-full gap-2" size="sm">
+              <PaperButton onClick={savePackage} disabled={saving || !overview} className="w-full gap-2" size="sm" tone="dark">
                 {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
                 {packageId ? "Saved" : "Save Learning Package"}
-              </Button>
-              <Button onClick={reset} variant="outline" className="w-full gap-2" size="sm">
+              </PaperButton>
+              <GhostButton onClick={reset} className="w-full gap-2" size="sm">
                 <Plus className="size-3.5" /> New topic
-              </Button>
+              </GhostButton>
               {pkgCourse && (
-                <Button
-                  variant="ghost"
+                <GhostButton
                   size="sm"
-                  className="w-full gap-2 text-muted-foreground"
+                  border={null}
+                  className="w-full gap-2 justify-center text-ink-muted hover:text-ink"
                   onClick={() => navigate(`/courses?name=${encodeURIComponent(pkgCourse)}`)}
                 >
                   <FolderOpen className="size-3.5" />
                   <ChevronLeft className="size-3 -mr-1" />
                   <span className="truncate">{pkgCourse}</span>
-                </Button>
+                </GhostButton>
               )}
             </div>
           </div>
@@ -857,14 +853,14 @@ function WorkspacePhase() {
             <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background/80 px-6 backdrop-blur-xl">
               <span className="text-sm font-medium">{NAV.find((n) => n.id === activeView)?.label}</span>
               {isPaused && activeView === "notes" && (
-                <Badge variant="outline" className="gap-1 border-amber-400/40 bg-amber-50/60 text-[10px] text-amber-600 dark:bg-amber-900/20 dark:text-amber-400">
+                <PaperBadge tone="ochre" className="gap-1 text-[10px]">
                   <PenLine className="size-2.5" /> Draft — editable
-                </Badge>
+                </PaperBadge>
               )}
               {grounded !== undefined && activeView !== "notes" && (
-                <Badge variant="outline" className={cn("text-[10px]", grounded ? "border-success/40 bg-success-soft text-success" : "border-warning/40 bg-warning-soft text-warning")}>
+                <PaperBadge tone={grounded ? "sage" : "ochre"} className="text-[10px]">
                   {grounded ? "From your documents" : "General knowledge"}
-                </Badge>
+                </PaperBadge>
               )}
             </div>
 
@@ -905,14 +901,15 @@ function WorkspacePhase() {
                     <PauseCircle className="mr-1 inline size-3.5 text-amber-500" />
                     Flashcards, Quiz, Mind Map and Diagram are <strong>paused</strong> until you approve.
                   </p>
-                  <Button
+                  <PaperButton
                     onClick={() => void approveAndResume()}
                     disabled={generating || !approvedNotes.trim()}
+                    tone="dark"
                     className="gap-2"
                   >
                     {generating ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />}
                     Approve &amp; Generate Study Tools
-                  </Button>
+                  </PaperButton>
                 </div>
               </div>
             ) : (

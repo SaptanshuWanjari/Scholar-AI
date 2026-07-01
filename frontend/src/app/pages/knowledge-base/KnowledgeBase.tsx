@@ -6,10 +6,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   SlidersHorizontal,
-  Tag,
   History,
   Bookmark,
-  Sparkles,
   Compass,
   Loader2,
   RefreshCw,
@@ -19,13 +17,27 @@ import {
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { cn } from "../../components/ui/utils";
-import { Input } from "../../components/ui/input";
-import { Button } from "../../components/ui/button";
-import { ScrollArea } from "../../components/ui/scroll-area";
-import { Sheet, SheetContent } from "../../components/ui/sheet";
-import { savedViews, type ConceptData } from "../../lib/graph-data";
+import { type ConceptData } from "../../lib/graph-data";
 import { api, type KGSidebar } from "../../lib/api";
 import { useKnowledgeBaseStore } from "../../stores/useKnowledgeBaseStore";
+import {
+  PaperButton,
+  IconButton,
+} from "@paper-ui/components/buttons";
+import { PaperInput } from "@paper-ui/components/inputs";
+import { PaperCheckbox } from "@paper-ui/components/inputs";
+import { PaperSlider } from "@paper-ui/components/inputs";
+import { ScrollArea } from "@paper-ui/components/layout";
+import { Pill } from "@paper-ui/components/badges";
+import { PaperDrawer } from "@paper-ui/components/dialogs";
+import { SectionLabel } from "@paper-ui/core";
+import type { Course } from "../../lib/types";
+import { GraphLoading } from "./GraphLoading";
+import { GraphEmpty } from "./GraphEmpty";
+import { GraphCanvas } from "./GraphCanvas";
+import { ConceptDrawerContent } from "./ConceptDrawerContent";
+import { SideSection } from "./shared";
+import { layoutGraph } from "./layoutGraph";
 
 const MASTERY_STATUSES = [
   "Unknown",
@@ -34,22 +46,14 @@ const MASTERY_STATUSES = [
   "Needs Revision",
   "Mastered",
 ] as const;
+
 const MASTERY_DOT: Record<string, string> = {
-  Mastered: "bg-green-500",
-  Learning: "bg-amber-400",
-  Weak: "bg-red-500",
-  "Needs Revision": "bg-orange-400",
-  Unknown: "bg-border",
+  Mastered: "#22c55e",
+  Learning: "#f59e0b",
+  Weak: "#ef4444",
+  "Needs Revision": "#f97316",
+  Unknown: "#9c9484",
 };
-import type { Course } from "../../lib/types";
-import { GraphLoading } from "./GraphLoading";
-import { GraphEmpty } from "./GraphEmpty";
-import { GraphCanvas } from "./GraphCanvas";
-import { EmptyInspector } from "./EmptyInspector";
-import { InspectorContent } from "./InspectorContent";
-import { ConceptDrawerContent } from "./ConceptDrawerContent";
-import { SideSection, LegendDot } from "./shared";
-import { layoutGraph } from "./layoutGraph";
 
 export function KnowledgeBase() {
   const {
@@ -237,46 +241,46 @@ export function KnowledgeBase() {
         data-tour="knowledge-sidebar"
         animate={{ width: leftCollapsed ? 0 : 280 }}
         transition={{ type: "spring", stiffness: 340, damping: 36 }}
-        className="relative z-10 hidden shrink-0 flex-col overflow-hidden border-r border-border bg-card/50 lg:flex"
+        className="relative z-10 hidden shrink-0 flex-col overflow-hidden border-r border-[#e8e3d8] bg-[#f9f6f0] lg:flex"
       >
         <div className="flex h-full w-[280px] flex-col overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <Compass className="size-3.5" /> Knowledge Explorer
+          {/* Sidebar header */}
+          <div className="flex items-center justify-between border-b border-[#e8e3d8] px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Compass className="size-3.5 text-ink-muted" />
+              <SectionLabel className="text-[10px]">Knowledge Explorer</SectionLabel>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
+            <IconButton
+              label="Collapse sidebar"
               className="size-7"
               onClick={() => setLeftCollapsed(true)}
             >
               <PanelLeftClose className="size-4" />
-            </Button>
+            </IconButton>
           </div>
 
-          <div className="border-b border-border p-3">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search concepts…"
-                className="h-8 bg-input-background pl-8 text-xs"
-              />
-            </div>
+          {/* Search */}
+          <div className="border-b border-[#e8e3d8] p-3">
+            <PaperInput
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search concepts…"
+              icon={<Search className="size-3.5" />}
+            />
           </div>
 
           <ScrollArea className="min-h-0 flex-1">
+            {/* Course filter */}
             {courses.length > 0 && (
               <SideSection label="Course" icon={Bookmark}>
                 <div className="space-y-0.5">
                   <button
                     onClick={() => setCourse(null)}
                     className={cn(
-                      "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                      "flex w-full items-center justify-between rounded px-2.5 py-1.5 font-architect text-sm transition-colors",
                       course === null
-                        ? "bg-violet-soft text-violet"
-                        : "text-foreground/80 hover:bg-accent/50",
+                        ? "bg-[#e7efe4] text-[#2f5d3a]"
+                        : "text-ink-muted hover:bg-black/5",
                     )}
                   >
                     <span>All courses</span>
@@ -288,10 +292,10 @@ export function KnowledgeBase() {
                         setCourse(c.name === course ? null : c.name)
                       }
                       className={cn(
-                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                        "flex w-full items-center justify-between rounded px-2.5 py-1.5 font-architect text-sm transition-colors",
                         course === c.name
-                          ? "bg-violet-soft text-violet"
-                          : "text-foreground/80 hover:bg-accent/50",
+                          ? "bg-[#e7efe4] text-[#2f5d3a]"
+                          : "text-ink-muted hover:bg-black/5",
                       )}
                     >
                       <span>{c.name}</span>
@@ -301,81 +305,70 @@ export function KnowledgeBase() {
               </SideSection>
             )}
 
+            {/* Source type filter */}
             {sidebar.sourceFilters.length > 0 && (
               <SideSection label="Source Type" icon={SlidersHorizontal}>
                 <div className="space-y-1">
                   {sidebar.sourceFilters.map((f) => (
-                    <label
+                    <PaperCheckbox
                       key={f}
-                      className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1 text-sm text-foreground/80 hover:bg-accent/50"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={activeFilterSet.has(f)}
-                        onChange={() => toggleFilter(f)}
-                        className="accent-violet"
-                      />
-                      {f}
-                    </label>
+                      label={f}
+                      checked={activeFilterSet.has(f)}
+                      onChange={() => toggleFilter(f)}
+                      className="px-2.5 py-1"
+                    />
                   ))}
                 </div>
               </SideSection>
             )}
 
+            {/* Mastery filter */}
             <SideSection label="Mastery" icon={GraduationCap}>
               <div className="space-y-1">
                 {MASTERY_STATUSES.map((s) => (
                   <label
                     key={s}
-                    className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1 text-sm text-foreground/80 hover:bg-accent/50"
+                    className="flex cursor-pointer items-center gap-2.5 rounded px-2.5 py-1 hover:bg-black/5"
                   >
-                    <input
-                      type="checkbox"
+                    <PaperCheckbox
                       checked={masteryFilterSet.has(s)}
                       onChange={() => toggleMasteryFilter(s)}
-                      className="accent-violet"
                     />
                     <span
-                      className={cn(
-                        "inline-block size-2 rounded-full flex-shrink-0",
-                        MASTERY_DOT[s],
-                      )}
+                      className="inline-block size-2 flex-shrink-0 rounded-full"
+                      style={{ backgroundColor: MASTERY_DOT[s] }}
                     />
-                    {s}
+                    <span className="font-architect text-sm text-ink">{s}</span>
                   </label>
                 ))}
               </div>
             </SideSection>
 
+            {/* Degree of separation */}
             {selectedId && (
               <SideSection label="Degree of Separation" icon={Network}>
                 <div className="px-2 py-1">
-                  <input
-                    type="range"
-                    min="1"
-                    max="4"
-                    step="1"
-                    value={
-                      degreeOfSeparation === "all" ? 4 : degreeOfSeparation
-                    }
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value, 10);
+                  <PaperSlider
+                    min={1}
+                    max={4}
+                    step={1}
+                    value={degreeOfSeparation === "all" ? 4 : degreeOfSeparation}
+                    onChange={(val) => {
                       setDegreeOfSeparation(val === 4 ? "all" : val);
                     }}
-                    className="w-full accent-violet"
+                    showValue
+                    formatValue={(v) =>
+                      v === 4 ? "All concepts" : `${v} degrees`
+                    }
                   />
-                  <div className="mt-1 text-center text-xs text-muted-foreground">
-                    {degreeOfSeparation === "all"
-                      ? "All concepts"
-                      : `Within ${degreeOfSeparation} degrees`}
-                  </div>
                 </div>
               </SideSection>
             )}
 
+            {/* Collections */}
             <SideSection label="Collections" icon={Bookmark}>
               {sidebar.collections.length === 0 ? (
-                <p className="px-1 text-xs text-muted-foreground">
+                <p className="px-1 font-kalam text-xs text-ink-muted">
                   Build the graph to group concepts into collections.
                 </p>
               ) : (
@@ -389,14 +382,14 @@ export function KnowledgeBase() {
                         )
                       }
                       className={cn(
-                        "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                        "flex w-full items-center justify-between rounded px-2.5 py-1.5 font-architect text-sm transition-colors",
                         activeCollection === c.id
-                          ? "bg-violet-soft text-violet"
-                          : "text-foreground/80 hover:bg-accent/50",
+                          ? "bg-[#e7efe4] text-[#2f5d3a]"
+                          : "text-ink-muted hover:bg-black/5",
                       )}
                     >
                       <span>{c.label}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="font-kalam text-xs text-ink-muted">
                         {c.count}
                       </span>
                     </button>
@@ -405,20 +398,18 @@ export function KnowledgeBase() {
               )}
             </SideSection>
 
+            {/* Recent concepts */}
             <SideSection label="Recent Concepts" icon={History}>
               {sidebar.recentConcepts.length === 0 ? (
-                <p className="px-1 text-xs text-muted-foreground">
+                <p className="px-1 font-kalam text-xs text-ink-muted">
                   No concepts extracted yet.
                 </p>
               ) : (
                 <div className="flex flex-wrap gap-1.5 px-1">
                   {sidebar.recentConcepts.map((c) => (
-                    <button
-                      key={c}
-                      className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground/70 transition-colors hover:border-violet/40 hover:text-violet"
-                    >
+                    <Pill key={c} tone="ink">
                       {c}
-                    </button>
+                    </Pill>
                   ))}
                 </div>
               )}
@@ -432,18 +423,16 @@ export function KnowledgeBase() {
         {leftCollapsed && (
           <button
             onClick={() => setLeftCollapsed(false)}
-            className="absolute left-3 top-3 z-20 flex size-8 items-center justify-center rounded-full border border-border bg-card shadow-sm hover:bg-accent"
+            className="absolute left-3 top-3 z-20 flex size-8 items-center justify-center rounded-full border border-[#e8e3d8] bg-[#f9f6f0] shadow-sm hover:bg-black/5"
           >
-            <PanelLeftOpen className="size-4" />
+            <PanelLeftOpen className="size-4 text-ink-muted" />
           </button>
         )}
 
         {graph && !isEmpty && !loading && (
           <div className="absolute right-3 top-3 z-20">
-            <Button
-              variant="outline"
+            <PaperButton
               size="sm"
-              className="gap-1.5 bg-card shadow-sm"
               onClick={build}
               disabled={building}
             >
@@ -453,7 +442,7 @@ export function KnowledgeBase() {
                 <RefreshCw className="size-3.5" />
               )}
               {building ? "Rebuilding…" : "Rebuild"}
-            </Button>
+            </PaperButton>
           </div>
         )}
 
@@ -481,46 +470,26 @@ export function KnowledgeBase() {
             onPaneClick={() => setSelectedId(null)}
           />
         )}
-
-        {/* {!loading && !isEmpty && ( */}
-        {/*   <div className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2"> */}
-        {/*     <div className="flex items-center gap-4 rounded-full border border-border bg-card/80 px-4 py-2 text-[11px] text-muted-foreground backdrop-blur"> */}
-        {/*       <span className="flex items-center gap-1"> */}
-        {/*         Click to inspect  */}
-        {/*       </span> */}
-        {/*       <span className="text-border">|</span> */}
-        {/*       {MASTERY_STATUSES.map((s) => ( */}
-        {/*         <span key={s} className="flex items-center gap-1"> */}
-        {/*           <span className={cn("inline-block size-1.5 rounded-full flex-shrink-0", MASTERY_DOT[s])} /> */}
-        {/*           {s} */}
-        {/*         </span> */}
-        {/*       ))} */}
-        {/*     </div> */}
-        {/*   </div> */}
-        {/* )} */}
       </div>
 
-      {/* Concept drawer */}
-      <Sheet
+      {/* Concept drawer — using PaperDrawer */}
+      <PaperDrawer
         open={!!drawerConceptId}
-        onOpenChange={(o) => !o && setDrawerConceptId(null)}
+        onClose={() => setDrawerConceptId(null)}
+        side="right"
+        width={540}
       >
-        <SheetContent
-          side="right"
-          className="w-[540px] max-w-full overflow-hidden p-0 sm:max-w-[540px]"
-        >
-          {drawerConceptId && (
-            <ConceptDrawerContent
-              key={drawerConceptId}
-              conceptId={drawerConceptId}
-              onClose={() => setDrawerConceptId(null)}
-              onRefresh={() =>
-                Promise.all([loadGraph(course), loadSidebar(course)])
-              }
-            />
-          )}
-        </SheetContent>
-      </Sheet>
+        {drawerConceptId && (
+          <ConceptDrawerContent
+            key={drawerConceptId}
+            conceptId={drawerConceptId}
+            onClose={() => setDrawerConceptId(null)}
+            onRefresh={() =>
+              Promise.all([loadGraph(course), loadSidebar(course)])
+            }
+          />
+        )}
+      </PaperDrawer>
     </div>
   );
 }

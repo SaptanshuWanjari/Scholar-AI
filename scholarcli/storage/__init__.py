@@ -65,6 +65,7 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("tags", "JSON"),
         ("is_draft", "INTEGER NOT NULL DEFAULT 0"),
         ("last_opened_at", "DATETIME DEFAULT '2025-01-01 00:00:00'"),
+        ("bs_snapshot", "JSON"),
     ],
     "cards": [
         ("interval", "INTEGER NOT NULL DEFAULT 0"),

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
-import { Button } from "../../components/ui/button";
 import { api } from "../../lib/api";
 import type { Course } from "../../lib/types";
+import { PaperTextarea } from "@/paper-ui/components/inputs";
+import { PaperButton } from "@/paper-ui/components/buttons";
 
 interface SettingsTabProps {
   course: Course;
@@ -31,25 +32,21 @@ export function SettingsTab({ course, onUpdate }: SettingsTabProps) {
     <div className="max-w-2xl space-y-6">
       <div className="space-y-3">
         <div>
-          <label className="text-[20px] font-medium mb-1 block">
-            Custom System Prompt
-          </label>
-          <p className="text-[15px] text-muted-foreground mb-3">
-            Instruct the AI on how to act when answering questions for this
-            course.{" "}
+          <label className="font-caveat text-[24px] font-bold text-ink mb-1 block">Custom System Prompt</label>
+          <p className="font-kalam text-[15px] text-ink-muted mb-3">
+            Instruct the AI on how to act when answering questions for this course.
           </p>
-          <textarea
+          <PaperTextarea
             value={systemPrompt}
             onChange={(e) => setSystemPrompt(e.target.value)}
-            className="w-full h-32 rounded-lg bg-white border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-y"
+            className="min-h-[128px]"
             placeholder="e.g., You are an expert in Data Structures and Algorithms..."
           />
         </div>
-
-        <Button onClick={handleSave} disabled={isSaving} className="text-md">
-          <Save className="size-5 mr-2" />
+        <PaperButton tone="dark" onClick={handleSave} disabled={isSaving}>
+          <Save className="size-5" />
           {isSaving ? "Saving..." : "Save Settings"}
-        </Button>
+        </PaperButton>
       </div>
     </div>
   );

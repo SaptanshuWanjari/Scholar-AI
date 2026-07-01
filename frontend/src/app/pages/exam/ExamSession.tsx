@@ -17,10 +17,12 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { cn } from "../../components/ui/utils";
-import { Button } from "../../components/ui/button";
-import { Badge } from "../../components/ui/badge";
-import { Textarea } from "../../components/ui/textarea";
-import { Page } from "../../components/Page";
+import { PaperButton, GhostButton, IconButton, ChipButton } from "@paper-ui/components/buttons";
+import { PaperBadge } from "@paper-ui/components/badges";
+import { PaperTextarea } from "@paper-ui/components/inputs";
+import { SketchProgress } from "@paper-ui/components/progress";
+import { SectionLabel, PaperPanel } from "@paper-ui/core";
+import { SketchDivider } from "@paper-ui/components/decorations";
 import { formulaSheet, type ExamQuestion } from "../../lib/exam-data";
 import { useExamStore } from "../../stores/useExamStore";
 
@@ -31,6 +33,12 @@ export function diffCls(d: string) {
       ? "border-warning/40 bg-warning-soft text-warning"
       : "border-danger/40 bg-danger-soft text-danger";
 }
+
+const DIFF_TONE = (d: string): "sage" | "ochre" | "brick" => {
+  if (d === "Easy") return "sage";
+  if (d === "Medium") return "ochre";
+  return "brick";
+};
 
 export function ExamSession() {
   const questions = useExamStore((s) => s.questions);
@@ -92,38 +100,42 @@ export function ExamSession() {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="flex h-14 shrink-0 items-center gap-4 border-b border-border px-6">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="size-4 text-violet" />
-          <span className="text-sm font-medium">
-            Mock Exam — {difficultyLabel}
-          </span>
-        </div>
-        <div className="ml-4 hidden items-center gap-2 sm:flex">
-          <div className="h-1.5 w-40 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-violet"
-              style={{ width: `${(answeredCount / questions.length) * 100}%` }}
-            />
-          </div>
-          <span className="text-xs text-muted-foreground">
+      {/* Top bar */}
+      <div className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-5">
+        <PaperIconRow>
+          <GraduationCap className="size-4 text-primary" />
+        </PaperIconRow>
+        <span className="font-architect text-[14px] text-ink">
+          Mock Exam — {difficultyLabel}
+        </span>
+
+        {/* Progress bar */}
+        <div className="ml-4 hidden items-center gap-3 sm:flex flex-1 max-w-xs">
+          <SketchProgress
+            value={(answeredCount / questions.length) * 100}
+            height={10}
+            color="#7fa37b"
+            className="flex-1"
+          />
+          <span className="font-kalam text-xs text-ink-muted shrink-0">
             {answeredCount}/{questions.length} answered
           </span>
         </div>
+
+        {/* Timer */}
         <div
           className={cn(
-            "ml-auto flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-sm tabular-nums",
+            "ml-auto flex items-center gap-1.5 font-mono text-[13px] tabular-nums px-3 py-1.5 rounded-lg border",
             low
               ? "border-danger/40 bg-danger-soft text-danger"
               : "border-border bg-card",
           )}
         >
-          <Clock className="size-4" /> {mm}:{ss}
+          <Clock className="size-3.5" /> {mm}:{ss}
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-9"
+
+        <IconButton
+          label={panelOpen ? "Close tools panel" : "Open tools panel"}
           onClick={() => setPanelOpen((o) => !o)}
         >
           {panelOpen ? (
@@ -131,14 +143,13 @@ export function ExamSession() {
           ) : (
             <PanelRightOpen className="size-4" />
           )}
-        </Button>
+        </IconButton>
       </div>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <aside className="hidden w-[200px] shrink-0 flex-col overflow-y-auto border-r border-border bg-card/40 p-4 md:flex">
-          <div className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Questions
-          </div>
+        {/* Left nav sidebar */}
+        <aside className="hidden w-[200px] shrink-0 flex-col overflow-y-auto border-r border-border bg-card/40 px-3 py-4 md:flex">
+          <SectionLabel className="mb-3 px-1 text-[11px]">Questions</SectionLabel>
           <div className="grid grid-cols-4 gap-2">
             {questions.map((eq, i) => {
               const isCurrent = i === idx;
@@ -150,18 +161,11 @@ export function ExamSession() {
                   key={eq.id}
                   onClick={() => goto(i)}
                   className={cn(
-                    "relative flex aspect-square items-center justify-center rounded-md border text-xs font-medium transition-colors",
-                    isCurrent && "border-violet bg-violet text-white",
-                    !isCurrent &&
-                    isAnswered &&
-                    "border-success/40 bg-success-soft text-success",
-                    !isCurrent &&
-                    isSkipped &&
-                    "border-warning/40 bg-warning-soft text-warning",
-                    !isCurrent &&
-                    !isAnswered &&
-                    !isSkipped &&
-                    "border-border bg-card text-muted-foreground hover:border-ring/40",
+                    "relative flex aspect-square items-center justify-center rounded-md border font-architect text-xs transition-colors",
+                    isCurrent && "border-primary bg-primary/10 text-primary font-bold",
+                    !isCurrent && isAnswered && "border-success/40 bg-success-soft text-success",
+                    !isCurrent && isSkipped && "border-warning/40 bg-warning-soft text-warning",
+                    !isCurrent && !isAnswered && !isSkipped && "border-border bg-card text-ink-muted hover:border-ink-muted/40",
                   )}
                 >
                   {i + 1}
@@ -172,48 +176,42 @@ export function ExamSession() {
               );
             })}
           </div>
-          <div className="mt-5 space-y-1.5 text-[11px] text-muted-foreground">
-            <Legend cls="bg-success-soft border-success/40" label="Answered" />
-            <Legend cls="bg-warning-soft border-warning/40" label="Skipped" />
-            <Legend cls="bg-violet border-violet" label="Current" />
-            <Legend cls="bg-card border-border" label="Unseen" />
+
+          <SketchDivider variant="dashed" className="my-4 opacity-40" />
+
+          <div className="space-y-1.5 font-kalam text-[11px] text-ink-muted">
+            <Legend cls="bg-success-soft border-success/40 border" label="Answered" />
+            <Legend cls="bg-warning-soft border-warning/40 border" label="Skipped" />
+            <Legend cls="bg-primary/10 border-primary border" label="Current" />
+            <Legend cls="bg-card border-border border" label="Unseen" />
           </div>
         </aside>
 
+        {/* Main question area */}
         <main className="min-w-0 flex-1 overflow-y-auto">
           <div className="mx-auto max-w-2xl px-8 py-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
+                <span className="font-kalam text-sm text-ink-muted">
                   Question {idx + 1}
                 </span>
-                <Badge
-                  variant="outline"
-                  className="text-[10px] text-muted-foreground"
-                >
+                <PaperBadge tone="ink" className="text-[10px]">
                   {q.topic}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className={cn("text-[10px]", diffCls(q.difficulty))}
-                >
+                </PaperBadge>
+                <PaperBadge tone={DIFF_TONE(q.difficulty)} className="text-[10px]">
                   {q.difficulty}
-                </Badge>
+                </PaperBadge>
               </div>
-              <Button
-                variant="ghost"
+              <GhostButton
                 size="sm"
-                className={cn(
-                  "gap-1.5 text-xs",
-                  isFlagged(q.id) && "text-danger",
-                )}
+                className={cn("gap-1.5 text-xs", isFlagged(q.id) && "text-danger")}
                 onClick={toggleFlag}
               >
                 <Flag
                   className={cn("size-3.5", isFlagged(q.id) && "fill-danger")}
                 />
                 {isFlagged(q.id) ? "Flagged" : "Flag"}
-              </Button>
+              </GhostButton>
             </div>
 
             <AnimatePresence mode="wait">
@@ -224,7 +222,7 @@ export function ExamSession() {
                 exit={{ opacity: 0, x: -16 }}
                 transition={{ duration: 0.18 }}
               >
-                <h2 className="mt-4 font-reading text-[1.6rem] leading-snug">
+                <h2 className="mt-4 font-reading text-[1.6rem] leading-snug text-ink">
                   {q.prompt}
                 </h2>
                 <div className="mt-6">
@@ -237,43 +235,44 @@ export function ExamSession() {
               </motion.div>
             </AnimatePresence>
 
-            <div className="mt-8 flex items-center justify-between border-t border-border pt-5">
-              <Button
-                variant="outline"
-                className="gap-1.5"
+            <SketchDivider variant="wavy" className="mt-8 mb-5" />
+
+            <div className="flex items-center justify-between">
+              <PaperButton
+                tone="paper"
                 disabled={idx === 0}
                 onClick={() => goto(idx - 1)}
+                className="gap-1.5"
               >
                 <ChevronLeft className="size-4" /> Previous
-              </Button>
+              </PaperButton>
               {idx === questions.length - 1 ? (
-                <Button
+                <PaperButton
+                  tone="dark"
                   onClick={submit}
                   disabled={submitting}
-                  className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="gap-1.5"
                 >
                   {submitting ? (
-                    <>
-                      <Loader2 className="size-4 animate-spin" /> Submitting…
-                    </>
+                    <><Loader2 className="size-4 animate-spin" /> Submitting…</>
                   ) : (
-                    <>
-                      <Check className="size-4" /> Submit Exam
-                    </>
+                    <><Check className="size-4" /> Submit Exam</>
                   )}
-                </Button>
+                </PaperButton>
               ) : (
-                <Button
+                <PaperButton
+                  tone="dark"
                   onClick={() => goto(idx + 1)}
-                  className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="gap-1.5"
                 >
                   Next <ChevronRight className="size-4" />
-                </Button>
+                </PaperButton>
               )}
             </div>
           </div>
         </main>
 
+        {/* Right tools panel */}
         <AnimatePresence>
           {panelOpen && (
             <motion.aside
@@ -282,35 +281,41 @@ export function ExamSession() {
               exit={{ width: 0, opacity: 0 }}
               className="shrink-0 overflow-hidden border-l border-border bg-card/40"
             >
-              <div className="w-[300px] space-y-5 overflow-y-auto p-4">
+              <div className="w-[300px] space-y-5 overflow-y-auto px-4 py-4">
                 <PanelBlock title="Formula Sheet" icon={Sigma}>
                   {formulaSheet.map((f) => (
-                    <div
-                      key={f.name}
-                      className="rounded-lg border border-border bg-card px-3 py-2"
-                    >
-                      <div className="text-[11px] text-muted-foreground">
+                    <PaperPanel key={f.name} className="px-3 py-2">
+                      <div className="font-kalam text-[11px] text-ink-muted">
                         {f.name}
                       </div>
-                      <div className="mt-0.5 font-mono text-sm">
+                      <div className="mt-0.5 font-mono text-sm text-ink">
                         {f.formula}
                       </div>
-                    </div>
+                    </PaperPanel>
                   ))}
                 </PanelBlock>
+
+                <SketchDivider variant="dashed" className="opacity-40" />
+
                 <PanelBlock title="Reference Notes" icon={NotebookPen}>
-                  <p className="font-reading text-sm leading-relaxed text-foreground/80">
+                  <p className="font-kalam text-sm leading-relaxed text-ink/80">
                     Self-attention lets each token weigh all others; scaling by
                     √dₖ stabilizes gradients.
                   </p>
                 </PanelBlock>
+
+                <SketchDivider variant="dashed" className="opacity-40" />
+
                 <PanelBlock title="Calculator" icon={CalcIcon}>
                   <MiniCalculator />
                 </PanelBlock>
+
+                <SketchDivider variant="dashed" className="opacity-40" />
+
                 <PanelBlock title="Exam Settings" icon={Settings2}>
-                  <div className="text-sm text-muted-foreground">
+                  <p className="font-kalam text-sm text-ink-muted">
                     Font size, high contrast and timer visibility.
-                  </div>
+                  </p>
                 </PanelBlock>
               </div>
             </motion.aside>
@@ -320,6 +325,8 @@ export function ExamSession() {
     </div>
   );
 }
+
+// ─── AnswerArea ───────────────────────────────────────────────────────────────
 
 function AnswerArea({
   q,
@@ -332,22 +339,22 @@ function AnswerArea({
 }) {
   if (q.type === "long")
     return (
-      <Textarea
+      <PaperTextarea
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         rows={8}
         placeholder="Write your answer…"
-        className="resize-none bg-input-background font-reading"
+        className="font-reading"
       />
     );
   if (q.type === "short")
     return (
-      <Textarea
+      <PaperTextarea
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         rows={4}
         placeholder="Type a short answer…"
-        className="resize-none bg-input-background font-reading"
+        className="font-reading"
       />
     );
   return (
@@ -357,17 +364,17 @@ function AnswerArea({
           key={opt}
           onClick={() => onChange(opt)}
           className={cn(
-            "flex w-full items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition-colors",
+            "flex w-full items-center gap-3 rounded-xl border p-3.5 text-left font-architect text-sm transition-colors",
             value === opt
-              ? "border-violet bg-violet-soft"
-              : "border-border bg-card hover:border-ring/40",
+              ? "border-primary/60 bg-primary/8 text-primary"
+              : "border-border bg-card text-ink hover:border-ink-muted/40",
           )}
         >
           <span
             className={cn(
-              "flex size-5 items-center justify-center rounded-full border",
+              "flex size-5 shrink-0 items-center justify-center rounded-full border font-architect",
               value === opt
-                ? "border-violet bg-violet text-white"
+                ? "border-primary bg-primary text-white"
                 : "border-border",
             )}
           >
@@ -379,6 +386,8 @@ function AnswerArea({
     </div>
   );
 }
+
+// ─── MiniCalculator ───────────────────────────────────────────────────────────
 
 function MiniCalculator() {
   const [display, setDisplay] = useState("0");
@@ -438,23 +447,26 @@ function MiniCalculator() {
     "1", "2", "3", "−",
     "0", ".", "=", "+",
   ];
+
   return (
-    <div className="rounded-lg border border-border bg-card p-2">
-      <div className="mb-2 rounded-md bg-secondary px-3 py-2 text-right font-mono text-lg tabular-nums">
+    <PaperPanel className="p-2">
+      <div className="mb-2 px-3 py-2 text-right font-mono text-lg tabular-nums text-ink">
         {display}
       </div>
       <div className="grid grid-cols-4 gap-1">
-        <button
+        <ChipButton
           onClick={clear}
-          className="col-span-4 rounded-md border border-border py-1.5 text-xs text-muted-foreground hover:bg-accent"
+          className="col-span-4 justify-center"
+          selected={false}
         >
           Clear
-        </button>
+        </ChipButton>
         {keys.map((k) => {
           const isOp = ["÷", "×", "−", "+", "="].includes(k);
           return (
-            <button
+            <ChipButton
               key={k}
+              selected={isOp}
               onClick={() =>
                 k === "="
                   ? equals()
@@ -464,27 +476,32 @@ function MiniCalculator() {
                       ? dot()
                       : inputDigit(k)
               }
-              className={cn(
-                "rounded-md py-2 text-sm font-medium transition-colors",
-                isOp
-                  ? "bg-violet-soft text-violet hover:bg-violet hover:text-white"
-                  : "bg-secondary hover:bg-accent",
-              )}
+              className="justify-center py-2"
             >
               {k}
-            </button>
+            </ChipButton>
           );
         })}
       </div>
-    </div>
+    </PaperPanel>
   );
 }
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function Legend({ cls, label }: { cls: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={cn("size-3 rounded border", cls)} /> {label}
+      <span className={cn("size-3 rounded", cls)} /> {label}
     </div>
+  );
+}
+
+function PaperIconRow({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center justify-center size-7 rounded-full bg-lavender-soft text-primary shrink-0">
+      {children}
+    </span>
   );
 }
 
@@ -499,8 +516,9 @@ function PanelBlock({
 }) {
   return (
     <div>
-      <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        <Icon className="size-3" /> {title}
+      <div className="mb-2 flex items-center gap-1.5">
+        <Icon className="size-3.5 text-ink-muted" />
+        <SectionLabel className="text-[11px]">{title}</SectionLabel>
       </div>
       <div className="space-y-2">{children}</div>
     </div>

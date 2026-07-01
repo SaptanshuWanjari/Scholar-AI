@@ -16,7 +16,8 @@ import type { NotebookBlock } from "../lib/notebook-data";
 import { artifactLabel, serializeArtifact } from "../lib/serializers";
 import { NOTE_CATEGORIES, type CategoryMeta } from "../stores/useReadingNotesStore";
 import { useNotificationStore } from "../stores/useNotificationStore";
-import { Button } from "./ui/button";
+import { PaperButton } from "@/paper-ui/components/buttons";
+import { PaperInput } from "@/paper-ui/components/inputs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,7 +36,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Input } from "./ui/input";
 
 interface AddToNotebookMenuProps {
   artifactType?: string;
@@ -43,8 +43,8 @@ interface AddToNotebookMenuProps {
   content?: unknown;
   sourceId?: string;
   label?: string;
-  variant?: React.ComponentProps<typeof Button>["variant"];
-  size?: React.ComponentProps<typeof Button>["size"];
+  tone?: React.ComponentProps<typeof PaperButton>["tone"];
+  size?: React.ComponentProps<typeof PaperButton>["size"];
   className?: string;
   course?: string | null;
   /**
@@ -76,7 +76,7 @@ export function AddToNotebookMenu({
   content,
   sourceId,
   label = "Add to Notebook",
-  variant = "outline",
+  tone = "paper",
   size = "sm",
   className,
   course,
@@ -278,10 +278,10 @@ export function AddToNotebookMenu({
           {trigger ? (
             trigger
           ) : (
-            <Button variant={variant} size={size} className={className}>
+            <PaperButton tone={tone} size={size} className={className}>
               <BookPlus className="size-4" />
               {label && <span className="ml-1.5">{label}</span>}
-            </Button>
+            </PaperButton>
           )}
         </DialogTrigger>
         <DialogContent className="max-w-md">
@@ -335,7 +335,7 @@ export function AddToNotebookMenu({
           <div className="border-t border-border pt-3">
             {creating ? (
               <div className="flex items-center gap-2">
-                <Input
+                <PaperInput
                   autoFocus
                   placeholder="Notebook name"
                   value={newName}
@@ -346,18 +346,18 @@ export function AddToNotebookMenu({
                   }}
                   className="h-9"
                 />
-                <Button onClick={() => void createAndAdd()} disabled={busy || !newName.trim()}>
+                <PaperButton onClick={() => void createAndAdd()} disabled={busy || !newName.trim()}>
                   {busy ? <Loader2 className="size-4 animate-spin" /> : "Create & add"}
-                </Button>
+                </PaperButton>
               </div>
             ) : (
-              <Button
-                variant="outline"
+              <PaperButton
+                tone="paper"
                 className="w-full justify-center gap-1.5"
                 onClick={() => setCreating(true)}
               >
                 <Plus className="size-4" /> Create new notebook
-              </Button>
+              </PaperButton>
             )}
           </div>
         </DialogContent>

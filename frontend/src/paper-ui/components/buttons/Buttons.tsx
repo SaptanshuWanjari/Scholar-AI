@@ -4,12 +4,13 @@ import { PaperSheetBorder, type PaperSheetBorderProps } from "@/paper-ui/core";
 import { SketchBorder, type SketchBorderProps } from "@/paper-ui/core";
 import { Tape } from "../decorations/Tape";
 
-type Tone = "dark" | "paper" | "green";
+type Tone = "dark" | "paper" | "green" | "red"
 
 const TONES: Record<Tone, { fill: string; fg: string; stroke: string }> = {
-  dark:  { fill: "#262320", fg: "#fbf8f2", stroke: "#262320" },
+  dark: { fill: "#262320", fg: "#fbf8f2", stroke: "#262320" },
   paper: { fill: "#fffdf9", fg: "#262320", stroke: "#2c2c2c" },
   green: { fill: "#e7efe4", fg: "#2f5d3a", stroke: "#3f7a4e" },
+  red: { fill: "#fbeaea", fg: "#8b1e1e", stroke: "#c0392b" },
 };
 
 export interface PaperButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -75,8 +76,8 @@ export const StickyButton = React.forwardRef<HTMLButtonElement, StickyButtonProp
       <span className="relative inline-block">
         {taped && (
           <>
-            <Tape corner="top-left"  width={34} rotate={-24} className="-top-2 left-1" />
-            <Tape corner="top-right" width={34} rotate={24}  className="-top-2 right-1" />
+            <Tape corner="top-left" width={34} rotate={-24} className="-top-2 left-1" />
+            <Tape corner="top-right" width={34} rotate={24} className="-top-2 right-1" />
           </>
         )}
         <PaperButton ref={ref} tone={tone} size="lg" className={className} {...props}>
@@ -177,7 +178,7 @@ export const ChipButton = React.forwardRef<HTMLButtonElement, ChipButtonProps>(
         ref={ref}
         aria-pressed={selected}
         className={cn(
-          "relative inline-flex h-7 items-center gap-1.5 px-3 font-architect text-[13px]",
+          "relative inline-flex h-10 items-center gap-1.5 px-4 font-architect text-[15px]",
           "transition-transform duration-100 hover:-translate-y-px active:translate-y-px",
           className,
         )}
@@ -213,8 +214,8 @@ export const ToggleButton = React.forwardRef<HTMLButtonElement, ToggleButtonProp
     { children, pressed, onPressedChange, size = "md", border, className, style, onClick, ...props },
     ref,
   ) {
-    const fill   = pressed ? "#262320" : "#fffdf9";
-    const fg     = pressed ? "#fbf8f2" : "#262320";
+    const fill = pressed ? "#262320" : "#fffdf9";
+    const fg = pressed ? "#fbf8f2" : "#262320";
     const shadow = pressed ? 0 : 2;
     const TOGGLE_SIZES = { sm: "h-8 px-3 text-[13px]", md: "h-10 px-4 text-[14px]" };
     return (

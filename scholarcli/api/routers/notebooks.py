@@ -77,6 +77,7 @@ def _full(nb: Notebook) -> NotebookOut:
         course=nb.course,
         color=nb.color,
         blocks=blocks,
+        bs_snapshot=nb.bs_snapshot,
         tags=nb.tags or [],
         updated=_fmt_updated(nb),
         is_draft=nb.is_draft,

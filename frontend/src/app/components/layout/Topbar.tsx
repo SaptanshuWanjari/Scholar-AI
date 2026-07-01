@@ -1,9 +1,10 @@
 import { useLocation } from "react-router";
-import { Command } from "lucide-react";
 import { navItems } from "../../lib/nav";
 import { useUIStore } from "../../stores/useUIStore";
 import { JobsIndicator } from "../JobsIndicator";
 import { HelpMenu } from "../../guidance/components/HelpMenu";
+import { SketchSearch } from "@paper-ui/components/inputs";
+import { SketchDivider } from "@paper-ui/components/decorations";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   "/": { title: "Dashboard", subtitle: "Your learning at a glance" },
@@ -81,32 +82,30 @@ export function Topbar() {
   };
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border bg-background/70 px-6 backdrop-blur-xl">
+    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 bg-paper-surface/90 px-6 backdrop-blur-xl">
+
+      <SketchDivider variant="wavy" color="var(--color-ink-muted, #b4ad9e)" strokeWidth={1.2} className="absolute bottom-0 left-0" />
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          {current && <current.icon className="size-5 text-muted-foreground" />}
-          <h2 className="truncate font-sans text-[15px] font-semibold tracking-tight">
+          {current && <current.icon className="size-5 text-ink-muted" />}
+          <h2 className="truncate font-architect text-[15px] text-ink">
             {meta.title}
           </h2>
         </div>
         {meta.subtitle && (
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="truncate font-kalam text-xs text-ink-muted">
             {meta.subtitle}
           </p>
         )}
       </div>
 
-      <button
+      <SketchSearch
+        readOnly
         onClick={() => setCommandOpen(true)}
-        data-tour="global-search"
-        className="ml-auto hidden h-9 w-72 items-center gap-2 rounded-lg border border-border bg-input-background px-3 text-sm text-muted-foreground transition-colors hover:border-ring/50 md:flex"
-      >
-        <Command className="size-4" />
-        <span>Search or jump to…</span>
-        <kbd className="ml-auto rounded border border-border bg-muted px-1.5 font-mono text-[10px]">
-          ⌘K
-        </kbd>
-      </button>
+        onFocus={() => setCommandOpen(true)}
+        width={272}
+        className="ml-auto hidden md:flex cursor-pointer"
+      />
 
       <JobsIndicator />
 

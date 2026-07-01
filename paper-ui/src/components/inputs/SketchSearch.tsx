@@ -44,7 +44,7 @@ export function SketchSearch({
   const [focused, setFocused] = useState(false);
   return (
     <div
-      className={cn("relative flex items-center gap-2 px-3 py-2", className)}
+      className={cn("relative flex min-w-0 items-center gap-2 overflow-hidden px-3 py-2", className)}
       style={{ width }}
     >
       <SketchBorder
@@ -66,7 +66,7 @@ export function SketchSearch({
           props.onBlur?.(e);
         }}
         placeholder={placeholder}
-        className="relative z-[1] flex-1 border-none bg-transparent font-architect text-[15px] text-ink placeholder:text-ink-muted/70 focus:outline-none"
+        className="relative z-[1] min-w-0 flex-1 border-none bg-transparent font-architect text-[15px] text-ink placeholder:font-architect placeholder:text-ink-muted/70 focus:outline-none"
       />
       <div className="relative z-[1] shrink-0">{shortcut}</div>
     </div>

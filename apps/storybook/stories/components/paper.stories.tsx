@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Paper, PaperShadow, PaperTexture, SketchBorder } from '../../../../paper-ui/src/components/paper';
-import { Tape, NotebookEdge } from '../../../../paper-ui/src/components/decorations';
+import { Paper, PaperShadow, PaperTexture, SketchBorder } from '@paper-ui/components/paper';
+import { Tape, NotebookEdge } from '@paper-ui/components/decorations';
 
 const meta = {
   title: 'Components/Paper/Paper',

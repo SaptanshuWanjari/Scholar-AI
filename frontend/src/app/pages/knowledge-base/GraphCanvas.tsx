@@ -9,6 +9,7 @@ import {
   type Node,
   type Edge,
   type NodeMouseHandler,
+  MarkerType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { ConceptNode } from "../../components/ConceptNode";
@@ -103,20 +104,49 @@ export function GraphCanvas({
       onNodeDoubleClick={handleDblClick}
       onPaneClick={onPaneClick}
       fitView
-      fitViewOptions={{ padding: 0.22 }}
+      fitViewOptions={{ padding: 0.26 }}
       proOptions={{ hideAttribution: true }}
       minZoom={0.3}
       maxZoom={3}
-      className="bg-background"
+      style={{ background: "#f0ece2" }}
       defaultEdgeOptions={{
         type: "smoothstep",
-        style: { stroke: "#c8c2b5", strokeWidth: 1.5 },
+        animated: false,
+        style: {
+          stroke: "#9c9484",
+          strokeWidth: 1.6,
+          strokeDasharray: "5 3",
+        },
+        labelStyle: {
+          fontFamily: "'Architects Daughter', cursive",
+          fontSize: 10,
+          fill: "#9c9484",
+          background: "#f0ece2",
+        },
+        labelBgStyle: {
+          fill: "#f0ece2",
+          fillOpacity: 1,
+        },
+        labelBgPadding: [4, 2] as [number, number],
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: "#b4ad9e",
+          width: 14,
+          height: 14,
+        },
       }}
     >
-      <Background variant={BackgroundVariant.Dots} gap={28} size={1} color="#ddd8cc" />
+      {/* Notebook-style line grid */}
+      <Background
+        variant={BackgroundVariant.Lines}
+        gap={32}
+        size={1}
+        color="#ddd8cc"
+        style={{ opacity: 0.5 }}
+      />
       <Controls
         showInteractive={false}
-        className="!border-border !bg-card [&_button]:!border-border [&_button]:!bg-card [&_button]:!fill-foreground [&_button:hover]:!bg-accent"
+        className="!rounded !border !border-[#d4cfc2] !bg-[#f9f6f0] [&_button]:!border-[#d4cfc2] [&_button]:!bg-[#f9f6f0] [&_button]:!fill-[#3a3733] [&_button:hover]:!bg-[#ede9df]"
       />
     </ReactFlow>
   );

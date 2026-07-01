@@ -1,5 +1,6 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
-@import '@paper-ui/tokens/paper.css';
+@import './paper.css';
 @import './globals.css';
+@import './notebook-v2.css';

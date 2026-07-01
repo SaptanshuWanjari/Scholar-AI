@@ -7,11 +7,11 @@ import {
   Collapse,
   HoverEffect,
   AnimatedCounter,
-} from '../../../../paper-ui/src/components/motion';
-import { PaperCard, PaperPanel } from '../../../../paper-ui/src/core/PaperCard';
-import { PaperButton, SketchButton, StickyButton } from '../../../../paper-ui/src/components/buttons';
-import { PaperBadge } from '../../../../paper-ui/src/components/badges';
-import { StickyNoteCard } from '../../../../paper-ui/src/components/cards';
+} from '@paper-ui/components/motion';
+import { PaperCard, PaperPanel } from '@paper-ui/core/PaperCard';
+import { PaperButton, SketchButton, StickyButton } from '@paper-ui/components/buttons';
+import { PaperBadge } from '@paper-ui/components/badges';
+import { StickyNoteCard } from '@paper-ui/components/cards';
 import { Hand } from 'lucide-react';
 
 const meta = {

@@ -17,6 +17,7 @@ export interface NotebookFull {
   course: string;
   color: string;
   blocks: any[];
+  bs_snapshot?: unknown | null;
   updated: string;
   is_draft: boolean;
 }
@@ -83,7 +84,7 @@ export const notebooksApi = {
   createNotebook(title: string, course?: string | null): Promise<NotebookFull> {
     return request<NotebookFull>("/api/notebooks", json({ title, course }));
   },
-  updateNotebook(id: string, patch: { title?: string; subtitle?: string; blocks?: any[]; color?: string; is_draft?: boolean }): Promise<NotebookFull> {
+  updateNotebook(id: string, patch: { title?: string; subtitle?: string; blocks?: any[]; bs_snapshot?: unknown | null; color?: string; is_draft?: boolean }): Promise<NotebookFull> {
     return request<NotebookFull>(`/api/notebooks/${id}`, { ...json(patch), method: "PUT" });
   },
   deleteNotebook(id: string): Promise<void> {

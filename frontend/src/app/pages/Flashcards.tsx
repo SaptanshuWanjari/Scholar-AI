@@ -12,6 +12,7 @@ import {
   Loader2,
   Save,
   Trash2,
+  BookPlus,
 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
@@ -20,17 +21,13 @@ import { Page, SectionTitle } from "../components/Page";
 import QualityBadge from "../components/QualityBadge";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
 import { FlashcardCard } from "../components/FlashcardCard";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
+import { PaperButton, GhostButton, ChipButton } from "@/paper-ui/components/buttons";
+import { PaperInput } from "@/paper-ui/components/inputs";
+import { PaperSelect } from "@/paper-ui/components/inputs";
+import { PaperBadge } from "@/paper-ui/components/badges";
+import { SketchProgress } from "@/paper-ui/components/progress";
+import { EmptyState } from "@/paper-ui/components/feedback";
+import { PaperPanel, SketchBorder } from "@/paper-ui/core";
 import { api } from "../lib/api";
 import type { DeckOut } from "../lib/api";
 import type { Course, DocumentItem, Flashcard } from "../lib/types";
@@ -200,12 +197,12 @@ export function Flashcards() {
   return (
     <Page className="space-y-6">
       {/* Generate flashcards */}
-      <div data-tour="flashcards-generate" className="rounded-xl border border-border bg-card p-4">
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <Sparkles className="size-4 text-violet" /> Generate flashcards
+      <PaperPanel data-tour="flashcards-generate" className="p-5">
+        <div className="flex items-center gap-2 font-architect text-[15px] text-ink">
+          <Sparkles className="size-4" /> Generate flashcards
         </div>
-        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Input
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+          <PaperInput
             id="flashcards-topic-input"
             value={topic}
             onChange={(e) => setField("topic", e.target.value)}
@@ -216,124 +213,127 @@ export function Flashcards() {
               }
             }}
             placeholder="Topic, e.g. eigenvalues, SN1 vs SN2…"
-            className="flex-1"
+            wrapperClassName="flex-1"
             disabled={generating}
           />
-          <Select
+          <PaperSelect
             value={course ?? "all"}
-            onValueChange={(v) => setField("course", v === "all" ? null : v)}
-          >
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="All courses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All courses</SelectItem>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={c.name}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
+            onChange={(v) => setField("course", v === "all" ? null : v)}
+            options={[
+              { value: "all", label: "All courses" },
+              ...courses.map((c) => ({ value: c.name, label: c.name })),
+            ]}
+            placeholder="All courses"
+            wrapperClassName="sm:w-48"
+          />
+          <PaperSelect
             value={document ?? "all"}
-            onValueChange={(v) => setField("document", v === "all" ? null : v)}
-          >
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="All documents" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All documents</SelectItem>
-              {documents.filter(d => course ? d.course === course : true).map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
+            onChange={(v) => setField("document", v === "all" ? null : v)}
+            options={[
+              { value: "all", label: "All documents" },
+              ...documents.filter(d => course ? d.course === course : true).map((d) => ({ value: d.id, label: d.title })),
+            ]}
+            placeholder="All documents"
+            wrapperClassName="sm:w-48"
+          />
+          <PaperButton
+            tone="dark"
             onClick={() => void runGenerate()}
             disabled={!topic.trim() || generating}
-            className="gap-1.5"
           >
             {generating ? (
-              <>
-                <Loader2 className="size-4 animate-spin" /> Generating…
-              </>
+              <><Loader2 className="size-4 animate-spin" /> Generating…</>
             ) : (
-              <>
-                <Sparkles className="size-4" /> Generate
-              </>
+              <><Sparkles className="size-4" /> Generate</>
             )}
-          </Button>
+          </PaperButton>
         </div>
         <GenerationSteps
           steps={["Searching your library", "Extracting key concepts", "Writing cards", "Formatting deck"]}
           loading={generating}
-          className="mt-3"
+          className="mt-4"
         />
-      </div>
+      </PaperPanel>
 
       {/* Decks */}
       <div data-tour="flashcards-decks">
         <div className="flex items-center justify-between">
           <SectionTitle title="Decks" />
-
         </div>
         {loadingDecks ? (
-          <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-card/40 px-4 py-8 text-sm text-muted-foreground">
+          <PaperPanel className="flex items-center gap-2 px-4 py-8 font-kalam text-sm text-ink-muted">
             <Loader2 className="size-4 animate-spin" /> Loading decks…
-          </div>
+          </PaperPanel>
         ) : decks.length === 0 ? (
-          <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card/40 px-6 py-10 text-center">
-            <div className="flex size-10 items-center justify-center rounded-xl border border-border bg-card text-violet">
-              <GraduationCap className="size-5" />
-            </div>
-            <h3 className="mt-4 text-sm font-semibold">No saved decks yet</h3>
-            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-              Generate your first deck. Start with a topic from your documents.
-            </p>
-            <Button 
-              className="mt-4 gap-2" 
-              size="sm" 
-              onClick={() => window.document.getElementById("flashcards-topic-input")?.focus()}
-            >
-              <Sparkles className="size-4" /> Generate Deck
-            </Button>
-          </div>
+          <EmptyState
+            icon={<GraduationCap className="size-6 text-ink-muted" />}
+            title="No saved decks yet"
+            description="Generate your first deck. Start with a topic from your documents."
+            action={
+              <PaperButton
+                tone="dark"
+                size="sm"
+                onClick={() => window.document.getElementById("flashcards-topic-input")?.focus()}
+              >
+                <Sparkles className="size-4" /> Generate Deck
+              </PaperButton>
+            }
+          />
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {decks.map((d) => (
               <motion.div
                 key={d.id}
-                whileHover={{ y: -2 }}
+                whileHover={{ y: -3 }}
                 onClick={() => void openDeck(d)}
-                className={cn(
-                  "group relative cursor-pointer rounded-xl border bg-card p-4 transition-colors",
-                  activeDeck === d.name ? "border-violet/60 ring-1 ring-violet/30" : "border-border hover:border-border",
-                )}
+                className="group relative cursor-pointer"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex size-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${d.color}22`, color: d.color }}>
-                    <GraduationCap className="size-4" />
+                {/* Hand-drawn paper card */}
+                <div
+                  className="relative overflow-visible"
+                  style={{
+                    filter: activeDeck === d.name
+                      ? "drop-shadow(2px 6px 10px rgba(0,0,0,0.22))"
+                      : "drop-shadow(1px 4px 8px rgba(0,0,0,0.14))",
+                  }}
+                >
+                  <SketchBorder
+                    fill="#fffdf9"
+                    stroke={activeDeck === d.name ? "#4a6c8c" : "#9c9484"}
+                    strokeWidth={activeDeck === d.name ? 2 : 1.6}
+                    roughness={1.1}
+                    shadow={0}
+                  />
+                  <div className="relative z-[1] p-4">
+                    <div className="flex items-center justify-between">
+                      <div
+                        className="flex size-9 items-center justify-center"
+                        style={{ color: d.color ?? "#7fa37b" }}
+                      >
+                        <GraduationCap className="size-5" />
+                      </div>
+                      <span className="font-kalam text-xs text-ink-muted">{d.cards} cards</span>
+                    </div>
+                    <div className="mt-3 line-clamp-2 break-words font-architect text-[14px] text-ink" title={d.name}>{d.name}</div>
+                    <div className="flex items-center justify-between gap-2 mt-1">
+                      <span className="font-kalam text-xs text-ink-muted">{d.course}</span>
+                      {d.quality && <QualityBadge score={d.quality} />}
+                    </div>
+                    <SketchProgress
+                      value={d.cards ? (d.mastered / d.cards) * 100 : 0}
+                      height={10}
+                      className="mt-3"
+                    />
+                    <div className="mt-1.5 font-kalam text-xs text-ink-muted">{d.mastered} mastered</div>
                   </div>
-                  <span className="text-xs text-muted-foreground">{d.cards} cards</span>
                 </div>
-                <div className="mt-3 line-clamp-2 break-words text-sm font-medium" title={d.name}>{d.name}</div>
-                <div className="flex items-center justify-between gap-2">
-                  <div className="text-xs text-muted-foreground">{d.course}</div>
-                  {d.quality && <QualityBadge score={d.quality} />}
-                </div>
-                <Progress value={d.cards ? (d.mastered / d.cards) * 100 : 0} className="mt-3 h-1.5" />
-                <div className="mt-1.5 text-xs text-muted-foreground">{d.mastered} mastered</div>
-
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     void deleteDeck(d);
                   }}
                   aria-label={`Delete ${d.name}`}
-                  className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger group-hover:opacity-100"
+                  className="absolute right-1 top-1 z-10 flex size-7 items-center justify-center rounded-md text-ink-muted opacity-0 transition-opacity hover:bg-red-100 hover:text-red-600 group-hover:opacity-100"
                 >
                   <Trash2 className="size-3.5" />
                 </button>
@@ -346,13 +346,12 @@ export function Flashcards() {
       {/* View switcher */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">Cards</h3>
+          <h3 className="font-architect text-[15px] text-ink">Cards</h3>
           {activeDeck && (
-            <Badge variant="outline" className="text-[10px] font-medium">
+            <PaperBadge tone="sky" className="text-[10px]">
               {activeDeck}
-            </Badge>
+            </PaperBadge>
           )}
-          {/* Quality of the freshly generated, unsaved set. */}
           {!activeDeck && hasCards && <QualityBadge score={genQuality} />}
         </div>
         <div className="flex items-center gap-2">
@@ -365,55 +364,49 @@ export function Flashcards() {
               }}
               sourceId={activeDeck ?? "flashcards"}
               course={course === "none" ? null : course}
-              label="Add deck"
+              trigger={
+                <PaperButton size="sm">
+                  <BookPlus className="size-4" /> Add deck
+                </PaperButton>
+              }
             />
           )}
           {canSave && (
-            <Button
-              variant="outline"
+            <GhostButton
               size="sm"
-              className="gap-1.5"
               onClick={() => void saveDeck()}
               disabled={saving}
             >
               {saving ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" /> Saving…
-                </>
+                <><Loader2 className="size-4 animate-spin" /> Saving…</>
               ) : (
-                <>
-                  <Save className="size-4" /> Save as deck
-                </>
+                <><Save className="size-4" /> Save as deck</>
               )}
-            </Button>
+            </GhostButton>
           )}
-          <div data-tour="flashcards-views" className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+          <div data-tour="flashcards-views" className="flex items-center gap-1">
             {([
               { id: "grid", icon: LayoutGrid, label: "Grid" },
               { id: "list", icon: List, label: "List" },
               { id: "study", icon: RotateCw, label: "Study" },
             ] as const).map((v) => (
-              <button
+              <ChipButton
                 key={v.id}
+                selected={view === v.id}
                 onClick={() => setView(v.id)}
                 disabled={!hasCards}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors",
-                  view === v.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
-                  !hasCards && "cursor-not-allowed opacity-50",
-                )}
               >
-                <v.icon className="size-4" /> {v.label}
-              </button>
+                <v.icon className="size-3.5" /> {v.label}
+              </ChipButton>
             ))}
           </div>
         </div>
       </div>
 
       {loadingCards ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 px-6 py-14 text-sm text-muted-foreground">
+        <PaperPanel className="flex items-center justify-center gap-2 px-6 py-14 font-kalam text-sm text-ink-muted">
           <Loader2 className="size-4 animate-spin" /> Loading cards…
-        </div>
+        </PaperPanel>
       ) : !hasCards ? (
         <EmptyCards ungrounded={ungrounded} />
       ) : (
@@ -421,66 +414,53 @@ export function Flashcards() {
           {view === "grid" && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {cards.map((c) => (
-                <div key={c.id} className="group/card relative">
-                  <FlashcardCard card={c} />
-                  <div className="absolute right-2 top-2 z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover/card:opacity-100">
-                    <AddToNotebookMenu
-                      artifactType="flashcard"
-                      content={{ front: c.front, back: c.back }}
-                      sourceId={c.id}
-                      course={course === "none" ? null : course}
-                      variant="ghost"
-                      label=""
-                      className="size-7 bg-card/80 p-0 backdrop-blur"
-                    />
-                    <button
-                      onClick={() => void deleteCard(c)}
-                      aria-label="Delete card"
-                      className="flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground backdrop-blur transition-colors hover:bg-danger-soft hover:text-danger"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </button>
-                  </div>
-                </div>
+                <FlashcardCard
+                  key={c.id}
+                  card={c}
+                  onDelete={deleteCard}
+                  course={course === "none" ? null : course}
+                />
               ))}
             </div>
           )}
 
           {view === "list" && (
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <PaperPanel>
               {cards.map((c, i) => (
                 <div
                   key={c.id}
-                  className={cn("group/row flex items-center gap-4 px-4 py-3 hover:bg-accent/30", i !== 0 && "border-t border-border")}
+                  className={cn("group/row flex items-center gap-4 px-4 py-3 hover:bg-black/[0.03]", i !== 0 && "border-t border-[#e8e2d8]" )}
                 >
-                  <Badge variant="outline" className="text-[10px] uppercase">{c.type}</Badge>
+                  <PaperBadge tone="ink" className="text-[10px] uppercase">{c.type}</PaperBadge>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm">{c.front}</div>
-                    <div className="truncate text-xs text-muted-foreground">{c.back}</div>
+                    <div className="truncate font-architect text-[14px] text-ink">{c.front}</div>
+                    <div className="truncate font-kalam text-xs text-ink-muted">{c.back}</div>
                   </div>
-                  <span className="text-xs text-muted-foreground">{c.deck}</span>
-                  <span className="text-xs text-muted-foreground">{c.due}</span>
+                  <span className="font-kalam text-xs text-ink-muted">{c.deck}</span>
+                  <span className="font-kalam text-xs text-ink-muted">{c.due}</span>
                   <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover/row:opacity-100">
                     <AddToNotebookMenu
                       artifactType="flashcard"
                       content={{ front: c.front, back: c.back }}
                       sourceId={c.id}
                       course={course === "none" ? null : course}
-                      variant="ghost"
-                      label=""
-                      className="size-7 p-0"
+                      trigger={
+                        <button className="flex size-7 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-black/5">
+                          <BookPlus className="size-3.5" />
+                        </button>
+                      }
                     />
                     <button
                       onClick={() => void deleteCard(c)}
                       aria-label="Delete card"
-                      className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-danger-soft hover:text-danger"
+                      className="flex size-7 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-red-100 hover:text-red-600"
                     >
                       <Trash2 className="size-3.5" />
                     </button>
                   </div>
                 </div>
               ))}
-            </div>
+            </PaperPanel>
           )}
 
           {view === "study" && (
@@ -494,19 +474,15 @@ export function Flashcards() {
 
 function EmptyCards({ ungrounded }: { ungrounded: boolean }) {
   return (
-    <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card/40 px-6 py-14 text-center">
-      <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-violet">
-        <Sparkles className="size-6" />
-      </div>
-      <h3 className="mt-5 text-sm font-semibold">
-        {ungrounded ? "No grounded flashcards" : "No flashcards yet"}
-      </h3>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">
-        {ungrounded
+    <EmptyState
+      icon={<Sparkles className="size-6 text-ink-muted" />}
+      title={ungrounded ? "No grounded flashcards" : "No flashcards yet"}
+      description={
+        ungrounded
           ? NO_GROUNDED_MESSAGE
-          : "Enter a topic above and generate a set of source-grounded flashcards, or pick a saved deck to start studying."}
-      </p>
-    </div>
+          : "Enter a topic above and generate a set of source-grounded flashcards, or pick a saved deck to start studying."
+      }
+    />
   );
 }
 
@@ -541,8 +517,8 @@ function StudyMode({
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6 flex items-center gap-4">
-        <Progress value={progress} className="h-1.5 flex-1" />
-        <span className="text-xs font-medium tabular-nums text-muted-foreground">
+        <SketchProgress value={progress} height={12} className="flex-1" />
+        <span className="font-kalam text-xs tabular-nums text-ink-muted">
           {idx + 1} of {cards.length}
         </span>
       </div>
@@ -565,31 +541,37 @@ function StudyMode({
             className="relative size-full cursor-pointer [transform-style:preserve-3d]"
             onClick={() => setFlipped(!flipped)}
           >
-            {/* Front */}
+            {/* Front — hand-drawn paper */}
             <div
-              className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-10 text-center [backface-visibility:hidden] [transform:rotateY(0deg)] shadow-sm"
-              style={{ zIndex: flipped ? 0 : 1 }}
+              className="absolute inset-0 flex flex-col items-center justify-center p-10 text-center [backface-visibility:hidden] [transform:rotateY(0deg)]"
+              style={{ zIndex: flipped ? 0 : 1, filter: "drop-shadow(2px 6px 12px rgba(0,0,0,0.18))" }}
             >
-              <Badge variant="outline" className="mb-8 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                Question · {card.deck}
-              </Badge>
-              <p className="font-serif text-2xl leading-tight text-foreground">{card.front}</p>
-              <div className="mt-8 flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wider opacity-60">
-                <RotateCw className="size-3" /> Tap to reveal
+              <SketchBorder fill="#fffdf9" stroke="#9c9484" strokeWidth={1.8} roughness={1.1} shadow={0} />
+              <div className="relative z-[1] flex flex-col items-center">
+                <PaperBadge tone="ink" className="mb-8 text-[10px] uppercase tracking-widest">
+                  Question · {card.deck}
+                </PaperBadge>
+                <p className="font-architect text-2xl leading-tight text-ink">{card.front}</p>
+                <div className="mt-8 flex items-center gap-2 font-kalam text-xs text-ink-muted/60 uppercase tracking-wider">
+                  <RotateCw className="size-3" /> Tap to reveal
+                </div>
               </div>
             </div>
 
-            {/* Back */}
+            {/* Back — sage-tinted paper */}
             <div
-              className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-violet/30 bg-[#fdfcfa] p-10 text-center [backface-visibility:hidden] [transform:rotateY(180deg)] shadow-sm"
-              style={{ zIndex: flipped ? 1 : 0 }}
+              className="absolute inset-0 flex flex-col items-center justify-center p-10 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]"
+              style={{ zIndex: flipped ? 1 : 0, filter: "drop-shadow(2px 6px 12px rgba(0,0,0,0.18))" }}
             >
-              <Badge variant="outline" className="mb-8 text-[10px] font-semibold uppercase tracking-widest text-violet">
-                Answer · {card.deck}
-              </Badge>
-              <p className="font-serif text-2xl leading-tight text-foreground">{card.back}</p>
-              <div className="mt-8 flex items-center gap-2 text-xs font-medium text-violet/60 uppercase tracking-wider">
-                <RotateCw className="size-3" /> Tap to see question
+              <SketchBorder fill="#f3f8f0" stroke="#4a7a5c" strokeWidth={1.8} roughness={1.1} shadow={0} />
+              <div className="relative z-[1] flex flex-col items-center">
+                <PaperBadge tone="sage" className="mb-8 text-[10px] uppercase tracking-widest">
+                  Answer · {card.deck}
+                </PaperBadge>
+                <p className="font-architect text-2xl leading-tight text-ink">{card.back}</p>
+                <div className="mt-8 flex items-center gap-2 font-kalam text-xs text-ink-muted/60 uppercase tracking-wider">
+                  <RotateCw className="size-3" /> Tap to see question
+                </div>
               </div>
             </div>
           </motion.div>
@@ -597,30 +579,30 @@ function StudyMode({
       </AnimatePresence>
 
       <div className="mt-8 flex items-center justify-between">
-        <Button variant="outline" size="icon" className="size-11 rounded-full border-border/60" onClick={prev}>
+        <GhostButton size="sm" onClick={prev} style={{ width: 44, height: 44, borderRadius: "50%", padding: 0 }}>
           <ChevronLeft className="size-5" />
-        </Button>
+        </GhostButton>
         <div className={cn("flex items-center gap-2 transition-all duration-300", flipped ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none")}>
-          <Button variant="outline" className="h-11 gap-2 rounded-full border-danger/40 px-5 font-medium text-danger hover:bg-danger-soft" onClick={() => grade(1)}>
+          <PaperButton size="sm" onClick={() => grade(1)} style={{ color: "#9f3a36" }}>
             <X className="size-4" /> Again
-          </Button>
-          <Button variant="outline" className="h-11 gap-2 rounded-full border-amber-500/40 px-5 font-medium text-amber-500 hover:bg-amber-500/10" onClick={() => grade(3)}>
+          </PaperButton>
+          <PaperButton size="sm" onClick={() => grade(3)} style={{ color: "#8a6800" }}>
             Hard
-          </Button>
-          <Button variant="outline" className="h-11 gap-2 rounded-full border-success/40 px-5 font-medium text-success hover:bg-success-soft" onClick={() => grade(4)}>
+          </PaperButton>
+          <PaperButton size="sm" tone="green" onClick={() => grade(4)}>
             Good
-          </Button>
-          <Button variant="outline" className="h-11 gap-2 rounded-full border-blue-500/40 px-5 font-medium text-blue-500 hover:bg-blue-500/10" onClick={() => grade(5)}>
+          </PaperButton>
+          <PaperButton size="sm" onClick={() => grade(5)} style={{ color: "#3a6a9f" }}>
             <Check className="size-4" /> Easy
-          </Button>
+          </PaperButton>
         </div>
-        <Button variant="outline" size="icon" className="size-11 rounded-full border-border/60" onClick={next}>
+        <GhostButton size="sm" onClick={next} style={{ width: 44, height: 44, borderRadius: "50%", padding: 0 }}>
           <ChevronRight className="size-5" />
-        </Button>
+        </GhostButton>
       </div>
 
       {!persisted && (
-        <p className="mt-4 text-center text-xs text-muted-foreground">
+        <p className="mt-4 text-center font-kalam text-xs text-ink-muted">
           Save this set as a deck to record your reviews.
         </p>
       )}

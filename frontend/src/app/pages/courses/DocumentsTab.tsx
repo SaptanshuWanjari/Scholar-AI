@@ -1,8 +1,10 @@
-import { FileText, Plus, Trash2, BookOpen } from "lucide-react";
+import { FileText, Plus, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router";
-import { Button } from "../../components/ui/button";
 import type { DocumentItem } from "../../lib/types";
-import { cn } from "../../components/ui/utils";
+import { cn } from "@/paper-ui/utils";
+import { PaperButton, GhostButton } from "@/paper-ui/components/buttons";
+import { PaperTable, TableHeader, PaperTh, TableRow, PaperTd, EmptyTable } from "@/paper-ui/components/tables";
+import { StatusBadge } from "@/paper-ui/components/badges";
 import { fmtDate } from "./helpers";
 
 interface DocumentsTabProps {
@@ -15,75 +17,57 @@ export function DocumentsTab({ documents, onDelete, navigate }: DocumentsTabProp
   if (documents.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="size-14 rounded-full bg-accent flex items-center justify-center mb-4">
-          <FileText className="size-7 text-muted-foreground" />
+        <div className="size-14 rounded-full bg-paper-panel flex items-center justify-center mb-4">
+          <FileText className="size-7 text-ink-muted" />
         </div>
-        <h3 className="font-medium">No documents in this course</h3>
-        <p className="text-sm text-muted-foreground mt-1">Upload documents to start generating study materials.</p>
-        <Button className="mt-5" onClick={() => navigate("/documents")}>
-          <Plus className="size-4 mr-2" /> Upload Documents
-        </Button>
+        <h3 className="font-kalam text-lg font-bold text-ink">No documents in this course</h3>
+        <p className="font-architect text-sm text-ink-muted mt-1">Upload documents to start generating study materials.</p>
+        <PaperButton size="sm" tone="dark" className="mt-5" onClick={() => navigate("/documents")}>
+          <Plus className="size-4" /> Upload Documents
+        </PaperButton>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border overflow-hidden">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border bg-muted/40">
-            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Document</th>
-            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium w-20">Pages</th>
-            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium w-24">Status</th>
-            <th className="text-left px-4 py-3 text-[11px] uppercase tracking-wider text-muted-foreground font-medium w-28">Indexed</th>
-            <th className="px-4 py-3 w-24"></th>
-          </tr>
-        </thead>
-        <tbody className="bg-card divide-y divide-border">
-          {documents.map((d) => (
-            <tr key={d.id} className="hover:bg-accent/30">
-              <td className="px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                    <FileText className="size-4 text-muted-foreground" />
-                  </div>
-                  <span className="truncate max-w-xs font-medium">{d.title}</span>
+    <PaperTable>
+      <TableHeader>
+        <tr>
+          <PaperTh>Document</PaperTh>
+          <PaperTh className="w-20">Pages</PaperTh>
+          <PaperTh className="w-24">Status</PaperTh>
+          <PaperTh className="w-28">Indexed</PaperTh>
+          <PaperTh className="w-24"></PaperTh>
+        </tr>
+      </TableHeader>
+      <tbody className="divide-y divide-[#e8e3d8]">
+        {documents.map((d, i) => (
+          <TableRow key={d.id} index={i}>
+            <PaperTd>
+              <div className="flex items-center gap-3">
+                <div className="size-8 rounded-lg bg-paper-panel flex items-center justify-center shrink-0">
+                  <FileText className="size-4 text-ink-muted" />
                 </div>
-              </td>
-              <td className="px-4 py-3 text-muted-foreground">{d.pages}</td>
-              <td className="px-4 py-3">
-                <span className={cn(
-                  "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
-                  d.status === "indexed" ? "bg-green-500/10 text-green-600" :
-                  d.status === "processing" ? "bg-yellow-500/10 text-yellow-600" :
-                  "bg-red-500/10 text-red-600"
-                )}>
-                  {d.status}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-muted-foreground text-xs">{fmtDate(d.addedAt)}</td>
-              <td className="px-4 py-3">
-                <div className="flex items-center gap-1 justify-end">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 px-2 text-xs"
-                    onClick={() => navigate("/reading")}
-                  >
-                    <BookOpen className="size-3 mr-1" /> Open
-                  </Button>
-                  <button
-                    onClick={() => onDelete(d.id)}
-                    className="size-7 flex items-center justify-center rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                <span className="truncate max-w-xs font-kalam text-[14px] text-ink">{d.title}</span>
+              </div>
+            </PaperTd>
+            <PaperTd className="font-architect text-[13px] text-ink-muted">{d.pages}</PaperTd>
+            <PaperTd><StatusBadge status={d.status as "indexed" | "processing" | "failed"} /></PaperTd>
+            <PaperTd className="font-architect text-[13px] text-ink-muted">{fmtDate(d.addedAt)}</PaperTd>
+            <PaperTd>
+              <div className="flex items-center gap-1 justify-end">
+                <GhostButton size="sm" className="h-7 px-2 text-xs" onClick={() => navigate("/reading")}>
+                  <BookOpen className="size-3" /> Open
+                </GhostButton>
+                <button onClick={() => onDelete(d.id)}
+                  className="size-7 flex items-center justify-center rounded-md hover:bg-brick-soft text-ink-muted hover:text-brick transition-colors">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </PaperTd>
+          </TableRow>
+        ))}
+      </tbody>
+    </PaperTable>
   );
 }
