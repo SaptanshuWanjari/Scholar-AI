@@ -1,7 +1,7 @@
 // The ONLY module allowed to import @blocksuite/* directly.
 // If an export name differs in the installed 0.19.5 types, correct it HERE.
-export { DocCollection, Schema, Job } from "@blocksuite/store";
-export type { Doc, BlockModel, BlockSnapshot, DocSnapshot } from "@blocksuite/store";
+export { DocCollection, Schema, Job, defineBlockSchema, BlockModel } from "@blocksuite/store";
+export type { Doc, BlockSnapshot, DocSnapshot } from "@blocksuite/store";
 export { AffineSchemas } from "@blocksuite/blocks";
 export { PageEditorBlockSpecs } from "@blocksuite/blocks";
 export { AffineEditorContainer } from "@blocksuite/presets";
