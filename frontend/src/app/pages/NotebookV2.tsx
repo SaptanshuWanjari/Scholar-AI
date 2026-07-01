@@ -3,10 +3,16 @@ import { useParams, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useNotebookV2Store } from "../stores/useNotebookV2Store";
-import { NotebookShell } from "../components/notebook-v2/NotebookShell";
 import { api, type NotebookMeta } from "../lib/api";
 import { parseBackendNotebook, serializeV2Notebook } from "../lib/notebook-v2-parser";
 import { useAutoSave } from "../hooks/useAutoSave";
+// TEMP spike — replaced by NotebookShell in Task 12
+import { useBlockSuiteEditor } from "../components/notebook-v2/editor/useBlockSuiteEditor";
+
+function Spike({ id }: { id: string }) {
+  const { mountRef } = useBlockSuiteEditor(id);
+  return <div ref={mountRef} style={{ height: "100%", overflow: "auto" }} />;
+}
 
 export function NotebookV2() {
   const { id } = useParams<{ id?: string }>();
@@ -120,7 +126,7 @@ export function NotebookV2() {
           </button>
         </div>
       )}
-      <NotebookShell />
+      <Spike id={id ?? "spike"} />
     </>
   );
 }
