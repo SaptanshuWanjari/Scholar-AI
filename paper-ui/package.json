@@ -11,7 +11,14 @@
     "clsx": ">=2",
     "react": ">=18",
     "roughjs": ">=4",
-    "tailwind-merge": ">=3"
+    "tailwind-merge": ">=3",
+    "@radix-ui/react-slot": ">=1",
+    "@radix-ui/react-accordion": ">=1",
+    "@radix-ui/react-menubar": ">=1",
+    "lucide-react": ">=0.400",
+    "motion": ">=11",
+    "react-dom": ">=18",
+    "react-resizable-panels": ">=2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -20,6 +27,13 @@
     "globals": "^17.7.0",
     "tsx": "^4.22.4",
     "typescript": "^6",
-    "typescript-eslint": "^8.62.1"
+    "typescript-eslint": "^8.62.1",
+    "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-accordion": "^1.2.3",
+    "@radix-ui/react-menubar": "^1.1.6",
+    "lucide-react": "^0.487.0",
+    "motion": "^12.23.24",
+    "react-dom": "^19.2.7",
+    "react-resizable-panels": "^2.1.7"
   }
 }

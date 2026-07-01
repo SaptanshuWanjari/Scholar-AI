@@ -18,7 +18,7 @@ export async function remove(component?: string) {
 
   const entry = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
   for (const relFromSrc of entry.files as string[]) {
-    const rel = path.relative('components', relFromSrc); // strip leading "components/"
+    const rel = relFromSrc.replace(/^components\//, '');
     const dest = path.resolve(cwd, config.componentsPath, rel);
     if (fs.existsSync(dest)) await fsp.rm(dest);
   }

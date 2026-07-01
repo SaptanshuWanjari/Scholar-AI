@@ -7,7 +7,6 @@ import path from 'node:path';
 import { loadConfig, writeConfig } from '../lib/config';
 import { resolveFileGraph } from '../lib/graph';
 import { rewriteSource } from '../lib/rewrite';
-import { entryNameForFile } from '../lib/registry';
 
 export async function add(...args: string[]) {
   // commander passes (component, options, command); keep only string names.
@@ -53,7 +52,7 @@ export async function add(...args: string[]) {
     }
 
     const installed = new Set(config.installed);
-    for (const abs of graph.componentFiles) installed.add(entryNameForFile(abs, srcRoot));
+    for (const name of names) installed.add(name.toLowerCase());
     await writeConfig(cwd, { ...config, installed: [...installed].sort() });
 
     spinner.succeed(`Added ${names.join(', ')} (${written} files).`);
