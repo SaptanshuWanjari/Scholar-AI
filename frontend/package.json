@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite"
+    "dev": "vite",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@excalidraw/excalidraw": "^0.18.1",
@@ -65,9 +65,11 @@
     "mermaid": "^11.15.0",
     "motion": "12.23.24",
     "next-themes": "0.4.6",
+    "react": "^19.2.0",
     "react-day-picker": "8.10.1",
     "react-dnd": "16.0.1",
     "react-dnd-html5-backend": "16.0.1",
+    "react-dom": "^19.2.0",
     "react-hook-form": "7.55.0",
     "react-konva": "^19.2.5",
     "react-markdown": "^10.1.0",
@@ -98,14 +100,19 @@
     "@storybook/addon-essentials": "^8.6.0",
     "@storybook/react-vite": "^8.6.0",
     "@tailwindcss/vite": "4.1.12",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "4.7.0",
+    "happy-dom": "^15.11.7",
     "storybook": "^8.6.0",
     "storybook-dark-mode": "^4.0.2",
     "tailwindcss": "4.1.12",
     "typescript": "^6.0.3",
-    "vite": "6.3.5"
+    "vite": "6.3.5",
+    "vitest": "^2.1.9"
   },
   "pnpm": {
     "overrides": {
