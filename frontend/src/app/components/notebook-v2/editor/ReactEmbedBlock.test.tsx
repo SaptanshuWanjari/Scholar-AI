@@ -1,19 +1,22 @@
 import { describe, it, expect } from "vitest";
-import { createReactEmbedClass } from "./ReactEmbedBlock";
+import { mountReact } from "./reactMount";
 
-describe("createReactEmbedClass", () => {
-  it("defines a custom element that mounts React and renders model props", async () => {
+describe("mountReact", () => {
+  it("renders a React view from model props and re-renders on update", async () => {
     const View = ({ model }: any) => <div data-testid="v">{model.text}</div>;
-    const Klass = createReactEmbedClass(View);
-    customElements.define("scholar-test-embed", Klass as any);
+    const host = document.createElement("div");
+    document.body.appendChild(host);
 
-    const el = document.createElement("scholar-test-embed") as any;
-    el.model = { text: "hello" };
-    document.body.appendChild(el);
-    // allow microtask for React root
+    const m = mountReact(host, View);
+    m.render({ text: "hello" }, {});
     await new Promise((r) => setTimeout(r, 0));
+    expect(host.querySelector('[data-testid="v"]')?.textContent).toBe("hello");
 
-    expect(el.querySelector('[data-testid="v"]')?.textContent).toBe("hello");
-    el.remove();
+    m.render({ text: "world" }, {});
+    await new Promise((r) => setTimeout(r, 0));
+    expect(host.querySelector('[data-testid="v"]')?.textContent).toBe("world");
+
+    m.unmount();
+    host.remove();
   });
 });
