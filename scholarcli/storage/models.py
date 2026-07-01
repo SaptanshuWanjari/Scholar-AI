@@ -200,6 +200,7 @@ class Notebook(Base):
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     color: Mapped[str] = mapped_column(String(16), nullable=False, default="#4f4d7a")
     blocks: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    bs_snapshot: Mapped[dict | None] = mapped_column(JSON, nullable=True, default=None)
     tags: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     is_draft: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     updated_at: Mapped[datetime] = mapped_column(

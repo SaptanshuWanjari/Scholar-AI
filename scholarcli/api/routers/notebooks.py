@@ -175,6 +175,8 @@ def update_notebook(notebook_id: int, patch: NotebookPatch) -> NotebookOut:
             nb.subtitle = patch.subtitle
         if patch.blocks is not None:
             nb.blocks = patch.blocks
+        if patch.bs_snapshot is not None:
+            nb.bs_snapshot = patch.bs_snapshot
         if patch.color is not None:
             nb.color = patch.color
         if patch.tags is not None:
