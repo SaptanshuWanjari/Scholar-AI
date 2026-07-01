@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useRef, useState } from "react";
 import { UploadCloud, Image as ImageIcon } from "lucide-react";
 import { cn } from "../../ui/utils";

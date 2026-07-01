@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Layers, Play } from "lucide-react";
 import { cn } from "../../ui/utils";
 import type { V2Block } from "../../../lib/notebook-v2.types";

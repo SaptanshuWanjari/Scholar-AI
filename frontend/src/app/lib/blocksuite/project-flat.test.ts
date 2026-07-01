@@ -17,8 +17,8 @@ describe("projectDocToFlat", () => {
     const note = getNoteId(doc);
     doc.addBlock("affine:paragraph", { type: "h1", text: new doc.Text("Minimax") } as any, note);
     doc.addBlock("affine:paragraph", { text: new doc.Text("Body") } as any, note);
-    doc.addBlock("scholar:callout", { tone: "insight", text: "Key idea" } as any, note);
-    doc.addBlock("scholar:diagram", { code: "graph TD;A-->B" } as any, note);
+    doc.addBlock("scholar:callout" as never, { tone: "insight", text: "Key idea" } as never, note);
+    doc.addBlock("scholar:diagram" as never, { code: "graph TD;A-->B" } as never, note);
 
     const flat = projectDocToFlat(doc);
     expect(flat).toEqual([

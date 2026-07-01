@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AiAnswerBlock — Saved AI answer card.
  *

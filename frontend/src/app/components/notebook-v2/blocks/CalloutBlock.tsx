@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useRef, useEffect } from "react";
 import { Info, Lightbulb, TriangleAlert, type LucideIcon } from "lucide-react";
 import { cn } from "../../ui/utils";

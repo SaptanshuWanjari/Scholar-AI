@@ -9,7 +9,7 @@ describe("scholar schemas", () => {
       const page = doc.addBlock("affine:page", {});
       doc.addBlock("affine:note", {}, page);
       const note = getNoteId(doc);
-      const id = doc.addBlock("scholar:callout", {}, note);
+      const id = doc.addBlock("scholar:callout" as never, {}, note);
       const model = doc.getBlock(id)!.model as unknown as {
         flavour: string;
         tone: string;

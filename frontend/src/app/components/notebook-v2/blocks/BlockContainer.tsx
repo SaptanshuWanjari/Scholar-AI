@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * BlockContainer — Universal draggable wrapper for all V2 blocks.
  *

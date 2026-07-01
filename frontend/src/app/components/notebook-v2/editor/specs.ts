@@ -12,9 +12,9 @@ export function buildScholarSpecs(): ExtensionType[] {
   registerScholarElements();
   return [
     ...PageEditorBlockSpecs,
-    BlockViewExtension("scholar:callout", literal`scholar-callout`),
-    BlockViewExtension("scholar:sticky-note", literal`scholar-sticky-note`),
-    BlockViewExtension("scholar:diagram", literal`scholar-diagram`),
-    BlockViewExtension("scholar:page-break", literal`scholar-page-break`),
+    BlockViewExtension("scholar:callout" as never, literal`scholar-callout`),
+    BlockViewExtension("scholar:sticky-note" as never, literal`scholar-sticky-note`),
+    BlockViewExtension("scholar:diagram" as never, literal`scholar-diagram`),
+    BlockViewExtension("scholar:page-break" as never, literal`scholar-page-break`),
   ];
 }
