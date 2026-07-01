@@ -51,5 +51,5 @@ export type { PluginCardProps } from "./PluginCard";
 export { NotebookSpiralCard } from "./NotebookSpiralCard";
 export type { NotebookSpiralCardProps } from "./NotebookSpiralCard";
 
-export { PaperSheetCard } from "@/paper-ui/core";
-export type { PaperSheetCardProps } from "@/paper-ui/core";
+export { PaperSheetCard } from "./PaperSheetCard";
+export type { PaperSheetCardProps } from "./PaperSheetCard";
