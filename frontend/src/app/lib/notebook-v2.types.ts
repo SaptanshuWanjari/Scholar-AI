@@ -114,3 +114,11 @@ export interface OutlineEntry {
   pageTitle: string;
   headings: { blockId: string; level: number; text: string }[];
 }
+
+// ── BlockSuite scholar block prop types (Notebook V2 / BlockSuite engine) ──
+export type {
+  CalloutProps,
+  StickyProps,
+  DiagramProps,
+  PageBreakProps,
+} from "./blocksuite/schemas";
