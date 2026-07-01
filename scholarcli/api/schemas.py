@@ -507,6 +507,7 @@ class NotebookPatch(BaseModel):
     title: str | None = None
     subtitle: str | None = None
     blocks: list | None = None
+    bs_snapshot: dict | None = None
     color: str | None = None
     tags: list[str] | None = None
     is_draft: bool | None = None
