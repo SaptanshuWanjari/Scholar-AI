@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";

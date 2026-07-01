@@ -47,7 +47,7 @@ export function NotebookShell({
       const flat = projectDocToFlat(doc);
       setOutline(
         flat
-          .map((b) => ({ blockId: b.id ?? "", level: b.type === "heading" ? 1 : 0, text: String(b.text ?? ""), page: 0 }))
+          .map((b) => ({ blockId: String(b.id ?? ""), level: b.type === "heading" ? 1 : 0, text: String(b.text ?? ""), page: 0 }))
           .filter((e) => e.level > 0),
       );
       force((n) => n + 1);

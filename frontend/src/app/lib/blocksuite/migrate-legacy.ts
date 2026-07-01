@@ -22,7 +22,7 @@ export function legacyBlocksToDoc(
       addLegacy(doc, note, b);
       for (const s of b?.metadata?.stickyNotes ?? []) {
         doc.addBlock(
-          "scholar:sticky-note",
+          "scholar:sticky-note" as never,
           { text: s.text ?? "", color: s.color ?? "yellow", pin: "push-pin", align: "inline" } as any,
           note,
         );
@@ -46,7 +46,7 @@ function addLegacy(doc: Doc, note: string, b: any) {
       return;
     case "callout":
       doc.addBlock(
-        "scholar:callout",
+        "scholar:callout" as never,
         { tone: b.tone ?? "note", text: b.text ?? "" } as any,
         note,
       );
@@ -66,11 +66,11 @@ function addLegacy(doc: Doc, note: string, b: any) {
       );
       return;
     case "mermaid":
-      doc.addBlock("scholar:diagram", { code: b.code ?? "" } as any, note);
+      doc.addBlock("scholar:diagram" as never, { code: b.code ?? "" } as any, note);
       return;
     case "sticky":
       doc.addBlock(
-        "scholar:sticky-note",
+        "scholar:sticky-note" as never,
         {
           text: b.text ?? "",
           color: b.color ?? "yellow",

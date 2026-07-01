@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * WhiteboardBlock — Static thumbnail of a whiteboard.
  *

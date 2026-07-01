@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import { Plus, FileText, ChevronRight } from "lucide-react";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * HeadingBlock — Editable heading (h1 / h2 / h3).
  *

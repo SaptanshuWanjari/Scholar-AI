@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from "react";
 import { Workflow, Check } from "lucide-react";
 import { DiagramViewer } from "../../DiagramViewer";

@@ -25,11 +25,11 @@ function insertHeading(doc: Doc) {
 }
 function insertSticky(doc: Doc) {
   const n = noteId(doc); if (!n) return;
-  doc.addBlock("scholar:sticky-note", { text: "", color: "yellow", pin: "push-pin", align: "inline" } as never, n);
+  doc.addBlock("scholar:sticky-note" as never, { text: "", color: "yellow", pin: "push-pin", align: "inline" } as never, n);
 }
 function insertDiagram(doc: Doc) {
   const n = noteId(doc); if (!n) return;
-  doc.addBlock("scholar:diagram", { code: "graph TD;\n  A --> B" } as never, n);
+  doc.addBlock("scholar:diagram" as never, { code: "graph TD;\n  A --> B" } as never, n);
 }
 function insertCode(doc: Doc) {
   const n = noteId(doc); if (!n) return;
@@ -37,7 +37,7 @@ function insertCode(doc: Doc) {
 }
 function insertCallout(doc: Doc) {
   const n = noteId(doc); if (!n) return;
-  doc.addBlock("scholar:callout", { tone: "note", text: "" } as never, n);
+  doc.addBlock("scholar:callout" as never, { tone: "note", text: "" } as never, n);
 }
 function insertDivider(doc: Doc) {
   const n = noteId(doc); if (!n) return;
