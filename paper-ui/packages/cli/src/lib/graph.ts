@@ -78,8 +78,8 @@ export function resolveFileGraph(entryFiles: string[], srcRoot: string): GraphRe
       // relative:
       const resolved = resolveFile(file, spec, srcRoot);
       if (!resolved) continue;
-      if (resolved.startsWith(coreDir)) { needsCore = true; continue; }
-      if (resolved.startsWith(utilsDir)) { needsUtils = true; continue; }
+      if (resolved.startsWith(coreDir + path.sep)) { needsCore = true; continue; }
+      if (resolved.startsWith(utilsDir + path.sep)) { needsUtils = true; continue; }
       if (resolved.startsWith(componentsDir) && !visited.has(resolved)) queue.push(resolved);
     }
   }
