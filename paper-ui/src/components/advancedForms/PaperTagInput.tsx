@@ -50,7 +50,7 @@ export const PaperTagInput = React.forwardRef<HTMLInputElement, PaperTagInputPro
             roughness={1.1}
             shadow={0}
           />
-          
+
           <div className="relative z-[1] flex flex-wrap gap-2 w-full">
             {tags.map((tag, index) => (
               <span key={index} className="relative inline-flex items-center gap-1 px-2 py-0.5 text-sm font-architect text-ink">
@@ -80,7 +80,7 @@ export const PaperTagInput = React.forwardRef<HTMLInputElement, PaperTagInputPro
               onKeyDown={handleKeyDown}
               onFocus={(e) => { setFocused(true); props.onFocus?.(e); }}
               onBlur={(e) => { setFocused(false); props.onBlur?.(e); }}
-              className="flex-1 min-w-[80px] border-none bg-transparent font-architect text-[15px] text-ink placeholder:text-ink-muted/60 focus:outline-none"
+              className="flex-1 min-w-[80px] border-none bg-transparent font-architect text-[15px] text-ink placeholder:font-architect placeholder:text-ink-muted/60 focus:outline-none"
               {...props}
             />
           </div>

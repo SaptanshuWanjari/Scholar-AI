@@ -2,7 +2,8 @@ import { FileText, ScanLine, Table, Image as ImageIcon, Workflow, Type } from "l
 import { motion } from "motion/react";
 import type { Source, SourceType } from "../lib/types";
 import { cn } from "./ui/utils";
-import { ScrollArea } from "./ui/scroll-area";
+import { ScrollArea } from "@paper-ui/components/layout";
+import { SectionLabel } from "@paper-ui/core";
 
 interface SourcePanelProps {
   sources: Source[];
@@ -28,7 +29,7 @@ const TYPE_META: Record<SourceType, { label: string; Icon: typeof Type }> = {
 function SourceTypeBadge({ type }: { type: SourceType }) {
   const { label, Icon } = TYPE_META[type] ?? TYPE_META.text;
   return (
-    <span className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+    <span className="inline-flex items-center gap-1 rounded bg-black/[0.06] px-1.5 py-0.5 font-kalam text-[11px] text-ink-muted/80">
       <Icon className="size-3" />
       {label}
     </span>
@@ -37,20 +38,20 @@ function SourceTypeBadge({ type }: { type: SourceType }) {
 
 export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
   return (
-    <div className="flex h-full min-h-0 flex-col bg-card/40 overflow-hidden">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3 shrink-0">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="flex items-center justify-between border-b border-black/5 px-4 py-3 shrink-0">
         <div className="flex items-center gap-2">
-          <FileText className="size-4 text-muted-foreground" />
-          <span className="text-sm font-medium">Sources</span>
+          <FileText className="size-4 text-ink-muted" />
+          <SectionLabel className="!text-ink">Sources</SectionLabel>
         </div>
-        <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+        <span className="rounded-md bg-black/[0.06] px-2 py-0.5 font-kalam text-xs text-ink-muted/80">
           {sources.length}
         </span>
       </div>
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="space-y-2 p-3">
+      <ScrollArea className="flex-1">
+        <div className="space-y-2 p-4">
           {sources.length === 0 && (
-            <p className="px-2 py-8 text-center text-sm text-muted-foreground">
+            <p className="px-2 py-8 text-center font-kalam text-sm text-ink-muted/70">
               Retrieved sources will appear here once you ask a question.
             </p>
           )}
@@ -63,19 +64,19 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
               transition={{ delay: i * 0.05 }}
               onClick={() => onSelect?.(s.id)}
               className={cn(
-                "w-full scroll-mt-4 rounded-lg border p-3 text-left transition-colors overflow-hidden",
+                "w-full scroll-mt-4 rounded-lg p-3 text-left transition-colors overflow-hidden",
                 activeId === s.id
-                  ? "border-primary/60 bg-violet-soft"
-                  : "border-border bg-card hover:border-ring/40 hover:bg-accent/40",
+                  ? "bg-black/[0.06]"
+                  : "hover:bg-black/[0.03]",
               )}
             >
               <div className="flex items-start gap-2">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-primary/40 bg-violet-soft font-mono text-[10px] font-medium text-primary">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-black/[0.06] font-kalam text-[11px] font-medium text-ink-muted">
                   {i + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{s.title}</div>
-                  <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="truncate font-architect text-[14px] text-ink">{s.title}</div>
+                  <div className="mt-0.5 flex items-center gap-1.5 font-kalam text-xs text-ink-muted/70">
                     <SourceTypeBadge type={s.sourceType ?? "text"} />
                     <span className="truncate">
                       {s.course} · p.{s.page}
@@ -88,14 +89,14 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
                   src={s.imageUrl}
                   alt={s.snippet}
                   loading="lazy"
-                  className="mt-2 max-h-32 w-full rounded-md border border-border object-contain bg-muted/40"
+                  className="mt-2 max-h-32 w-full rounded-md border border-black/10 object-contain bg-black/[0.02]"
                 />
               )}
-              <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground break-all whitespace-pre-wrap">
+              <p className="mt-2 line-clamp-3 font-kalam text-[13px] leading-relaxed text-ink-muted/80 break-all whitespace-pre-wrap">
                 {s.snippet}
               </p>
               <div className="mt-2.5 flex items-center gap-2">
-                <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
+                <div className="h-1 flex-1 overflow-hidden rounded-full bg-black/[0.06]">
                   <div
                     className="h-full rounded-full"
                     style={{
@@ -105,7 +106,7 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
                   />
                 </div>
                 <span
-                  className="font-mono text-[11px] font-medium"
+                  className="font-kalam text-[12px] font-medium"
                   style={{ color: scoreColor(s.similarity) }}
                 >
                   {(s.similarity * 100).toFixed(0)}%

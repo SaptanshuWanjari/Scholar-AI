@@ -5,7 +5,6 @@
     "components/cards/DocumentCard.tsx"
   ],
   "registryDependencies": [
-    "foldedcorner",
     "paperbadge"
   ],
   "core": true,

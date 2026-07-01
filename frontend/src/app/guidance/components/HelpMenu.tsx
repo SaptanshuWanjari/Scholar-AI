@@ -1,20 +1,20 @@
 import { useLocation, useNavigate } from "react-router";
 import { HelpCircle, Play, BookOpen, Compass } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuCheckboxItem,
-} from "../../components/ui/dropdown-menu";
+  Menubar,
+  MenubarMenu,
+  MenubarTrigger,
+  MenubarContent,
+  MenubarLabel,
+  MenubarItem,
+  MenubarSeparator,
+  MenubarCheckboxItem,
+} from "@paper-ui/components/navigation";
+import { IconButton } from "@paper-ui/components/buttons";
 import { getTourForPath } from "../tourRegistry";
 import { useTour } from "../useTour";
 import { useGuidanceStore } from "../useGuidanceStore";
 
-/** Help affordance in the Topbar: replay this page's tour, open the Guide,
- *  toggle guidance, all from one keyboard-accessible menu. */
 export function HelpMenu() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -26,47 +26,49 @@ export function HelpMenu() {
   const setPref = useGuidanceStore((s) => s.setPref);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          aria-label="Help and guidance"
-          className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:border-ring/50 hover:text-foreground"
-        >
-          <HelpCircle className="size-4" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Help &amp; guidance</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          disabled={!tour}
-          onSelect={() => tour && startTour(tour.id)}
-        >
-          <Play className="size-4" />
-          {tour ? "Replay this page's tour" : "No tour on this page"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => navigate("/guide")}>
-          <BookOpen className="size-4" />
-          Open the Guide
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => navigate("/onboarding")}>
-          <Compass className="size-4" />
-          Replay onboarding
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuCheckboxItem
-          checked={toursEnabled}
-          onCheckedChange={(v) => setPref("toursEnabled", Boolean(v))}
-        >
-          Interactive tours
-        </DropdownMenuCheckboxItem>
-        <DropdownMenuCheckboxItem
-          checked={tipsEnabled}
-          onCheckedChange={(v) => setPref("tipsEnabled", Boolean(v))}
-        >
-          Contextual tips
-        </DropdownMenuCheckboxItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Menubar className="h-auto border-0 bg-transparent p-0 [&>div]:hidden">
+      <MenubarMenu>
+        <MenubarTrigger asChild>
+          <IconButton label="Help and guidance" className="overflow-hidden">
+            <HelpCircle className="size-5" />
+          </IconButton>
+        </MenubarTrigger>
+        <MenubarContent align="end" className="w-56">
+          <MenubarLabel className='font-architect text-sm'>Help &amp; guidance</MenubarLabel>
+          <MenubarSeparator />
+          <MenubarItem
+            disabled={!tour}
+            className='gap-2'
+            onSelect={() => tour && startTour(tour.id)}
+          >
+            <Play className="size-4" />
+            {tour ? "Replay this page's tour" : "No tour on this page"}
+          </MenubarItem>
+          <MenubarItem onSelect={() => navigate("/guide")} className='gap-2'>
+            <BookOpen className="size-4" />
+            Open the Guide
+          </MenubarItem>
+          <MenubarItem onSelect={() => navigate("/onboarding")} className='gap-2'>
+            <Compass className="size-4" />
+            Replay onboarding
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarCheckboxItem
+            checked={toursEnabled}
+            className='gap-2'
+            onCheckedChange={(v) => setPref("toursEnabled", Boolean(v))}
+          >
+            Interactive tours
+          </MenubarCheckboxItem>
+          <MenubarCheckboxItem
+            checked={tipsEnabled}
+            onCheckedChange={(v) => setPref("tipsEnabled", Boolean(v))}
+            className='gap-2'
+          >
+            Contextual tips
+          </MenubarCheckboxItem>
+        </MenubarContent>
+      </MenubarMenu>
+    </Menubar>
   );
 }

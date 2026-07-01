@@ -45,7 +45,7 @@ export const PaperInput = React.forwardRef<HTMLInputElement, PaperInputProps>(
             id={inputId}
             onFocus={(e) => { setFocused(true); onFocus?.(e); }}
             onBlur={(e) => { setFocused(false); onBlur?.(e); }}
-            className="relative z-[1] flex-1 border-none bg-transparent font-architect text-[15px] text-ink placeholder:text-ink-muted/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="relative z-[1] flex-1 border-none bg-transparent font-architect text-[15px] text-ink placeholder:font-architect placeholder:text-ink-muted/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             {...props}
           />
           {trailingIcon && (
@@ -102,7 +102,7 @@ export const PaperTextarea = React.forwardRef<HTMLTextAreaElement, PaperTextarea
             rows={rows}
             onFocus={(e) => { setFocused(true); onFocus?.(e); }}
             onBlur={(e) => { setFocused(false); onBlur?.(e); }}
-            className="relative z-[1] w-full resize-y border-none bg-transparent font-architect text-[15px] leading-relaxed text-ink placeholder:text-ink-muted/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="relative z-[1] w-full resize-y border-none bg-transparent font-architect text-[15px] leading-relaxed text-ink placeholder:font-architect placeholder:text-ink-muted/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             {...props}
           />
         </div>

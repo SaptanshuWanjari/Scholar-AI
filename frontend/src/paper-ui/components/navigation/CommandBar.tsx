@@ -121,7 +121,7 @@ export function CommandBar({
               onChange={(e) => { setQuery(e.target.value); setCursor(0); }}
               onKeyDown={onKeyDown}
               placeholder={placeholder}
-              className="flex-1 border-none bg-transparent font-architect text-[15px] text-ink placeholder:text-ink-muted/55 focus:outline-none"
+              className="flex-1 border-none bg-transparent font-architect text-[15px] text-ink placeholder:font-architect placeholder:text-ink-muted/55 focus:outline-none"
               aria-label="Command search"
             />
             <kbd className="font-architect text-[11px] text-ink-muted/50">esc</kbd>

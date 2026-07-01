@@ -1,32 +1,22 @@
 import { Component, useEffect, useState, type ReactNode } from "react";
 import { Workflow, Copy, Check, Download, FileImage, FileDown, Code2, Sparkles, Loader2, AlertCircle, Trash2, ChevronDown } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "../components/ui/dropdown-menu";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { toast } from "sonner";
 import { DiagramViewer } from "../components/DiagramViewer";
 import QualityBadge from "../components/QualityBadge";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
-import { Button, buttonVariants } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import { Input } from "../components/ui/input";
-import { ScrollArea } from "../components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
 import { api } from "../lib/api";
 import { exportNodeToPdf } from "../lib/export";
 import type { Course, DiagramItem, DocumentItem } from "../lib/types";
 import { useDiagramGenStore } from "../stores/useDiagramGenStore";
-import { cn } from "../components/ui/utils";
+import { PaperButton, GhostButton } from "@/paper-ui/components/buttons";
+import { PaperBadge } from "@/paper-ui/components/badges";
+import { PaperInput, PaperSelect } from "@/paper-ui/components/inputs";
+import { ScrollArea } from "@/paper-ui/components/layout";
+import { PaperDropdown } from "@/paper-ui/components/dialogs";
+import { cn } from "@/paper-ui/utils";
+import { SketchDivider } from "@/paper-ui/components/decorations";
+import { PaperCard, PaperIconCircle } from "@/paper-ui/core";
 
 const DIAGRAM_TYPES = [
   { value: "flowchart", label: "Flowchart" },
@@ -184,9 +174,14 @@ export function Diagrams() {
   return (
     <div className="flex h-full">
       {/* Diagram list */}
-      <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card/40">
-        <div className="border-b border-border px-4 py-3 text-sm font-medium">
+      <div className="relative flex w-72 shrink-0 flex-col bg-card/40">
+        {/* Hand-drawn vertical separator */}
+        <svg className="absolute top-0 bottom-0 right-0 w-2 h-full z-10" preserveAspectRatio="none" aria-hidden>
+          <path d="M1,0 Q3,20 0,40 T1,1000" fill="none" stroke="var(--color-pencil)" strokeWidth="1.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" className="opacity-30" />
+        </svg>
+        <div className="relative px-4 py-3 font-caveat text-[20px] font-bold text-ink/90">
           Diagrams
+          <SketchDivider variant="wavy" className="absolute bottom-0 left-0 opacity-30" />
         </div>
         <ScrollArea className="flex-1 [&>[data-radix-scroll-area-viewport]>div]:!block">
           <div className="space-y-1 p-2 w-full">
@@ -207,38 +202,35 @@ export function Diagrams() {
               </div>
             )}
             {items.map((d) => (
-              <div
+              <PaperCard
                 key={d.id}
                 onClick={() => setActive(d)}
+                surface={active?.id === d.id ? "#fffdf9" : "transparent"}
+                shadow={active?.id === d.id ? "sm" : "none"}
+                border={active?.id === d.id ? undefined : null}
                 className={cn(
-                  "group flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-left transition-colors",
-                  active?.id === d.id ? "bg-violet-soft" : "hover:bg-accent/40",
+                  "group flex w-full cursor-pointer items-center gap-3 p-3 text-left transition-all",
+                  active?.id === d.id ? "" : "hover:bg-black/[0.02]"
                 )}
               >
-                <div
-                  className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-lg",
-                    active?.id === d.id ? "bg-primary text-white" : "bg-muted text-muted-foreground",
-                  )}
-                >
+                <PaperIconCircle tone={active?.id === d.id ? "sky" : "ink"} size={36}>
                   <Workflow className="size-4" />
+                </PaperIconCircle>
+                <div className="min-w-0 flex-1 font-kalam">
+                  <div className="truncate text-[14px] font-bold text-ink">{d.title}</div>
+                  <div className="truncate text-[11px] text-ink-muted/80 font-architect">{d.kind}</div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{d.title}</div>
-                  <div className="truncate text-xs text-muted-foreground">{d.kind}</div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 shrink-0 text-muted-foreground opacity-0 hover:text-danger group-hover:opacity-100"
+                <GhostButton
+                  border={null}
+                  className="size-7 min-h-0 p-0 shrink-0 text-ink-muted opacity-0 hover:text-danger group-hover:opacity-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     void remove(d.id);
                   }}
                 >
                   <Trash2 className="size-3.5" />
-                </Button>
-              </div>
+                </GhostButton>
+              </PaperCard>
             ))}
           </div>
         </ScrollArea>
@@ -247,8 +239,9 @@ export function Diagrams() {
       {/* Preview */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Generate control */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card/40 px-6 py-3">
-          <Input
+        <div className="relative flex flex-wrap items-center gap-2 bg-card/40 px-6 py-3">
+          <SketchDivider variant="wavy" className="absolute bottom-0 left-0 opacity-30" />
+          <PaperInput
             id="diagram-topic-input"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
@@ -256,54 +249,42 @@ export function Diagrams() {
               if (e.key === "Enter" && !generating) generate();
             }}
             placeholder="Topic, e.g. TCP handshake"
-            className="h-9 max-w-xs flex-1 bg-input-background"
+            className="max-w-xs flex-1"
           />
-          <Select value={course} onValueChange={setCourse}>
-            <SelectTrigger className="h-9 w-44 bg-input-background">
-              <SelectValue placeholder="No course" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">No course</SelectItem>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={c.name}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={docId ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
-            <SelectTrigger className="h-9 w-44 bg-input-background">
-              <SelectValue placeholder="All documents" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All documents</SelectItem>
-              {documents.filter(d => course !== "none" ? d.course === course : true).map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="h-9 w-44 bg-input-background">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {DIAGRAM_TYPES.map((dt) => (
-                <SelectItem key={dt.value} value={dt.value}>
-                  {dt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button size="sm" className="gap-1.5" onClick={generate} disabled={generating}>
+          <PaperSelect
+            value={course}
+            onChange={setCourse}
+            options={[
+              { value: "none", label: "No course" },
+              ...courses.map((c) => ({ value: c.name, label: c.name })),
+            ]}
+            placeholder="No course"
+            wrapperClassName="w-44"
+          />
+          <PaperSelect
+            value={docId ?? "all"}
+            onChange={(v) => setDocument(v === "all" ? null : v)}
+            options={[
+              { value: "all", label: "All documents" },
+              ...documents.filter(d => course !== "none" ? d.course === course : true).map((d) => ({ value: d.id, label: d.title })),
+            ]}
+            placeholder="All documents"
+            wrapperClassName="w-44"
+          />
+          <PaperSelect
+            value={type}
+            onChange={setType}
+            options={DIAGRAM_TYPES.map(dt => ({ value: dt.value, label: dt.label }))}
+            wrapperClassName="w-44"
+          />
+          <PaperButton size="sm" className="gap-1.5" onClick={generate} disabled={generating}>
             {generating ? (
               <Loader2 className="size-3.5 animate-spin" />
             ) : (
               <Sparkles className="size-3.5" />
             )}
             {generating ? "Generating..." : "Generate diagram"}
-          </Button>
+          </PaperButton>
         </div>
         <GenerationSteps
           steps={["Searching your library", "Analyzing relationships", "Building diagram structure", "Rendering Mermaid"]}
@@ -314,22 +295,23 @@ export function Diagrams() {
 
         {active ? (
           <>
-            <div className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-              <div className="flex min-w-0 flex-1 items-start gap-2">
-                <span className="line-clamp-2 break-words text-sm font-medium" title={active.title}>{active.title}</span>
-                <Badge variant="outline" className="shrink-0 border-cyan/40 bg-cyan-soft text-cyan">
+            <div className="relative flex h-12 shrink-0 items-center justify-between bg-background/80 px-6 backdrop-blur-xl">
+              <SketchDivider variant="wavy" className="absolute bottom-0 left-0 opacity-30" />
+              <div className="flex min-w-0 flex-1 items-center gap-2 font-kalam">
+                <span className="line-clamp-2 break-words text-[16px] font-bold text-ink" title={active.title}>{active.title}</span>
+                <PaperBadge tone="sky" className="shrink-0">
                   {active.kind}
-                </Badge>
+                </PaperBadge>
                 <QualityBadge score={active.quality} />
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setShowCode((s) => !s)}>
+                <GhostButton size="sm" className="gap-1.5" onClick={() => setShowCode((s) => !s)}>
                   <Code2 className="size-3.5" /> {showCode ? "Hide" : "Show"} code
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={copy}>
+                </GhostButton>
+                <PaperButton tone="paper" size="sm" className="gap-1.5" onClick={copy}>
                   {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
                   {active.kind === "PlantUML" ? "Copy PlantUML" : "Copy Mermaid"}
-                </Button>
+                </PaperButton>
                 <AddToNotebookMenu
                   artifactType="diagram"
                   content={{ title: active.title, mermaid: active.mermaid }}
@@ -337,24 +319,19 @@ export function Diagrams() {
                   course={active.course}
                 />
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5 cursor-pointer")}>
+                <PaperDropdown
+                  trigger={
+                    <PaperButton tone="paper" size="sm" className="gap-1.5">
                       <Download className="size-3.5" /> Export <ChevronDown className="size-3.5" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={exportSvg}>
-                      <Download className="size-3.5" /> Export as SVG
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={exportPng}>
-                      <FileImage className="size-3.5" /> Export as PNG
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={exportPdf}>
-                      <FileDown className="size-3.5" /> Export as PDF
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </PaperButton>
+                  }
+                  items={[
+                    { key: "svg", icon: <Download className="size-3.5" />, label: "Export as SVG", onClick: exportSvg },
+                    { key: "png", icon: <FileImage className="size-3.5" />, label: "Export as PNG", onClick: exportPng },
+                    { key: "pdf", icon: <FileDown className="size-3.5" />, label: "Export as PDF", onClick: exportPdf },
+                  ]}
+                  placement="bottom-right"
+                />
               </div>
             </div>
 
@@ -387,13 +364,13 @@ export function Diagrams() {
                 : "Select a diagram from the sidebar or generate a new one."}
             </div>
             {items.length === 0 && (
-              <Button 
-                variant="outline"
+              <PaperButton 
+                tone="paper"
                 className="mt-2"
                 onClick={() => window.document.getElementById("diagram-topic-input")?.focus()}
               >
                 Generate Diagram
-              </Button>
+              </PaperButton>
             )}
           </div>
         )}

@@ -13,6 +13,7 @@ import {
   Trash2,
   Clock,
   Sparkles,
+  BookPlus,
 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
@@ -20,18 +21,12 @@ import { toast } from "sonner";
 import { Page } from "../components/Page";
 import QualityBadge from "../components/QualityBadge";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
+import { PaperButton, GhostButton, ChipButton } from "@/paper-ui/components/buttons";
+import { DifficultyBadge, PaperBadge } from "@/paper-ui/components/badges";
+import { SketchProgress } from "@/paper-ui/components/progress";
+import { PaperInput, PaperTextarea, PaperSelect } from "@/paper-ui/components/inputs";
+import { EmptyState } from "@/paper-ui/components/feedback";
+import { PaperPanel, SketchBorder } from "@/paper-ui/core";
 import { api } from "../lib/api";
 import type { Quiz, QuizQuestion, Course, DocumentItem } from "../lib/types";
 import { cn } from "../components/ui/utils";
@@ -39,12 +34,6 @@ import { useQuizStore } from "../stores/useQuizStore";
 import type { Difficulty } from "../stores/useQuizStore";
 
 const difficulties: Difficulty[] = ["Easy", "Medium", "Hard"];
-
-const diffColor: Record<Quiz["difficulty"], string> = {
-  Easy: "border-success/40 bg-success-soft text-success",
-  Medium: "border-warning/40 bg-warning-soft text-warning",
-  Hard: "border-danger/40 bg-danger-soft text-danger",
-};
 
 export function QuizPage() {
   // Flow state lives in the store so it survives page navigation.
@@ -144,9 +133,9 @@ export function QuizPage() {
       )}
       {pendingRestore && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-80 rounded-xl border bg-background p-5 shadow-lg">
-            <p className="font-medium">Resume in-progress exam?</p>
-            <p className="mt-1 text-sm text-muted-foreground">
+          <PaperPanel className="w-80 p-5">
+            <p className="font-architect text-[16px] text-ink">Resume in-progress exam?</p>
+            <p className="mt-1 font-kalam text-[14px] text-ink-muted">
               You have {Object.keys(pendingRestore.session_answers ?? {}).length} answer
               {Object.keys(pendingRestore.session_answers ?? {}).length !== 1 ? "s" : ""} saved
               {pendingRestore.session_started_at
@@ -154,17 +143,18 @@ export function QuizPage() {
                 : ""}.
             </p>
             <div className="mt-4 flex gap-2">
-              <button
-                className="flex-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
+              <PaperButton
+                tone="dark"
+                className="flex-1"
                 onClick={() => {
                   restoreSession(pendingRestore);
                   setPendingRestore(null);
                 }}
               >
                 Resume
-              </button>
-              <button
-                className="flex-1 rounded-md border px-3 py-1.5 text-sm"
+              </PaperButton>
+              <GhostButton
+                className="flex-1"
                 onClick={() => {
                   api.clearQuizSession(pendingRestore.id).catch(() => {});
                   start(pendingRestore);
@@ -172,9 +162,9 @@ export function QuizPage() {
                 }}
               >
                 Start fresh
-              </button>
+              </GhostButton>
             </div>
-          </div>
+          </PaperPanel>
         </div>
       )}
     </Page>
@@ -219,173 +209,148 @@ function Builder({
 
   return (
     <>
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <PaperPanel className="p-5">
         <div className="flex items-center gap-2">
-          <Settings2 className="size-4 text-primary" />
-          <h3>Quiz builder</h3>
+          <Settings2 className="size-4 text-ink-muted" />
+          <h3 className="font-architect text-[15px] text-ink">Quiz builder</h3>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 font-kalam text-[14px] text-ink-muted">
           Generate a quiz from your materials or pick a saved one below.
         </p>
         <div className="mt-4 flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-48">
-            <label className="mb-1.5 block text-xs text-muted-foreground">Topic</label>
-            <Input
+            <PaperInput
               id="quiz-topic-input"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") generate();
               }}
+              label="Topic"
               placeholder="e.g. Neural networks"
-              className="bg-input-background"
             />
           </div>
+          <PaperSelect
+            label="Course"
+            value={course}
+            onChange={setCourse}
+            options={[
+              { value: "all", label: "All courses" },
+              ...courses.map((c) => ({ value: c.name, label: c.name })),
+            ]}
+            placeholder="All courses"
+            wrapperClassName="w-44"
+          />
+          <PaperSelect
+            label="Document"
+            value={document ?? "all"}
+            onChange={(v) => setDocument(v === "all" ? null : v)}
+            options={[
+              { value: "all", label: "All documents" },
+              ...documents.filter(d => course !== "all" ? d.course === course : true).map((d) => ({ value: d.id, label: d.title })),
+            ]}
+            placeholder="All documents"
+            wrapperClassName="w-44"
+          />
           <div>
-            <label className="mb-1.5 block text-xs text-muted-foreground">Course</label>
-            <Select value={course} onValueChange={setCourse}>
-              <SelectTrigger className="w-44 bg-input-background">
-                <SelectValue placeholder="All courses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All courses</SelectItem>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs text-muted-foreground">Document</label>
-            <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
-              <SelectTrigger className="w-44 bg-input-background">
-                <SelectValue placeholder="All documents" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All documents</SelectItem>
-                {documents.filter(d => course !== "all" ? d.course === course : true).map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
-                    {d.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs text-muted-foreground">Difficulty</label>
+            <label className="mb-1.5 block font-architect text-[13px] text-ink-muted">Difficulty</label>
             <div className="flex gap-2">
               {difficulties.map((d) => (
-                <Badge
+                <ChipButton
                   key={d}
-                  variant="outline"
+                  selected={difficulty === d}
                   onClick={() => setDifficulty(d)}
-                  className={cn(
-                    "cursor-pointer py-1.5",
-                    difficulty === d
-                      ? diffColor[d]
-                      : "border-border text-muted-foreground hover:border-ring/40",
-                  )}
                 >
                   {d}
-                </Badge>
+                </ChipButton>
               ))}
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs text-muted-foreground">Time limit</label>
+            <label className="mb-1.5 block font-architect text-[13px] text-ink-muted">Time limit</label>
             <div className="flex gap-2">
               {([null, 15, 20, 30, 60] as (number | null)[]).map((t) => (
-                <Badge
+                <ChipButton
                   key={t ?? "none"}
-                  variant="outline"
+                  selected={timeLimit === t}
                   onClick={() => setField("timeLimit", t)}
-                  className={cn(
-                    "cursor-pointer py-1.5",
-                    timeLimit === t
-                      ? "border-primary/40 bg-violet-soft text-primary"
-                      : "border-border text-muted-foreground hover:border-ring/40",
-                  )}
                 >
                   {t === null ? "No limit" : `${t}m`}
-                </Badge>
+                </ChipButton>
               ))}
             </div>
           </div>
-          <Button
+          <PaperButton
+            tone="dark"
             onClick={generate}
             disabled={loading || !topic.trim()}
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {loading ? (
-              <>
-                <Loader2 className="size-4 animate-spin" /> Generating…
-              </>
+              <><Loader2 className="size-4 animate-spin" /> Generating…</>
             ) : (
-              <>
-                <ListChecks className="size-4" /> Generate quiz
-              </>
+              <><ListChecks className="size-4" /> Generate quiz</>
             )}
-          </Button>
+          </PaperButton>
         </div>
         <GenerationSteps
           steps={["Searching your library", "Selecting relevant sources", "Writing questions", "Validating answers"]}
           loading={loading}
           className="mt-4"
         />
-      </div>
+      </PaperPanel>
 
       {loadingSaved ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card p-8 text-sm text-muted-foreground">
+        <PaperPanel className="flex items-center justify-center gap-2 p-8 font-kalam text-sm text-ink-muted">
           <Loader2 className="size-4 animate-spin" /> Loading saved quizzes…
-        </div>
+        </PaperPanel>
       ) : saved.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
-          <div className="mx-auto flex size-10 items-center justify-center rounded-lg bg-violet-soft text-primary">
-            <ListChecks className="size-5" />
-          </div>
-          <h4 className="mt-3 text-sm font-semibold">No saved quizzes yet</h4>
-          <p className="mt-1 max-w-xs mx-auto text-sm text-muted-foreground">
-            Take a quiz on any topic. Start with a topic from your documents.
-          </p>
-          <Button 
-            className="mt-4 gap-2" 
-            size="sm" 
-            onClick={() => window.document.getElementById("quiz-topic-input")?.focus()}
-          >
-            <Sparkles className="size-4" /> Generate Quiz
-          </Button>
-        </div>
+        <EmptyState
+          icon={<ListChecks className="size-6 text-ink-muted" />}
+          title="No saved quizzes yet"
+          description="Take a quiz on any topic. Start with a topic from your documents."
+          action={
+            <PaperButton
+              tone="dark"
+              size="sm"
+              onClick={() => window.document.getElementById("quiz-topic-input")?.focus()}
+            >
+              <Sparkles className="size-4" /> Generate Quiz
+            </PaperButton>
+          }
+        />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           {saved.map((q) => (
-            <motion.div key={q.id} whileHover={{ y: -2 }} className="rounded-xl border border-border bg-card p-5">
-              <div className="flex items-start justify-between">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-violet-soft text-primary">
-                  <ListChecks className="size-5" />
+            <motion.div
+              key={q.id}
+              whileHover={{ y: -3 }}
+              className="relative"
+              style={{ filter: "drop-shadow(1px 4px 8px rgba(0,0,0,0.14))" }}
+            >
+              <SketchBorder fill="#fffdf9" stroke="#9c9484" strokeWidth={1.6} roughness={1.1} shadow={0} />
+              <div className="relative z-[1] p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex size-10 items-center justify-center">
+                    <ListChecks className="size-5 text-ink-muted" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <DifficultyBadge difficulty={q.difficulty} />
+                    <button
+                      onClick={() => onDelete(q.id)}
+                      aria-label="Delete quiz"
+                      className="flex size-8 items-center justify-center rounded-md text-ink-muted hover:text-red-600 hover:bg-red-100"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className={diffColor[q.difficulty]}>
-                    {q.difficulty}
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(q.id)}
-                    aria-label="Delete quiz"
-                    className="size-8 text-muted-foreground hover:text-danger"
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
+                <h4 className="mt-3 font-architect text-[15px] text-ink">{q.title}</h4>
+                <div className="mt-1 font-kalam text-sm text-ink-muted">{q.course}</div>
+                <div className="mt-1 font-kalam text-xs text-ink-muted">{q.questions.length} questions</div>
+                <PaperButton tone="dark" className="mt-4 w-full" onClick={() => onStart(q)}>
+                  <Play className="size-4" /> Start quiz
+                </PaperButton>
               </div>
-              <h4 className="mt-3">{q.title}</h4>
-              <div className="mt-1 text-sm text-muted-foreground">{q.course}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{q.questions.length} questions</div>
-              <Button onClick={() => onStart(q)} className="mt-4 w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                <Play className="size-4" /> Start quiz
-              </Button>
             </motion.div>
           ))}
         </div>
@@ -458,8 +423,8 @@ function Player({
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-5 flex items-center gap-3">
-        <Progress value={progress} className="h-1.5 flex-1" />
-        <span className="text-xs text-muted-foreground">
+        <SketchProgress value={progress} height={12} className="flex-1" />
+        <span className="font-kalam text-xs text-ink-muted">
           {idx + 1} / {quiz.questions.length}
         </span>
         <QualityBadge score={quiz.quality} />
@@ -468,23 +433,21 @@ function Player({
             className={cn(
               "flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-sm tabular-nums",
               low
-                ? "border-danger/40 bg-danger-soft text-danger"
-                : "border-border bg-card",
+                ? "border-red-300 bg-red-50 text-red-700"
+                : "border-[#c8c0b0] bg-[#fffdf9]",
             )}
           >
             <Clock className="size-4" /> {mm}:{ss}
           </div>
         )}
-        <Button
-          variant="outline"
+        <GhostButton
           size="sm"
           onClick={onSave}
           disabled={saving}
-          className="gap-1.5"
         >
           {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
           Save quiz
-        </Button>
+        </GhostButton>
       </div>
 
       <AnimatePresence mode="wait">
@@ -493,58 +456,66 @@ function Player({
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
-          className="rounded-2xl border border-border bg-card p-6"
+          className="relative"
+          style={{ filter: "drop-shadow(2px 5px 10px rgba(0,0,0,0.14))" }}
         >
-          <Badge variant="outline" className="text-[10px] uppercase">
-            {q.type === "mcq" ? "Multiple choice" : q.type === "truefalse" ? "True / False" : "Short answer"}
-          </Badge>
-          <h3 className="mt-3 text-lg leading-relaxed">{q.prompt}</h3>
+          <SketchBorder fill="#fffdf9" stroke="#9c9484" strokeWidth={1.6} roughness={1.1} shadow={0} />
+          <div className="relative z-[1] p-6">
+            <PaperBadge tone="ink" className="text-[10px] uppercase">
+              {q.type === "mcq" ? "Multiple choice" : q.type === "truefalse" ? "True / False" : "Short answer"}
+            </PaperBadge>
+            <h3 className="mt-3 font-architect text-[18px] leading-relaxed text-ink">{q.prompt}</h3>
 
-          <div className="mt-5 space-y-2">
-            {q.type === "short" ? (
-              <Textarea
-                value={selected ?? ""}
-                onChange={(e) => answer(q.id, e.target.value)}
-                placeholder="Type your answer…"
-                rows={4}
-                className="resize-none bg-input-background font-reading"
-              />
-            ) : (
-              q.options?.map((opt) => (
-                <button
-                  key={opt}
-                  onClick={() => choose(opt)}
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition-colors",
-                    selected === opt
-                      ? "border-primary bg-violet-soft"
-                      : "border-border bg-background/40 hover:border-ring/40",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "flex size-5 items-center justify-center rounded-full border text-[10px]",
-                      selected === opt ? "border-primary bg-primary text-white" : "border-border",
-                    )}
+            <div className="mt-5 space-y-2">
+              {q.type === "short" ? (
+                <PaperTextarea
+                  value={selected ?? ""}
+                  onChange={(e) => answer(q.id, e.target.value)}
+                  placeholder="Type your answer…"
+                  rows={4}
+                />
+              ) : (
+                q.options?.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => choose(opt)}
+                    className="group relative flex w-full items-center gap-3 p-3.5 text-left transition-all duration-100 hover:-translate-y-px"
+                    style={{ filter: "drop-shadow(1px 2px 4px rgba(0,0,0,0.06))" }}
                   >
-                    {selected === opt && <Check className="size-3" />}
-                  </span>
-                  {opt}
-                </button>
-              ))
-            )}
+                    <SketchBorder
+                      fill={selected === opt ? "#f3f8f0" : "#fffdf9"}
+                      stroke={selected === opt ? "#4a7a5c" : "#9c9484"}
+                      strokeWidth={selected === opt ? 1.8 : 1.4}
+                      roughness={1.1}
+                      shadow={0}
+                    />
+                    <span
+                      className={cn(
+                        "relative z-[1] flex size-5 shrink-0 items-center justify-center rounded-full border text-[10px] transition-colors",
+                        selected === opt
+                          ? "border-[#4a7a5c] bg-[#4a7a5c] text-white"
+                          : "border-[#b4ad9e] bg-[#fffdf9]",
+                      )}
+                    >
+                      {selected === opt && <Check className="size-3" />}
+                    </span>
+                    <span className="relative z-[1] font-architect text-[14px] text-ink">{opt}</span>
+                  </button>
+                ))
+              )}
+            </div>
           </div>
         </motion.div>
       </AnimatePresence>
 
       <div className="mt-5 flex justify-end">
-        <Button
+        <PaperButton
+          tone="dark"
           onClick={advance}
           disabled={!canAdvance}
-          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           {idx === quiz.questions.length - 1 ? "Finish" : "Next"} <ChevronRight className="size-4" />
-        </Button>
+        </PaperButton>
       </div>
     </div>
   );
@@ -576,37 +547,45 @@ function Results({
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="rounded-2xl border border-border bg-card p-8 text-center"
+        className="relative"
+        style={{ filter: "drop-shadow(2px 6px 12px rgba(0,0,0,0.18))" }}
       >
-        <div className="mx-auto flex size-14 items-center justify-center rounded-xl border border-border bg-card text-violet">
-          <Trophy className="size-7" />
-        </div>
-        <h1 className="mt-4 text-4xl font-semibold">{pct}%</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          You answered {correct} of {total} correctly
-        </p>
-        <div className="mt-5 flex justify-center gap-2">
-          <Button variant="outline" onClick={onBack}>Back to quizzes</Button>
-          <Button variant="outline" onClick={onSave} disabled={saving} className="gap-2">
-            {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Save quiz
-          </Button>
-          <Button onClick={onRetry} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-            <RotateCw className="size-4" /> Retry
-          </Button>
-          {correct < total && (
-            <AddToNotebookMenu
-              artifactType="quiz"
-              content={{
-                title: `${quiz.title} — Review`,
-                questions: quiz.questions
-                  .filter((q) => (answers[q.id] ?? "").trim().toLowerCase() !== q.answer.toLowerCase())
-                  .map((q) => ({ prompt: q.prompt, answer: q.answer, explanation: q.explanation })),
-              }}
-              sourceId={quiz.id}
-              course={quiz.course}
-              label="Save mistakes"
-            />
-          )}
+        <SketchBorder fill="#fffdf9" stroke="#9c9484" strokeWidth={1.8} roughness={1.1} shadow={0} />
+        <div className="relative z-[1] p-8 text-center">
+          <div className="mx-auto flex size-14 items-center justify-center">
+            <Trophy className="size-7 text-ink-muted" />
+          </div>
+          <h1 className="mt-4 font-architect text-4xl text-ink">{pct}%</h1>
+          <p className="mt-1 font-kalam text-sm text-ink-muted">
+            You answered {correct} of {total} correctly
+          </p>
+          <div className="mt-5 flex justify-center gap-2">
+            <GhostButton onClick={onBack}>Back to quizzes</GhostButton>
+            <GhostButton onClick={onSave} disabled={saving}>
+              {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Save quiz
+            </GhostButton>
+            <PaperButton tone="dark" onClick={onRetry}>
+              <RotateCw className="size-4" /> Retry
+            </PaperButton>
+            {correct < total && (
+              <AddToNotebookMenu
+                artifactType="quiz"
+                content={{
+                  title: `${quiz.title} — Review`,
+                  questions: quiz.questions
+                    .filter((q) => (answers[q.id] ?? "").trim().toLowerCase() !== q.answer.toLowerCase())
+                    .map((q) => ({ prompt: q.prompt, answer: q.answer, explanation: q.explanation })),
+                }}
+                sourceId={quiz.id}
+                course={quiz.course}
+                trigger={
+                  <GhostButton size="sm">
+                    <BookPlus className="size-4" /> Save mistakes
+                  </GhostButton>
+                }
+              />
+            )}
+          </div>
         </div>
       </motion.div>
 
@@ -615,38 +594,55 @@ function Results({
           const userAns = answers[q.id] ?? "—";
           const isCorrect = userAns.trim().toLowerCase() === q.answer.toLowerCase();
           return (
-            <div key={q.id} className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-start gap-3">
-                <span
-                  className={cn(
-                    "flex size-6 shrink-0 items-center justify-center rounded-full",
-                    isCorrect ? "bg-success-soft text-success" : "bg-danger-soft text-danger",
-                  )}
-                >
-                  {isCorrect ? <Check className="size-3.5" /> : <X className="size-3.5" />}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium">
-                    {i + 1}. {q.prompt}
-                  </div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    Your answer: <span className={isCorrect ? "text-success" : "text-danger"}>{userAns}</span>
-                    {!isCorrect && <> · Correct: <span className="text-success">{q.answer}</span></>}
-                  </div>
-                  {q.explanation.trim() && (
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{q.explanation}</p>
-                  )}
-                  {!isCorrect && (
-                    <div className="mt-2">
-                      <AddToNotebookMenu
-                        artifactType="quiz"
-                        content={{ prompt: q.prompt, answer: q.answer, explanation: q.explanation }}
-                        sourceId={`${quiz.id}-${q.id}`}
-                        course={quiz.course}
-                        variant="ghost"
-                      />
+            <div
+              key={q.id}
+              className="relative"
+              style={{ filter: "drop-shadow(1px 3px 6px rgba(0,0,0,0.10))" }}
+            >
+              <SketchBorder
+                fill={isCorrect ? "#f3f8f0" : "#fdf5f4"}
+                stroke={isCorrect ? "#4a7a5c" : "#9f3a36"}
+                strokeWidth={1.4}
+                roughness={1.1}
+                shadow={0}
+              />
+              <div className="relative z-[1] p-4">
+                <div className="flex items-start gap-3">
+                  <span
+                    className={cn(
+                      "flex size-6 shrink-0 items-center justify-center rounded-full",
+                      isCorrect ? "bg-[#e8f5e4] text-[#4a7a5c]" : "bg-[#fae9e8] text-[#9f3a36]",
+                    )}
+                  >
+                    {isCorrect ? <Check className="size-3.5" /> : <X className="size-3.5" />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-architect text-[14px] text-ink">
+                      {i + 1}. {q.prompt}
                     </div>
-                  )}
+                    <div className="mt-1 font-kalam text-xs text-ink-muted">
+                      Your answer: <span className={isCorrect ? "text-[#4a7a5c]" : "text-[#9f3a36]"}>{userAns}</span>
+                      {!isCorrect && <> · Correct: <span className="text-[#4a7a5c]">{q.answer}</span></>}
+                    </div>
+                    {q.explanation.trim() && (
+                      <p className="mt-2 font-kalam text-xs leading-relaxed text-ink-muted">{q.explanation}</p>
+                    )}
+                    {!isCorrect && (
+                      <div className="mt-2">
+                        <AddToNotebookMenu
+                          artifactType="quiz"
+                          content={{ prompt: q.prompt, answer: q.answer, explanation: q.explanation }}
+                          sourceId={`${quiz.id}-${q.id}`}
+                          course={quiz.course}
+                          trigger={
+                            <button className="flex size-7 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-black/5">
+                              <BookPlus className="size-3.5" />
+                            </button>
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

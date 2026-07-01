@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
-  Upload,
   RefreshCw,
   GraduationCap,
   FileText,
@@ -23,25 +22,17 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Page } from "../components/Page";
-import { MetricCard } from "../components/MetricCard";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import { Input } from "../components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../components/ui/dialog";
+
+// paper-ui replacements
+import { Container } from "@/paper-ui/components/layout/Container";
+import { MetricCard as PaperMetricCard } from "@/paper-ui/components/cards";
+import { PaperButton, GhostButton } from "@/paper-ui/components/buttons";
+import { PaperBadge } from "@/paper-ui/components/badges/PaperBadge";
+import { PaperInput, PaperTextarea } from "@/paper-ui/components/inputs/PaperInput";
+import { PaperSelect } from "@/paper-ui/components/inputs/PaperSelect";
+import { PaperDrawer } from "@/paper-ui/components/dialogs/PaperDrawer";
+import { PaperSheetCard, PaperH1 } from "@/paper-ui/core";
+import { UploadZone } from "../components/UploadZone";
 import { api } from "../lib/api";
 import type { PyqQuestion, PyqTopicFreq } from "../lib/api";
 import type { Course } from "../lib/types";
@@ -80,15 +71,12 @@ export function PyqAnalysis() {
   const analysis = usePyqStore((s) => s.analysis);
   const papers = usePyqStore((s) => s.papers);
   const loading = usePyqStore((s) => s.loading);
-  const uploading = usePyqStore((s) => s.uploading);
   const selectCourse = usePyqStore((s) => s.selectCourse);
   const refresh = usePyqStore((s) => s.refresh);
-  const uploadPaper = usePyqStore((s) => s.uploadPaper);
   const setField = usePyqStore((s) => s.setField);
   const syncToKG = usePyqStore((s) => s.syncToKG);
 
   const [courses, setCourses] = useState<Course[]>([]);
-  const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -139,32 +127,30 @@ export function PyqAnalysis() {
     }
   };
 
-  const onUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadPaper(file);
-    e.target.value = "";
+  const handleUploadFile = async (file: File) => {
+    const courseName = usePyqStore.getState().course;
+    if (!courseName) throw new Error("Select a course first");
+    const res = await api.uploadPyqPaper(file, courseName);
+    toast.success(`Extracted ${res.extracted} questions from ${res.paper.title}`);
+  };
+
+  const handleBatchComplete = () => {
+    refresh();
   };
 
   const hasData = !!analysis && analysis.totalQuestions > 0;
 
   return (
-    <Page className="max-w-6xl">
-      <input
-        ref={fileInput}
-        type="file"
-        accept=".pdf,.md,.markdown,.txt"
-        className="hidden"
-        onChange={onUpload}
-      />
-
+    <div className="h-full w-full overflow-y-auto scroll-smooth">
+      <Container className="max-w-6xl py-6 font-kalam text-ink">
       {/* Header */}
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <FileSearch className="size-5 text-violet" />
-            <h1 className="text-3xl font-bold tracking-tight">PYQ Analysis</h1>
+            <PaperH1 className="!text-[28px]">PYQ Analysis</PaperH1>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 font-kalam text-sm text-ink-muted/80">
             Turn previous-year question papers into exam intelligence.
           </p>
           {hasData && (
@@ -176,40 +162,45 @@ export function PyqAnalysis() {
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Select value={course} onValueChange={selectCourse}>
-            <SelectTrigger className="w-44 bg-input-background">
-              <SelectValue placeholder="Select course" />
-            </SelectTrigger>
-            <SelectContent>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" size="sm" onClick={() => refresh()} disabled={!course || loading}>
-            <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} /> Refresh
-          </Button>
-          <Button size="sm" onClick={() => fileInput.current?.click()} disabled={!course || uploading}>
-            <Upload className="size-4" /> {uploading ? "Analyzing…" : "Upload PYQ"}
-          </Button>
+          <div className="w-44">
+            <PaperSelect
+              value={course ?? undefined}
+              onChange={(v) => selectCourse(v)}
+              options={courses.map((c) => ({ value: c.name, label: c.name }))}
+              placeholder="Select course"
+            />
+          </div>
+          <GhostButton onClick={() => refresh()} disabled={!course || loading}>
+            <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
+          </GhostButton>
+
           {hasData && (
             <>
-              <Button size="sm" variant="outline" onClick={handleSyncKG}>
+              <GhostButton size="sm" onClick={handleSyncKG}>
                 <Share2 className="size-4" /> Sync to KG
-              </Button>
-              <Button size="sm" variant="secondary" onClick={seedExam}>
+              </GhostButton>
+              <PaperButton size="sm" onClick={seedExam}>
                 <GraduationCap className="size-4" /> Generate Mock Exam
-              </Button>
+              </PaperButton>
             </>
           )}
         </div>
       </div>
 
+      {course && (
+        <UploadZone
+          onUploadFile={handleUploadFile}
+          onBatchComplete={handleBatchComplete}
+          multiple={false}
+          label="Upload previous year question papers"
+          description="PDF, Markdown or plain text — we'll extract questions, topics, and patterns."
+        />
+      )}
+
       {!course && (
         <p className="text-sm text-muted-foreground">Create a course first to analyze its papers.</p>
       )}
 
-      {course && !hasData && !loading && <EmptyState onUpload={() => fileInput.current?.click()} />}
 
       {hasData && (
         <div className="space-y-8">
@@ -240,26 +231,7 @@ export function PyqAnalysis() {
       )}
 
       <TopicDrawer onQuiz={genQuiz} onNotes={genRevision} onFlashcards={genFlashcards} onExam={seedExam} />
-    </Page>
-  );
-}
-
-/* ---------------- Empty state ---------------- */
-
-function EmptyState({ onUpload }: { onUpload: () => void }) {
-  return (
-    <div className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-16 text-center">
-      <div className="mx-auto flex size-12 items-center justify-center rounded-xl border border-border bg-card text-violet">
-        <FileSearch className="size-6" />
-      </div>
-      <h3 className="mt-4 text-lg font-semibold">Upload Previous Year Question Papers</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-        ScholarAI will analyze topic frequency, question patterns, difficulty trends, and revision
-        priorities to create exam-aware study material.
-      </p>
-      <Button className="mt-5" onClick={onUpload}>
-        <Upload className="size-4" /> Upload PYQs
-      </Button>
+      </Container>
     </div>
   );
 }
@@ -277,9 +249,9 @@ function SummaryCards({ a }: { a: NonNullable<ReturnType<typeof usePyqStore.getS
     { label: "Exam Readiness", value: `${s.readiness ?? 0}%`, icon: GraduationCap },
   ];
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {cards.map((c) => (
-        <MetricCard key={c.label} label={c.label} value={c.value} icon={c.icon} accent={ACCENT} />
+        <PaperMetricCard key={c.label} label={c.label} value={c.value} icon={c.icon} />
       ))}
     </div>
   );
@@ -496,7 +468,7 @@ function DifferenceSuggestions() {
                 <b>{d.a}</b> <span className="text-muted-foreground">vs</span> <b>{d.b}</b>
               </span>
               <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                {d.count > 1 && <Badge variant="outline">{d.count}×</Badge>}
+                {d.count > 1 && <PaperBadge className="text-xs">{d.count}×</PaperBadge>}
                 <Columns2 className="size-4" />
               </span>
             </button>
@@ -548,13 +520,13 @@ function RevisionRisk({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={r.risk === "High" ? "default" : "outline"}>{r.risk} risk</Badge>
-                <Button size="sm" variant="ghost" onClick={() => onNotes(r.topic)}>
+                <PaperBadge tone={r.risk === "High" ? "brick" : r.risk === "Medium" ? "ochre" : "sage"}>{r.risk} risk</PaperBadge>
+                <GhostButton size="sm" onClick={() => onNotes(r.topic)}>
                   <NotebookPen className="size-4" /> Revise
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => onFlashcards(r.topic)}>
+                </GhostButton>
+                <GhostButton size="sm" onClick={() => onFlashcards(r.topic)}>
                   <Layers className="size-4" /> Cards
-                </Button>
+                </GhostButton>
               </div>
             </div>
           ))}
@@ -591,8 +563,8 @@ function ExamReadiness({ a }: { a: NonNullable<ReturnType<typeof usePyqStore.get
       </div>
       {(weak.length > 0 || strong.length > 0) && (
         <div className="mt-4 flex flex-wrap gap-2">
-          {strong.map((t) => <Badge key={t} variant="outline" className="border-success/40 text-success">{t}</Badge>)}
-          {weak.map((t) => <Badge key={t} variant="outline" className="border-danger/40 text-danger">{t}</Badge>)}
+          {strong.map((t) => <PaperBadge key={t} className="border-success/40 text-success">{t}</PaperBadge>)}
+          {weak.map((t) => <PaperBadge key={t} className="border-danger/40 text-danger">{t}</PaperBadge>)}
         </div>
       )}
       {weak.length === 0 && strong.length === 0 && (
@@ -730,12 +702,12 @@ function QuestionCard({ q }: { q: PyqQuestion }) {
         </div>
       </div>
       <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
-        <Badge variant="outline">{q.topic}</Badge>
-        {q.subtopics?.map((st) => <Badge key={st} variant="outline" className="text-violet">{st}</Badge>)}
-        <Badge variant="secondary">{q.difficulty}</Badge>
-        <Badge variant="outline">{q.type.replace(/_/g, " ")}</Badge>
-        {q.marks != null && <Badge variant="outline">{q.marks} marks</Badge>}
-        {q.year != null && <Badge variant="outline">{q.year}</Badge>}
+        <PaperBadge>{q.topic}</PaperBadge>
+        {q.subtopics?.map((st) => <PaperBadge key={st} className="text-violet">{st}</PaperBadge>)}
+        <PaperBadge className="text-sm">{q.difficulty}</PaperBadge>
+        <PaperBadge>{q.type.replace(/_/g, " ")}</PaperBadge>
+        {q.marks != null && <PaperBadge>{q.marks} marks</PaperBadge>}
+        {q.year != null && <PaperBadge>{q.year}</PaperBadge>}
       </div>
     </div>
   );
@@ -769,14 +741,13 @@ function QuestionExplorer() {
       <div className="mb-4 flex flex-wrap gap-2">
         <div className="relative min-w-[200px] flex-1">
           <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
+          <PaperInput
             placeholder="Search questions…"
-            className="bg-input-background pl-8"
-            defaultValue={filters.q ?? ""}
-            onChange={(e) => {
-              setFilter("q", e.target.value);
-            }}
+            className="pl-8"
+            value={filters.q ?? ""}
+            onChange={(e) => { setFilter("q", e.target.value); }}
             onKeyDown={(e) => { if (e.key === "Enter") fetchQuestions(); }}
+            icon={<Search />}
           />
         </div>
         <FilterSelect label="Topic" value={filters.topic} options={topics} onChange={(v) => setFilter("topic", v)} />
@@ -805,19 +776,16 @@ function FilterSelect({
   options: string[];
   onChange: (v: string | undefined) => void;
 }) {
-  const ALL = "__all__";
+  const opts = [{ value: "", label: `All ${label.toLowerCase()}` }, ...options.map((o) => ({ value: o, label: o }))];
   return (
-    <Select value={value ?? ALL} onValueChange={(v) => onChange(v === ALL ? undefined : v)}>
-      <SelectTrigger className="w-32 bg-input-background">
-        <SelectValue placeholder={label} />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={ALL}>All {label.toLowerCase()}</SelectItem>
-        {options.map((o) => (
-          <SelectItem key={o} value={o}>{o}</SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="w-32">
+      <PaperSelect
+        value={value ?? ""}
+        onChange={(v) => onChange(v === "" ? undefined : v)}
+        options={opts}
+        placeholder={label}
+      />
+    </div>
   );
 }
 
@@ -843,9 +811,9 @@ function PaperList({ papers }: { papers: ReturnType<typeof usePyqStore.getState>
                 </div>
               </div>
             </div>
-            <Button size="sm" variant="ghost" onClick={() => deletePaper(p.id)}>
+            <GhostButton size="sm" onClick={() => deletePaper(p.id)}>
               <Trash2 className="size-4" />
-            </Button>
+            </GhostButton>
           </div>
         ))}
       </div>
@@ -872,52 +840,46 @@ function TopicDrawer({
   const row = analysis?.topicFrequency.find((t) => t.topic === topic);
   const trend = analysis?.yearTrends.find((t) => t.topic === topic);
   return (
-    <Dialog open={!!topic} onOpenChange={(o) => !o && setField("selectedTopic", null)}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{topic}</DialogTitle>
-          <DialogDescription>Topic intelligence from previous-year papers.</DialogDescription>
-        </DialogHeader>
-        {row && (
-          <div className="space-y-4 text-sm">
-            <div className="grid grid-cols-2 gap-3">
-              <div><span className="text-muted-foreground">Frequency:</span> {row.frequency}</div>
-              <div><span className="text-muted-foreground">Occurrences:</span> {row.occurrences}</div>
-              <div className="flex items-center gap-1"><span className="text-muted-foreground">Trend:</span> <TrendIcon trend={row.trend} /> {row.trend}</div>
-              <div className="flex items-center gap-1"><span className="text-muted-foreground">Importance:</span> <Stars n={row.importance} /></div>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Your performance: </span>
-              <Accuracy value={row.accuracy} />
-            </div>
-            {row.subtopics.length > 0 && (
-              <div>
-                <p className="mb-1 text-xs font-medium text-muted-foreground">Subtopics / related concepts</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {row.subtopics.map((s) => <Badge key={s} variant="outline" className="text-violet">{s}</Badge>)}
-                </div>
-              </div>
-            )}
-            {row.styles.length > 0 && (
-              <div>
-                <p className="mb-1 text-xs font-medium text-muted-foreground">Common question styles</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {row.styles.map((s) => <Badge key={s} variant="outline">{s.replace(/_/g, " ")}</Badge>)}
-                </div>
-              </div>
-            )}
-            {trend && (
-              <YearTimeline trends={[trend]} />
-            )}
-            <div className="flex flex-wrap gap-2 pt-1">
-              <Button size="sm" variant="outline" onClick={() => onNotes(row.topic)}><NotebookPen className="size-4" /> Notes</Button>
-              <Button size="sm" variant="outline" onClick={() => onFlashcards(row.topic)}><Layers className="size-4" /> Flashcards</Button>
-              <Button size="sm" variant="outline" onClick={() => onQuiz(row.topic)}><ListChecks className="size-4" /> Quiz</Button>
-              <Button size="sm" onClick={onExam}><GraduationCap className="size-4" /> Mock Exam</Button>
-            </div>
+    <PaperDrawer open={!!topic} onClose={() => setField("selectedTopic", null)} title={topic ?? undefined} side="right" width={480}>
+      {row && (
+        <div className="space-y-4 text-sm">
+          <div className="grid grid-cols-2 gap-3">
+            <div><span className="text-muted-foreground">Frequency:</span> {row.frequency}</div>
+            <div><span className="text-muted-foreground">Occurrences:</span> {row.occurrences}</div>
+            <div className="flex items-center gap-1"><span className="text-muted-foreground">Trend:</span> <TrendIcon trend={row.trend} /> {row.trend}</div>
+            <div className="flex items-center gap-1"><span className="text-muted-foreground">Importance:</span> <Stars n={row.importance} /></div>
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
+          <div>
+            <span className="text-muted-foreground">Your performance: </span>
+            <Accuracy value={row.accuracy} />
+          </div>
+          {row.subtopics.length > 0 && (
+            <div>
+              <p className="mb-1 text-xs font-medium text-muted-foreground">Subtopics / related concepts</p>
+              <div className="flex flex-wrap gap-1.5">
+                {row.subtopics.map((s) => <PaperBadge key={s} className="text-violet">{s}</PaperBadge>)}
+              </div>
+            </div>
+          )}
+          {row.styles.length > 0 && (
+            <div>
+              <p className="mb-1 text-xs font-medium text-muted-foreground">Common question styles</p>
+              <div className="flex flex-wrap gap-1.5">
+                {row.styles.map((s) => <PaperBadge key={s}>{s.replace(/_/g, " ")}</PaperBadge>)}
+              </div>
+            </div>
+          )}
+          {trend && (
+            <YearTimeline trends={[trend]} />
+          )}
+          <div className="flex flex-wrap gap-2 pt-1">
+            <GhostButton size="sm" onClick={() => onNotes(row.topic)}><NotebookPen className="size-4" /> Notes</GhostButton>
+            <GhostButton size="sm" onClick={() => onFlashcards(row.topic)}><Layers className="size-4" /> Flashcards</GhostButton>
+            <GhostButton size="sm" onClick={() => onQuiz(row.topic)}><ListChecks className="size-4" /> Quiz</GhostButton>
+            <PaperButton size="sm" onClick={onExam}><GraduationCap className="size-4" /> Mock Exam</PaperButton>
+          </div>
+        </div>
+      )}
+    </PaperDrawer>
   );
 }

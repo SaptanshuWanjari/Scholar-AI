@@ -35,3 +35,8 @@ export {
   MenubarSub,
   MenubarShortcut,
 } from "./Menubar";
+
+export { Nav, NavSection, NavLabel, NavItem, NavBadge } from "./Nav";
+export { NavGroup } from "./NavGroup";
+export { NavCollapse } from "./NavCollapse";
+export { NavFooter } from "./NavFooter";

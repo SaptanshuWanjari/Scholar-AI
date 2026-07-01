@@ -9,6 +9,7 @@ import { DrawerFooter } from './DrawerFooter'
 import { ScratchCanvas } from './ScratchCanvas'
 import { SketchToolbar } from './SketchToolbar'
 import { ScratchpadExcalidraw } from './ScratchpadExcalidraw'
+import { PaperSheetBorder } from '@/paper-ui/core'
 
 const MEDIUM_VH = 0.4
 const EXPANDED_VH = 0.75
@@ -16,7 +17,7 @@ const SNAP_THRESHOLD = 0.1
 
 const SPINNER = (
   <div className="flex h-full w-full items-center justify-center">
-    <Loader2 className="size-5 animate-spin text-violet" />
+    <Loader2 className="size-5 animate-spin text-ink-muted" />
   </div>
 )
 
@@ -67,7 +68,7 @@ export function ScratchpadDrawer() {
       className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none"
       style={{ userSelect: 'none' }}
     >
-      <div className="pointer-events-auto">
+      <div className="pointer-events-auto relative z-50">
         <DrawerHandle />
       </div>
 
@@ -79,27 +80,37 @@ export function ScratchpadDrawer() {
             animate={{ height: panelHeight, opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-            className="pointer-events-auto bg-card border-t border-border flex flex-col overflow-hidden"
+            className="pointer-events-auto relative flex flex-col overflow-hidden"
             style={{ height: panelHeight }}
           >
-            <div
-              className="h-1 w-full cursor-ns-resize bg-transparent hover:bg-border/50 shrink-0"
-              onMouseDown={onDragStart}
+            <PaperSheetBorder
+              fill="#fffdf9"
+              stroke="#3a3733"
+              strokeWidth={1.8}
+              shadow={4}
+              fold={false}
+              attachedBottom={true}
             />
-            <DrawerHeader />
-            {excalidrawEnabled ? (
-              <Suspense fallback={SPINNER}>
-                <ScratchpadExcalidraw />
-              </Suspense>
-            ) : (
-              <>
-                <div className="flex flex-1 min-h-0">
-                  <SketchToolbar />
-                  <ScratchCanvas stageRef={stageRef} />
-                </div>
-                <DrawerFooter stageRef={stageRef} />
-              </>
-            )}
+            <div className="relative z-[1] flex flex-col h-full pt-[2.2vw]">
+              <div
+                className="absolute top-[1.8vw] left-0 right-0 h-4 cursor-ns-resize bg-transparent hover:bg-[#c0b9ae]/30 z-10"
+                onMouseDown={onDragStart}
+              />
+              <DrawerHeader />
+              {excalidrawEnabled ? (
+                <Suspense fallback={SPINNER}>
+                  <ScratchpadExcalidraw />
+                </Suspense>
+              ) : (
+                <>
+                  <div className="flex flex-1 min-h-0">
+                    <SketchToolbar />
+                    <ScratchCanvas stageRef={stageRef} />
+                  </div>
+                  <DrawerFooter stageRef={stageRef} />
+                </>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -26,50 +26,66 @@ export interface PaperCardProps extends React.HTMLAttributes<HTMLDivElement> {
  * fill, the wobbly outline and a crisp hard-offset shadow. The wrapper itself
  * is transparent — no CSS rounded-rect or box-shadow underneath.
  */
-export const PaperCard = React.forwardRef<HTMLDivElement, PaperCardProps>(function PaperCard(
-  {
-    children,
-    className,
-    surface = "#fffdf9",
-    shadow = "md",
-    lift = false,
-    texture = true,
-    border,
-    rotate,
-    style,
-    ...props
+export const PaperCard = React.forwardRef<HTMLDivElement, PaperCardProps>(
+  function PaperCard(
+    {
+      children,
+      className,
+      surface = "#fffdf9",
+      shadow = "md",
+      lift = false,
+      texture = true,
+      border,
+      rotate,
+      style,
+      ...props
+    },
+    ref,
+  ) {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "relative",
+          texture && "paper-texture",
+          lift && "paper-lift",
+          className,
+        )}
+        style={{
+          transform: rotate ? `rotate(${rotate}deg)` : undefined,
+          ...style,
+        }}
+        {...props}
+      >
+        {border !== null && (
+          <SketchBorder fill={surface} shadow={SHADOW_PX[shadow]} {...border} />
+        )}
+        <div className="relative z-1">{children}</div>
+      </div>
+    );
   },
-  ref,
-) {
-  return (
-    <div
-      ref={ref}
-      className={cn("relative", texture && "paper-texture", lift && "paper-lift", className)}
-      style={{ transform: rotate ? `rotate(${rotate}deg)` : undefined, ...style }}
-      {...props}
-    >
-      {border !== null && <SketchBorder fill={surface} shadow={SHADOW_PX[shadow]} {...border} />}
-      <div className="relative z-[1]">{children}</div>
-    </div>
-  );
-});
+);
 
 /** A lighter inner surface (e.g. the "Next up" box) — stroke-only, no shadow. */
-export const PaperPanel = React.forwardRef<HTMLDivElement, PaperCardProps>(function PaperPanel(
-  { shadow = "none", surface, texture = false, border, ...props },
-  ref,
-) {
-  // No surface given → draw a stroke-only outline (transparent body).
-  const merged: Partial<SketchBorderProps> | null =
-    border === null ? null : { stroke: "#9c9484", strokeWidth: 1.4, ...border };
-  return (
-    <PaperCard
-      ref={ref}
-      shadow={shadow}
-      surface={surface ?? "transparent"}
-      texture={texture}
-      border={merged}
-      {...props}
-    />
-  );
-});
+export const PaperPanel = React.forwardRef<HTMLDivElement, PaperCardProps>(
+  function PaperPanel(
+    { shadow = "none", surface, texture = false, border, ...props },
+    ref,
+  ) {
+    // No surface given → draw a stroke-only outline (transparent body).
+    const merged: Partial<SketchBorderProps> | null =
+      border === null
+        ? null
+        : { stroke: "#9c9484", strokeWidth: 1.4, ...border };
+    return (
+      <PaperCard
+        ref={ref}
+        shadow={shadow}
+        surface={surface ?? "transparent"}
+        texture={texture}
+        border={merged}
+        {...props}
+      />
+    );
+  },
+);

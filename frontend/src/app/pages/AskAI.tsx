@@ -1,24 +1,37 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { ArrowUp, Gauge, Paperclip, Sparkles, Trash2, BookOpen, MessageSquare, Plus, GraduationCap, ShieldCheck, PanelRight } from "lucide-react";
+import {
+  ArrowUp,
+  Gauge,
+  Sparkles,
+  Trash2,
+  BookOpen,
+  MessageSquare,
+  Plus,
+  GraduationCap,
+  ShieldCheck,
+  PanelRight,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { useChatStore } from "../stores/useChatStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { SourcePanel } from "../components/SourcePanel";
 import { AnswerViewer } from "../components/AnswerViewer";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
+import { PaperButton, GhostButton, IconButton, ToggleButton } from "@paper-ui/components/buttons";
+import { PaperBadge } from "@paper-ui/components/badges";
+import { PaperSelect } from "@paper-ui/components/inputs";
+import { ScrollArea } from "@paper-ui/components/layout";
+import { PaperSheetBorder } from "@paper-ui/core";
+import { SectionLabel, PaperH1, PaperIconCircle, PaperCard } from "@paper-ui/core";
+import { SketchDivider } from "@paper-ui/components/decorations";
 import { api } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 
 export function AskAI() {
-  const { messages, isStreaming, ask, reset, course, setCourse, document, setDocument, sessions, activeSessionId, loadSessions, loadSession, deleteSession, socratic, setSocratic, highlightsOnly, setHighlightsOnly } = useChatStore();
+  const {
+    messages, isStreaming, ask, reset, course, setCourse, document, setDocument,
+    sessions, activeSessionId, loadSessions, loadSession, deleteSession,
+    socratic, setSocratic, highlightsOnly, setHighlightsOnly,
+  } = useChatStore();
   const streaming = useSettingsStore((s) => s.streaming);
   const ragMode = useSettingsStore((s) => s.ragMode);
   const setSettingsField = useSettingsStore((s) => s.set);
@@ -43,13 +56,21 @@ export function AskAI() {
       "What are the most important formulas to remember?",
     ];
     if (!documents.length) return generic;
-
-    const dynamic = documents
-      .slice(0, 2)
-      .map((doc) => `Explain the main topics in ${doc.title}`);
-
+    const dynamic = documents.slice(0, 2).map((doc) => `Explain the main topics in ${doc.title}`);
     return [...dynamic, ...generic].slice(0, 4);
   }, [documents]);
+
+  const courseOptions = useMemo(() => [
+    { value: "all", label: "All courses" },
+    ...courses.map((c) => ({ value: c.name, label: c.name })),
+  ], [courses]);
+
+  const documentOptions = useMemo(() => [
+    { value: "all", label: "All documents" },
+    ...documents
+      .filter((d) => (course ? d.course === course : true))
+      .map((d) => ({ value: d.id, label: d.title })),
+  ], [documents, course]);
 
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
   const sources = lastAssistant?.sources ?? [];
@@ -79,195 +100,193 @@ export function AskAI() {
 
   return (
     <div className="flex h-full">
-      {/* Sessions panel — collapsible, lg+ only */}
+      {/* ── Left: Sessions panel ── */}
       <div
-        className={`hidden lg:flex flex-col border-r border-border bg-sidebar overflow-hidden transition-all duration-200 ${
+        className={`hidden lg:flex flex-col overflow-hidden transition-all duration-200 ${
           sessionsPanelOpen ? "w-[220px]" : "w-0"
         }`}
       >
-        <div className="flex h-12 shrink-0 items-center justify-between border-b border-border px-3">
-          <span className="text-xs font-medium text-muted-foreground">History</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1 text-xs"
-            onClick={() => { reset(); }}
-          >
-            <Plus className="size-3.5" /> New
-          </Button>
-        </div>
-        <div className="flex-1 overflow-y-auto py-1">
-          {sessions.length === 0 ? (
-            <p className="px-3 py-4 text-center text-xs text-muted-foreground">No sessions yet</p>
-          ) : (
-            sessions.map((s) => (
-              <div
-                key={s.id}
-                className={`group relative mx-1 flex cursor-pointer items-start gap-2 rounded-md px-3 py-2 text-sm ${
-                  s.id === activeSessionId
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "hover:bg-sidebar-accent/50"
-                }`}
-                onClick={() => loadSession(s.id)}
-                onMouseEnter={() => setHoveredSessionId(s.id)}
-                onMouseLeave={() => setHoveredSessionId(null)}
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <PaperSheetBorder fill="#fdfcf8" stroke="#c0b9ae" strokeWidth={1.2} shadow={0} />
+          <div className="relative z-[1] flex flex-1 flex-col">
+            {/* Header */}
+            <div className="flex h-12 shrink-0 items-center justify-between px-4">
+              <SectionLabel>History</SectionLabel>
+              <GhostButton
+                size="sm"
+                className="h-7 gap-1 px-2"
+                onClick={() => { reset(); }}
               >
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-xs font-medium">{s.title}</div>
-                  <div className="text-[10px] text-muted-foreground">
-                    {s.messageCount} msg · {relativeTime(s.updatedAt)}
-                  </div>
+                <Plus className="size-3.5" /> New
+              </GhostButton>
+            </div>
+
+            <SketchDivider variant="dashed" className="mx-3 opacity-40" />
+
+            <ScrollArea className="flex-1 mt-1">
+              {sessions.length === 0 ? (
+                <p className="font-kalam px-4 py-8 text-center text-sm text-ink-muted">
+                  No sessions yet
+                </p>
+              ) : (
+                <div className="space-y-0.5 px-2 pb-3 pt-1">
+                  {sessions.map((s) => (
+                    <div
+                      key={s.id}
+                      className={`group flex cursor-pointer items-start gap-2 rounded-lg px-3 py-2.5 transition-colors ${
+                        s.id === activeSessionId
+                          ? "bg-black/5 text-ink"
+                          : "text-ink-muted hover:bg-black/[0.03] hover:text-ink"
+                      }`}
+                      onClick={() => loadSession(s.id)}
+                      onMouseEnter={() => setHoveredSessionId(s.id)}
+                      onMouseLeave={() => setHoveredSessionId(null)}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate font-architect text-[13px]">{s.title}</div>
+                        <div className="mt-0.5 font-kalam text-[11px] text-ink-muted/70">
+                          {s.messageCount} msg · {relativeTime(s.updatedAt)}
+                        </div>
+                      </div>
+                      {hoveredSessionId === s.id && (
+                        <button
+                          className="shrink-0 text-ink-muted/60 hover:text-danger transition-colors"
+                          onClick={(e) => { e.stopPropagation(); void deleteSession(s.id); }}
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                {hoveredSessionId === s.id && (
-                  <button
-                    className="shrink-0 text-muted-foreground hover:text-destructive"
-                    onClick={(e) => { e.stopPropagation(); void deleteSession(s.id); }}
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                )}
-              </div>
-            ))
-          )}
+              )}
+            </ScrollArea>
+          </div>
         </div>
       </div>
 
-
-      {/* Answer — flex-1 */}
+      {/* ── Center: Chat area ── */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Answer header */}
-        {/* Answer header */}
+        {/* Top bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border px-4 py-2 sm:py-0 sm:h-12 gap-2">
-          {/* Left / Top group: Navigation & Filter Context */}
+          {/* Left: nav toggles + filters */}
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 shrink-0"
+            <IconButton
+              label="Toggle history"
+              className="shrink-0"
               onClick={() => setSessionsPanelOpen((v) => !v)}
               title={sessionsPanelOpen ? "Hide history" : "Show history"}
             >
               <MessageSquare className="size-4" />
-            </Button>
-            
-            {/* Filters */}
+            </IconButton>
+
             <div className="flex items-center gap-2 flex-1 sm:flex-none">
-              <Select
+              <PaperSelect
                 value={course ?? "all"}
-                onValueChange={(v) => setCourse(v === "all" ? null : v)}
-              >
-                <SelectTrigger data-tour="ask-scope" className="h-8 flex-1 sm:w-36 md:w-44 bg-input-background text-xs min-w-[90px]">
-                  <SelectValue placeholder="All courses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All courses</SelectItem>
-                  {courses.map((c) => (
-                    <SelectItem key={c.id} value={c.name}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
+                onChange={(v) => setCourse(v === "all" ? null : v)}
+                options={courseOptions}
+                placeholder="All courses"
+                className="flex-1 sm:w-36 md:w-44 min-w-[90px]"
+                wrapperClassName="flex-1 sm:flex-none"
+              />
+              <PaperSelect
                 value={document ?? "all"}
-                onValueChange={(v) => setDocument(v === "all" ? null : v)}
-              >
-                <SelectTrigger className="h-8 flex-1 sm:w-36 md:w-44 bg-input-background text-xs min-w-[90px]">
-                  <SelectValue placeholder="All documents" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All documents</SelectItem>
-                  {documents.filter(d => course ? d.course === course : true).map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(v) => setDocument(v === "all" ? null : v)}
+                options={documentOptions}
+                placeholder="All documents"
+                className="flex-1 sm:w-36 md:w-44 min-w-[90px]"
+                wrapperClassName="flex-1 sm:flex-none"
+              />
             </div>
           </div>
 
-          {/* Right / Bottom group: State toggles & Actions */}
+          {/* Right: toggles + actions */}
           <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 w-full sm:w-auto">
             <div className="flex items-center gap-1.5 sm:gap-2">
               {confidence !== undefined && !isStreaming && (
-                <Badge
-                  variant="outline"
-                  className="gap-1 border-success/40 bg-success-soft text-success text-xs px-2 py-0.5"
-                >
+                <PaperBadge tone="sage" className="gap-1 px-2 py-0.5">
                   <Gauge className="size-3" />
-                  <span>{(confidence * 100).toFixed(0)}% <span className="hidden md:inline">confidence</span></span>
-                </Badge>
+                  <span>
+                    {(confidence * 100).toFixed(0)}%{" "}
+                    <span className="hidden md:inline">confidence</span>
+                  </span>
+                </PaperBadge>
               )}
+
               {/* RAG Mode toggle */}
-              <button
-                type="button"
-                onClick={() => setSettingsField("ragMode", ragMode === "strict" ? "fallback" : "strict")}
-                className={`flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-medium transition-colors ${
+              <ToggleButton
+                size="sm"
+                pressed={ragMode === "strict"}
+                onPressedChange={(v) =>
+                  setSettingsField("ragMode", v ? "strict" : "fallback")
+                }
+                title={
                   ragMode === "strict"
-                    ? "border-amber-500/50 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20"
-                    : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
-                }`}
-                title={ragMode === "strict" ? "Strict RAG — click to switch to AI Fallback" : "AI Fallback — click to switch to Strict RAG"}
+                    ? "Strict RAG — click to switch to AI Fallback"
+                    : "AI Fallback — click to switch to Strict RAG"
+                }
+                className="gap-1 text-[11px]"
               >
                 <ShieldCheck className="size-3" />
                 <span>{ragMode === "strict" ? "Strict" : "Fallback"}</span>
-              </button>
-              {/* Highlights Only toggle (only visible when a document is selected) */}
+              </ToggleButton>
+
+              {/* Highlights Only toggle */}
               {document && document !== "all" && (
-                <button
-                  type="button"
-                  onClick={() => setHighlightsOnly(!highlightsOnly)}
-                  className={`flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-medium transition-colors ${
+                <ToggleButton
+                  size="sm"
+                  pressed={!!highlightsOnly}
+                  onPressedChange={(v) => setHighlightsOnly(v)}
+                  title={
                     highlightsOnly
-                      ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
-                      : "border-border text-muted-foreground hover:border-border hover:text-foreground"
-                  }`}
-                  title={highlightsOnly ? "Highlights Only ON — answers derived exclusively from your highlights in this document" : "Enable Highlights Only"}
+                      ? "Highlights Only ON — answers derived exclusively from your highlights"
+                      : "Enable Highlights Only"
+                  }
+                  className="gap-1 text-[11px]"
                 >
                   <BookOpen className="size-3" />
                   <span>Highlights</span>
-                </button>
+                </ToggleButton>
               )}
+
               {/* Socratic Mode toggle */}
-              <button
-                type="button"
-                onClick={() => setSocratic(!socratic)}
-                className={`flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-medium transition-colors ${
+              <ToggleButton
+                size="sm"
+                pressed={!!socratic}
+                onPressedChange={(v) => setSocratic(v)}
+                title={
                   socratic
-                    ? "border-violet-500/50 bg-violet-500/10 text-violet-600 hover:bg-violet-500/20"
-                    : "border-border text-muted-foreground hover:border-border hover:text-foreground"
-                }`}
-                title={socratic ? "Socratic Mode ON — AI guides, does not answer" : "Enable Socratic Mode"}
+                    ? "Socratic Mode ON — AI guides, does not answer"
+                    : "Enable Socratic Mode"
+                }
+                className="gap-1 text-[11px]"
               >
                 <GraduationCap className="size-3" />
                 <span>Socratic</span>
-              </button>
+              </ToggleButton>
             </div>
 
             <div className="flex items-center gap-1">
               {messages.length > 0 && (
-                <Button variant="ghost" size="sm" className="h-8 px-2.5 gap-1.5 text-xs text-muted-foreground hover:text-foreground" onClick={reset}>
+                <GhostButton size="sm" className="h-8 px-2.5 gap-1.5" onClick={reset}>
                   <Trash2 className="size-3.5" />
                   <span className="hidden xs:inline">Clear</span>
-                </Button>
+                </GhostButton>
               )}
-              {/* Sources panel toggle */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8 hidden lg:inline-flex"
+              <IconButton
+                label="Toggle sources"
+                className="hidden lg:inline-flex"
                 onClick={() => setSourcesPanelOpen((v) => !v)}
                 title={sourcesPanelOpen ? "Hide sources" : "Show sources"}
               >
                 <PanelRight className="size-4" />
-              </Button>
+              </IconButton>
             </div>
           </div>
         </div>
 
         {/* Messages */}
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+        <ScrollArea ref={scrollRef} className="min-h-0 flex-1">
           <div className="mx-auto max-w-5xl px-6 py-6">
             {messages.length === 0 ? (
               <EmptyAsk onPick={submit} suggestions={suggestions} />
@@ -279,12 +298,16 @@ export function AskAI() {
               </div>
             )}
           </div>
-        </div>
+        </ScrollArea>
 
         {/* Sticky input */}
         <div className="border-t border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
           <div className="mx-auto max-w-5xl">
-            <div data-tour="ask-input" className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 transition-colors focus-within:border-ring/60">
+            <PaperCard
+              data-tour="ask-input"
+              shadow="sm"
+              className="flex items-end gap-2 p-2"
+            >
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -296,19 +319,20 @@ export function AskAI() {
                 }}
                 rows={1}
                 placeholder="Ask anything about your materials…"
-                className="max-h-40 min-h-9 flex-1 resize-none bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
+                className="max-h-40 min-h-9 flex-1 resize-none bg-transparent py-1.5 font-architect text-sm text-ink outline-none placeholder:text-ink-muted/60"
               />
-              <Button
+              <PaperButton
                 data-tour="ask-send"
-                size="icon"
+                tone="dark"
+                size="sm"
                 disabled={!input.trim() || isStreaming}
                 onClick={() => submit()}
-                className="size-9 shrink-0 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+                className="shrink-0"
               >
                 <ArrowUp className="size-[18px]" />
-              </Button>
-            </div>
-            <div className="mt-2 flex items-center justify-between px-1 text-xs text-muted-foreground">
+              </PaperButton>
+            </PaperCard>
+            <div className="mt-2 flex items-center justify-between px-1 font-kalam text-xs text-ink-muted">
               <span className="flex items-center gap-1.5">
                 <Sparkles className="size-3 text-primary" />
                 Grounded in {courses.length} courses · {streaming ? "Streaming on" : "Streaming off"}
@@ -322,18 +346,27 @@ export function AskAI() {
         </div>
       </div>
 
-      {/* Sources — collapsible right panel, lg+ only */}
+      {/* ── Right: Sources panel ── */}
       <div
-        data-tour="ask-sources"
-        className={`hidden lg:flex flex-col border-l border-border bg-sidebar overflow-hidden transition-all duration-200 ${
+        className={`hidden lg:flex flex-col overflow-hidden transition-all duration-200 ${
           sourcesPanelOpen ? "w-[25%] min-w-[260px] max-w-[360px]" : "w-0"
         }`}
       >
-        <SourcePanel sources={sources} activeId={activeSource} onSelect={setActiveSource} />
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <PaperSheetBorder fill="#fdfcf8" stroke="#c0b9ae" strokeWidth={1.2} shadow={0} />
+          <div
+            data-tour="ask-sources"
+            className="relative z-[1] flex min-h-0 flex-1 flex-col px-1 py-1"
+          >
+            <SourcePanel sources={sources} activeId={activeSource} onSelect={setActiveSource} />
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -351,26 +384,38 @@ function EmptyAsk({ onPick, suggestions }: { onPick: (q: string) => void; sugges
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="flex size-12 items-center justify-center rounded-xl border border-border bg-card text-violet"
       >
-        <Sparkles className="size-6" />
+        <PaperIconCircle tone="lavender" size={56}>
+          <Sparkles className="size-6" />
+        </PaperIconCircle>
       </motion.div>
-      <h1 className="mt-5">Ask your knowledge base</h1>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">
+
+      <PaperH1 className="mt-5 text-4xl">Ask your knowledge base</PaperH1>
+      <p className="mt-2 max-w-md font-kalam text-[15px] text-ink-muted">
         Get source-grounded answers with citations, drawn directly from your documents, notes and lectures.
       </p>
+
       <div className="mt-8 grid w-full max-w-xl gap-2 sm:grid-cols-2">
         {suggestions.map((s, i) => (
-          <motion.button
+          <motion.div
             key={s}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 + i * 0.06 }}
-            onClick={() => onPick(s)}
-            className="rounded-xl border border-border bg-card p-3 text-left text-sm text-foreground/90 transition-colors hover:border-primary/50 hover:bg-violet-soft/40"
           >
-            {s}
-          </motion.button>
+            <button
+              onClick={() => onPick(s)}
+              className="w-full text-left"
+            >
+              <PaperCard
+                lift
+                shadow="sm"
+                className="p-3.5 cursor-pointer"
+              >
+                <p className="font-architect text-sm text-ink">{s}</p>
+              </PaperCard>
+            </button>
+          </motion.div>
         ))}
       </div>
     </div>

@@ -11,6 +11,8 @@ export interface ArtifactRowProps {
   date?: string;
   /** Hover-revealed slot (view button, delete, etc.). */
   actions?: React.ReactNode;
+  onClick?: () => void;
+  isSelected?: boolean;
   className?: string;
 }
 
@@ -21,15 +23,25 @@ export function ArtifactRow({
   badge,
   date,
   actions,
+  onClick,
+  isSelected,
   className,
 }: ArtifactRowProps) {
   return (
     <div
+      onClick={onClick}
       className={cn(
-        "group/artifact flex items-center gap-3 rounded-md px-4 py-3 transition-colors hover:bg-black/[0.025]",
+        "group/artifact relative flex items-center gap-3 rounded-md px-4 py-3 transition-colors",
+        onClick && "cursor-pointer hover:bg-black/[0.025]",
+        isSelected && "bg-black/[0.035]",
         className,
       )}
     >
+      {/* Left selection accent */}
+      {isSelected && (
+        <div className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-ink" />
+      )}
+
       <PaperIconCircle tone={tone} size={32}>
         {icon}
       </PaperIconCircle>

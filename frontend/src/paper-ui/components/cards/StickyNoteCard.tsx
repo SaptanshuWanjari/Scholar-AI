@@ -62,7 +62,7 @@ export function StickyNoteCard({
 
       {/* Card body — CSS shadow, no rough border (intentional sticky-note look) */}
       <div
-        className="paper-texture relative overflow-hidden rounded-sm px-5 pb-5 pt-6"
+        className="paper-texture relative rounded-sm px-5 pb-5 pt-6"
         style={{
           backgroundColor: bg,
           boxShadow: "3px 4px 0 rgba(0,0,0,0.13), 5px 7px 0 rgba(0,0,0,0.06)",

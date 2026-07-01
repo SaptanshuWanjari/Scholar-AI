@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box } from '@paper-ui/components/layout';
-import { Tape, PushPin, CoffeeRing, StickyNote, FoldedCorner, PaperClip } from '@paper-ui/components/decorations';
+import { Tape, PushPin, CoffeeRing, StickyNote,  PaperClip } from '@paper-ui/components/decorations';
 import { SketchBorder, PaperH3 } from '@paper-ui/core';
 
 const meta: Meta<typeof Box> = {

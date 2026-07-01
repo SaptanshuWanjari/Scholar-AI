@@ -33,7 +33,6 @@ export interface PaperSidebarItemProps {
 
 /**
  * Single nav row. Active state renders a hand-drawn sticker (SketchBorder fill +
- * FoldedCorner) so the current page looks physically "pinned" to the sidebar.
  */
 export function PaperSidebarItem({
   item,
@@ -173,7 +172,7 @@ export function PaperSidebar({
       transition={{ type: "spring", stiffness: 340, damping: 36 }}
       className={cn(
         "relative z-20 flex h-full shrink-0 flex-col overflow-x-hidden",
-        "border-r border-[rgba(0,0,0,0.08)] bg-sidebar",
+        "border-r border-[#c8c0b0] bg-sidebar",
         className,
       )}
     >
@@ -181,17 +180,13 @@ export function PaperSidebar({
       {header && (
         <div
           className={cn(
-            "shrink-0 border-b border-[rgba(0,0,0,0.05)]",
-            collapsed ? "flex justify-center px-3 py-4" : "px-4 py-4",
+            "relative shrink-0 pb-1.5",
+            collapsed ? "px-3 pt-4" : "px-4 pt-4",
           )}
         >
-          <div
-            className={cn(
-              "transition-opacity duration-200",
-              collapsed ? "opacity-0 pointer-events-none" : "opacity-100",
-            )}
-          >
-            {header}
+          {header}
+          <div className={cn("mt-4", collapsed ? "px-1" : "px-2")}>
+            <SketchDivider variant="straight" />
           </div>
         </div>
       )}
@@ -243,10 +238,13 @@ export function PaperSidebar({
       {/* Footer */}
       <div
         className={cn(
-          "shrink-0 border-t border-[rgba(0,0,0,0.06)] py-2",
+          "shrink-0 pt-1 pb-2",
           collapsed ? "flex flex-col items-center gap-1 px-2" : "px-3",
         )}
       >
+        <div className={cn("mb-2", collapsed ? "px-1" : "px-2")}>
+          <SketchDivider variant="straight" />
+        </div>
         {/* Optional footer slot */}
         {footer && (
           <div

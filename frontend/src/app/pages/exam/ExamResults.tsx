@@ -13,8 +13,18 @@ import {
 import { motion } from "motion/react";
 import { MarkdownRenderer } from "../../components/MarkdownRenderer";
 import { cn } from "../../components/ui/utils";
-import { Button } from "../../components/ui/button";
-import { Badge } from "../../components/ui/badge";
+import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
+import { PaperBadge } from "@paper-ui/components/badges";
+import {
+  PaperCard,
+  PaperPanel,
+  PaperH1,
+  PaperH3,
+  PaperIconCircle,
+  SectionLabel,
+} from "@paper-ui/core";
+import { SketchDivider } from "@paper-ui/components/decorations";
+import { SketchProgress } from "@paper-ui/components/progress";
 import { Page } from "../../components/Page";
 import type { ExamResult } from "../../lib/api";
 import { useExamStore } from "../../stores/useExamStore";
@@ -37,7 +47,7 @@ export function ExamResults() {
 
   const navigate = useNavigate();
   const examCourse = useExamStore((s) => s.course);
-  const weakTopics = weak.map(t => t.topic);
+  const weakTopics = weak.map((t) => t.topic);
 
   const handleRevisionAction = (label: string) => {
     const combinedTopic = weakTopics.join(", ") || "General Revision";
@@ -69,204 +79,206 @@ export function ExamResults() {
 
   return (
     <Page className="max-w-4xl space-y-6">
+      {/* Score header card */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-wrap items-center gap-6 rounded-2xl border border-border bg-card p-6"
       >
-        <div className="flex size-24 shrink-0 flex-col items-center justify-center rounded-2xl border border-border bg-background">
-          <Trophy className="size-5 text-violet" />
-          <span className="mt-1 font-display text-3xl leading-none">
-            {pct}%
-          </span>
-        </div>
-        <div className="min-w-0 flex-1">
-          <h1>Exam Complete</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            You answered {correct} of {total} correctly.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Stat label="Score" value={`${correct}/${total}`} />
-            <Stat label="Percentage" value={`${pct}%`} />
-            <Stat label="Difficulty" value={difficultyLabel} />
+        <PaperCard className="p-6">
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="relative flex size-24 shrink-0 flex-col items-center justify-center">
+              <PaperIconCircle tone="lavender" size={96}>
+                <div className="flex flex-col items-center">
+                  <Trophy className="size-5 text-primary" />
+                  <span className="mt-1 font-architect text-2xl leading-none text-ink">
+                    {pct}%
+                  </span>
+                </div>
+              </PaperIconCircle>
+            </div>
+            <div className="min-w-0 flex-1">
+              <PaperH1 className="text-3xl">Exam Complete</PaperH1>
+              <p className="mt-1 font-kalam text-sm text-ink-muted">
+                You answered {correct} of {total} correctly.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Stat label="Score" value={`${correct}/${total}`} />
+                <Stat label="Percentage" value={`${pct}%`} />
+                <Stat label="Difficulty" value={difficultyLabel} />
+              </div>
+            </div>
+            <PaperButton tone="paper" className="gap-2 shrink-0" onClick={onRestart}>
+              <RotateCw className="size-4" /> New Exam
+            </PaperButton>
           </div>
-        </div>
-        <Button variant="outline" className="gap-2" onClick={onRestart}>
-          <RotateCw className="size-4" /> New Exam
-        </Button>
+        </PaperCard>
       </motion.div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-5 lg:col-span-2">
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Topic Performance
-          </h3>
+        {/* Topic performance + difficulty */}
+        <PaperCard className="p-5 lg:col-span-2">
+          <SectionLabel className="text-[12px]">Topic Performance</SectionLabel>
+
+          <SketchDivider variant="dashed" className="my-3 opacity-40" />
+
           <div className="space-y-4">
             {topicPerformance.map((t) => (
               <div key={t.topic}>
-                <div className="mb-1.5 flex items-center justify-between text-sm">
-                  <span>{t.topic}</span>
-                  <span className="font-medium tabular-nums">{t.score}%</span>
+                <div className="mb-1.5 flex items-center justify-between font-architect text-sm">
+                  <span className="text-ink">{t.topic}</span>
+                  <span className="font-medium tabular-nums text-ink-muted">{t.score}%</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${t.score}%` }}
-                    transition={{ duration: 0.6 }}
-                    className="h-full rounded-full"
-                    style={{
-                      backgroundColor:
-                        t.score >= 70
-                          ? "var(--success)"
-                          : t.score >= 50
-                            ? "var(--warning)"
-                            : "var(--danger)",
-                    }}
-                  />
-                </div>
+                <SketchProgress
+                  value={t.score}
+                  height={12}
+                  color={
+                    t.score >= 70
+                      ? "var(--color-success, #5f8f5a)"
+                      : t.score >= 50
+                        ? "var(--color-warning, #c9954f)"
+                        : "var(--color-danger, #a3544a)"
+                  }
+                />
               </div>
             ))}
           </div>
 
-          <h3 className="mb-3 mt-7 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Difficulty Analysis
-          </h3>
-          <div className="grid grid-cols-3 gap-3">
+          <SketchDivider variant="wavy" className="my-5" />
+
+          <SectionLabel className="text-[12px]">Difficulty Analysis</SectionLabel>
+          <div className="mt-3 grid grid-cols-3 gap-3">
             {difficultyAnalysis.map((d) => (
-              <div
-                key={d.level}
-                className="rounded-xl border border-border bg-background/40 p-3 text-center"
-              >
-                <div className="font-display text-2xl leading-none">
+              <PaperPanel key={d.level} className="p-3 text-center">
+                <div className="font-architect text-2xl leading-none text-ink">
                   {d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0}%
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground">
+                <div className="mt-1 font-kalam text-xs text-ink-muted">
                   {d.level}
                 </div>
-                <div className="text-[11px] text-muted-foreground">
+                <div className="font-kalam text-[11px] text-ink-muted/70">
                   {d.correct}/{d.total} correct
                 </div>
-              </div>
+              </PaperPanel>
             ))}
           </div>
-        </div>
+        </PaperCard>
 
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Strong Areas
-            </h3>
-            <div className="space-y-2">
+        {/* Strong / Weak */}
+        <div className="space-y-4">
+          <PaperCard className="p-5">
+            <SectionLabel className="text-[12px]">Strong Areas</SectionLabel>
+            <SketchDivider variant="dashed" className="my-2 opacity-40" />
+            <div className="space-y-2 mt-2">
               {strong.length === 0 && (
-                <div className="text-sm text-muted-foreground">
-                  No strong areas yet.
-                </div>
+                <p className="font-kalam text-sm text-ink-muted">No strong areas yet.</p>
               )}
               {strong.map((t) => (
-                <div key={t.topic} className="flex items-center gap-2 text-sm">
-                  <Check className="size-4 text-success" /> {t.topic}
+                <div key={t.topic} className="flex items-center gap-2 font-architect text-sm text-ink">
+                  <Check className="size-4 text-success shrink-0" /> {t.topic}
                 </div>
               ))}
             </div>
-          </div>
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Weak Areas
-            </h3>
-            <div className="space-y-2">
+          </PaperCard>
+
+          <PaperCard className="p-5">
+            <SectionLabel className="text-[12px]">Weak Areas</SectionLabel>
+            <SketchDivider variant="dashed" className="my-2 opacity-40" />
+            <div className="space-y-2 mt-2">
               {weak.length === 0 && (
-                <div className="text-sm text-muted-foreground">
-                  No weak areas — great work!
-                </div>
+                <p className="font-kalam text-sm text-ink-muted">No weak areas — great work!</p>
               )}
               {weak.map((t) => (
-                <div key={t.topic} className="flex items-center gap-2 text-sm">
-                  <CircleDot className="size-4 text-danger" /> {t.topic}
+                <div key={t.topic} className="flex items-center gap-2 font-architect text-sm text-ink">
+                  <CircleDot className="size-4 text-danger shrink-0" /> {t.topic}
                 </div>
               ))}
             </div>
-          </div>
+          </PaperCard>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-violet/25 bg-violet-soft/40 p-5">
-        <div className="flex items-center gap-2">
-          <Sparkles className="size-4 text-violet" />
-          <h3 className="text-sm font-semibold">
-            Recommended Revision for weak topics
-          </h3>
+      {/* Recommended revision */}
+      <PaperCard className="p-5" surface="var(--color-lavender-soft, #f0eeff)">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="size-4 text-primary" />
+          <PaperH3 className="text-[15px]">Recommended Revision for weak topics</PaperH3>
         </div>
-        <div className="mt-3">
-          {recommendedRevisions.length > 0 ? (
-            <MarkdownRenderer
-              content={recommendedRevisions.map((rev) => `- ${rev}`).join("\n")}
-              className="font-sans text-sm text-muted-foreground"
-            />
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              {weak.length > 0
-                ? `Generate targeted study material for ${weak.map((t) => t.topic).join(", ")}.`
-                : "Generate study material to keep your knowledge sharp."}
-            </p>
-          )}
-        </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-4">
+        {recommendedRevisions.length > 0 ? (
+          <MarkdownRenderer
+            content={recommendedRevisions.map((rev) => `- ${rev}`).join("\n")}
+            className="font-kalam text-sm text-ink-muted"
+          />
+        ) : (
+          <p className="font-kalam text-sm text-ink-muted">
+            {weak.length > 0
+              ? `Generate targeted study material for ${weak.map((t) => t.topic).join(", ")}.`
+              : "Generate study material to keep your knowledge sharp."}
+          </p>
+        )}
+
+        <SketchDivider variant="dashed" className="my-4 opacity-40" />
+
+        <div className="grid gap-2 sm:grid-cols-4">
           {revisionActions.map((a) => (
-            <button
+            <GhostButton
               key={a.label}
               onClick={() => handleRevisionAction(a.label)}
-              className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card py-2.5 text-sm font-medium transition-colors hover:border-violet/50 hover:text-violet"
+              size="sm"
+              className="flex items-center justify-center gap-2 py-2.5"
             >
               <a.icon className="size-4" /> {a.label}
-            </button>
+            </GhostButton>
           ))}
         </div>
-      </div>
+      </PaperCard>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Questions Review
-        </h3>
+      {/* Questions review */}
+      <PaperCard className="p-5">
+        <SectionLabel className="text-[12px]">Questions Review</SectionLabel>
+        <SketchDivider variant="dashed" className="my-3 opacity-40" />
         <div className="space-y-4">
           {review.map((r, i) => (
-            <div key={r.id} className="rounded-xl border border-border bg-background/50 p-4">
+            <PaperPanel key={r.id} className="p-4">
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">Question {i + 1}</span>
-                <Badge
-                  variant="outline"
-                  className={cn("text-[10px]", r.correct ? "border-success/40 bg-success-soft text-success" : "border-danger/40 bg-danger-soft text-danger")}
+                <span className="font-architect text-sm text-ink-muted">Question {i + 1}</span>
+                <PaperBadge
+                  tone={r.correct ? "sage" : "brick"}
+                  className="text-[10px]"
                 >
                   {r.correct ? "Correct" : "Incorrect"}
-                </Badge>
+                </PaperBadge>
               </div>
-              <p className="font-reading text-[1.1rem] leading-snug">{r.prompt}</p>
-              <div className="mt-3 space-y-2 text-sm">
+              <p className="font-reading text-[1.1rem] leading-snug text-ink">{r.prompt}</p>
+              <SketchDivider variant="dashed" className="my-2 opacity-30" />
+              <div className="space-y-1.5 font-architect text-sm">
                 <div className="flex gap-2">
-                  <span className="font-medium text-muted-foreground">Your Answer:</span>
-                  <span className={cn(r.correct ? "text-success" : "text-danger")}>{r.given || "—"}</span>
+                  <span className="text-ink-muted">Your Answer:</span>
+                  <span className={cn(r.correct ? "text-success" : "text-danger")}>
+                    {r.given || "—"}
+                  </span>
                 </div>
                 {!r.correct && (
                   <div className="flex gap-2">
-                    <span className="font-medium text-muted-foreground">Correct Answer:</span>
+                    <span className="text-ink-muted">Correct Answer:</span>
                     <span className="text-success">{r.expected}</span>
                   </div>
                 )}
               </div>
-            </div>
+            </PaperPanel>
           ))}
         </div>
-      </div>
+      </PaperCard>
     </Page>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-border bg-background/50 px-3 py-1.5">
-      <div className="text-sm font-semibold tabular-nums">{value}</div>
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+    <PaperPanel className="px-3 py-1.5">
+      <div className="font-architect text-sm font-semibold tabular-nums text-ink">{value}</div>
+      <div className="font-kalam text-[10px] uppercase tracking-wider text-ink-muted">
         {label}
       </div>
-    </div>
+    </PaperPanel>
   );
 }

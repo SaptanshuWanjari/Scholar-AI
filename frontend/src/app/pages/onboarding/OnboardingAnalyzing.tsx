@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   CheckCircle2,
-  Loader2,
   Circle,
   FileText,
   Tag,
@@ -15,15 +14,19 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { api } from "../../lib/api";
 import { useOnboarding, type OnboardingAnalysis } from "../../context/OnboardingContext";
+import { PaperCard } from "@paper-ui/core";
+import { PaperH2, PaperH5, PaperIconCircle } from "@paper-ui/core";
+import { PaperBadge } from "@paper-ui/components/badges";
+import { LoadingPaper } from "@paper-ui/components/feedback";
 
 const PIPELINE_STEPS = [
-  { label: "Extracting Text", icon: FileText },
-  { label: "Analyzing Structure", icon: Layers },
-  { label: "Detecting Topics", icon: Tag },
-  { label: "Indexing Library", icon: Network },
-  { label: "Extracting Concepts", icon: Cpu },
+  { label: "Extracting Text",           icon: FileText },
+  { label: "Analyzing Structure",       icon: Layers },
+  { label: "Detecting Topics",          icon: Tag },
+  { label: "Indexing Library",          icon: Network },
+  { label: "Extracting Concepts",       icon: Cpu },
   { label: "Generating Recommendations", icon: Database },
-  { label: "Preparing Workspace", icon: Sparkles },
+  { label: "Preparing Workspace",       icon: Sparkles },
 ];
 
 type StepState = "pending" | "active" | "done";
@@ -47,8 +50,8 @@ function StatCounter({ label, value }: { label: string; value: number }) {
   const displayed = useCountUp(value);
   return (
     <div className="text-center">
-      <div className="text-2xl font-semibold tabular-nums text-foreground">{displayed}</div>
-      <div className="mt-0.5 text-xs text-muted-foreground">{label}</div>
+      <div className="font-caveat text-[28px] font-semibold tabular-nums text-ink">{displayed}</div>
+      <div className="mt-0.5 font-architect text-[11px] uppercase tracking-wide text-ink-muted">{label}</div>
     </div>
   );
 }
@@ -64,17 +67,15 @@ export function OnboardingAnalyzing() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const completedRef = useRef(false);
 
-  // Poll for all files completed, then fetch analysis
   useEffect(() => {
     const check = async () => {
       const allDone = files.length > 0 && files.every((f) => f.status === "completed" || f.status === "failed");
-      
-      // Update UI steps based on upload progress
+
       if (!allDone) {
         setStepStates((prev) => prev.map((s, i) => (i === 0 ? "done" : i === 1 ? "active" : "pending")));
         return;
       }
-      
+
       if (completedRef.current) return;
       completedRef.current = true;
 
@@ -87,7 +88,6 @@ export function OnboardingAnalyzing() {
 
       setStepStates((prev) => prev.map((s, i) => (i <= 1 ? "done" : i === 2 ? "active" : "pending")));
 
-      // Simulate step 2, 3, 4 animating while waiting for analysis
       let simStep = 2;
       const simTimer = setInterval(() => {
         if (simStep < 4) {
@@ -103,17 +103,16 @@ export function OnboardingAnalyzing() {
         setAnalysis(result);
 
         if (result.documents === 0) {
-            throw new Error("Analysis completed but no documents were indexed.");
+          throw new Error("Analysis completed but no documents were indexed.");
         }
 
         setStepStates((prev) => prev.map((s, i) => (i <= 4 ? "done" : i === 5 ? "active" : "pending")));
 
         const topTopic = result.topics.length > 0 ? result.topics[0] : "Comprehensive Roadmap";
-        const topCourse = null;
 
         const path = await api.generateLearningPath({
           topic: topTopic,
-          course: topCourse,
+          course: null,
           ragMode: "fallback",
         });
 
@@ -132,7 +131,7 @@ export function OnboardingAnalyzing() {
   }, [files, navigate, setAnalysis]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#f5f0e8] px-6 py-16">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -140,27 +139,34 @@ export function OnboardingAnalyzing() {
         className="w-full max-w-3xl"
       >
         <div className="mb-8 text-center">
-          <h2 className="text-2xl font-semibold tracking-tight">Analyzing your library</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <PaperH2>Analyzing your library</PaperH2>
+          <p className="mt-2 font-kalam text-[14px] text-ink-muted">
             ScholarAI is processing your documents and building your knowledge workspace.
           </p>
         </div>
 
         {errorMsg && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 rounded-xl border border-danger/40 bg-danger-soft p-4 text-center">
-            <p className="text-sm font-medium text-danger">{errorMsg}</p>
-            <button onClick={() => navigate("/onboarding")} className="mt-3 text-xs font-semibold text-danger underline underline-offset-2">
-              Go Back
-            </button>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-6"
+          >
+            <PaperCard surface="#fdf0ef" border={{ stroke: "#9f3a36", strokeWidth: 1.6 }} shadow="sm" className="p-4 text-center">
+              <p className="font-architect text-[14px] text-[#9f3a36]">{errorMsg}</p>
+              <button
+                onClick={() => navigate("/onboarding")}
+                className="mt-3 font-kalam text-[12px] text-[#9f3a36] underline underline-offset-2"
+              >
+                Go Back
+              </button>
+            </PaperCard>
           </motion.div>
         )}
 
         <div className="grid gap-6 md:grid-cols-[1fr_280px]">
           {/* Pipeline steps */}
-          <div className="rounded-2xl border border-border bg-card p-6">
-            <p className="mb-5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Processing Pipeline
-            </p>
+          <PaperCard shadow="md" className="p-6">
+            <PaperH5 className="mb-5">Processing Pipeline</PaperH5>
             <div className="space-y-3">
               {PIPELINE_STEPS.map((step, i) => {
                 const state = stepStates[i];
@@ -173,47 +179,43 @@ export function OnboardingAnalyzing() {
                     transition={{ delay: i * 0.05 }}
                     className="flex items-center gap-3"
                   >
-                    <div
-                      className={`flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                        state === "done"
-                          ? "bg-success-soft text-success"
-                          : state === "active"
-                          ? "bg-violet-soft text-primary"
-                          : "bg-muted text-muted-foreground/40"
-                      }`}
+                    <PaperIconCircle
+                      tone={state === "done" ? "sage" : state === "active" ? "lavender" : "ink"}
+                      size={32}
                     >
                       {state === "done" ? (
-                        <CheckCircle2 className="size-4" />
+                        <CheckCircle2 size={14} />
                       ) : state === "active" ? (
-                        <Loader2 className="size-4 animate-spin" />
+                        <LoadingPaper variant="spinner" size="sm" />
                       ) : (
-                        <Circle className="size-4" />
+                        <Circle size={14} />
                       )}
-                    </div>
+                    </PaperIconCircle>
                     <span
-                      className={`text-sm transition-colors ${
+                      className={`font-architect text-[13px] transition-colors ${
                         state === "done"
-                          ? "text-foreground"
+                          ? "text-ink"
                           : state === "active"
-                          ? "font-medium text-foreground"
-                          : "text-muted-foreground/50"
+                          ? "text-ink font-medium"
+                          : "text-ink-muted/50"
                       }`}
                     >
                       {step.label}
                     </span>
+                    {state === "active" && (
+                      <Icon size={12} className="ml-auto text-ink-muted/60 animate-pulse" />
+                    )}
                   </motion.div>
                 );
               })}
             </div>
-          </div>
+          </PaperCard>
 
           {/* Live discovery */}
           <div className="space-y-4">
             {/* Topics */}
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Detected Topics
-              </p>
+            <PaperCard shadow="sm" className="p-5">
+              <PaperH5 className="mb-3">Detected Topics</PaperH5>
               <div className="flex flex-wrap items-start content-start gap-1.5 min-h-[60px]">
                 <AnimatePresence>
                   {(analysis?.topics ?? []).map((t) => (
@@ -221,23 +223,20 @@ export function OnboardingAnalyzing() {
                       key={t}
                       initial={{ opacity: 0, scale: 0.85 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="rounded-full border border-primary/30 bg-violet-soft px-2.5 py-0.5 text-xs text-primary"
                     >
-                      {t}
+                      <PaperBadge tone="lavender">{t}</PaperBadge>
                     </motion.span>
                   ))}
                   {!analysis && (
-                    <span className="text-xs text-muted-foreground/40">Scanning…</span>
+                    <span className="font-kalam text-[12px] text-ink-muted/40">Scanning…</span>
                   )}
                 </AnimatePresence>
               </div>
-            </div>
+            </PaperCard>
 
             {/* Concepts */}
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Detected Concepts
-              </p>
+            <PaperCard shadow="sm" className="p-5">
+              <PaperH5 className="mb-3">Detected Concepts</PaperH5>
               <div className="flex flex-wrap items-start content-start gap-1.5 min-h-[60px]">
                 <AnimatePresence>
                   {(analysis?.concepts ?? []).map((c) => (
@@ -245,29 +244,31 @@ export function OnboardingAnalyzing() {
                       key={c}
                       initial={{ opacity: 0, scale: 0.85 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs text-muted-foreground"
                     >
-                      {c}
+                      <PaperBadge tone="ink">{c}</PaperBadge>
                     </motion.span>
                   ))}
                   {!analysis && (
-                    <span className="text-xs text-muted-foreground/40">Extracting…</span>
+                    <span className="font-kalam text-[12px] text-ink-muted/40">Extracting…</span>
                   )}
                 </AnimatePresence>
               </div>
-            </div>
+            </PaperCard>
 
             {/* Stats */}
             {analysis && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-2 gap-4 rounded-2xl border border-border bg-card p-5"
               >
-                <StatCounter label="Documents" value={analysis.documents} />
-                <StatCounter label="Pages" value={analysis.pages} />
-                <StatCounter label="Concepts" value={analysis.concepts.length} />
-                <StatCounter label="Topics" value={analysis.topics.length} />
+                <PaperCard shadow="sm" className="p-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    <StatCounter label="Documents" value={analysis.documents} />
+                    <StatCounter label="Pages"     value={analysis.pages} />
+                    <StatCounter label="Concepts"  value={analysis.concepts.length} />
+                    <StatCounter label="Topics"    value={analysis.topics.length} />
+                  </div>
+                </PaperCard>
               </motion.div>
             )}
           </div>

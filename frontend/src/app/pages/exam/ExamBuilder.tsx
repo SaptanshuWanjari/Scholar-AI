@@ -11,15 +11,17 @@ import {
 } from "lucide-react";
 import { GenerationSteps } from "../../components/GenerationSteps";
 import { cn } from "../../components/ui/utils";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
+import { PaperButton, ToggleButton } from "@paper-ui/components/buttons";
+import { PaperInput, PaperSelect } from "@paper-ui/components/inputs";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../components/ui/select";
+  PaperCard,
+  PaperH1,
+  PaperH5,
+  PaperIconCircle,
+  SectionLabel,
+  PaperPanel,
+} from "@paper-ui/core";
+import { SketchDivider } from "@paper-ui/components/decorations";
 import { Page } from "../../components/Page";
 import { api } from "../../lib/api";
 import type { Course, DocumentItem } from "../../lib/types";
@@ -39,6 +41,8 @@ const TYPE_OPTIONS = [
   { label: "Short Answer", value: "short" },
   { label: "Long Answer", value: "long" },
 ];
+
+const COVERAGE_OPTIONS = COVERAGE.map((c) => ({ value: c, label: c }));
 
 export function ExamBuilder() {
   const topic = useExamStore((s) => s.topic);
@@ -79,66 +83,69 @@ export function ExamBuilder() {
     };
   }, []);
 
+  const courseOptions = [
+    { value: "all", label: "All courses" },
+    ...courses.map((c) => ({ value: c.name, label: c.name })),
+  ];
+  const documentOptions = [
+    { value: "all", label: "All documents" },
+    ...documents
+      .filter((d) => (course !== "all" ? d.course === course : true))
+      .map((d) => ({ value: d.id, label: d.title })),
+  ];
+
   return (
     <Page className="max-w-3xl">
-      <div className="mb-8 text-center">
-        <div className="mx-auto flex size-12 items-center justify-center rounded-xl border border-border bg-card text-violet">
+      {/* Header */}
+      <div className="mb-8 flex flex-col items-center text-center">
+        <PaperIconCircle tone="lavender" size={52}>
           <GraduationCap className="size-6" />
-        </div>
-        <h1 className="mt-4">Configure Mock Exam</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        </PaperIconCircle>
+        <PaperH1 className="mt-4 text-4xl">Configure Mock Exam</PaperH1>
+        <p className="mt-2 font-architect  text-ink-muted">
           Generate a realistic exam from your uploaded materials.
         </p>
       </div>
 
-      <div className="space-y-5" data-tour="exam-setup">
-        <Field
-          icon={ListChecks}
-          title="Topic"
-          desc="What should the exam focus on?"
-        >
-          <Input
+      <PaperPanel className="px-6 py-6" shadow="sm">
+      <div className="space-y-6" data-tour="exam-setup">
+        {/* Topic */}
+        <Field icon={ListChecks} title="Topic" desc="What should the exam focus on?">
+          <PaperInput
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="e.g. Transformers, backpropagation…"
-            className="bg-input-background"
           />
         </Field>
 
+        <SketchDivider variant="dashed" color="var(--color-pencil)" className="opacity-40" />
+
+        {/* Source */}
         <Field
           icon={FileStack}
           title="Source Material"
           desc="Choose the course the exam draws from"
           tourId="exam-source"
         >
-          <Select value={course} onValueChange={setCourse}>
-            <SelectTrigger className="w-full bg-input-background">
-              <SelectValue placeholder="All courses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All courses</SelectItem>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={c.name}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={document ?? "all"} onValueChange={(v) => setDocument(v === "all" ? null : v)}>
-            <SelectTrigger className="w-full bg-input-background mt-2">
-              <SelectValue placeholder="All documents" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All documents</SelectItem>
-              {documents.filter(d => course !== "all" ? d.course === course : true).map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col gap-2">
+            <PaperSelect
+              value={course}
+              onChange={setCourse}
+              options={courseOptions}
+              placeholder="All courses"
+            />
+            <PaperSelect
+              value={document ?? "all"}
+              onChange={(v) => setDocument(v === "all" ? null : v)}
+              options={documentOptions}
+              placeholder="All documents"
+            />
+          </div>
         </Field>
 
+        <SketchDivider variant="dashed" color="var(--color-pencil)" className="opacity-40" />
+
+        {/* Difficulty */}
         <Field icon={SlidersHorizontal} title="Difficulty">
           <Segmented
             options={DIFFICULTIES}
@@ -147,17 +154,23 @@ export function ExamBuilder() {
           />
         </Field>
 
+        <SketchDivider variant="dashed" color="var(--color-pencil)" className="opacity-40" />
+
+        {/* Question Types */}
         <Field icon={ListChecks} title="Question Types" desc="Select formats to include">
           <MultiSegmented
             options={TYPE_OPTIONS}
             values={types}
             onChange={(v) => {
-               if (v.length > 0) setTypes(v);
+              if (v.length > 0) setTypes(v);
             }}
           />
         </Field>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <SketchDivider variant="dashed" color="var(--color-pencil)" className="opacity-40" />
+
+        {/* Count & Time */}
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field icon={ListChecks} title="Questions">
             <Segmented
               options={["5", "8", "10", "15"]}
@@ -175,44 +188,43 @@ export function ExamBuilder() {
           </Field>
         </div>
 
+        <SketchDivider variant="dashed" color="var(--color-pencil)" className="opacity-40" />
+
+        {/* Coverage */}
         <Field icon={Layers3} title="Coverage">
-          <select
+          <PaperSelect
             value={coverage}
-            onChange={(e) => setCoverage(e.target.value)}
-            className="h-9 w-full rounded-md border border-border bg-input-background px-3 text-sm outline-none focus:border-ring"
-          >
-            {COVERAGE.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
+            onChange={setCoverage}
+            options={COVERAGE_OPTIONS}
+            placeholder="Select coverage"
+          />
         </Field>
 
-        <div
-          className="flex items-center justify-between rounded-xl border border-border bg-card p-4"
-          data-tour="exam-generate"
-        >
-          <div className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">
-              {count} questions
-            </span>{" "}
-            · {difficulty} · {minutes} min · {coverage}
+        <SketchDivider variant="wavy" />
+
+        {/* Summary + Generate */}
+        <PaperCard className="px-4 py-3" data-tour="exam-generate">
+          <div className="flex items-center justify-between gap-4">
+            <p className="font-architect  text-ink-muted">
+              <span className="font-medium text-ink">{count} questions</span>
+              {" · "}{difficulty}{" · "}{minutes} min{" · "}{coverage}
+            </p>
+            <PaperButton
+              tone="dark"
+              size="lg"
+              onClick={generate}
+              disabled={generating}
+              className="gap-2 shrink-0"
+            >
+              {generating ? (
+                <><Loader2 className="size-4 animate-spin" /> Generating…</>
+              ) : (
+                <><Sparkles className="size-4" /> Generate Mock Exam</>
+              )}
+            </PaperButton>
           </div>
-          <Button
-            onClick={generate}
-            disabled={generating}
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {generating ? (
-              <>
-                <Loader2 className="size-4 animate-spin" /> Generating…
-              </>
-            ) : (
-              <>
-                <Sparkles className="size-4" /> Generate Mock Exam
-              </>
-            )}
-          </Button>
-        </div>
+        </PaperCard>
+
         <GenerationSteps
           steps={[
             "Searching your library",
@@ -224,9 +236,12 @@ export function ExamBuilder() {
           interval={2500}
         />
       </div>
+      </PaperPanel>
     </Page>
   );
 }
+
+// ─── Field ────────────────────────────────────────────────────────────────────
 
 function Field({
   icon: Icon,
@@ -242,18 +257,20 @@ function Field({
   tourId?: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4" data-tour={tourId}>
+    <div data-tour={tourId}>
       <div className="mb-3 flex items-center gap-2">
-        <Icon className="size-4 text-muted-foreground" />
-        <span className="text-sm font-medium">{title}</span>
+        <Icon className="size-4 text-ink-muted" />
+        <SectionLabel className="text-[13px]">{title}</SectionLabel>
         {desc && (
-          <span className="text-xs text-muted-foreground">· {desc}</span>
+          <span className="font-kalam text-xs text-ink-muted/70">· {desc}</span>
         )}
       </div>
       {children}
     </div>
   );
 }
+
+// ─── Segmented ────────────────────────────────────────────────────────────────
 
 function Segmented({
   options,
@@ -267,25 +284,23 @@ function Segmented({
   suffix?: string;
 }) {
   return (
-    <div className="flex rounded-lg border border-border bg-card p-0.5">
+    <div className="flex gap-2 flex-wrap">
       {options.map((o) => (
-        <button
+        <ToggleButton
           key={o}
-          onClick={() => onChange(o)}
-          className={cn(
-            "flex-1 rounded-md py-1.5 text-sm font-medium transition-colors",
-            value === o
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground",
-          )}
+          pressed={value === o}
+          onPressedChange={() => onChange(o)}
+          size="md"
+          className="flex-1 justify-center"
         >
-          {o}
-          {suffix ? ` ${suffix}` : ""}
-        </button>
+          {o}{suffix ? ` ${suffix}` : ""}
+        </ToggleButton>
       ))}
     </div>
   );
 }
+
+// ─── MultiSegmented ───────────────────────────────────────────────────────────
 
 function MultiSegmented({
   options,
@@ -297,28 +312,25 @@ function MultiSegmented({
   onChange: (v: string[]) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2 rounded-lg border border-border bg-card p-0.5">
+    <div className="flex flex-wrap gap-2">
       {options.map((o) => {
         const active = values.includes(o.value);
         return (
-          <button
+          <ToggleButton
             key={o.value}
-            onClick={() =>
+            pressed={active}
+            onPressedChange={() =>
               onChange(
                 active
                   ? values.filter((v) => v !== o.value)
                   : [...values, o.value],
               )
             }
-            className={cn(
-              "flex-1 rounded-md py-1.5 text-sm font-medium transition-colors",
-              active
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-secondary",
-            )}
+            size="md"
+            className="flex-1 justify-center"
           >
             {o.label}
-          </button>
+          </ToggleButton>
         );
       })}
     </div>

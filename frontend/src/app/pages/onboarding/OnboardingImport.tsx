@@ -10,14 +10,17 @@ import {
   Loader2,
   XCircle,
   X,
-  ArrowRight,
   Settings2,
   ChevronDown,
   Activity,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { Button } from "../../components/ui/button";
-import { Badge } from "../../components/ui/badge";
+import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
+import { PaperBadge, Pill } from "@paper-ui/components/badges";
+import { PaperCard, PaperPanel, PaperH2, PaperH3, PaperH5, PaperIconCircle } from "@paper-ui/core";
+import { PaperSelect, PaperRadio } from "@paper-ui/components/inputs";
+import { LoadingPaper } from "@paper-ui/components/feedback";
+import { ArrowDoodle } from "@paper-ui/components/doodles";
 import { useOnboarding, type ImportFileStatus } from "../../context/OnboardingContext";
 import { api, type ModelsList } from "../../lib/api";
 import { useSettingsStore } from "../../stores/useSettingsStore";
@@ -43,11 +46,12 @@ function formatSize(bytes: number) {
   return `${Math.round(bytes / 1024)} KB`;
 }
 
-const statusConfig: Record<ImportFileStatus, { label: string; cls: string; icon: typeof CheckCircle2 }> = {
-  queued: { label: "Queued", cls: "border-border text-muted-foreground", icon: File },
-  processing: { label: "Processing", cls: "border-warning/40 bg-warning-soft text-warning", icon: Loader2 },
-  completed: { label: "Completed", cls: "border-success/40 bg-success-soft text-success", icon: CheckCircle2 },
-  failed: { label: "Failed", cls: "border-danger/40 bg-danger-soft text-danger", icon: XCircle },
+type StatusCfg = { label: string; tone: "sage" | "ochre" | "brick" | "ink"; icon: typeof CheckCircle2 };
+const statusConfig: Record<ImportFileStatus, StatusCfg> = {
+  queued:     { label: "Queued",     tone: "ink",   icon: File },
+  processing: { label: "Processing", tone: "ochre", icon: Loader2 },
+  completed:  { label: "Completed",  tone: "sage",  icon: CheckCircle2 },
+  failed:     { label: "Failed",     tone: "brick", icon: XCircle },
 };
 
 const supportedTypes = ["Books", "Lecture Notes", "Research Papers", "Documentation", "Markdown Notes", "Text Files", "PDFs"];
@@ -101,8 +105,12 @@ export function OnboardingImport() {
     await startImport();
   };
 
+  // Build model options arrays for PaperSelect
+  const toOptions = (items: string[] | undefined) =>
+    [{ value: "auto", label: "Auto" }, ...(items ?? []).map((m) => ({ value: m, label: m }))];
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-16">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#f5f0e8] px-6 py-16">
       <input
         ref={fileInput}
         type="file"
@@ -118,45 +126,44 @@ export function OnboardingImport() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-2xl"
       >
-        <h2 className="text-center text-2xl font-semibold tracking-tight">Import your documents</h2>
-        <p className="mt-2 text-center text-sm text-muted-foreground">
-          Drop files below or browse your machine. Supports PDFs, DOCX, Markdown and plain text.
-        </p>
+        <div className="text-center mb-8">
+          <PaperH2>Import your documents</PaperH2>
+          <p className="mt-2 font-kalam text-[14px] text-ink-muted">
+            Drop files below or browse your machine. Supports PDFs, DOCX, Markdown and plain text.
+          </p>
+        </div>
 
         {/* Dropzone */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mt-8 cursor-pointer rounded-2xl border-2 border-dashed border-border bg-card p-12 text-center transition-colors hover:border-primary/50"
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={onDrop}
-          onClick={() => fileInput.current?.click()}
         >
-          <div className="mx-auto flex size-14 items-center justify-center rounded-xl bg-violet-soft text-primary">
-            <Upload className="size-7" />
-          </div>
-          <p className="mt-4 text-base font-medium text-foreground">Drop files here</p>
-          <p className="mt-1 text-sm text-muted-foreground">or</p>
-          <Button
-            variant="outline"
-            className="mt-3 gap-2"
-            onClick={(e) => { e.stopPropagation(); fileInput.current?.click(); }}
+          <PaperCard
+            shadow="md"
+            className="cursor-pointer p-12 text-center transition-all hover:scale-[1.005]"
+            onClick={() => fileInput.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={onDrop}
           >
-            Browse Files
-          </Button>
+            <div className="flex flex-col items-center">
+              <PaperIconCircle tone="lavender" size={56}>
+                <Upload size={24} />
+              </PaperIconCircle>
+              <p className="mt-4 font-architect text-[15px] text-ink">Drop files here</p>
+              <p className="mt-1 font-kalam text-[13px] text-ink-muted">or</p>
+              <div className="mt-3" onClick={(e) => { e.stopPropagation(); fileInput.current?.click(); }}>
+                <PaperButton tone="paper" size="sm">Browse Files</PaperButton>
+              </div>
 
-          {/* Supported content chips */}
-          <div className="mt-6 flex flex-wrap justify-center gap-1.5">
-            {supportedTypes.map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-[11px] text-muted-foreground"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
+              {/* Supported content chips */}
+              <div className="mt-6 flex flex-wrap justify-center gap-1.5">
+                {supportedTypes.map((t) => (
+                  <PaperBadge key={t} tone="ink">{t}</PaperBadge>
+                ))}
+              </div>
+            </div>
+          </PaperCard>
         </motion.div>
 
         {/* Queue */}
@@ -166,201 +173,210 @@ export function OnboardingImport() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="mt-4 overflow-hidden rounded-2xl border border-border bg-card"
+              className="mt-4 overflow-hidden"
             >
-              {/* Header */}
-              <div className="grid grid-cols-[1fr_80px_80px_100px_24px] gap-3 border-b border-border bg-muted/40 px-4 py-2.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                <span>File</span>
-                <span>Type</span>
-                <span>Size</span>
-                <span>Status</span>
-                <span />
-              </div>
+              <PaperCard shadow="sm">
+                {/* Header */}
+                <div className="grid grid-cols-[1fr_80px_80px_100px_24px] gap-3 border-b border-[#e8e3d8] bg-black/5 px-4 py-2.5">
+                  {["File", "Type", "Size", "Status", ""].map((h) => (
+                    <span key={h} className="font-architect text-[11px] uppercase tracking-wide text-ink-muted">
+                      {h}
+                    </span>
+                  ))}
+                </div>
 
-              <AnimatePresence>
-                {files.map((item) => {
-                  const Icon = fileIcon(item.file.name);
-                  const { label, cls, icon: StatusIcon } = statusConfig[item.status];
-                  return (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 8 }}
-                      className="grid grid-cols-[1fr_80px_80px_100px_24px] items-center gap-3 border-b border-border px-4 py-3 last:border-0"
-                    >
-                      <div className="flex min-w-0 items-center gap-2.5">
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                          <Icon className="size-4" />
+                <AnimatePresence>
+                  {files.map((item) => {
+                    const Icon = fileIcon(item.file.name);
+                    const { label, tone, icon: StatusIcon } = statusConfig[item.status];
+                    return (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 8 }}
+                        className="grid grid-cols-[1fr_80px_80px_100px_24px] items-center gap-3 border-b border-[#e8e3d8] px-4 py-3 last:border-0"
+                      >
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <PaperIconCircle tone="ink" size={32}>
+                            <Icon size={14} />
+                          </PaperIconCircle>
+                          <span className="font-kalam text-[13px] text-ink truncate">{item.file.name}</span>
                         </div>
-                        <span className="truncate text-sm">{item.file.name}</span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">{fileTypeLabel(item.file.name)}</span>
-                      <span className="text-xs text-muted-foreground">{formatSize(item.file.size)}</span>
-                      <Badge variant="outline" className={`w-fit gap-1 text-[11px] ${cls}`}>
-                        <StatusIcon
-                          className={`size-3 ${item.status === "processing" ? "animate-spin" : ""}`}
-                        />
-                        {label}
-                      </Badge>
-                      {item.status === "queued" && (
-                        <button
-                          onClick={() => removeFile(item.id)}
-                          className="flex size-5 items-center justify-center rounded text-muted-foreground hover:text-foreground"
-                        >
-                          <X className="size-3.5" />
-                        </button>
-                      )}
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
+                        <span className="font-architect text-[11px] text-ink-muted">{fileTypeLabel(item.file.name)}</span>
+                        <span className="font-architect text-[11px] text-ink-muted">{formatSize(item.file.size)}</span>
+                        <Pill tone={tone}>
+                          <StatusIcon
+                            size={10}
+                            className={item.status === "processing" ? "animate-spin" : ""}
+                          />
+                          {label}
+                        </Pill>
+                        {item.status === "queued" && (
+                          <button
+                            onClick={() => removeFile(item.id)}
+                            className="flex size-5 items-center justify-center text-ink-muted hover:text-ink"
+                          >
+                            <X size={13} />
+                          </button>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </PaperCard>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Setup Mode */}
-        <div className="mt-8 border-t border-border pt-6">
-          <h3 className="mb-4 text-base font-semibold">Workspace Setup</h3>
+        <div className="mt-8 border-t border-[#d4cfc2] pt-6">
+          <PaperH3 className="mb-4">Workspace Setup</PaperH3>
           <div className="flex flex-col sm:flex-row gap-4">
-            <label className={`flex-1 flex cursor-pointer gap-3 rounded-xl border p-4 transition-colors ${setupMode === "guided" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
-              <input
-                type="radio"
-                name="setupMode"
-                value="guided"
-                checked={setupMode === "guided"}
-                onChange={() => setSetupMode("guided")}
-                className="mt-1"
-              />
-              <div>
-                <div className="font-medium text-foreground flex items-center gap-2">
-                  Guided Learning <Badge className="bg-primary/10 text-primary hover:bg-primary/20 text-[10px] px-1.5 py-0">Recommended</Badge>
+            {/* Guided */}
+            <div
+              className={`flex-1 cursor-pointer ${setupMode === "guided" ? "ring-2 ring-[#262320] ring-offset-2 rounded-lg" : ""}`}
+              onClick={() => setSetupMode("guided")}
+            >
+              <PaperCard shadow={setupMode === "guided" ? "md" : "sm"} className="p-4">
+                <div className="flex items-start gap-3">
+                  <PaperRadio
+                    value="guided"
+                    selectedValue={setupMode}
+                    onChange={(v) => setSetupMode(v as "guided" | "explore")}
+                    name="setupMode"
+                  />
+                  <div>
+                    <p className="font-architect text-[14px] text-ink flex items-center gap-2">
+                      Guided Learning
+                      <PaperBadge tone="lavender">Recommended</PaperBadge>
+                    </p>
+                    <p className="font-kalam text-[12px] text-ink-muted mt-1">
+                      Organize library, Detect subjects, Build roadmap. Let AI do the heavy lifting.
+                    </p>
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Organize library, Detect subjects, Build roadmap. Let AI do the heavy lifting.
+              </PaperCard>
+            </div>
+
+            {/* Explore */}
+            <div
+              className={`flex-1 cursor-pointer ${setupMode === "explore" ? "ring-2 ring-[#262320] ring-offset-2 rounded-lg" : ""}`}
+              onClick={() => setSetupMode("explore")}
+            >
+              <PaperCard shadow={setupMode === "explore" ? "md" : "sm"} className="p-4">
+                <div className="flex items-start gap-3">
+                  <PaperRadio
+                    value="explore"
+                    selectedValue={setupMode}
+                    onChange={(v) => setSetupMode(v as "guided" | "explore")}
+                    name="setupMode"
+                  />
+                  <div>
+                    <p className="font-architect text-[14px] text-ink">Explore Freely</p>
+                    <p className="font-kalam text-[12px] text-ink-muted mt-1">
+                      Import only. Manually organize your knowledge base later.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </label>
-            <label className={`flex-1 flex cursor-pointer gap-3 rounded-xl border p-4 transition-colors ${setupMode === "explore" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
-              <input
-                type="radio"
-                name="setupMode"
-                value="explore"
-                checked={setupMode === "explore"}
-                onChange={() => setSetupMode("explore")}
-                className="mt-1"
-              />
-              <div>
-                <div className="font-medium text-foreground">Explore Freely</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Import only. Manually organize your knowledge base later.
-                </div>
-              </div>
-            </label>
+              </PaperCard>
+            </div>
           </div>
         </div>
 
         {/* Advanced Settings */}
-        <div className="mt-6 border border-border rounded-xl bg-card overflow-hidden">
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="flex w-full items-center justify-between p-4 text-sm font-medium text-foreground hover:bg-muted/40 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Settings2 className="size-4 text-muted-foreground" />
-              Advanced AI Settings
-            </div>
-            <ChevronDown className={`size-4 text-muted-foreground transition-transform ${showSettings ? "rotate-180" : ""}`} />
-          </button>
-          <AnimatePresence>
-            {showSettings && (
-              <motion.div
-                initial={{ height: 0 }}
-                animate={{ height: "auto" }}
-                exit={{ height: 0 }}
-                className="overflow-hidden border-t border-border"
-              >
-                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/20">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Reasoning Model</label>
-                    <select 
-                      className="w-full rounded-md border border-input bg-transparent px-3 py-1.5 text-sm shadow-sm"
+        <div className="mt-6">
+          <PaperPanel className="overflow-hidden">
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="flex w-full items-center justify-between p-4"
+            >
+              <span className="font-architect text-[14px] text-ink flex items-center gap-2">
+                <Settings2 size={15} className="text-ink-muted" />
+                Advanced AI Settings
+              </span>
+              <ChevronDown
+                size={15}
+                className={`text-ink-muted transition-transform ${showSettings ? "rotate-180" : ""}`}
+              />
+            </button>
+            <AnimatePresence>
+              {showSettings && (
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: "auto" }}
+                  exit={{ height: 0 }}
+                  className="overflow-hidden border-t border-[#e8e3d8]"
+                >
+                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <PaperSelect
+                      label="Reasoning Model"
                       value={s.reasoningModel}
-                      onChange={(e) => s.set("reasoningModel", e.target.value)}
-                    >
-                      <option value="auto">Auto</option>
-                      {models?.reasoningModels.map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Vision Model</label>
-                    <select 
-                      className="w-full rounded-md border border-input bg-transparent px-3 py-1.5 text-sm shadow-sm"
+                      onChange={(v) => s.set("reasoningModel", v)}
+                      options={toOptions(models?.reasoningModels)}
+                    />
+                    <PaperSelect
+                      label="Vision Model"
                       value={s.visionModel}
-                      onChange={(e) => s.set("visionModel", e.target.value)}
-                    >
-                      <option value="auto">Auto</option>
-                      {models?.visionModels.map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Embedding Model</label>
-                    <select 
-                      className="w-full rounded-md border border-input bg-transparent px-3 py-1.5 text-sm shadow-sm"
+                      onChange={(v) => s.set("visionModel", v)}
+                      options={toOptions(models?.visionModels)}
+                    />
+                    <PaperSelect
+                      label="Embedding Model"
                       value={s.embeddingModel}
-                      onChange={(e) => s.set("embeddingModel", e.target.value)}
-                    >
-                      <option value="auto">Auto</option>
-                      {models?.embeddingModels.map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">OCR Engine</label>
-                    <select className="w-full rounded-md border border-input bg-transparent px-3 py-1.5 text-sm shadow-sm">
-                      <option value="auto">Auto</option>
-                    </select>
-                  </div>
-                  <div className="col-span-1 sm:col-span-2 flex items-center justify-between mt-2 pt-4 border-t border-border/50">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {health && (
-                        <>
-                          <Badge variant="outline" className={`text-xs gap-1 ${health.reasoning === "Ready" ? "text-success border-success/30" : "text-warning border-warning/30"}`}>
-                            Reasoning {health.reasoning === "Ready" ? "✓" : "⚠"}
-                          </Badge>
-                          <Badge variant="outline" className={`text-xs gap-1 ${health.vision === "Ready" ? "text-success border-success/30" : "text-warning border-warning/30"}`}>
-                            Vision {health.vision === "Ready" ? "✓" : "⚠"}
-                          </Badge>
-                          <Badge variant="outline" className={`text-xs gap-1 ${health.embedding === "Ready" ? "text-success border-success/30" : "text-warning border-warning/30"}`}>
-                            Embedding {health.embedding === "Ready" ? "✓" : "⚠"}
-                          </Badge>
-                          <Badge variant="outline" className={`text-xs gap-1 ${health.ocr === "Ready" ? "text-success border-success/30" : "text-warning border-warning/30"}`}>
-                            OCR {health.ocr === "Ready" ? "✓" : "⚠"}
-                          </Badge>
-                        </>
-                      )}
+                      onChange={(v) => s.set("embeddingModel", v)}
+                      options={toOptions(models?.embeddingModels)}
+                    />
+                    <PaperSelect
+                      label="OCR Engine"
+                      value="auto"
+                      onChange={() => {}}
+                      options={[{ value: "auto", label: "Auto" }]}
+                    />
+
+                    <div className="col-span-1 sm:col-span-2 flex items-center justify-between mt-2 pt-4 border-t border-[#e8e3d8]/50">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {health && (
+                          <>
+                            {[
+                              { key: "reasoning", label: "Reasoning" },
+                              { key: "vision",    label: "Vision" },
+                              { key: "embedding", label: "Embedding" },
+                              { key: "ocr",       label: "OCR" },
+                            ].map(({ key, label }) => {
+                              const val = health[key as keyof typeof health];
+                              return (
+                                <PaperBadge key={key} tone={val === "Ready" ? "sage" : "ochre"}>
+                                  {label} {val === "Ready" ? "✓" : "⚠"}
+                                </PaperBadge>
+                              );
+                            })}
+                          </>
+                        )}
+                      </div>
+                      <PaperButton tone="paper" size="sm" onClick={verifySetup} disabled={verifying}>
+                        {verifying ? <Loader2 size={13} className="animate-spin" /> : <Activity size={13} />}
+                        Verify Setup
+                      </PaperButton>
                     </div>
-                    <Button variant="outline" size="sm" onClick={verifySetup} disabled={verifying} className="gap-2 shrink-0">
-                      {verifying ? <Loader2 className="size-3.5 animate-spin" /> : <Activity className="size-3.5" />}
-                      Verify Setup
-                    </Button>
                   </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </PaperPanel>
         </div>
 
         {/* Actions */}
-        <div className="mt-8 flex justify-end border-t border-border pt-6">
-          <Button
+        <div className="mt-8 flex justify-end border-t border-[#d4cfc2] pt-6">
+          <PaperButton
             disabled={!canStart}
+            tone="dark"
             size="lg"
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 min-w-40"
             onClick={handleStart}
           >
             Start Setup
-            <ArrowRight className="size-4" />
-          </Button>
+            <ArrowDoodle size={18} color="#fbf8f2" />
+          </PaperButton>
         </div>
       </motion.div>
     </div>

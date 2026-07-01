@@ -118,7 +118,7 @@ export function Sidebar({ children, className }: SidebarProps) {
         "flex h-full w-64 shrink-0 flex-col overflow-y-auto py-6 paper-scrollbar",
         className,
       )}
-      style={{ borderRight: "1.5px solid rgba(0,0,0,0.08)" }}
+      style={{ borderRight: "1.5px solid #c8c0b0" }}
     >
       {children}
     </aside>

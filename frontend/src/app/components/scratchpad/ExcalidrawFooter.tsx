@@ -2,6 +2,8 @@ import { toast } from 'sonner'
 import { useNavigate } from 'react-router'
 import { Trash2, Download, NotebookText, ExternalLink } from 'lucide-react'
 import { api } from '../../lib/api'
+import { SketchBorder } from '@/paper-ui/core'
+import { PaperTooltip, PaperPopover } from '@/paper-ui/components/dialogs'
 
 export interface ExcalidrawFooterProps {
   apiRef: React.MutableRefObject<any>
@@ -90,39 +92,70 @@ export function ExcalidrawFooter({ apiRef }: ExcalidrawFooterProps) {
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 border-t border-border bg-card px-3 py-1.5 shrink-0">
-      <button
-        onClick={handleClear}
-        className="flex items-center gap-1 rounded px-2 py-1 text-xs hover:bg-muted text-muted-foreground hover:text-foreground"
-      >
-        <Trash2 size={12} />
-        Clear
-      </button>
-      <div className="w-px h-4 bg-border" />
-      <div className="relative group">
-        <button className="flex items-center gap-1 rounded px-2 py-1 text-xs hover:bg-muted text-muted-foreground hover:text-foreground">
-          <Download size={12} />
-          Export
-        </button>
-        <div className="absolute bottom-full right-0 mb-1 hidden group-hover:flex flex-col bg-popover border border-border rounded shadow-md text-xs z-50 min-w-[100px]">
-          <button className="px-3 py-2 hover:bg-muted text-left" onClick={handleExportPNG}>Export PNG</button>
-          <button className="px-3 py-2 hover:bg-muted text-left" onClick={handleExportSVG}>Export SVG</button>
-        </div>
+    <div className="relative shrink-0">
+      <SketchBorder
+        fill="#fffdf9"
+        stroke="#3a3733"
+        strokeWidth={1.4}
+        radius={0}
+        roughness={1.0}
+        shadow={0}
+        bleed={4}
+      />
+      <div className="relative z-[1] flex items-center justify-center gap-2 px-3 py-1.5">
+        <PaperTooltip content="Clear scratchpad">
+          <button
+            onClick={handleClear}
+            className="relative inline-flex items-center gap-1 rounded px-2 py-1 font-architect text-[12px] text-ink-muted hover:text-ink transition-colors"
+          >
+            <Trash2 size={12} />
+            Clear
+          </button>
+        </PaperTooltip>
+        <div className="w-px h-4 bg-[#e8e3d8]" />
+        <PaperPopover
+          placement="top"
+          trigger={
+            <button className="relative inline-flex items-center gap-1 rounded px-2 py-1 font-architect text-[12px] text-ink-muted hover:text-ink transition-colors">
+              <Download size={12} />
+              Export
+            </button>
+          }
+        >
+          <div className="flex flex-col gap-0.5 min-w-[120px]">
+            <button
+              className="flex w-full items-center gap-2 px-2 py-1.5 font-architect text-[13px] text-ink hover:bg-black/[0.04] rounded transition-colors text-left"
+              onClick={handleExportPNG}
+            >
+              Export PNG
+            </button>
+            <button
+              className="flex w-full items-center gap-2 px-2 py-1.5 font-architect text-[13px] text-ink hover:bg-black/[0.04] rounded transition-colors text-left"
+              onClick={handleExportSVG}
+            >
+              Export SVG
+            </button>
+          </div>
+        </PaperPopover>
+        <PaperTooltip content="Move to notebook">
+          <button
+            onClick={handleMoveToNotebook}
+            className="relative inline-flex items-center gap-1 rounded px-2 py-1 font-architect text-[12px] text-ink-muted hover:text-ink transition-colors"
+          >
+            <NotebookText size={12} />
+            Move to Notebook
+          </button>
+        </PaperTooltip>
+        <PaperTooltip content="Open in full editor">
+          <button
+            onClick={handleOpenFullEditor}
+            className="relative inline-flex items-center gap-1 rounded px-2 py-1 font-architect text-[12px] text-ink-muted hover:text-ink transition-colors"
+          >
+            <ExternalLink size={12} />
+            Open in Full Editor
+          </button>
+        </PaperTooltip>
       </div>
-      <button
-        onClick={handleMoveToNotebook}
-        className="flex items-center gap-1 rounded px-2 py-1 text-xs hover:bg-muted text-muted-foreground hover:text-foreground"
-      >
-        <NotebookText size={12} />
-        Move to Notebook
-      </button>
-      <button
-        onClick={handleOpenFullEditor}
-        className="flex items-center gap-1 rounded px-2 py-1 text-xs hover:bg-muted text-muted-foreground hover:text-foreground"
-      >
-        <ExternalLink size={12} />
-        Open in Full Editor
-      </button>
     </div>
   )
 }

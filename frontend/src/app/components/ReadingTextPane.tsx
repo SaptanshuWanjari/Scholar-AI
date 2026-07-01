@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { type ReadingSection } from "../lib/api";
-import { cn } from "./ui/utils";
+import { cn } from "@/paper-ui/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";

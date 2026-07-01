@@ -133,7 +133,7 @@ def create_app() -> FastAPI:
         except Exception:
             pass
 
-        embed_model = settings.llm.embedding_model
+        embed_model = settings.models.embedding
         embed_available = any(m == embed_model or m.startswith(embed_model + ":") for m in models)
 
         return {

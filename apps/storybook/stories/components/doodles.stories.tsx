@@ -1,12 +1,12 @@
 import React from 'react';
 import type { Meta } from '@storybook/react';
-import { Paper } from '../../../../paper-ui/src/components/paper';
+import { Paper } from '@paper-ui/components/paper';
 import { 
   SunDoodle, ArrowDoodle, SignpostDoodle, StarDoodle, StarDoodleFilled, CheckmarkDoodle, 
   SparkleDoodle, BookmarkDoodle, PaperPlaneDoodle, PencilDoodle, TapeDoodle, PushPinDoodle, 
   CloudDoodle, BrainDoodle, LightbulbDoodle, CompassDoodle 
-} from '../../../../paper-ui/src/components/doodles';
-import { PaperBadge } from '../../../../paper-ui/src/components/badges';
+} from '@paper-ui/components/doodles';
+import { PaperBadge } from '@paper-ui/components/badges';
 
 const meta = {
   title: 'Components/Decorations/Doodles',

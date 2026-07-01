@@ -1,5 +1,7 @@
 import { X } from 'lucide-react'
 import { useScratchpadStore } from './useScratchpadStore'
+import { PaperBadge } from '@/paper-ui/components/badges'
+import { IconButton } from '@/paper-ui/components/buttons'
 
 export function DrawerHeader() {
   const { setDrawerState, isDirty, lastSaved } = useScratchpadStore()
@@ -11,20 +13,16 @@ export function DrawerHeader() {
     : 'Autosaved'
 
   return (
-    <div className="flex items-center justify-between border-b border-border px-3 py-2 shrink-0">
+    <div className="flex items-center justify-between border-b border-[#e8e3d8] px-6 py-3 shrink-0">
       <div className="flex items-center gap-3">
-        <span className="text-xs font-semibold tracking-widest text-foreground uppercase">
+        <span className="font-architect text-[13px] tracking-widest text-ink uppercase">
           Scratch Pad
         </span>
-        <span className="text-xs text-muted-foreground">{savedLabel}</span>
+        <PaperBadge tone="ink">{savedLabel}</PaperBadge>
       </div>
-      <button
-        onClick={() => setDrawerState('collapsed')}
-        className="rounded p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-        aria-label="Close scratchpad"
-      >
+      <IconButton label="Close scratchpad" onClick={() => setDrawerState('collapsed')}>
         <X size={14} />
-      </button>
+      </IconButton>
     </div>
   )
 }

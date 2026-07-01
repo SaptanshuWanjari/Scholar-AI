@@ -4,18 +4,11 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "./ui/accordion";
-import { Button } from "./ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
-import { Progress } from "./ui/progress";
-import { Textarea } from "./ui/textarea";
-import { Toggle } from "./ui/toggle";
+} from "@/paper-ui/components/navigation";
+import { PaperButton, GhostButton, ToggleButton } from "@/paper-ui/components/buttons";
+import { PaperModal } from "@/paper-ui/components/dialogs";
+import { SketchProgress } from "@/paper-ui/components/progress";
+import { PaperTextarea } from "@/paper-ui/components/inputs";
 import { Check, Sparkles, Loader2 } from "lucide-react";
 import { usePromptEnhancerStore } from "../stores/usePromptEnhancerStore";
 
@@ -87,57 +80,63 @@ export function PromptCoachModal() {
           Analyzing prompt...
         </div>
       )}
-      <Dialog open={open} onOpenChange={(o) => !o && close()}>
-        <DialogContent className="max-w-lg gap-0 p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4">
-          <DialogTitle className="flex items-center gap-2 text-base font-semibold">
-            <Sparkles className="size-4 text-black" />
-            Prompt Coach
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="px-6 space-y-4 max-h-[60vh] overflow-y-auto pb-2">
+      <PaperModal
+        open={open}
+        onClose={close}
+        title="Prompt Coach"
+        footer={
+          <>
+            <GhostButton size="sm" onClick={handleEdit} className="mr-auto">
+              Edit Myself
+            </GhostButton>
+            <GhostButton size="sm" onClick={handleGenerateAnyway}>
+              Generate Anyway
+            </GhostButton>
+            <PaperButton size="sm" onClick={handleUseSuggested}>
+              Use Suggested Prompt
+            </PaperButton>
+          </>
+        }
+      >
+        <div className="space-y-4 max-h-[60vh] overflow-y-auto -mx-1 px-1">
           {/* Quality score */}
           <div className={`rounded-lg p-3 ${cfg.bg}`}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Prompt Quality</span>
-              <span className={`text-sm font-semibold ${cfg.color}`}>
+              <span className="font-architect text-sm font-medium text-ink">Prompt Quality</span>
+              <span className={`font-architect text-sm font-semibold ${cfg.color}`}>
                 {score ?? "—"} / 100 &nbsp;·&nbsp; {capLabel}
               </span>
             </div>
-            <Progress
-              value={score ?? 0}
-              className="h-1.5 bg-muted"
-            />
+            <SketchProgress value={score ?? 0} height={8} color="#8a7f6b" />
           </div>
 
           {/* Explanation */}
-          <p className="text-sm text-muted-foreground">
+          <p className="font-architect text-sm text-ink-muted">
             Your prompt is very broad. ScholarAI can generate better content if
             it understands what you&apos;re trying to learn.
           </p>
 
           {/* Suggested prompt textarea */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label className="font-architect text-xs font-medium text-ink-muted uppercase tracking-wide">
               Suggested prompt
             </label>
-            <Textarea
+            <PaperTextarea
               value={editedSuggestion}
               onChange={(e) => setEditedSuggestion(e.target.value)}
-              className="min-h-[96px] text-sm resize-none"
+              className="min-h-[96px] resize-none"
             />
           </div>
 
           {/* Improvements */}
           {improvements.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <p className="font-architect text-xs font-medium text-ink-muted uppercase tracking-wide">
                 Why it&apos;s better
               </p>
               <ul className="space-y-1">
                 {improvements.map((imp) => (
-                  <li key={imp} className="flex items-start gap-2 text-sm">
+                  <li key={imp} className="flex items-start gap-2 font-architect text-sm text-ink-muted">
                     <Check className="size-3.5 mt-0.5 shrink-0 text-green-500" />
                     {imp}
                   </li>
@@ -149,55 +148,52 @@ export function PromptCoachModal() {
           {/* Advanced accordion */}
           <Accordion type="single" collapsible>
             <AccordionItem value="advanced" className="border-0">
-              <AccordionTrigger className="text-xs font-medium text-muted-foreground uppercase tracking-wide py-2 hover:no-underline">
+              <AccordionTrigger className="font-architect text-xs font-medium text-ink-muted uppercase tracking-wide py-2 hover:no-underline">
                 Advanced
               </AccordionTrigger>
               <AccordionContent className="space-y-3 pt-1">
                 <div className="space-y-1.5">
-                  <p className="text-xs text-muted-foreground">Learning depth</p>
+                  <p className="font-architect text-xs text-ink-muted">Learning depth</p>
                   <div className="flex flex-wrap gap-1.5">
                     {DEPTH_OPTIONS.map((d) => (
-                      <Toggle
+                      <ToggleButton
                         key={d}
                         size="sm"
                         pressed={depth === d}
                         onPressedChange={() => setDepth(depth === d ? null : d)}
-                        className="text-xs h-7 px-2.5"
                       >
                         {d}
-                      </Toggle>
+                      </ToggleButton>
                     ))}
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <p className="text-xs text-muted-foreground">Output focus</p>
+                  <p className="font-architect text-xs text-ink-muted">Output focus</p>
                   <div className="flex flex-wrap gap-1.5">
                     {FOCUS_OPTIONS.map((f) => (
-                      <Toggle
+                      <ToggleButton
                         key={f}
                         size="sm"
                         pressed={focus === f}
                         onPressedChange={() => setFocus(focus === f ? null : f)}
-                        className="text-xs h-7 px-2.5"
                       >
                         {f}
-                      </Toggle>
+                      </ToggleButton>
                     ))}
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <p className="text-xs text-muted-foreground">Artifact preferences</p>
+                  <p className="font-architect text-xs text-ink-muted">Artifact preferences</p>
                   <div className="flex flex-wrap gap-1.5">
                     {ARTIFACT_OPTIONS.map((a) => (
-                      <Toggle
+                      <ToggleButton
                         key={a}
                         size="sm"
                         pressed={artifacts.includes(a)}
                         onPressedChange={() => toggleArtifact(a)}
-                        className="text-xs h-7 px-2.5"
                       >
                         {a}
-                      </Toggle>
+                      </ToggleButton>
                     ))}
                   </div>
                 </div>
@@ -205,36 +201,7 @@ export function PromptCoachModal() {
             </AccordionItem>
           </Accordion>
         </div>
-
-        <DialogFooter className="px-6 py-4 border-t flex flex-col sm:flex-row items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground w-full sm:w-auto order-last sm:order-first"
-            onClick={handleEdit}
-          >
-            Edit Myself
-          </Button>
-          <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 sm:flex-none"
-              onClick={handleGenerateAnyway}
-            >
-              Generate Anyway
-            </Button>
-            <Button
-              size="sm"
-              className="flex-1 sm:flex-none bg-violet-600 hover:bg-violet-700"
-              onClick={handleUseSuggested}
-            >
-              Use Suggested Prompt
-            </Button>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </PaperModal>
     </>
   );
 }

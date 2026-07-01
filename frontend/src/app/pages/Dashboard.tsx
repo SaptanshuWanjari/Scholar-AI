@@ -18,7 +18,6 @@ import {
   SessionCard,
   StickyNoteCard,
   ContinueLearningCard,
-  MetricCard,
 } from "@paper-ui/components/cards";
 import {
   PaperTable,
@@ -26,7 +25,7 @@ import {
   TableRow,
   TableCell,
 } from "@paper-ui/components/tables";
-import { DocumentRow } from "@paper-ui/components/rows";
+import { DocumentRow, StatRow } from "@paper-ui/components/rows";
 import { SunDoodle, ArrowDoodle } from "@paper-ui/components/doodles";
 import { api, type DashboardData, type LearningPathMeta, type LearningPath } from "../lib/api";
 import { useSettingsStore } from "../stores/useSettingsStore";
@@ -37,7 +36,7 @@ type IconTone = "lavender" | "ochre" | "sky" | "sage" | "brick" | "ink";
 interface StatSpec {
   label: string;
   value: number;
-  description: string;
+  sublabel: string;
   icon: LucideIcon;
   tone: IconTone;
   onClick?: () => void;
@@ -61,6 +60,7 @@ export function Dashboard() {
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [paths, setPaths] = useState<LearningPathMeta[]>([]);
   const [activePathDetails, setActivePathDetails] = useState<LearningPath | null>(null);
+  const [pathsLoaded, setPathsLoaded] = useState(false);
   const [starred, setStarred] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -73,7 +73,8 @@ export function Dashboard() {
       if (active) {
         api.getLearningPath(active.id).then(setActivePathDetails).catch(() => {});
       }
-    }).catch(() => {});
+      setPathsLoaded(true);
+    }).catch(() => setPathsLoaded(true));
   }, []);
 
   const metrics = dashboard?.metrics;
@@ -82,14 +83,14 @@ export function Dashboard() {
     {
       label: "Documents",
       value: metrics?.documents ?? documents.length,
-      description: `${courses.length} courses`,
+      sublabel: `${courses.length} courses`,
       icon: FileText,
       tone: "lavender",
     },
     {
       label: "Cards due today",
       value: metrics?.flashcardsDue ?? 0,
-      description: "Review today",
+      sublabel: "Review today",
       icon: Layers,
       tone: "ochre",
       onClick: () => navigate("/flashcards"),
@@ -97,21 +98,21 @@ export function Dashboard() {
     {
       label: "Total Flashcards",
       value: metrics?.flashcards ?? 0,
-      description: "Across all decks",
+      sublabel: "Across all decks",
       icon: LibraryBig,
       tone: "sky",
     },
     {
       label: "Quizzes taken",
       value: metrics?.quizzesTaken ?? 0,
-      description: "Total attempts",
+      sublabel: "Total attempts",
       icon: ListChecks,
       tone: "sage",
     },
     {
       label: "Study sessions",
       value: metrics?.studySessions ?? 0,
-      description: "Recorded sessions",
+      sublabel: "Recorded sessions",
       icon: Clock,
       tone: "brick",
     },
@@ -162,7 +163,7 @@ export function Dashboard() {
         <div className="space-y-6 lg:col-span-2">
 
           {/* Active Learning Path */}
-          {activePathDetails ? (
+          {!pathsLoaded ? null : activePathDetails ? (
             <ContinueLearningCard
               course={activePathDetails.title}
               percent={pathPercent}
@@ -278,18 +279,18 @@ export function Dashboard() {
 
           {/* Stats — spiral notebook */}
           <NotebookSpiralCard title="Your Stats" spiralCount={9}>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
               {stats.map((s) => (
                 <div
                   key={s.label}
                   className={s.onClick ? "cursor-pointer" : undefined}
                   onClick={s.onClick}
                 >
-                  <MetricCard
+                  <StatRow
                     label={s.label}
                     value={s.value}
-                    description={s.description}
-                    icon={<s.icon className="size-4" />}
+                    sublabel={s.sublabel}
+                    icon={<s.icon className="size-5" />}
                     tone={s.tone}
                   />
                 </div>

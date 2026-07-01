@@ -483,6 +483,7 @@ class NotebookOut(BaseModel):
     course: str
     color: str
     blocks: list = []
+    bs_snapshot: dict | None = None
     tags: list[str] = []
     updated: str
     is_draft: bool = False

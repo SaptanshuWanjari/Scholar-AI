@@ -6,6 +6,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 mermaid.initialize({
   startOnLoad: false,
   theme: "base",
+  look: "handDrawn",
   themeVariables: {
     background: "#fffefb",
     primaryColor: "#fffefb",
@@ -14,8 +15,8 @@ mermaid.initialize({
     lineColor: "#a39e93",
     secondaryColor: "#efece5",
     tertiaryColor: "#f6f5f1",
-    fontFamily: "Inter, sans-serif",
-    fontSize: "14px",
+    fontFamily: "Kalam, 'Architects Daughter', cursive",
+    fontSize: "15px",
   },
   securityLevel: "loose",
 });

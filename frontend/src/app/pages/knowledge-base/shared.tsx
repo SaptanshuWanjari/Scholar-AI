@@ -1,10 +1,11 @@
-import { cn } from "../../components/ui/utils";
+import { SectionLabel } from "@paper-ui/core";
 
 export function SideSection({ label, icon: Icon, children }: { label: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <div className="border-b border-border px-3 py-3">
-      <div className="mb-1.5 flex items-center gap-1.5 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        <Icon className="size-3" /> {label}
+    <div className="border-b border-[#e8e3d8] px-3 py-3">
+      <div className="mb-1.5 flex items-center gap-1.5 px-1">
+        <Icon className="size-3 text-ink-muted" />
+        <SectionLabel className="text-[10px]">{label}</SectionLabel>
       </div>
       {children}
     </div>
@@ -14,7 +15,7 @@ export function SideSection({ label, icon: Icon, children }: { label: string; ic
 export function InspectorBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</div>
+      <SectionLabel className="mb-2 block text-[10px]">{title}</SectionLabel>
       {children}
     </div>
   );
@@ -23,7 +24,7 @@ export function InspectorBlock({ title, children }: { title: string; children: R
 export function DrawerBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</div>
+      <SectionLabel className="mb-3 block text-[10px]">{title}</SectionLabel>
       {children}
     </div>
   );
@@ -31,8 +32,8 @@ export function DrawerBlock({ title, children }: { title: string; children: Reac
 
 export function LegendDot({ cls, label }: { cls: string; label: string }) {
   return (
-    <span className="flex items-center gap-1.5">
-      <span className={cn("shrink-0 rounded-full", cls)} />
+    <span className="flex items-center gap-1.5 font-architect text-[13px] text-ink">
+      <span className={`shrink-0 rounded-full ${cls}`} />
       {label}
     </span>
   );
