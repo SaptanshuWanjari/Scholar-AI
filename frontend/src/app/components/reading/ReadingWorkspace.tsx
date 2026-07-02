@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import {
   StickyNote as StickyNoteIcon,
   PencilRuler, Columns, Plus, Trash2, Pencil,

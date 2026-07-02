@@ -5,7 +5,7 @@ import { GenerationSteps } from "../components/GenerationSteps";
 import { api, type GeneratedMindmap } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 import { useMindmapStore, ALL_COURSES } from "../stores/useMindmapStore";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { MindMapTree, parseMindmapText, countNodes } from "../components/MindMapTree";
 import QualityBadge from "../components/QualityBadge";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";

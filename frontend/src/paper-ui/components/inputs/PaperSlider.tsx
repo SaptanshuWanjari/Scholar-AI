@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import rough from "roughjs/bin/rough";
 import { cn } from "@/paper-ui/utils";
+import { usePaperTheme } from "@/paper-ui/core";
 
 const THUMB_D = 16;
 const SVG_H = 28;
@@ -19,6 +20,7 @@ interface SliderSvgProps {
 
 function SliderSvg({ pct, focused, disabled, width }: SliderSvgProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const t = usePaperTheme();
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -33,7 +35,7 @@ function SliderSvg({ pct, focused, disabled, width }: SliderSvgProps) {
     // Background track
     svg.appendChild(
       rc.line(trackLeft, TRACK_Y, trackRight, TRACK_Y, {
-        stroke: "#d4cfc2",
+        stroke: t.border,
         strokeWidth: 2.5,
         roughness: 1.4,
         seed: SEED,
@@ -44,7 +46,7 @@ function SliderSvg({ pct, focused, disabled, width }: SliderSvgProps) {
     if (thumbX > trackLeft + 1) {
       svg.appendChild(
         rc.line(trackLeft, TRACK_Y, thumbX, TRACK_Y, {
-          stroke: disabled ? "#a09890" : "#262320",
+          stroke: disabled ? t.strokeSm : t.ink,
           strokeWidth: 2.5,
           roughness: 1.2,
           seed: SEED + 1,
@@ -55,15 +57,15 @@ function SliderSvg({ pct, focused, disabled, width }: SliderSvgProps) {
     // Thumb circle
     svg.appendChild(
       rc.circle(thumbX, TRACK_Y, THUMB_D, {
-        fill: disabled ? "#b4ad9e" : "#262320",
+        fill: disabled ? t.strokeSm : t.ink,
         fillStyle: "solid",
-        stroke: disabled ? "#a09890" : focused ? "#262320" : "#3a3733",
+        stroke: disabled ? t.strokeSm : focused ? t.ink : t.strokeSm,
         strokeWidth: focused ? 2 : 1.6,
         roughness: 0.8,
         seed: SEED + 2,
       }),
     );
-  }, [pct, focused, disabled, width]);
+  }, [pct, focused, disabled, width, t]);
 
   return (
     <svg
@@ -154,12 +156,12 @@ export function PaperSlider({
       {(label || showValue) && (
         <div className="flex items-center justify-between">
           {label && (
-            <label htmlFor={inputId} className="font-architect text-[13px] text-ink-muted">
+            <label htmlFor={inputId} className="font-architect text-[0.87rem] text-ink-muted">
               {label}
             </label>
           )}
           {showValue && (
-            <span className="font-architect text-[13px] text-ink">
+            <span className="font-architect text-[0.87rem] text-ink">
               {displayValue}
             </span>
           )}

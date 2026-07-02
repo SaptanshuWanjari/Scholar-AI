@@ -1,5 +1,6 @@
 import { cn } from "@/paper-ui/utils";
 import type { IconTone } from "@/paper-ui/core";
+import { usePaperTheme } from "@/paper-ui/core";
 
 const STAMP_TONES: Record<IconTone, { stroke: string; fill: string }> = {
   sage:     { stroke: "#3f7a4e", fill: "rgba(63,122,78,0.07)" },
@@ -55,7 +56,9 @@ export function PaperStamp({
   className,
 }: PaperStampProps) {
   const { stroke, fill } = STAMP_TONES[tone];
-  const { vw, vh, fontSize, letterSpacing } = SIZES[size];
+  const { vw, vh, fontSize: baseFontSize, letterSpacing } = SIZES[size];
+  const { fontScale } = usePaperTheme();
+  const fontSize = Math.round(baseFontSize * fontScale);
 
   return (
     <svg

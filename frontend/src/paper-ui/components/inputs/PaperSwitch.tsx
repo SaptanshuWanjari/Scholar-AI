@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import rough from "roughjs/bin/rough";
 import { cn } from "@/paper-ui/utils";
+import { usePaperTheme } from "@/paper-ui/core";
 
 const TRACK_W = 42;
 const TRACK_H = 24;
@@ -26,6 +27,7 @@ function buildPillPath(x: number, y: number, w: number, h: number): string {
 
 function SwitchSvg({ checked, focused, disabled }: SwitchSvgProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const t = usePaperTheme();
   const W = TRACK_W + BLEED * 2;
   const H = TRACK_H + BLEED * 2;
 
@@ -38,17 +40,17 @@ function SwitchSvg({ checked, focused, disabled }: SwitchSvgProps) {
 
     // Track fill
     const trackFill = disabled
-      ? "#d4cfc2"
+      ? t.border
       : checked
-        ? "#262320"
-        : "#fffdf9";
+        ? t.ink
+        : t.surface;
     const trackStroke = disabled
-      ? "#c4bdb0"
+      ? t.strokeSm
       : checked
-        ? "#262320"
+        ? t.ink
         : focused
-          ? "#262320"
-          : "#b4ad9e";
+          ? t.ink
+          : t.strokeSm;
 
     const pillPath = buildPillPath(BLEED, BLEED, TRACK_W, TRACK_H);
 
@@ -68,8 +70,8 @@ function SwitchSvg({ checked, focused, disabled }: SwitchSvgProps) {
       ? BLEED + TRACK_W - TRACK_H / 2
       : BLEED + TRACK_H / 2;
     const cy = BLEED + TRACK_H / 2;
-    const knobFill = disabled ? "#b4ad9e" : checked ? "#fffdf9" : "#c4bdb0";
-    const knobStroke = disabled ? "#a09890" : checked ? "#fffdf9" : "#9a9287";
+    const knobFill = disabled ? t.strokeSm : checked ? t.surface : t.border;
+    const knobStroke = disabled ? t.strokeSm : checked ? t.surface : t.strokeSm;
 
     svg.appendChild(
       rc.circle(cx, cy, KNOB_D, {
@@ -81,7 +83,7 @@ function SwitchSvg({ checked, focused, disabled }: SwitchSvgProps) {
         seed: SEED + 1,
       }),
     );
-  }, [checked, focused, disabled]);
+  }, [checked, focused, disabled, t]);
 
   return (
     <svg
@@ -138,12 +140,12 @@ export function PaperSwitch({
   const labelEl = (label || description) && (
     <div className="min-w-0">
       {label && (
-        <div className="font-architect text-[14px] leading-tight text-ink">
+         <div className="font-architect text-[0.93rem] leading-tight text-ink">
           {label}
         </div>
       )}
       {description && (
-        <div className="mt-0.5 font-kalam text-[12px] text-ink-muted/75">
+        <div className="mt-0.5 font-kalam text-[0.8rem] text-ink-muted/75">
           {description}
         </div>
       )}

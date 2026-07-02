@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { cn } from "@/paper-ui/utils";
 import { SketchBorder } from "@/paper-ui/core";
+import { usePaperTheme } from "@/paper-ui/core";
 
 // ─── PaperInput ───────────────────────────────────────────────────────────────
 
@@ -21,18 +22,19 @@ export const PaperInput = React.forwardRef<HTMLInputElement, PaperInputProps>(
     const [focused, setFocused] = useState(false);
     const generatedId = React.useId();
     const inputId = id ?? generatedId;
+    const t = usePaperTheme();
 
     return (
       <div className={cn("flex flex-col gap-1.5", wrapperClassName)}>
         {label && (
-          <label htmlFor={inputId} className="font-architect text-[13px] text-ink-muted">
+          <label htmlFor={inputId} className="font-architect text-ink-muted">
             {label}
           </label>
         )}
         <div className={cn("relative flex items-center gap-2 px-3 py-2", className)}>
           <SketchBorder
-            fill="#fffdf9"
-            stroke={error ? "#9f3a36" : focused ? "#262320" : "#9c9484"}
+            fill={t.surface}
+            stroke={error ? t.danger : focused ? t.ink : t.strokeSm}
             strokeWidth={focused ? 1.8 : 1.5}
             roughness={1.1}
             shadow={0}
@@ -45,7 +47,7 @@ export const PaperInput = React.forwardRef<HTMLInputElement, PaperInputProps>(
             id={inputId}
             onFocus={(e) => { setFocused(true); onFocus?.(e); }}
             onBlur={(e) => { setFocused(false); onBlur?.(e); }}
-            className="relative z-[1] flex-1 border-none bg-transparent font-architect text-[15px] text-ink placeholder:font-architect placeholder:text-ink-muted/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="relative z-[1] flex-1 border-none bg-transparent font-architect text-[1rem] text-ink placeholder:font-architect placeholder:text-ink-muted/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             {...props}
           />
           {trailingIcon && (
@@ -53,10 +55,10 @@ export const PaperInput = React.forwardRef<HTMLInputElement, PaperInputProps>(
           )}
         </div>
         {error && (
-          <p className="font-kalam text-[12px] text-danger">{error}</p>
+          <p className="font-kalam text-[0.8rem] text-danger">{error}</p>
         )}
         {hint && !error && (
-          <p className="font-kalam text-[12px] text-ink-muted/70">{hint}</p>
+          <p className="font-kalam text-[0.8rem] text-ink-muted/70">{hint}</p>
         )}
       </div>
     );
@@ -80,18 +82,19 @@ export const PaperTextarea = React.forwardRef<HTMLTextAreaElement, PaperTextarea
     const [focused, setFocused] = useState(false);
     const generatedId = React.useId();
     const inputId = id ?? generatedId;
+    const t = usePaperTheme();
 
     return (
       <div className={cn("flex flex-col gap-1.5", wrapperClassName)}>
         {label && (
-          <label htmlFor={inputId} className="font-architect text-[13px] text-ink-muted">
+          <label htmlFor={inputId} className="font-architect text-[0.87rem] text-ink-muted">
             {label}
           </label>
         )}
         <div className={cn("relative px-3 py-2", className)}>
           <SketchBorder
-            fill="#fffdf9"
-            stroke={error ? "#9f3a36" : focused ? "#262320" : "#9c9484"}
+            fill={t.surface}
+            stroke={error ? t.danger : focused ? t.ink : t.strokeSm}
             strokeWidth={focused ? 1.8 : 1.5}
             roughness={1.1}
             shadow={0}
@@ -102,15 +105,15 @@ export const PaperTextarea = React.forwardRef<HTMLTextAreaElement, PaperTextarea
             rows={rows}
             onFocus={(e) => { setFocused(true); onFocus?.(e); }}
             onBlur={(e) => { setFocused(false); onBlur?.(e); }}
-            className="relative z-[1] w-full resize-y border-none bg-transparent font-architect text-[15px] leading-relaxed text-ink placeholder:font-architect placeholder:text-ink-muted/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="relative z-[1] w-full resize-y border-none bg-transparent font-architect text-[1rem] leading-relaxed text-ink placeholder:font-architect placeholder:text-ink-muted/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             {...props}
           />
         </div>
         {error && (
-          <p className="font-kalam text-[12px] text-danger">{error}</p>
+          <p className="font-kalam text-[0.8rem] text-danger">{error}</p>
         )}
         {hint && !error && (
-          <p className="font-kalam text-[12px] text-ink-muted/70">{hint}</p>
+          <p className="font-kalam text-[0.8rem] text-ink-muted/70">{hint}</p>
         )}
       </div>
     );

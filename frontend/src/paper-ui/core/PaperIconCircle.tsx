@@ -1,6 +1,7 @@
 import React from "react";
 import { cn } from "@/paper-ui/utils";
 import { SketchBorder } from "@/paper-ui/core";
+import { usePaperTheme } from "@/paper-ui/core";
 
 export type IconTone = "sage" | "ochre" | "sky" | "lavender" | "brick" | "ink";
 
@@ -26,15 +27,17 @@ export interface PaperIconCircleProps {
  * no CSS border or box-shadow underneath.
  */
 export function PaperIconCircle({ children, tone = "ink", size = 36, className }: PaperIconCircleProps) {
-  const t = TONES[tone];
+  const t = usePaperTheme();
+  const resolved =
+    tone === "ink" ? { fill: t.panel, fg: t.ink, stroke: t.strokeSm } : TONES[tone];
   return (
     <span
       className={cn("relative inline-flex shrink-0 items-center justify-center", className)}
-      style={{ width: size, height: size, color: t.fg }}
+      style={{ width: size, height: size, color: resolved.fg }}
     >
       <SketchBorder
-        fill={t.fill}
-        stroke={t.stroke}
+        fill={resolved.fill}
+        stroke={resolved.stroke}
         strokeWidth={1.2}
         radius={size / 2}
         roughness={0.8}

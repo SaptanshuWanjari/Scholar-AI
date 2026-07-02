@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/paper-ui/utils";
-import { SketchBorder } from "@/paper-ui/core";
+import { SketchBorder, usePaperTheme } from "@/paper-ui/core";
 
 export interface PaperPopoverProps {
   trigger: React.ReactNode;
@@ -51,6 +51,7 @@ function computePos(
 }
 
 function Arrow({ placement }: { placement: PaperPopoverProps["placement"] }) {
+  const t = usePaperTheme();
   const base: React.CSSProperties = {
     position: "absolute",
     width: 0,
@@ -69,7 +70,7 @@ function Arrow({ placement }: { placement: PaperPopoverProps["placement"] }) {
             transform: "translateX(-50%)",
             borderLeft: "6px solid transparent",
             borderRight: "6px solid transparent",
-            borderTop: "6px solid #3a3733",
+            borderTop: `6px solid ${t.stroke}`,
           }}
         />
       );
@@ -83,7 +84,7 @@ function Arrow({ placement }: { placement: PaperPopoverProps["placement"] }) {
             transform: "translateY(-50%)",
             borderTop: "6px solid transparent",
             borderBottom: "6px solid transparent",
-            borderLeft: "6px solid #3a3733",
+            borderLeft: `6px solid ${t.stroke}`,
           }}
         />
       );
@@ -97,22 +98,7 @@ function Arrow({ placement }: { placement: PaperPopoverProps["placement"] }) {
             transform: "translateY(-50%)",
             borderTop: "6px solid transparent",
             borderBottom: "6px solid transparent",
-            borderRight: "6px solid #3a3733",
-          }}
-        />
-      );
-    case "bottom":
-    default:
-      return (
-        <span
-          style={{
-            ...base,
-            top: -6,
-            left: "50%",
-            transform: "translateX(-50%)",
-            borderLeft: "6px solid transparent",
-            borderRight: "6px solid transparent",
-            borderBottom: "6px solid #3a3733",
+            borderRight: `6px solid ${t.stroke}`,
           }}
         />
       );
@@ -130,6 +116,7 @@ export function PaperPopover({
   const popoverRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<Pos | null>(null);
+  const t = usePaperTheme();
 
   useEffect(() => {
     if (!open) return;
@@ -189,8 +176,8 @@ export function PaperPopover({
           >
             <div className="relative">
               <SketchBorder
-                fill="#fffdf9"
-                stroke="#3a3733"
+                fill={t.surface}
+                stroke={t.stroke}
                 strokeWidth={1.6}
                 shadow={4}
                 roughness={1.0}
@@ -198,7 +185,7 @@ export function PaperPopover({
                 bleed={6}
               />
               <Arrow placement={placement} />
-              <div className="relative z-[1] px-3 py-2.5 font-kalam text-[14px] text-ink">
+              <div className="relative z-[1] px-3 py-2.5 font-kalam text-[0.93rem] text-ink">
                 {children}
               </div>
             </div>

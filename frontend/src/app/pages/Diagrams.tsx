@@ -1,7 +1,7 @@
 import { Component, useEffect, useState, type ReactNode } from "react";
 import { Workflow, Copy, Check, Download, FileImage, FileDown, Code2, Sparkles, Loader2, AlertCircle, Trash2, ChevronDown } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { DiagramViewer } from "../components/DiagramViewer";
 import QualityBadge from "../components/QualityBadge";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";

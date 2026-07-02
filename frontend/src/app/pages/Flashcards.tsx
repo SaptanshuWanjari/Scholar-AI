@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { Page, SectionTitle } from "../components/Page";
 import QualityBadge from "../components/QualityBadge";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";

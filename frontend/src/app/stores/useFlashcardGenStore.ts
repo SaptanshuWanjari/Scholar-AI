@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import type { Flashcard, QualityScore } from "../lib/types";
 import { api } from "../lib/api";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";

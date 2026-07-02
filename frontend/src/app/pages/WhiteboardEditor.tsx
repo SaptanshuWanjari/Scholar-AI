@@ -12,29 +12,18 @@ import {
   Check,
   Dot,
 } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "../components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "../components/ui/dialog";
-import { Input } from "../components/ui/input";
+import { toast } from "@/app/lib/toast";
+import { PaperButton, GhostButton } from "@/paper-ui/components/buttons";
+import { PaperDropdown } from "@/paper-ui/components/dialogs";
+import { PaperModal } from "@/paper-ui/components/dialogs";
+import { PaperInput } from "@/paper-ui/components/inputs";
 import { ExcalidrawCanvas } from "../components/whiteboard/ExcalidrawCanvas";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
 import { api } from "../lib/api";
 import type { WhiteboardFull, WhiteboardRevision, WhiteboardScene } from "../lib/types";
 import { mermaidToScene, mergeMermaidIntoScene, sceneThumbnail } from "../lib/whiteboard";
 import { useWhiteboardPrefs } from "../plugins/excalidraw/useWhiteboardPrefs";
-import { cn } from "../components/ui/utils";
+import { cn } from "@/paper-ui/utils";
 
 // "each-edit" debounce — short, just enough to batch a flurry of strokes.
 const EACH_EDIT_MS = 500;
@@ -346,10 +335,10 @@ export function WhiteboardEditor() {
     <div className="relative flex h-full flex-col overflow-hidden">
       {/* Toolbar */}
       <div className="z-10 flex shrink-0 items-center gap-2 border-b border-border bg-background px-4 py-2.5">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/whiteboards")}>
+        <GhostButton size="sm" onClick={() => navigate("/whiteboards")}>
           <ArrowLeft className="size-4" />
-        </Button>
-        <Input
+        </GhostButton>
+        <PaperInput
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onBlur={saveTitle}
@@ -372,29 +361,30 @@ export function WhiteboardEditor() {
           )}
         </span>
         {autosaveMode === "manual" && (
-          <Button variant="outline" size="sm" onClick={flush} disabled={!dirty || saving}>
+          <PaperButton size="sm" onClick={flush} disabled={!dirty || saving}>
             <Save className="mr-1.5 size-4" /> Save
-          </Button>
+          </PaperButton>
         )}
 
         <div className="ml-auto flex items-center gap-1.5">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={!!busy}>
+          <PaperDropdown
+            placement="bottom-right"
+            trigger={
+              <PaperButton size="sm" disabled={!!busy}>
                 {busy ? (
                   <Loader2 className="mr-1.5 size-4 animate-spin" />
                 ) : (
                   <Sparkles className="mr-1.5 size-4 text-violet" />
                 )}
                 AI
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setGenOpen(true)}>Generate diagram…</DropdownMenuItem>
-              <DropdownMenuItem onClick={runExplain}>Explain this whiteboard</DropdownMenuItem>
-              <DropdownMenuItem onClick={runExpand}>Expand selected node</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </PaperButton>
+            }
+            items={[
+              { key: "generate", label: "Generate diagram…", onClick: () => setGenOpen(true) },
+              { key: "explain", label: "Explain this whiteboard", onClick: runExplain },
+              { key: "expand", label: "Expand selected node", onClick: runExpand },
+            ]}
+          />
 
           <AddToNotebookMenu
             artifactType="whiteboard"
@@ -410,25 +400,26 @@ export function WhiteboardEditor() {
             }]}
           />
 
-          <Button variant="outline" size="sm" onClick={saveRevision}>
+          <PaperButton size="sm" onClick={saveRevision}>
             <Save className="mr-1.5 size-4" /> Save revision
-          </Button>
-          <Button variant="outline" size="sm" onClick={openHistory}>
+          </PaperButton>
+          <PaperButton size="sm" onClick={openHistory}>
             <History className="mr-1.5 size-4" /> History
-          </Button>
+          </PaperButton>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+          <PaperDropdown
+            placement="bottom-right"
+            trigger={
+              <PaperButton size="sm">
                 <Download className="mr-1.5 size-4" /> Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => exportAs("png")}>PNG image</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => exportAs("svg")}>SVG vector</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => exportAs("json")}>Excalidraw (.excalidraw)</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </PaperButton>
+            }
+            items={[
+              { key: "png", label: "PNG image", onClick: () => exportAs("png") },
+              { key: "svg", label: "SVG vector", onClick: () => exportAs("svg") },
+              { key: "json", label: "Excalidraw (.excalidraw)", onClick: () => exportAs("json") },
+            ]}
+          />
         </div>
       </div>
 
@@ -444,7 +435,7 @@ export function WhiteboardEditor() {
         {/* History panel */}
         {historyOpen && (
           <div className="absolute right-0 top-0 z-20 flex h-full w-80 flex-col border-l border-border bg-background shadow-xl">
-            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3 font-kalam">
               <span className="text-sm font-semibold">Version history</span>
               <button onClick={() => setHistoryOpen(false)} className="rounded p-1 hover:bg-accent">
                 <X className="size-4" />
@@ -452,8 +443,8 @@ export function WhiteboardEditor() {
             </div>
             <div className="flex-1 overflow-y-auto p-2">
               {revisions.length === 0 ? (
-                <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-                  No revisions yet. Use “Save revision” to snapshot this canvas.
+                <p className="px-2 py-6 text-center text-sm font-kalam text-muted-foreground">
+                  No revisions yet. Use "Save revision" to snapshot this canvas.
                 </p>
               ) : (
                 revisions.map((r) => (
@@ -461,15 +452,15 @@ export function WhiteboardEditor() {
                     key={r.id}
                     className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 hover:bg-accent"
                   >
-                    <div className="min-w-0">
+                    <div className="min-w-0 font-kalam">
                       <div className="text-sm font-medium">Revision {r.revisionNumber}</div>
-                      <div className="truncate text-[11px] text-muted-foreground">
+                      <div className="truncate text-xs font-architect text-muted-foreground">
                         {r.changeSummary || r.createdAt}
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => restore(r.revisionNumber)}>
+                    <GhostButton size="sm" onClick={() => restore(r.revisionNumber)}>
                       <RotateCcw className="mr-1 size-3.5" /> Restore
-                    </Button>
+                    </GhostButton>
                   </div>
                 ))
               )}
@@ -479,44 +470,43 @@ export function WhiteboardEditor() {
       </div>
 
       {/* Generate dialog */}
-      <Dialog open={genOpen} onOpenChange={setGenOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Generate a diagram</DialogTitle>
-          </DialogHeader>
-          <Input
-            value={genTopic}
-            onChange={(e) => setGenTopic(e.target.value)}
-            placeholder="e.g. Producer–consumer problem"
-            onKeyDown={(e) => e.key === "Enter" && runGenerate(genTopic)}
-            autoFocus
-          />
-          <p className="text-xs text-muted-foreground">
-            ScholarAI drafts an editable diagram grounded in {wb?.course || "your"} material.
-          </p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setGenOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={() => runGenerate(genTopic)} disabled={!!busy}>
+      <PaperModal
+        open={genOpen}
+        onClose={() => setGenOpen(false)}
+        title="Generate a diagram"
+        footer={
+          <>
+            <PaperButton onClick={() => setGenOpen(false)}>Cancel</PaperButton>
+            <PaperButton tone="dark" onClick={() => runGenerate(genTopic)} disabled={!!busy}>
               {busy === "generate" && <Loader2 className="mr-1.5 size-4 animate-spin" />}
               Generate
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </PaperButton>
+          </>
+        }
+      >
+        <PaperInput
+          value={genTopic}
+          onChange={(e) => setGenTopic(e.target.value)}
+          placeholder="e.g. Producer–consumer problem"
+          onKeyDown={(e) => e.key === "Enter" && runGenerate(genTopic)}
+          autoFocus
+        />
+        <p className="text-xs font-architect text-muted-foreground mt-2">
+          ScholarAI drafts an editable diagram grounded in {wb?.course || "your"} material.
+        </p>
+      </PaperModal>
 
       {/* Explain dialog */}
-      <Dialog open={explainOpen} onOpenChange={setExplainOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Diagram explanation</DialogTitle>
-          </DialogHeader>
-          <div className={cn("max-h-[60vh] overflow-y-auto whitespace-pre-wrap text-sm text-foreground/90")}>
-            {explainText}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PaperModal
+        open={explainOpen}
+        onClose={() => setExplainOpen(false)}
+        title="Diagram explanation"
+        className="max-w-lg"
+      >
+        <div className={cn("max-h-[60vh] overflow-y-auto whitespace-pre-wrap text-sm")}>
+          {explainText}
+        </div>
+      </PaperModal>
     </div>
   );
 }

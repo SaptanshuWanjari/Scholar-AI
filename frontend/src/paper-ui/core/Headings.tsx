@@ -21,7 +21,7 @@ function withMarker(
 export function PaperH1({ children, marker, markerColor, className, ...props }: HeadingBaseProps) {
   return withMarker(
     <h1
-      className={cn("font-caveat text-[38px] font-bold leading-[1.1] tracking-[-0.01em] text-ink", className)}
+      className={cn("font-caveat text-[2.53rem] font-bold leading-[1.1] tracking-[-0.01em] text-ink", className)}
       {...props}
     >
       {children}
@@ -35,7 +35,7 @@ export function PaperH1({ children, marker, markerColor, className, ...props }: 
 export function PaperH2({ children, marker, markerColor, className, ...props }: HeadingBaseProps) {
   return withMarker(
     <h2
-      className={cn("font-caveat text-[28px] font-semibold leading-[1.15] tracking-[-0.01em] text-ink", className)}
+      className={cn("font-caveat text-[1.87rem] font-semibold leading-[1.15] tracking-[-0.01em] text-ink", className)}
       {...props}
     >
       {children}
@@ -49,7 +49,7 @@ export function PaperH2({ children, marker, markerColor, className, ...props }: 
 export function PaperH3({ children, marker, markerColor, className, ...props }: HeadingBaseProps) {
   return withMarker(
     <h3
-      className={cn("font-kalam text-[20px] font-bold leading-snug text-ink", className)}
+      className={cn("font-kalam text-[1.33rem] font-bold leading-snug text-ink", className)}
       {...props}
     >
       {children}
@@ -63,7 +63,7 @@ export function PaperH3({ children, marker, markerColor, className, ...props }: 
 export function PaperH4({ children, marker, markerColor, className, ...props }: HeadingBaseProps) {
   return withMarker(
     <h4
-      className={cn("font-kalam text-[15px] font-bold leading-snug text-ink", className)}
+      className={cn("font-kalam text-[1rem] font-bold leading-snug text-ink", className)}
       {...props}
     >
       {children}
@@ -78,7 +78,7 @@ export function PaperH5({ children, className, ...props }: HeadingBaseProps) {
   return (
     <h5
       className={cn(
-        "font-architect text-[13px] font-medium uppercase tracking-[0.1em] text-ink",
+        "font-architect text-[0.87rem] font-medium uppercase tracking-[0.1em] text-ink",
         className,
       )}
       {...props}
@@ -93,7 +93,7 @@ export function PaperH6({ children, className, ...props }: HeadingBaseProps) {
   return (
     <h6
       className={cn(
-        "font-architect text-[11px] font-medium uppercase tracking-[0.14em] text-ink-muted",
+        "font-architect text-[0.73rem] font-medium uppercase tracking-[0.14em] text-ink-muted",
         className,
       )}
       {...props}

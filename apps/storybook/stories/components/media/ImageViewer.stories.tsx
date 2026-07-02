@@ -18,7 +18,7 @@ export const Default: Story = {
       <ImageViewer
         src="https://placehold.co/800x500"
         alt="Sample image"
-        caption="Scroll to zoom, drag to pan"
+        caption="Use scroll to zoom, drag to pan"
       />
     </div>
   ),

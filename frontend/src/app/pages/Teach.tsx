@@ -28,7 +28,7 @@ import {
   X,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { FlashcardCard } from "../components/FlashcardCard";
 import { DiagramViewer } from "../components/DiagramViewer";

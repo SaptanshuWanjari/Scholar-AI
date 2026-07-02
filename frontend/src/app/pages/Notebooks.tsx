@@ -18,7 +18,7 @@ import {
   StickyNote,
   Image as ImageIcon,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { PaperDropdown, type DropdownItem } from "@/paper-ui/components/dialogs";
 import { PaperButton, IconButton } from "@/paper-ui/components/buttons";
 import { PaperH1 } from "@/paper-ui/core";

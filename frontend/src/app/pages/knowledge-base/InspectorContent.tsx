@@ -2,7 +2,7 @@ import { useCallback, useState, useMemo } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { Node, Edge } from "@xyflow/react";
 import type { ConceptData } from "../../lib/graph-data";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 import { Pill } from "@paper-ui/components/badges";
 import { PaperBadge } from "@paper-ui/components/badges";

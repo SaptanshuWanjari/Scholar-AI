@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import rough from "roughjs/bin/rough";
 import { cn } from "@/paper-ui/utils";
+import { usePaperTheme } from "@/paper-ui/core";
 
 export interface CircularProgressProps {
   /** 0–100. */
@@ -18,13 +19,16 @@ export function CircularProgress({
   value,
   size = 80,
   strokeWidth = 8,
-  color = "#7fa37b",
+  color,
   label,
   className,
 }: CircularProgressProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const t = usePaperTheme();
   const pct = Math.max(0, Math.min(100, value));
-  const fontSize = Math.max(12, Math.round(size * 0.22));
+  const baseFontSize = Math.max(12, Math.round(size * 0.22));
+  const fontSize = `calc(${baseFontSize}px * ${t.fontScale})`;
+  const arcColor = color || t.success;
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -50,7 +54,7 @@ export function CircularProgress({
       const startAngle = -Math.PI / 2;
       const endAngle = startAngle + (pct / 100) * Math.PI * 2 - (pct >= 100 ? 0.01 : 0);
       const fill = rc.arc(cx, cy, r * 2, r * 2, startAngle, endAngle, false, {
-        stroke: color,
+        stroke: arcColor,
         strokeWidth,
         roughness: 0.4,
         bowing: 0.2,
@@ -58,7 +62,7 @@ export function CircularProgress({
       });
       svg.appendChild(fill);
     }
-  }, [pct, size, strokeWidth, color]);
+  }, [pct, size, strokeWidth, arcColor]);
 
   return (
     <div className={cn("flex flex-col items-center", className)}>

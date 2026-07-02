@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 import { PaperBadge, Pill } from "@paper-ui/components/badges";
 import { PaperInput } from "@paper-ui/components/inputs";

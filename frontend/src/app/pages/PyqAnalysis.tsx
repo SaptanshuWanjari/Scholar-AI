@@ -21,7 +21,7 @@ import {
   Share2,
   X,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 
 // paper-ui replacements
 import { Container } from "@/paper-ui/components/layout/Container";

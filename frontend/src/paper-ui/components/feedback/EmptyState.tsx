@@ -1,7 +1,6 @@
 import React from "react";
 import { cn } from "@/paper-ui/utils";
-import { SketchBorder } from "@/paper-ui/core";
-import { PaperPanel } from "@/paper-ui/core";
+import { SketchBorder, PaperPanel, usePaperTheme } from "@/paper-ui/core";
 
 export interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -18,6 +17,7 @@ export function EmptyState({
   action,
   className,
 }: EmptyStateProps) {
+  const t = usePaperTheme();
   return (
     <PaperPanel className={cn(className)}>
       <div className="flex flex-col items-center py-12 px-6 text-center">
@@ -27,8 +27,8 @@ export function EmptyState({
             style={{ width: 72, height: 72 }}
           >
             <SketchBorder
-              fill="#f0ede4"
-              stroke="#b4ad9e"
+              fill={t.panel}
+              stroke={t.strokeSm}
               strokeWidth={1.3}
               radius={40}
               shadow={0}
@@ -37,12 +37,12 @@ export function EmptyState({
           </div>
         )}
 
-        <h3 className={cn("font-architect text-[17px] text-ink", icon ? "mt-5" : "")}>
+        <h3 className={cn("font-architect text-[1.13rem] text-ink", icon ? "mt-5" : "")}>
           {title}
         </h3>
 
         {description && (
-          <p className="font-kalam text-[14px] text-ink-muted mt-2 max-w-[300px]">
+          <p className="font-kalam text-[0.93rem] text-ink-muted mt-2 max-w-[300px]">
             {description}
           </p>
         )}

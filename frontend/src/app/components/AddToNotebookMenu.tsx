@@ -9,7 +9,7 @@
 
 import { useCallback, useState } from "react";
 import { BookPlus, Loader2, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 
 import { api, type NotebookMeta } from "../lib/api";
 import type { NotebookBlock } from "../lib/notebook-data";

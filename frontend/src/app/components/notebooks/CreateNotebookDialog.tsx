@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { PaperModal } from "@/paper-ui/components/dialogs";
 import { PaperInput, PaperSelect } from "@/paper-ui/components/inputs";
 import { PaperButton } from "@/paper-ui/components/buttons";
