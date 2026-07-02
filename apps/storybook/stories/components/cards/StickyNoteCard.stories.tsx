@@ -6,49 +6,71 @@ const meta: Meta<typeof StickyNoteCard> = {
   title: 'Components/Cards/StickyNoteCard',
   component: StickyNoteCard,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
 }
 
 export default meta
 type Story = StoryObj<typeof StickyNoteCard>
 
-export const Variants: Story = {
+export const Default: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <div className="flex flex-wrap gap-8 items-start pt-4">
-        {(['yellow', 'pink', 'blue', 'green', 'orange', 'purple'] as const).map((color, i) => (
-          <StickyNoteCard
-            key={color}
-            color={color}
-            title="Quick note"
-            rotate={i % 2 === 0 ? -2 : 2}
-            pin={i % 3 === 0 ? 'push-pin' : i % 3 === 1 ? 'tape' : 'none'}
-            className="w-44"
-          >
-            <p className="font-kalam text-sm mt-2">Review {color} topics before the exam!</p>
-          </StickyNoteCard>
-        ))}
-      </div>
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap pt-12">
+      <StickyNoteCard color="yellow" pin="push-pin" rotate={-2} className="w-48">
+        <p>Remember: Review Chapter 3 before exam!</p>
+      </StickyNoteCard>
     </div>
   ),
 }
 
-export const States: Story = {
+export const AllColors: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <div className="flex flex-wrap gap-8 items-start pt-4">
-        <StickyNoteCard color="yellow" title="Push-pin" pin="push-pin" rotate={-2} className="w-44">
-          <p className="font-kalam text-sm mt-2">Pinned with a push-pin.</p>
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap pt-12">
+      {(['yellow', 'pink', 'blue', 'green', 'orange', 'purple'] as const).map((color, i) => (
+        <StickyNoteCard
+          key={color}
+          color={color}
+          rotate={i % 2 === 0 ? -2 : 2}
+          pin={i % 3 === 0 ? 'push-pin' : i % 3 === 1 ? 'tape' : 'none'}
+          className="w-44"
+        >
+          <p className="text-sm">Notes in {color}</p>
         </StickyNoteCard>
-        <StickyNoteCard color="pink" title="Tape" pin="tape" rotate={2} className="w-44">
-          <p className="font-kalam text-sm mt-2">Taped to the board.</p>
-        </StickyNoteCard>
-        <StickyNoteCard color="blue" title="No pin" pin="none" rotate={-2} className="w-44">
-          <p className="font-kalam text-sm mt-2">Just a loose sticky note.</p>
-        </StickyNoteCard>
-      </div>
+      ))}
+    </div>
+  ),
+}
+
+export const WithContent: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap pt-12">
+      <StickyNoteCard
+        color="yellow"
+        title="Study Tips"
+        pin="push-pin"
+        rotate={-2}
+        tags={['Learning']}
+        className="w-56"
+      >
+        <p>Focus on core concepts first, then dive into details.</p>
+      </StickyNoteCard>
+      <StickyNoteCard
+        color="pink"
+        title="To Review"
+        pin="tape"
+        rotate={1}
+        footer="Updated 2h ago"
+        className="w-56"
+      >
+        <p>Eigenvalues and eigenvectors. Linear transformations.</p>
+      </StickyNoteCard>
+      <StickyNoteCard
+        color="blue"
+        title="Quick Note"
+        pin="none"
+        rotate={-1}
+        className="w-56"
+      >
+        <p>Backpropagation intuition: chain rule applied to networks.</p>
+      </StickyNoteCard>
     </div>
   ),
 }

@@ -6,66 +6,69 @@ const meta: Meta<typeof SummaryCard> = {
   title: 'Components/Cards/SummaryCard',
   component: SummaryCard,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
 }
 
 export default meta
 type Story = StoryObj<typeof SummaryCard>
 
-export const Variants: Story = {
+export const Default: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <div className="flex flex-wrap gap-5">
-        <SummaryCard
-          title="Attention Mechanism"
-          summary="The attention mechanism allows a model to focus on different parts of the input sequence when producing each output token. It computes a weighted sum of value vectors, where weights are determined by the similarity between a query and a set of keys."
-          source="Vaswani et al., 2017"
-          sourceType="document"
-          tags={['Transformers', 'NLP', 'Deep Learning']}
-          tone="sky"
-          highlightTitle
-          onExpand={() => {}}
-          className="max-w-xs"
-        />
-        <SummaryCard
-          title="Gradient Descent Overview"
-          summary="An optimization algorithm that iteratively adjusts parameters by moving in the direction opposite to the gradient of the loss function."
-          sourceType="web"
-          tags={['Optimization', 'ML']}
-          tone="sage"
-          className="max-w-xs"
-        />
-      </div>
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
+      <SummaryCard
+        title="Attention Mechanism"
+        summary="A neural network technique that allows models to focus on specific parts of input when generating output."
+        source="Transformer Papers"
+        sourceType="document"
+        className="max-w-sm"
+      />
     </div>
   ),
 }
 
-export const Composition: Story = {
+export const Interactive: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <div className="flex flex-wrap gap-5">
-        <SummaryCard
-          title="Attention Mechanism"
-          summary="The attention mechanism allows a model to focus on different parts of the input sequence when producing each output token."
-          source="Vaswani et al., 2017"
-          sourceType="document"
-          tags={['Transformers', 'NLP', 'Deep Learning']}
-          tone="sky"
-          highlightTitle
-          onExpand={() => {}}
-          className="max-w-xs"
-        />
-        <SummaryCard
-          title="Gradient Descent Overview"
-          summary="An optimization algorithm that iteratively adjusts parameters by moving in the direction opposite to the gradient of the loss function."
-          sourceType="web"
-          tags={['Optimization', 'ML']}
-          tone="sage"
-          className="max-w-xs"
-        />
-      </div>
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
+      <SummaryCard
+        title="Backpropagation"
+        summary="Algorithm for computing gradients efficiently using the chain rule. Fundamental to training neural networks."
+        source="LeCun et al., 1998"
+        sourceType="document"
+        tags={['ML', 'Algorithms']}
+        onExpand={() => alert('Expanding...')}
+        className="max-w-sm"
+      />
+    </div>
+  ),
+}
+
+export const AllSourceTypes: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
+      <SummaryCard
+        title="Attention Mechanism"
+        summary="Allows models to focus on different parts of input sequence."
+        source="Vaswani et al., 2017"
+        sourceType="document"
+        tags={['Transformers', 'NLP']}
+        highlightTitle
+        onExpand={() => {}}
+        className="max-w-sm"
+      />
+      <SummaryCard
+        title="Gradient Descent"
+        summary="Optimization algorithm that moves parameters in direction opposite to loss gradient."
+        sourceType="web"
+        tags={['Optimization', 'ML']}
+        className="max-w-sm"
+      />
+      <SummaryCard
+        title="Neural Network Basics"
+        summary="Artificial neural networks inspired by biological neurons."
+        source="Class Notes"
+        sourceType="notebook"
+        tags={['Deep Learning']}
+        className="max-w-sm"
+      />
     </div>
   ),
 }
