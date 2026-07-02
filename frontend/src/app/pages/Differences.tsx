@@ -9,7 +9,7 @@ import {
   Code,
   Eye,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { Page } from "../components/Page";
 import QualityBadge from "../components/QualityBadge";

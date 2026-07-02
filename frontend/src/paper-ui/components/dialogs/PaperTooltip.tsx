@@ -115,7 +115,7 @@ export function PaperTooltip({
               pointerEvents: "none",
               whiteSpace: "nowrap",
               fontFamily: "var(--font-architect, sans-serif)",
-              fontSize: 12,
+              fontSize: "0.8rem",
               color: "#fbf8f2",
             }}
           >

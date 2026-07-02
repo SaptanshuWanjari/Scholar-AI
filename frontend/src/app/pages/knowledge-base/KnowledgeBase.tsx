@@ -15,7 +15,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { cn } from "../../components/ui/utils";
 import { type ConceptData } from "../../lib/graph-data";
 import { api, type KGSidebar } from "../../lib/api";

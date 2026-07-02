@@ -14,7 +14,7 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import * as HoverCard from "@radix-ui/react-hover-card";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 
 interface Concept {
   id: string;

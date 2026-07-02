@@ -1,18 +1,14 @@
 import { useEffect, useState } from "react";
-import { Loader2, ShieldCheck, AlertTriangle } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "../components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { Page, SectionTitle } from "../components/Page";
+import { AlertTriangle, Loader2, ShieldCheck } from "lucide-react";
+import { toast } from "@/app/lib/toast";
 import { ConsistencyReport } from "../components/ConsistencyReport";
 import { api, type ConsistencyReport as Report } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
+import { AppShell } from "@paper-ui/components/layout";
+import { PaperButton } from "@paper-ui/components/buttons";
+import { PaperSelect } from "@paper-ui/components/inputs";
+import { EmptyState, LoadingPaper } from "@paper-ui/components/feedback";
+import { PaperCard, PaperH3, SectionHeader } from "@paper-ui/core";
 
 export function Consistency() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -49,6 +45,16 @@ export function Consistency() {
   const visibleDocs =
     course === "none" ? documents : documents.filter((d) => d.course === course);
 
+  const courseOptions = [
+    { value: "none", label: "Select a course…" },
+    ...courses.map((c) => ({ value: c.name, label: c.name })),
+  ];
+
+  const documentOptions = [
+    { value: "all", label: "All documents" },
+    ...visibleDocs.map((d) => ({ value: d.title, label: d.title })),
+  ];
+
   async function analyze() {
     if (course === "none") {
       toast.error("Pick a course to analyze");
@@ -71,100 +77,109 @@ export function Consistency() {
   }
 
   return (
-    <Page>
-      <div className="mb-6">
-        <h1 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-          <ShieldCheck className="size-5 text-primary" />
-          Consistency Engine
-        </h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Check that your saved artifacts for a course collectively cover the source
-          material, instead of silently dropping concepts. Analysis only — nothing is
-          regenerated or modified. Saved artifacts are linked by course, so analysis is
-          scoped per course (a document only sharpens the concept checklist).
-        </p>
-      </div>
+    <AppShell fullscreen={false} className="h-full">
+      <div className="mx-auto flex h-full w-full max-w-6xl flex-col gap-6 overflow-y-auto px-6 py-6">
+        <PaperCard shadow="sm" className="p-5">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex size-11 items-center justify-center rounded-full bg-sage-soft text-sage">
+              <ShieldCheck className="size-5" />
+            </div>
+            <div className="min-w-0">
+              <PaperH3>Consistency Engine</PaperH3>
+              <p className="mt-1 max-w-2xl text-sm text-ink-muted">
+                Check that your saved artifacts for a course collectively cover the source
+                material, instead of silently dropping concepts. Analysis only — nothing is
+                regenerated or modified. Saved artifacts are linked by course, so analysis is
+                scoped per course (a document only sharpens the concept checklist).
+              </p>
+            </div>
+          </div>
+        </PaperCard>
 
-      <div className="mb-6 flex flex-wrap items-end gap-3">
-        <div>
-          <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Course
-          </label>
-          <Select value={course} onValueChange={(v) => { setCourse(v); setDocument("all"); }}>
-            <SelectTrigger className="w-56">
-              <SelectValue placeholder="Pick a course" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">Select a course…</SelectItem>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={c.name}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Document (optional)
-          </label>
-          <Select value={document} onValueChange={setDocument}>
-            <SelectTrigger className="w-56">
-              <SelectValue placeholder="All documents" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All documents</SelectItem>
-              {visibleDocs.map((d) => (
-                <SelectItem key={d.id} value={d.title}>
-                  {d.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Button className="gap-2" disabled={loading || course === "none"} onClick={() => void analyze()}>
-          {loading ? <Loader2 className="size-4 animate-spin" /> : <ShieldCheck className="size-4" />}
-          Analyze
-        </Button>
-      </div>
+        <PaperCard shadow="sm" className="p-5">
+          <SectionHeader title="Analysis inputs" />
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,18rem)_minmax(0,18rem)_auto] lg:items-end">
+            <PaperSelect
+              value={course}
+              onChange={(v) => {
+                setCourse(v);
+                setDocument("all");
+              }}
+              options={courseOptions}
+              label="Course"
+              placeholder="Pick a course"
+              wrapperClassName="w-full"
+              className="w-full"
+            />
+            <PaperSelect
+              value={document}
+              onChange={setDocument}
+              options={documentOptions}
+              label="Document (optional)"
+              placeholder="All documents"
+              wrapperClassName="w-full"
+              className="w-full"
+            />
+            <PaperButton
+              tone="dark"
+              size="lg"
+              className="gap-2 lg:justify-self-start"
+              disabled={loading || course === "none"}
+              onClick={() => void analyze()}
+            >
+              {loading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <ShieldCheck className="size-4" />
+              )}
+              Analyze
+            </PaperButton>
+          </div>
+        </PaperCard>
 
-      {loading ? (
-        <div className="flex flex-col items-center gap-3 pt-24 text-center text-muted-foreground">
-          <Loader2 className="size-7 animate-spin text-primary" />
-          <p className="text-sm">Extracting concepts and comparing saved artifacts…</p>
-        </div>
-      ) : report ? (
-        <div>
-          <SectionTitle title="Consistency report" />
-          <ConsistencyReport
-            report={report}
-            course={course}
-            onApply={async (artifactType, concepts) => {
-              const result = await api.applyConsistencyFix(course, artifactType, concepts);
-              if (result.applied) {
-                toast.success(`${artifactType} updated`, {
-                  description: result.preview.slice(0, 120) + "…",
-                });
-              } else {
-                toast.error(result.message);
-              }
-            }}
+        {loading ? (
+          <PaperCard shadow="sm" className="p-6">
+            <div className="flex flex-col items-center gap-4 py-12 text-center">
+              <LoadingPaper variant="spinner" size="lg" />
+              <p className="text-sm text-ink-muted">
+                Extracting concepts and comparing saved artifacts…
+              </p>
+            </div>
+          </PaperCard>
+        ) : report ? (
+          <div className="space-y-3">
+            <SectionHeader title="Consistency report" />
+            <ConsistencyReport
+              report={report}
+              course={course}
+              onApply={async (artifactType, concepts) => {
+                const result = await api.applyConsistencyFix(course, artifactType, concepts);
+                if (result.applied) {
+                  toast.success(`${artifactType} updated`, {
+                    description: result.preview.slice(0, 120) + "…",
+                  });
+                } else {
+                  toast.error(result.message);
+                }
+              }}
+            />
+          </div>
+        ) : (
+          <EmptyState
+            icon={<ShieldCheck className="size-7 text-ink-muted/40" />}
+            title="Run an analysis to see coverage"
+            description="Pick a course and run an analysis to see how well your saved artifacts cover the source material."
+            action={
+              course === "none" ? (
+                <div className="flex items-center gap-1.5 text-[11px] text-ink-muted">
+                  <AlertTriangle className="size-3" />
+                  A course is required.
+                </div>
+              ) : null
+            }
           />
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-3 pt-24 text-center text-muted-foreground">
-          <ShieldCheck className="size-7 opacity-40" />
-          <p className="max-w-sm text-sm">
-            Pick a course and run an analysis to see how well your saved artifacts cover
-            the source material.
-          </p>
-          {course === "none" && (
-            <span className="flex items-center gap-1.5 text-[11px]">
-              <AlertTriangle className="size-3" /> A course is required.
-            </span>
-          )}
-        </div>
-      )}
-    </Page>
+        )}
+      </div>
+    </AppShell>
   );
 }

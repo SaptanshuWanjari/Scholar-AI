@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/paper-ui/utils";
-import { SketchBorder } from "@/paper-ui/core";
+import { SketchBorder, usePaperTheme } from "@/paper-ui/core";
 
 export interface PaperModalProps {
   open: boolean;
@@ -26,6 +26,7 @@ export function PaperModal({
   className,
 }: PaperModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const t = usePaperTheme();
 
   useEffect(() => {
     if (!open) return;
@@ -56,8 +57,8 @@ export function PaperModal({
         style={{ width }}
       >
         <SketchBorder
-          fill="#fffdf9"
-          stroke="#262320"
+          fill={t.surface}
+          stroke={t.stroke}
           strokeWidth={1.8}
           shadow={6}
           radius={10}
@@ -67,7 +68,7 @@ export function PaperModal({
         <div className="relative z-[1]">
           {title !== undefined && (
             <div className="flex items-center justify-between border-b border-[#e8e3d8] px-6 py-4">
-              <span className="font-architect text-[17px] text-ink">{title}</span>
+              <span className="font-architect text-[1.13rem] text-ink">{title}</span>
               <button
                 type="button"
                 aria-label="Close"
@@ -78,7 +79,7 @@ export function PaperModal({
               </button>
             </div>
           )}
-          <div className="px-6 py-5 font-kalam text-[14px] text-ink">{children}</div>
+          <div className="px-6 py-5 font-kalam text-[0.93rem] text-ink">{children}</div>
           {footer && (
             <div className="flex justify-end gap-3 border-t border-[#e8e3d8] px-6 py-4">
               {footer}

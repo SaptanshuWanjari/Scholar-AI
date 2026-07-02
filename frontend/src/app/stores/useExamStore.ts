@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { api, type ExamResult, type ExamSession } from "../lib/api";
 import { useNotificationStore } from "./useNotificationStore";
 

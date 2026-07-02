@@ -1,30 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { PencilRuler, Plus, Trash2, Loader2, Sparkles, Clock, Archive, Undo } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "../components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
+import { toast } from "@/app/lib/toast";
+import { PaperButton, GhostButton } from "@/paper-ui/components/buttons";
+import { PaperSelect } from "@/paper-ui/components/inputs";
+import { ConfirmationDialog } from "@/paper-ui/components/dialogs";
+import { Tabs } from "@/paper-ui/components/navigation";
+import { PaperH1 } from "@/paper-ui/core";
 import { api } from "../lib/api";
 import type { Course } from "../lib/types";
 import { useWhiteboardStore, ALL_COURSES } from "../stores/useWhiteboardStore";
-import { cn } from "../components/ui/utils";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../components/ui/alert-dialog";
-import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { cn } from "@/paper-ui/utils";
 
 const SOURCE_LABEL: Record<string, string> = {
   manual: "Manual",
@@ -77,44 +63,44 @@ export function Whiteboards() {
               <PencilRuler className="size-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Whiteboards</h1>
-              <p className="text-sm text-muted-foreground">
+              <PaperH1 className="!text-2xl">Whiteboards</PaperH1>
+              <p className="text-sm font-kalam text-muted-foreground">
                 Free-form canvases for sketching, problem solving, and visual notes.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Select value={course} onValueChange={setCourse}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="All courses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_COURSES}>All courses</SelectItem>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={handleCreate} disabled={creating}>
+            <PaperSelect
+              value={course}
+              onChange={setCourse}
+              options={[
+                { value: ALL_COURSES, label: "All courses" },
+                ...courses.map((c) => ({ value: c.name, label: c.name })),
+              ]}
+              placeholder="All courses"
+              className="w-48"
+            />
+            <PaperButton tone="dark" onClick={handleCreate} disabled={creating}>
               {creating ? (
                 <Loader2 className="mr-1.5 size-4 animate-spin" />
               ) : (
                 <Plus className="mr-1.5 size-4" />
               )}
               New whiteboard
-            </Button>
+            </PaperButton>
           </div>
         </div>
         <div className="mt-6 flex items-center">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full max-w-[400px]">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="active">Active</TabsTrigger>
-              <TabsTrigger value="archived">Archived</TabsTrigger>
-              <TabsTrigger value="binned">Bin</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <Tabs
+            items={[
+              { key: "active", label: "Active" },
+              { key: "archived", label: "Archived" },
+              { key: "binned", label: "Bin" },
+            ]}
+            active={activeTab}
+            onChange={(key) => setActiveTab(key as typeof activeTab)}
+            className="w-full max-w-[400px]"
+          />
         </div>
       </div>
 
@@ -129,20 +115,20 @@ export function Whiteboards() {
             <div className="flex size-14 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-500">
               <PencilRuler className="size-7" />
             </div>
-            <div className="text-sm text-muted-foreground mt-2 mb-4">
+            <div className="font-kalam mt-2 mb-4">
               {activeTab === "active" && (
                 <>
-                  <span className="block font-semibold text-foreground mb-1">No whiteboards yet</span>
-                  Create a blank canvas to organize your thoughts.
+                  <span className="block text-sm font-semibold text-foreground mb-1">No whiteboards yet</span>
+                  <span className="text-sm text-muted-foreground">Create a blank canvas to organize your thoughts.</span>
                 </>
               )}
-              {activeTab === "archived" && "No archived whiteboards."}
-              {activeTab === "binned" && "Bin is empty."}
+              {activeTab === "archived" && <span className="text-sm text-muted-foreground">No archived whiteboards.</span>}
+              {activeTab === "binned" && <span className="text-sm text-muted-foreground">Bin is empty.</span>}
             </div>
             {activeTab === "active" && (
-              <Button variant="outline" onClick={handleCreate} disabled={creating}>
+              <PaperButton onClick={handleCreate} disabled={creating}>
                 <Plus className="mr-1.5 size-4" /> Create your first whiteboard
-              </Button>
+              </PaperButton>
             )}
           </div>
         ) : (
@@ -151,7 +137,7 @@ export function Whiteboards() {
               <div
                 key={wb.id}
                 onClick={() => navigate(`/whiteboards/${wb.id}`)}
-                className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-violet/40"
+                className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-violet/40 font-kalam"
               >
                 <div className="flex aspect-video items-center justify-center overflow-hidden border-b border-border bg-muted/30">
                   {wb.thumbnail ? (
@@ -162,7 +148,7 @@ export function Whiteboards() {
                 </div>
                 <div className="flex flex-1 flex-col gap-1 p-3">
                   <div className="flex items-start justify-between gap-2">
-                    <span className="truncate text-sm font-medium">{wb.title}</span>
+                    <span className="truncate text-sm font-semibold font-caveat">{wb.title}</span>
                     <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                       {activeTab === "active" && (
                         <>
@@ -196,7 +182,7 @@ export function Whiteboards() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <div className="flex items-center gap-2 text-xs font-architect text-muted-foreground">
                     {wb.course && <span className="truncate">{wb.course}</span>}
                     {wb.source !== "manual" && (
                       <span className="inline-flex items-center gap-1 rounded bg-violet/10 px-1.5 py-0.5 text-violet">
@@ -205,7 +191,7 @@ export function Whiteboards() {
                       </span>
                     )}
                   </div>
-                  <div className="mt-auto flex items-center gap-1 pt-1 text-[11px] text-muted-foreground">
+                  <div className="mt-auto flex items-center gap-1 pt-1 text-xs font-architect text-muted-foreground">
                     <Clock className="size-3" />
                     <span>{wb.updated}</span>
                     {wb.revisions > 0 && (
@@ -213,7 +199,7 @@ export function Whiteboards() {
                     )}
                   </div>
                   {wb.status === "binned" && wb.deletedAt && (
-                    <div className="mt-1 text-[10px] text-destructive">
+                    <div className="mt-1 text-xs font-architect text-destructive">
                       Auto-deletes in {Math.max(0, 10 - Math.floor((Date.now() - new Date(wb.deletedAt).getTime()) / (1000 * 60 * 60 * 24)))} days
                     </div>
                   )}
@@ -224,30 +210,21 @@ export function Whiteboards() {
         )}
       </div>
 
-      <AlertDialog open={!!deletingWb} onOpenChange={(open) => !open && setDeletingWb(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Whiteboard?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deletingWb?.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => {
-                if (deletingWb) {
-                  remove(deletingWb.id);
-                  setDeletingWb(null);
-                }
-              }}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={!!deletingWb}
+        title="Delete Whiteboard?"
+        message={`Are you sure you want to delete "${deletingWb?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={() => {
+          if (deletingWb) {
+            remove(deletingWb.id);
+            setDeletingWb(null);
+          }
+        }}
+        onCancel={() => setDeletingWb(null)}
+      />
     </div>
   );
 }

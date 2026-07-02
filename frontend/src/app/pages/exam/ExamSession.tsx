@@ -15,7 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { cn } from "../../components/ui/utils";
 import { PaperButton, GhostButton, IconButton, ChipButton } from "@paper-ui/components/buttons";
 import { PaperBadge } from "@paper-ui/components/badges";

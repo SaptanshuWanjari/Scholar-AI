@@ -17,7 +17,7 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { ScrollArea } from "./ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 
 interface RelationshipInspectorProps {
   isOpen: boolean;

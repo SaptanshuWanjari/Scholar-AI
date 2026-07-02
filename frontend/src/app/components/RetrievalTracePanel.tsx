@@ -28,7 +28,7 @@ import {
   ThumbsDown,
   TriangleAlert,
 } from 'lucide-react';
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { api, type TraceData, type TraceAnalytics } from "../lib/api";
 
 interface MetricProps {

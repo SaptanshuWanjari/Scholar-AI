@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { PaperIconCircle, type IconTone } from "@/paper-ui/core";
+import { PaperIconCircle, type IconTone, usePaperTheme } from "@/paper-ui/core";
 
 export interface StatsCardStat {
   icon: React.ReactNode;
@@ -55,10 +55,10 @@ function makeSecondaryPath(H: number): string {
   ].join(" ");
 }
 
-/** Notebook-paper stats card — same dynamic SVG sizing as PaperSheetCard. */
 export function StatsCard({ title, stats, className }: StatsCardProps) {
   const outerRef = useRef<HTMLDivElement>(null);
   const [svgH, setSvgH] = useState(0);
+  const t = usePaperTheme();
 
   useLayoutEffect(() => {
     const el = outerRef.current;
@@ -90,7 +90,6 @@ export function StatsCard({ title, stats, className }: StatsCardProps) {
         filter: "drop-shadow(3px 8px 12px rgba(0,0,0,0.28))",
       }}
     >
-      {/* SVG background — absolutely positioned, never participates in layout */}
       {svgH > 80 && (
         <svg
           viewBox={`0 0 ${SVG_W} ${svgH}`}
@@ -101,8 +100,8 @@ export function StatsCard({ title, stats, className }: StatsCardProps) {
         >
           <path
             d={makePaperPath(svgH)}
-            fill="#FDFDF9"
-            stroke="#3D3D3D"
+            fill={t.surface}
+            stroke={t.stroke}
             strokeWidth="2.5"
             strokeLinejoin="round"
             strokeLinecap="round"
@@ -110,7 +109,7 @@ export function StatsCard({ title, stats, className }: StatsCardProps) {
           <path
             d={makeSecondaryPath(svgH)}
             fill="none"
-            stroke="#3D3D3D"
+            stroke={t.stroke}
             strokeWidth="1"
             strokeOpacity="0.45"
             strokeLinejoin="round"
@@ -122,39 +121,35 @@ export function StatsCard({ title, stats, className }: StatsCardProps) {
           />
           <path
             d={`M 578 ${yFold} L 540 ${yBot} L 540 ${yFold} Z`}
-            fill="#F4F4F0"
-            stroke="#3D3D3D"
+            fill={t.panel}
+            stroke={t.stroke}
             strokeWidth="2"
             strokeLinejoin="round"
           />
         </svg>
       )}
 
-      {/* HTML content — in normal flow; height drives svgH via ResizeObserver */}
       <div style={{ position: "relative", zIndex: 1, padding: "7% 10% 13%" }}>
-        {/* Title */}
         <p
           style={{
             fontFamily: "'Architects Daughter', cursive",
-            fontSize: "18px",
+            fontSize: "1.2rem",
             fontWeight: "bold",
             letterSpacing: "2px",
-            color: "#2c2c2c",
+            color: t.ink,
             textTransform: "uppercase",
             marginBottom: "4px",
           }}
         >
           {title}
         </p>
-        {/* Rule under title */}
         <div
           style={{
-            borderBottom: "1.5px dashed #d4d4d4",
+            borderBottom: `1.5px dashed ${t.border}`,
             marginBottom: "8px",
           }}
         />
 
-        {/* Stat rows */}
         {stats.map((stat, i) => (
           <div key={stat.label}>
             <div style={{ display: "flex", alignItems: "center", gap: "16px", padding: "10px 0" }}>
@@ -165,9 +160,9 @@ export function StatsCard({ title, stats, className }: StatsCardProps) {
                 <p
                   style={{
                     fontFamily: "'Kalam', cursive",
-                    fontSize: "20px",
+                    fontSize: "1.33rem",
                     fontWeight: 600,
-                    color: "#2d2d2d",
+                    color: t.ink,
                     lineHeight: 1.2,
                     margin: 0,
                   }}
@@ -178,8 +173,8 @@ export function StatsCard({ title, stats, className }: StatsCardProps) {
                   <p
                     style={{
                       fontFamily: "'Kalam', cursive",
-                      fontSize: "15px",
-                      color: "#555",
+                      fontSize: "1rem",
+                      color: t.inkMuted,
                       margin: 0,
                     }}
                   >
@@ -190,9 +185,9 @@ export function StatsCard({ title, stats, className }: StatsCardProps) {
               <span
                 style={{
                   fontFamily: "'Caveat', cursive",
-                  fontSize: "30px",
+                  fontSize: "2rem",
                   fontWeight: 700,
-                  color: "#2d2d2d",
+                  color: t.ink,
                   flexShrink: 0,
                 }}
               >
@@ -200,7 +195,7 @@ export function StatsCard({ title, stats, className }: StatsCardProps) {
               </span>
             </div>
             {i < stats.length - 1 && (
-              <div style={{ borderBottom: "1.5px dashed #d4d4d4" }} />
+              <div style={{ borderBottom: `1.5px dashed ${t.border}` }} />
             )}
           </div>
         ))}

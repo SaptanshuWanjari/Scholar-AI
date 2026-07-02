@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
+import { usePaperTheme } from "@/paper-ui/core";
 
 export interface NotebookSpiralCardProps {
   title?: string;
@@ -69,6 +70,7 @@ export function NotebookSpiralCard({
 }: NotebookSpiralCardProps) {
   const outerRef = useRef<HTMLDivElement>(null);
   const [svgH, setSvgH] = useState(0);
+  const t = usePaperTheme();
 
   useLayoutEffect(() => {
     const el = outerRef.current;
@@ -136,8 +138,8 @@ export function NotebookSpiralCard({
           {/* ── 2. Paper body (covers lower half of wire loops) ────────────── */}
           <path
             d={makePaperPath(svgH)}
-            fill="#FDFDF9"
-            stroke="#3D3D3D"
+            fill={t.surface}
+            stroke={t.stroke}
             strokeWidth="2.5"
             strokeLinejoin="round"
             strokeLinecap="round"
@@ -145,7 +147,7 @@ export function NotebookSpiralCard({
           <path
             d={makeSecondaryPath(svgH)}
             fill="none"
-            stroke="#3D3D3D"
+            stroke={t.stroke}
             strokeWidth="1"
             strokeOpacity="0.45"
             strokeLinejoin="round"
@@ -164,8 +166,8 @@ export function NotebookSpiralCard({
           />
           <path
             d={`M 578 ${yFold} L 540 ${yBot} L 540 ${yFold} Z`}
-            fill="#F4F4F0"
-            stroke="#3D3D3D"
+            fill={t.panel}
+            stroke={t.stroke}
             strokeWidth="2"
             strokeLinejoin="round"
           />
@@ -180,10 +182,10 @@ export function NotebookSpiralCard({
           <p
             style={{
               fontFamily: "'Architects Daughter', cursive",
-              fontSize: "18px",
+              fontSize: "1.2rem",
               fontWeight: "bold",
               letterSpacing: "2px",
-              color: "#2c2c2c",
+              color: t.ink,
               textTransform: "uppercase",
               marginBottom: "12px",
             }}

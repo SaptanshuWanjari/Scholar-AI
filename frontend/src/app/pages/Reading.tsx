@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { cn } from "@/paper-ui/utils";
 import { AppShell, ScrollArea } from "@/paper-ui/components/layout";
 import { PaperButton, ChipButton, IconButton } from "@/paper-ui/components/buttons";

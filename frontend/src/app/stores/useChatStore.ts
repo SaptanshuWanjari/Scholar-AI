@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import type { ChatMessage } from "../lib/types";
 import { api } from "../lib/api";
 import type { ChatSessionMeta } from "../lib/api";

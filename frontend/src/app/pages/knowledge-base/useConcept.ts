@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { api, type ConceptInspector } from "../../lib/api";
 
 export function useConcept(conceptId: string) {

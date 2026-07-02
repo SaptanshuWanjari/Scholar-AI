@@ -9,7 +9,7 @@ import {
   XCircle,
   Trash2,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { Page } from "../components/Page";
 import { UploadZone } from "../components/UploadZone";
 import { ContextualTip } from "../guidance/components/ContextualTip";

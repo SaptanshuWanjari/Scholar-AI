@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import { FolderOpen, Plus, X } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { api } from "../lib/api";
 import type { Course } from "../lib/types";
 import { useCourseWorkspaceStore } from "../stores/useCourseWorkspaceStore";

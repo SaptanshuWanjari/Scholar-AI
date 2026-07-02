@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { motion, AnimatePresence } from "motion/react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { Page } from "../components/Page";
 import QualityBadge from "../components/QualityBadge";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
@@ -212,9 +212,9 @@ function Builder({
       <PaperPanel className="p-5">
         <div className="flex items-center gap-2">
           <Settings2 className="size-4 text-ink-muted" />
-          <h3 className="font-architect text-[15px] text-ink">Quiz builder</h3>
+          <h3 className="font-architect  text-ink">Quiz builder</h3>
         </div>
-        <p className="mt-1 font-kalam text-[14px] text-ink-muted">
+        <p className="mt-1 font-kalam  text-ink-muted">
           Generate a quiz from your materials or pick a saved one below.
         </p>
         <div className="mt-4 flex flex-wrap items-end gap-3">
@@ -347,7 +347,7 @@ function Builder({
                 <h4 className="mt-3 font-architect text-[15px] text-ink">{q.title}</h4>
                 <div className="mt-1 font-kalam text-sm text-ink-muted">{q.course}</div>
                 <div className="mt-1 font-kalam text-xs text-ink-muted">{q.questions.length} questions</div>
-                <PaperButton tone="dark" className="mt-4 w-full" onClick={() => onStart(q)}>
+                <PaperButton tone="dark" className="mt-4 w-full py-4" size="lg" onClick={() => onStart(q)}>
                   <Play className="size-4" /> Start quiz
                 </PaperButton>
               </div>

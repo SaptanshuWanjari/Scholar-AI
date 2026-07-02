@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search as SearchIcon, FileText, Layers, ListChecks, Workflow, Sparkles, Loader2, BookOpen, Tag } from "lucide-react";
 import { motion } from "motion/react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { Page } from "../components/Page";
 import { PaperInput } from "@/paper-ui/components/inputs";
 import { PaperSelect } from "@/paper-ui/components/inputs";

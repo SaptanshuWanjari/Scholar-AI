@@ -69,9 +69,9 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 
 const VARIANT_CONFIG: Record<ToastVariant, { fill: string; stroke: string; icon: React.ReactNode }> = {
   default: { fill: "#fffdf9", stroke: "#3a3733", icon: null as unknown as React.ReactNode },
-  success: { fill: "#edf5ea", stroke: "#3f7a4e", icon: createElement(CheckCircle2, { size: 16, color: "#3f7a4e" }) },
-  error: { fill: "#fdf0ef", stroke: "#9f3a36", icon: createElement(XCircle, { size: 16, color: "#9f3a36" }) },
-  warning: { fill: "#fefce8", stroke: "#8a6d00", icon: createElement(AlertTriangle, { size: 16, color: "#8a6d00" }) },
+  success: { fill: "#edf5ea", stroke: "#3f7a4e", icon: createElement(CheckCircle2, { size: 32, color: "#3f7a4e" }) },
+  error: { fill: "#fdf0ef", stroke: "#9f3a36", icon: createElement(XCircle, { size: 32, color: "#9f3a36" }) },
+  warning: { fill: "#fefce8", stroke: "#8a6d00", icon: createElement(AlertTriangle, { size: 32, color: "#8a6d00" }) },
 };
 
 /**
@@ -198,12 +198,12 @@ ToastProvider.displayName = "ToastProvider";
  * @see {@link ToastProvider}
  * @see {@link ToastOptions}
  */
-export function useToast(): { addToast: (toast: ToastOptions) => string } {
+export function useToast(): { addToast: (toast: ToastOptions) => string; removeToast: (id: string) => void } {
   const ctx = useContext(ToastProviderContext);
   if (!ctx) {
     throw new Error("useToast must be used within a ToastProvider");
   }
-  return { addToast: ctx.addToast };
+  return { addToast: ctx.addToast, removeToast: ctx.removeToast };
 }
 
 /**
@@ -274,7 +274,7 @@ function ToastViewport({
 
   const viewport = createElement("div", {
     className: cn(
-      "z-[10000] flex flex-col gap-3 pointer-events-auto w-[340px] max-w-[calc(100vw-2rem)]",
+      "z-[10000] flex flex-col gap-6 pointer-events-auto w-[480px] max-w-[calc(100vw-2rem)]",
       POSITION_CLASSES[position],
       className,
     ),
@@ -321,7 +321,7 @@ function ToastUnit({ toast, onClose, className }: ToastUnitProps) {
     ToastContext.Provider,
     { value: ctx },
     createElement("div", {
-      className: cn("relative flex items-start gap-3 px-4 py-3.5", className),
+      className: cn("relative flex items-center gap-3 px-4 py-3.5", className),
       children: [
         createElement(SketchBorder, {
           key: "border",
@@ -335,7 +335,7 @@ function ToastUnit({ toast, onClose, className }: ToastUnitProps) {
         config.icon &&
           createElement(
             "div",
-            { key: "icon", className: "relative z-[1] mt-[1px] shrink-0" },
+            { key: "icon", className: "relative z-[1] shrink-0" },
             config.icon,
           ),
         createElement(
@@ -370,7 +370,7 @@ function ToastTitle({
   const { toast } = useSingleToast();
   if (!toast.title) return null;
   return createElement("div", {
-    className: cn("font-caveat font-bold text-[var(--paper-ink)] text-[15px]", className),
+    className: cn("font-caveat font-bold text-[var(--paper-ink)] text-[30px]", className),
     ...rest,
     children: children ?? toast.title,
   });
@@ -393,7 +393,7 @@ function ToastDescription({
   if (!toast.description) return null;
   return createElement("div", {
     className: cn(
-      "font-architect text-sm text-[var(--paper-ink-muted)] leading-snug",
+      "font-architect text-lg text-[var(--paper-ink-muted)] leading-snug",
       toast.title && "mt-0.5",
       className,
     ),
@@ -457,7 +457,7 @@ function ToastClose({
       className,
     ),
     ...rest,
-    children: children ?? createElement(X, { size: 14 }),
+    children: children ?? createElement(X, { size: 28 }),
   });
 }
 ToastClose.displayName = "ToastProvider.ToastClose";

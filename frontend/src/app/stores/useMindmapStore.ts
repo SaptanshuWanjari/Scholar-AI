@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { api, type GeneratedMindmap } from "../lib/api";
 import { usePromptEnhancerStore } from "./usePromptEnhancerStore";
 import { useNotificationStore } from "./useNotificationStore";

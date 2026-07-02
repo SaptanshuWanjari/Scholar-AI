@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import rough from "roughjs/bin/rough";
 import { cn } from "@/paper-ui/utils";
+import { usePaperTheme } from "@/paper-ui/core";
 
 export interface SketchBorderProps {
   /** Hand-drawn stroke color. Concrete value only (no CSS var). Default ink. */
@@ -36,7 +37,7 @@ let SEED = 1;
  * that element a native hand-drawn surface (no CSS rounded-rect underneath).
  */
 export function SketchBorder({
-  stroke = "#222222",
+  stroke,
   strokeWidth = 1.5,
   fill,
   fillStyle = "solid",
@@ -55,6 +56,8 @@ export function SketchBorder({
   const svgRef = useRef<SVGSVGElement>(null);
   const seedRef = useRef(seed ?? SEED++);
   const [size, setSize] = useState({ w: 0, h: 0 });
+  const t = usePaperTheme();
+  const resolvedStroke = stroke ?? t.stroke;
 
   // Track the parent element's BORDER box (includes padding) so the drawn
   // surface aligns with the element's outer edge and existing paddings work.
@@ -102,7 +105,7 @@ export function SketchBorder({
     const effectiveBowing = bowing * Math.min(1, 180 / Math.max(size.w, size.h, 180));
 
     const node = rc.path(d, {
-      stroke,
+      stroke: resolvedStroke,
       strokeWidth,
       roughness,
       bowing: effectiveBowing,
@@ -110,7 +113,7 @@ export function SketchBorder({
       ...(fill ? { fill, fillStyle, fillWeight, hachureGap } : {}),
     });
     svg.appendChild(node);
-  }, [size, stroke, strokeWidth, fill, fillStyle, fillWeight, hachureGap, roughness, bowing, radius, bleed]);
+  }, [size, resolvedStroke, strokeWidth, fill, fillStyle, fillWeight, hachureGap, roughness, bowing, radius, bleed]);
 
   const W = size.w + bleed * 2;
   const H = size.h + bleed * 2;

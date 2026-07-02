@@ -12,7 +12,7 @@ import { Card, CardContent } from "./ui/card";
 import { 
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
 } from "./ui/select";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 
 interface ConceptPlaygroundProps {
   isOpen: boolean;

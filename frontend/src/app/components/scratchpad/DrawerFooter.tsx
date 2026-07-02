@@ -2,7 +2,7 @@ import React from 'react'
 import { Minus, Plus, Maximize2, RotateCcw, RotateCw, Trash2, Download } from 'lucide-react'
 import { toSvg } from 'html-to-image'
 import { useNavigate } from 'react-router'
-import { toast } from 'sonner'
+import { toast } from "@/app/lib/toast"
 import { api } from '../../lib/api'
 import { useScratchpadStore } from './useScratchpadStore'
 import { SketchBorder } from '@/paper-ui/core'

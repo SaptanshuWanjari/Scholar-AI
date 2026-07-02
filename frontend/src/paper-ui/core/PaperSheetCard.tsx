@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
+import { usePaperTheme } from "@/paper-ui/core";
 
 export interface PaperSheetCardProps {
   title?: string;
@@ -65,6 +66,7 @@ function makeSecondaryPath(H: number): string {
 export function PaperSheetCard({ title, children, className }: PaperSheetCardProps) {
   const outerRef = useRef<HTMLDivElement>(null);
   const [svgH, setSvgH] = useState(0);
+  const t = usePaperTheme();
 
   // useLayoutEffect: fires before browser paint → no flash on first render.
   useLayoutEffect(() => {
@@ -109,8 +111,8 @@ export function PaperSheetCard({ title, children, className }: PaperSheetCardPro
           {/* Main paper body */}
           <path
             d={makePaperPath(svgH)}
-            fill="#FDFDF9"
-            stroke="#3D3D3D"
+            fill={t.surface}
+            stroke={t.stroke}
             strokeWidth="2.5"
             strokeLinejoin="round"
             strokeLinecap="round"
@@ -119,7 +121,7 @@ export function PaperSheetCard({ title, children, className }: PaperSheetCardPro
           <path
             d={makeSecondaryPath(svgH)}
             fill="none"
-            stroke="#3D3D3D"
+            stroke={t.stroke}
             strokeWidth="1"
             strokeOpacity="0.45"
             strokeLinejoin="round"
@@ -133,8 +135,8 @@ export function PaperSheetCard({ title, children, className }: PaperSheetCardPro
           {/* Folded flap */}
           <path
             d={`M 578 ${yFold} L 540 ${yBot} L 540 ${yFold} Z`}
-            fill="#F4F4F0"
-            stroke="#3D3D3D"
+            fill={t.panel}
+            stroke={t.stroke}
             strokeWidth="2"
             strokeLinejoin="round"
           />
@@ -151,10 +153,10 @@ export function PaperSheetCard({ title, children, className }: PaperSheetCardPro
           <p
             style={{
               fontFamily: "'Architects Daughter', cursive",
-              fontSize: "clamp(14px, 2.5%, 20px)",
+              fontSize: "clamp(0.93rem, 2.5%, 1.33rem)",
               fontWeight: "bold",
               letterSpacing: "2px",
-              color: "#2c2c2c",
+              color: t.ink,
               textTransform: "uppercase",
               marginBottom: "12px",
             }}

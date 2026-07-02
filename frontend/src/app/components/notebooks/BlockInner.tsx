@@ -20,7 +20,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { cn } from "@/paper-ui/utils";
 import { PaperBadge } from "@/paper-ui/components/badges";
 import { PaperModal } from "@/paper-ui/components/dialogs";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { Save } from "lucide-react";
 import { api } from "../../lib/api";
 import type { Course } from "../../lib/types";

@@ -2,16 +2,33 @@ import React from "react";
 import { cn } from "@/paper-ui/utils";
 import { PaperSheetBorder, type PaperSheetBorderProps } from "@/paper-ui/core";
 import { SketchBorder, type SketchBorderProps } from "@/paper-ui/core";
+import { usePaperTheme } from "@/paper-ui/core";
 import { Tape } from "../decorations/Tape";
 
 type Tone = "dark" | "paper" | "green" | "red"
 
-const TONES: Record<Tone, { fill: string; fg: string; stroke: string }> = {
-  dark: { fill: "#262320", fg: "#fbf8f2", stroke: "#262320" },
-  paper: { fill: "#fffdf9", fg: "#262320", stroke: "#2c2c2c" },
-  green: { fill: "#e7efe4", fg: "#2f5d3a", stroke: "#3f7a4e" },
-  red: { fill: "#fbeaea", fg: "#8b1e1e", stroke: "#c0392b" },
+const SIZES = {
+  sm: "min-h-8 py-1 px-3 text-[0.93rem]",
+  md: "min-h-10 py-2 px-4 text-[1rem]",
+  lg: "min-h-11 py-2.5 px-6 text-[1.07rem]",
 };
+
+function useTonalColors(tone: Tone): { fill: string; fg: string; stroke: string } {
+  const t = usePaperTheme();
+  const LIGHT: Record<Tone, { fill: string; fg: string; stroke: string }> = {
+    dark: { fill: "#262320", fg: "#fbf8f2", stroke: "#262320" },
+    paper: { fill: t.surface, fg: t.ink, stroke: t.stroke },
+    green: { fill: "#e7efe4", fg: "#2f5d3a", stroke: "#3f7a4e" },
+    red: { fill: "#fbeaea", fg: "#8b1e1e", stroke: "#c0392b" },
+  };
+  const DARK: Record<Tone, { fill: string; fg: string; stroke: string }> = {
+    dark: { fill: "#f6f5f1", fg: "#1c1b1a", stroke: "#f6f5f1" },
+    paper: { fill: t.surface, fg: t.ink, stroke: t.stroke },
+    green: { fill: "#2d4a34", fg: "#b8d8bb", stroke: "#7fc48a" },
+    red: { fill: "#4a2525", fg: "#e0a0a0", stroke: "#d47979" },
+  };
+  return document.documentElement.classList.contains("dark") ? DARK[tone] : LIGHT[tone];
+}
 
 export interface PaperButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   tone?: Tone;
@@ -20,16 +37,10 @@ export interface PaperButtonProps extends React.ButtonHTMLAttributes<HTMLButtonE
   border?: Partial<PaperSheetBorderProps> | null;
 }
 
-const SIZES = {
-  sm: "min-h-8 py-1 px-3 text-[14px]",
-  md: "min-h-10 py-2 px-4 text-[15px]",
-  lg: "min-h-11 py-2.5 px-6 text-[16px]",
-};
-
 /** Base hand-drawn button. Press lifts 1px up, active settles down. */
 export const PaperButton = React.forwardRef<HTMLButtonElement, PaperButtonProps>(
   function PaperButton({ children, className, tone = "paper", size = "md", border, style, ...props }, ref) {
-    const t = TONES[tone];
+    const t = useTonalColors(tone);
     return (
       <button
         ref={ref}
@@ -129,7 +140,7 @@ export const FloatingActionButton = React.forwardRef<HTMLButtonElement, Floating
     { children, label, tone = "dark", size = "md", border, className, style, ...props },
     ref,
   ) {
-    const t = TONES[tone];
+    const t = useTonalColors(tone);
     const px = FAB_SIZES[size];
     return (
       <button
@@ -172,13 +183,13 @@ export interface ChipButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 export const ChipButton = React.forwardRef<HTMLButtonElement, ChipButtonProps>(
   function ChipButton({ children, selected = false, tone, border, className, style, ...props }, ref) {
     const resolvedTone: Tone = tone ?? (selected ? "dark" : "paper");
-    const t = TONES[resolvedTone];
+    const t = useTonalColors(resolvedTone);
     return (
       <button
         ref={ref}
         aria-pressed={selected}
         className={cn(
-          "relative inline-flex h-10 items-center gap-1.5 px-4 font-architect text-[15px]",
+          "relative inline-flex h-10 items-center gap-1.5 px-4 font-architect text-[1rem]",
           "transition-transform duration-100 hover:-translate-y-px active:translate-y-px",
           className,
         )}
@@ -214,10 +225,11 @@ export const ToggleButton = React.forwardRef<HTMLButtonElement, ToggleButtonProp
     { children, pressed, onPressedChange, size = "md", border, className, style, onClick, ...props },
     ref,
   ) {
-    const fill = pressed ? "#262320" : "#fffdf9";
-    const fg = pressed ? "#fbf8f2" : "#262320";
+    const t = usePaperTheme();
+    const fill = pressed ? (document.documentElement.classList.contains("dark") ? t.ink : "#262320") : t.surface;
+    const fg = pressed ? (document.documentElement.classList.contains("dark") ? t.bg : "#fbf8f2") : t.ink;
     const shadow = pressed ? 0 : 2;
-    const TOGGLE_SIZES = { sm: "h-8 px-3 text-[13px]", md: "h-10 px-4 text-[14px]" };
+    const TOGGLE_SIZES = { sm: "h-8 px-3 text-[0.87rem]", md: "h-10 px-4 text-[0.93rem]" };
     return (
       <button
         ref={ref}
@@ -236,7 +248,7 @@ export const ToggleButton = React.forwardRef<HTMLButtonElement, ToggleButtonProp
         {border !== null && (
           <PaperSheetBorder
             fill={fill}
-            stroke="#262320"
+            stroke={t.stroke}
             strokeWidth={1.8}
             shadow={shadow}
             {...border}
@@ -252,6 +264,7 @@ export const ToggleButton = React.forwardRef<HTMLButtonElement, ToggleButtonProp
 
 export const GhostButton = React.forwardRef<HTMLButtonElement, PaperButtonProps>(
   function GhostButton({ children, size = "md", border, className, style, ...props }, ref) {
+    const t = usePaperTheme();
     return (
       <button
         ref={ref}
@@ -267,7 +280,7 @@ export const GhostButton = React.forwardRef<HTMLButtonElement, PaperButtonProps>
         {border !== null && (
           <PaperSheetBorder
             fill="transparent"
-            stroke="#c0b9ae"
+            stroke={t.strokeSm}
             strokeWidth={1.4}
             shadow={0}
             {...border}

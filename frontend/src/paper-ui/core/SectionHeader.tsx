@@ -11,7 +11,7 @@ export function SectionLabel({ children, className, ...props }: SectionLabelProp
   return (
     <span
       className={cn(
-        "font-architect text-[15px] font-medium uppercase tracking-[0.14em] text-ink-muted",
+        "font-architect text-[1rem] font-medium uppercase tracking-[0.14em] text-ink-muted",
         className,
       )}
       {...props}

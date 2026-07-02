@@ -40,7 +40,7 @@ export function Tabs({ items, active, onChange, markerColor = "#f6e27a", classNa
             aria-selected={isActive}
             onClick={() => onChange(item.key)}
             className={cn(
-              "relative flex items-center gap-1.5 pb-2.5 font-architect text-[14px] transition-colors",
+              "relative flex items-center gap-1.5 pb-2.5 font-architect text-[28px] transition-colors",
               isActive ? "text-ink" : "text-ink-muted hover:text-ink",
             )}
           >
@@ -65,7 +65,7 @@ export function Tabs({ items, active, onChange, markerColor = "#f6e27a", classNa
             )}
             <span className="relative z-[1]">{item.label}</span>
             {item.count != null && (
-              <span className="relative z-[1] font-architect text-[11px] text-ink-muted/65">
+              <span className="relative z-[1] font-architect text-[22px] text-ink-muted/65">
                 {item.count}
               </span>
             )}

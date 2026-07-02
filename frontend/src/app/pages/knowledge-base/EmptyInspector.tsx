@@ -1,7 +1,7 @@
 import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 import { PaperIconCircle } from "@paper-ui/core";
 import { Compass, Network } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 
 export function EmptyInspector() {
   return (

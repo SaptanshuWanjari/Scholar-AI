@@ -1,4 +1,4 @@
-import { toast } from 'sonner'
+import { toast } from "@/app/lib/toast"
 import { useNavigate } from 'react-router'
 import { Trash2, Download, NotebookText, ExternalLink } from 'lucide-react'
 import { api } from '../../lib/api'

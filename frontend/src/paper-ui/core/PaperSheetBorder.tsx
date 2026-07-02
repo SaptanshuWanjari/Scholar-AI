@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/paper-ui/utils";
+import { usePaperTheme } from "@/paper-ui/core";
 
 export interface PaperSheetBorderProps {
   fill?: string;
@@ -116,8 +117,8 @@ function makeSecondary(H: number, fold: boolean, attachedBottom?: boolean): stri
  * The SVG fills 100 % × 100 % of the parent and never affects layout.
  */
 export function PaperSheetBorder({
-  fill = "#fffdf9",
-  stroke = "#3D3D3D",
+  fill,
+  stroke,
   strokeWidth = 2,
   shadow = 2,
   shadowColor = "rgba(0,0,0,0.18)",
@@ -127,6 +128,9 @@ export function PaperSheetBorder({
 }: PaperSheetBorderProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
+  const t = usePaperTheme();
+  const resolvedFill = fill ?? t.surface;
+  const resolvedStroke = stroke ?? t.stroke;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -184,18 +188,18 @@ export function PaperSheetBorder({
         {/* Main paper body */}
         <path
           d={makeOutline(svgH, fold, attachedBottom)}
-          fill={fill}
-          stroke={stroke}
+          fill={resolvedFill}
+          stroke={resolvedStroke}
           strokeWidth={strokeWidth}
           strokeLinejoin="round"
           strokeLinecap="round"
-          strokeDasharray={attachedBottom ? undefined : undefined} // keep unchanged attributes
+          strokeDasharray={attachedBottom ? undefined : undefined}
         />
         {/* Secondary double-outline — the hand-drawn "second pass" look */}
         <path
           d={makeSecondary(svgH, fold, attachedBottom)}
           fill="none"
-          stroke={stroke}
+          stroke={resolvedStroke}
           strokeWidth={strokeWidth * 0.45}
           strokeOpacity={0.38}
           strokeLinejoin="round"
@@ -210,8 +214,8 @@ export function PaperSheetBorder({
             />
             <path
               d={`M 580 ${yFold} L 542 ${yBot} L 542 ${yFold} Z`}
-              fill="#F4F4F0"
-              stroke={stroke}
+              fill={t.panel}
+              stroke={resolvedStroke}
               strokeWidth={strokeWidth * 0.75}
               strokeLinejoin="round"
             />

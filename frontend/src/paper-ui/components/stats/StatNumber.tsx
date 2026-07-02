@@ -58,7 +58,7 @@ export function StatNumber({
       <div className="flex items-baseline gap-1.5">
         <span
           className="font-caveat leading-none"
-          style={{ fontSize: 56, color: fg }}
+          style={{ fontSize: "3.73rem", color: fg }}
         >
           {value}
         </span>

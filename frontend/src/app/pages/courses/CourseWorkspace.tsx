@@ -16,7 +16,7 @@ import {
   NotebookPen,
   Brain,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { api } from "../../lib/api";
 import type {
   Course,

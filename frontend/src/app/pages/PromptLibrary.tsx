@@ -3,7 +3,7 @@ import { BookMarked, Check, Plus, Trash2, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { api } from "../lib/api";
 import type { PromptItem } from "../lib/types";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 import { cn } from "@/paper-ui/utils";
 import { PaperInput, PaperTextarea } from "@/paper-ui/components/inputs";
 import { PaperButton, GhostButton, IconButton } from "@/paper-ui/components/buttons";

@@ -1,6 +1,7 @@
 import React from "react";
 import { cn } from "@/paper-ui/utils";
 import { SketchBorder, type SketchBorderProps } from "@/paper-ui/core";
+import { usePaperTheme } from "@/paper-ui/core";
 
 type Shadow = "none" | "sm" | "md" | "lg";
 
@@ -21,16 +22,11 @@ export interface PaperCardProps extends React.HTMLAttributes<HTMLDivElement> {
   rotate?: number;
 }
 
-/**
- * Base notebook surface: a single hand-drawn rough.js shape provides the warm
- * fill, the wobbly outline and a crisp hard-offset shadow. The wrapper itself
- * is transparent — no CSS rounded-rect or box-shadow underneath.
- */
 export const PaperCard = React.forwardRef<HTMLDivElement, PaperCardProps>(function PaperCard(
   {
     children,
     className,
-    surface = "#fffdf9",
+    surface,
     shadow = "md",
     lift = false,
     texture = true,
@@ -41,6 +37,8 @@ export const PaperCard = React.forwardRef<HTMLDivElement, PaperCardProps>(functi
   },
   ref,
 ) {
+  const t = usePaperTheme();
+  const resolvedSurface = surface ?? t.surface;
   return (
     <div
       ref={ref}
@@ -48,7 +46,7 @@ export const PaperCard = React.forwardRef<HTMLDivElement, PaperCardProps>(functi
       style={{ transform: rotate ? `rotate(${rotate}deg)` : undefined, ...style }}
       {...props}
     >
-      {border !== null && <SketchBorder fill={surface} shadow={SHADOW_PX[shadow]} {...border} />}
+      {border !== null && <SketchBorder fill={resolvedSurface} shadow={SHADOW_PX[shadow]} {...border} />}
       <div className="relative z-[1]">{children}</div>
     </div>
   );
@@ -59,9 +57,9 @@ export const PaperPanel = React.forwardRef<HTMLDivElement, PaperCardProps>(funct
   { shadow = "none", surface, texture = false, border, ...props },
   ref,
 ) {
-  // No surface given → draw a stroke-only outline (transparent body).
+  const t = usePaperTheme();
   const merged: Partial<SketchBorderProps> | null =
-    border === null ? null : { stroke: "#9c9484", strokeWidth: 1.4, ...border };
+    border === null ? null : { stroke: t.strokeSm, strokeWidth: 1.4, ...border };
   return (
     <PaperCard
       ref={ref}

@@ -13,7 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { toast } from "sonner";
+import { toast } from "@/app/lib/toast";
 
 // paper-ui components
 import { PaperButton, GhostButton, IconButton, ToggleButton } from "@paper-ui/components/buttons";
