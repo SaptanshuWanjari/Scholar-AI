@@ -52,7 +52,7 @@ class CompressedJSON(TypeDecorator):
         return json.loads(gzip.decompress(value).decode("utf-8"))
 
 
-def get_course(session: Session, name: str | None) -> "Course" | None:
+def get_course(session: Session, name: str | None) -> "Course | None":
     if not name:
         return None
 
@@ -772,10 +772,19 @@ def _cascade_delete_chat_messages(mapper, connection, target):
     doc_id_str = str(target.id)
     title_pattern = f'%"{target.title}"%'
     doc_pattern = f'%"{doc_id_str}"%'
-    
+
     connection.execute(
         text("DELETE FROM chat_messages WHERE sources LIKE :p_title OR sources LIKE :p_doc"),
         {"p_title": title_pattern, "p_doc": doc_pattern}
     )
+
+
+class PluginState(Base):
+    __tablename__ = "plugin_states"
+
+    plugin_id: Mapped[str] = mapped_column(String, primary_key=True)
+    installed: Mapped[bool] = mapped_column(Boolean, default=False)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    installed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 

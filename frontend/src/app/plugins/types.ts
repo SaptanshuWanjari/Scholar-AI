@@ -19,7 +19,7 @@ export interface PluginDefinition {
   description: string;
   version: string;
   icon: LucideIcon;
-  builtIn?: boolean;
+  npmPackages?: string[];
   navItems?: NavItem[];
   routes?: PluginRoute[];
   settingsTab?: PluginSettingsTab;

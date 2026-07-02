@@ -9,7 +9,7 @@ export const plantumlPlugin: PluginDefinition = {
     "Render UML diagrams, state machines, sequence flows, and architecture schematics from PlantUML syntax. Requires a local Java runtime and the plantuml binary.",
   version: "1.0.0",
   icon: Network,
-  builtIn: true,
+  npmPackages: [],
   settingsTab: {
     label: "Setup & Requirements",
     icon: HelpCircle,

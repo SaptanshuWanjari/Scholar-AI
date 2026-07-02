@@ -23,7 +23,7 @@ const SPINNER = (
 
 export function ScratchpadDrawer() {
   const { drawerState, drawerHeight, setDrawerHeight, setDrawerState } = useScratchpadStore()
-  const excalidrawEnabled = usePluginStore((s) => s.isEnabled("excalidraw"))
+  const isExcalidrawInstalled = usePluginStore((s) => s.isInstalled("excalidraw"))
   const stageRef = useRef<any>(null)
   const dragStartY = useRef<number | null>(null)
   const dragStartH = useRef<number>(0)
@@ -97,18 +97,16 @@ export function ScratchpadDrawer() {
                 onMouseDown={onDragStart}
               />
               <DrawerHeader />
-              {excalidrawEnabled ? (
+              {isExcalidrawInstalled ? (
                 <Suspense fallback={SPINNER}>
                   <ScratchpadExcalidraw />
                 </Suspense>
               ) : (
-                <>
-                  <div className="flex flex-1 min-h-0">
-                    <SketchToolbar />
-                    <ScratchCanvas stageRef={stageRef} />
-                  </div>
-                  <DrawerFooter stageRef={stageRef} />
-                </>
+                <div className="flex h-full items-center justify-center p-6 text-center">
+                  <p className="font-kalam text-sm text-ink-muted">
+                    Install the Excalidraw plugin in Settings → Plugins to use the drawing scratchpad.
+                  </p>
+                </div>
               )}
             </div>
           </motion.div>

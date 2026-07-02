@@ -10,7 +10,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from scholarcli.storage import init_db
+from scholarcli.storage import init_db, get_session
+from scholarcli.api.plugin_catalog import PLUGIN_CATALOG
+from scholarcli.storage.models import PluginState
 
 
 @asynccontextmanager
@@ -18,6 +20,21 @@ async def lifespan(app: FastAPI):
     init_db()
     from scholarcli.api.prompt_service import seed_prompts
     seed_prompts()
+
+    # Seed plugin states for any new plugins
+    session = get_session()
+    try:
+        for entry in PLUGIN_CATALOG:
+            existing = session.get(PluginState, entry["id"])
+            if existing is None:
+                session.add(PluginState(
+                    plugin_id=entry["id"],
+                    installed=entry["default_installed"],
+                    enabled=entry["default_installed"],
+                ))
+        session.commit()
+    finally:
+        session.close()
     from scholarcli.api.worker_pool import start_pool, stop_pool
     from scholarcli.config import get_settings
     start_pool(get_settings().ingest.max_concurrent)
@@ -69,6 +86,7 @@ def create_app() -> FastAPI:
         library,
         notebooks,
         onboarding,
+        plugin_manager,
         plugins,
         prompt_enhancer,
         prompts,
@@ -99,6 +117,7 @@ def create_app() -> FastAPI:
         library,
         notebooks,
         onboarding,
+        plugin_manager,
         plugins,
         prompt_enhancer,
         prompts,
