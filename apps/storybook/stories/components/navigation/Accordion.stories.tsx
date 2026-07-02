@@ -1,11 +1,11 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@paper-ui/components/navigation';
-import { Box } from '@paper-ui/components/layout';
 
 const meta: Meta<typeof Accordion> = {
   title: 'Components/Navigation/Accordion',
   component: Accordion,
+  parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };
 export default meta;
@@ -13,38 +13,42 @@ type Story = StoryObj<typeof Accordion>;
 
 export const Default: Story = {
   render: () => (
-    <Box className="w-full max-w-sm border border-black/10 p-4">
-      <Accordion type="single" collapsible className="w-full">
+    <div className="p-8 bg-[#f4f1ea] max-w-md">
+      <Accordion type="single" collapsible>
         <AccordionItem value="item-1">
-          <AccordionTrigger>Is it accessible?</AccordionTrigger>
-          <AccordionContent>Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
+          <AccordionTrigger>What is this component?</AccordionTrigger>
+          <AccordionContent>A collapsible accordion with hand-drawn sketch styling.</AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
-          <AccordionTrigger>Is it styled?</AccordionTrigger>
-          <AccordionContent>Yes, with a hand-crafted paper aesthetic.</AccordionContent>
+          <AccordionTrigger>How do I use it?</AccordionTrigger>
+          <AccordionContent>Set type to "single" for one open item, or "multiple" for many.</AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-3">
+          <AccordionTrigger>Can I customize it?</AccordionTrigger>
+          <AccordionContent>Yes, pass className or style props to any sub-component.</AccordionContent>
         </AccordionItem>
       </Accordion>
-    </Box>
-  )
+    </div>
+  ),
 };
 
 export const Multiple: Story = {
   render: () => (
-    <Box className="w-full max-w-sm bg-sky-soft p-6">
-      <Accordion type="multiple" className="w-full">
+    <div className="p-8 bg-[#f4f1ea] max-w-md">
+      <Accordion type="multiple">
         <AccordionItem value="item-1">
-          <AccordionTrigger>First Item</AccordionTrigger>
-          <AccordionContent>Content for first item.</AccordionContent>
+          <AccordionTrigger>First Section</AccordionTrigger>
+          <AccordionContent>Multiple sections can be open simultaneously.</AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
-          <AccordionTrigger>Second Item</AccordionTrigger>
-          <AccordionContent>Content for second item.</AccordionContent>
+          <AccordionTrigger>Second Section</AccordionTrigger>
+          <AccordionContent>Useful for FAQs or feature lists.</AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-3">
-          <AccordionTrigger>Third Item</AccordionTrigger>
-          <AccordionContent>Content for third item.</AccordionContent>
+          <AccordionTrigger>Third Section</AccordionTrigger>
+          <AccordionContent>Each accordion item has a wavy sketch divider.</AccordionContent>
         </AccordionItem>
       </Accordion>
-    </Box>
-  )
+    </div>
+  ),
 };

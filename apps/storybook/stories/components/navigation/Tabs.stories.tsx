@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Tabs } from '@paper-ui/components/navigation';
-import { Box } from '@paper-ui/components/layout';
 
 const meta: Meta<typeof Tabs> = {
   title: 'Components/Navigation/Tabs',
   component: Tabs,
+  parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };
 export default meta;
@@ -13,30 +13,47 @@ type Story = StoryObj<typeof Tabs>;
 
 export const Default: Story = {
   render: () => {
-    const [active, setActive] = useState('t1');
-    return <Tabs items={[{ key: 't1', label: 'Overview' }, { key: 't2', label: 'Settings' }, { key: 't3', label: 'Billing' }]} active={active} onChange={setActive} />;
-  }
-};
-
-export const BorderedContainer: Story = {
-  render: () => {
-    const [active, setActive] = useState('1');
+    const [active, setActive] = useState('overview');
     return (
-      <Box className="p-4 border border-black/10 max-w-md bg-paper">
-        <Tabs items={[{ key: '1', label: 'Code' }, { key: '2', label: 'Preview' }]} active={active} onChange={setActive} />
-        <div className="mt-4 p-4 bg-black/5 font-kalam text-ink rounded">Content for {active}</div>
-      </Box>
+      <div className="p-8 bg-[#f4f1ea]">
+        <Tabs
+          active={active}
+          onChange={setActive}
+          items={[
+            { key: 'overview', label: 'Overview', count: 12 },
+            { key: 'content', label: 'Content', count: 5 },
+            { key: 'notes', label: 'Notes', count: 8 }
+          ]}
+        />
+        <div className="mt-6 p-4 font-kalam text-ink">Tab content for {active}</div>
+      </div>
     );
-  }
+  },
 };
 
-export const ManyTabs: Story = {
+export const Vertical: Story = {
   render: () => {
-    const [active, setActive] = useState('a');
-    return <Tabs items={[
-      { key: 'a', label: 'Section A' }, { key: 'b', label: 'Section B' },
-      { key: 'c', label: 'Section C' }, { key: 'd', label: 'Section D' },
-      { key: 'e', label: 'Section E' }
-    ]} active={active} onChange={setActive} />;
-  }
+    const [active, setActive] = useState('settings');
+    return (
+      <div className="p-8 bg-[#f4f1ea]">
+        <div className="flex gap-8">
+          <div className="flex flex-col gap-2">
+            <Tabs
+              active={active}
+              onChange={setActive}
+              className="flex-col items-start gap-1 border-r border-ink/8 pr-4"
+              items={[
+                { key: 'profile', label: 'Profile' },
+                { key: 'settings', label: 'Settings' },
+                { key: 'privacy', label: 'Privacy' }
+              ]}
+            />
+          </div>
+          <div className="flex-1">
+            <p className="font-kalam text-ink">{active} settings would go here.</p>
+          </div>
+        </div>
+      </div>
+    );
+  },
 };
