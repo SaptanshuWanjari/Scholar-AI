@@ -1,58 +1,50 @@
-import React from 'react'
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { EmptyState } from '@paper-ui/components/feedback'
-import { SketchButton } from '@paper-ui/components/buttons'
-import { FolderOpen } from 'lucide-react'
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { EmptyState } from '@paper-ui/components/feedback';
+import { SketchButton } from '@paper-ui/components/buttons';
+import { FolderOpen } from 'lucide-react';
 
 const meta: Meta<typeof EmptyState> = {
   title: 'Components/Feedback/EmptyState',
   component: EmptyState,
+  parameters: { layout: 'padded' },
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
-}
-
-export default meta
-type Story = StoryObj<typeof EmptyState>
+};
+export default meta;
+type Story = StoryObj<typeof EmptyState>;
 
 export const Default: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] max-w-sm">
+    <div className="p-8 bg-[#f4f1ea]">
       <EmptyState
         icon={<FolderOpen size={32} strokeWidth={1.5} />}
-        title="No documents yet"
-        description="Upload a PDF or paste a URL to get started."
+        title="No notebooks yet"
+        description="Create a notebook to get started."
       />
     </div>
   ),
-}
+};
 
-export const Variants: Story = {
+export const WithAction: Story = {
   render: () => (
-    <div className="p-10 space-y-6 bg-[#f4f1ea] max-w-sm">
+    <div className="p-8 bg-[#f4f1ea]">
       <EmptyState
         icon={<FolderOpen size={32} strokeWidth={1.5} />}
-        title="No documents yet"
-        description="Upload a PDF or paste a URL to get started."
-      />
-      <EmptyState
-        title="Nothing found"
-        description="Try adjusting your search terms."
+        title="No notebooks yet"
+        description="Create a notebook to get started."
+        action={<SketchButton size="sm">New Notebook</SketchButton>}
       />
     </div>
   ),
-}
+};
 
-export const Composition: Story = {
+export const Search: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] max-w-sm">
+    <div className="p-8 bg-[#f4f1ea]">
       <EmptyState
-        icon={<FolderOpen size={32} strokeWidth={1.5} />}
-        title="No documents yet"
-        description="Upload a PDF or paste a URL to get started."
-        action={<SketchButton size="sm">Upload Document</SketchButton>}
+        title="No results found"
+        description="Try different search terms."
       />
     </div>
   ),
-}
+};
