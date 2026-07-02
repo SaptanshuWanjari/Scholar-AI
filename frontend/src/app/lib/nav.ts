@@ -22,6 +22,7 @@ import {
   FileSearch,
   ShieldCheck,
   Code2,
+  Trash2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -64,4 +65,5 @@ export const navItems: NavItem[] = [
   { label: "Prompts", to: "/prompts", icon: BookMarked, shortcut: "P", group: "system" },
   { label: "Guide", to: "/guide", icon: GuideIcon, shortcut: "H", group: "system" },
   { label: "Settings", to: "/settings", icon: Settings, shortcut: ",", group: "system" },
+  { label: "Bin", to: "/bin", icon: Trash2, shortcut: "B", group: "system" },
 ];

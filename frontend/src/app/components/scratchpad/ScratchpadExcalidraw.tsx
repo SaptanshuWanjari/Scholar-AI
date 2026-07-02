@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useRef, useEffect } from 'react'
+import { lazy, Suspense, useCallback, useRef, useEffect, Component } from 'react'
 import { Loader2 } from 'lucide-react'
 import { ExcalidrawFooter } from './ExcalidrawFooter'
 
@@ -19,6 +19,18 @@ function loadScene(): any {
 const Excalidraw = lazy(() =>
   import("@excalidraw/excalidraw").then((m) => ({ default: m.Excalidraw })),
 )
+
+class ErrBoundary extends Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false }
+  static getDerivedStateFromError() { return { hasError: true } }
+  render() {
+    if (this.state.hasError) return null
+    return this.props.children
+  }
+}
 
 const loader = (
   <div className="flex h-full w-full items-center justify-center">
@@ -59,28 +71,30 @@ export function ScratchpadExcalidraw() {
     <>
       <div className="flex-1 min-h-0">
         <Suspense fallback={loader}>
-          <Excalidraw
-            initialData={
-              sceneRef.current
-                ? { elements: sceneRef.current.elements, appState: {}, files: sceneRef.current.files }
-                : undefined
-            }
-            excalidrawAPI={(api: any) => { apiRef.current = api }}
-            onChange={handleChange}
-            UIOptions={{
-              canvasActions: {
-                changeViewBackgroundColor: false,
-                loadScene: false,
-                saveToActiveFile: false,
-                toggleTheme: false,
-                export: false,
-                clearCanvas: false,
-                saveAsImage: false,
-              },
-              tools: { image: false },
-            }}
-            theme="light"
-          />
+          <ErrBoundary>
+            <Excalidraw
+              initialData={
+                sceneRef.current
+                  ? { elements: sceneRef.current.elements, appState: {}, files: sceneRef.current.files }
+                  : undefined
+              }
+              excalidrawAPI={(api: any) => { apiRef.current = api }}
+              onChange={handleChange}
+              UIOptions={{
+                canvasActions: {
+                  changeViewBackgroundColor: false,
+                  loadScene: false,
+                  saveToActiveFile: false,
+                  toggleTheme: false,
+                  export: false,
+                  clearCanvas: false,
+                  saveAsImage: false,
+                },
+                tools: { image: false },
+              }}
+              theme="light"
+            />
+          </ErrBoundary>
         </Suspense>
       </div>
       <ExcalidrawFooter apiRef={apiRef} />

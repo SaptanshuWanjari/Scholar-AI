@@ -6,7 +6,7 @@ import { RenderRect, RenderCircle, RenderLine } from './renderers/renderShape'
 import { RenderArrow } from './renderers/renderArrow'
 import { RenderText } from './renderers/renderText'
 import { RenderSticky } from './renderers/renderSticky'
-import { penTool, highlighterTool, shapesTool, textTool, eraserTool, selectTool } from './tools'
+import { penTool, highlighterTool, shapesTool, eraserTool, selectTool } from './tools'
 import type { SceneObject, ToolType } from './types'
 import { SketchBorder } from '@/paper-ui/core'
 
@@ -59,7 +59,9 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
   const spaceHeld = useRef(false)
   const transformerRef = useRef<any>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingPos, setEditingPos] = useState<{ x: number; y: number } | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const mirrorRef = useRef<HTMLSpanElement>(null)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; id: string } | null>(null)
   const isDraggingSelect = useRef(false)
 
@@ -209,57 +211,96 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
   }, [])
 
   const commitTextEdit = useCallback(() => {
-    if (!editingId || !textareaRef.current) return
-    const value = textareaRef.current.value.trim()
+    const ta = textareaRef.current
+    if (!ta) return
+    const value = ta.value.trim()
     const store = useScratchpadStore.getState()
-    const obj = store.objects.find((o) => o.id === editingId)
-    if (value) {
-      store.updateObject(editingId, { content: value } as any)
-    } else if (obj?.type === 'text') {
-      store.removeObjects([editingId])
+
+    if (editingPos) {
+      if (value) {
+        const id = crypto.randomUUID()
+        store.pushHistory()
+        store.addObject({
+          type: 'text',
+          id,
+          x: editingPos.x,
+          y: editingPos.y,
+          content: value,
+          rotation: 0,
+          style: { fontSize: 16, fill: store.activeColor, fontFamily: 'Inter, sans-serif' },
+        })
+        store.setSelection([id])
+      }
+      setEditingPos(null)
+    } else if (editingId) {
+      const obj = store.objects.find((o) => o.id === editingId)
+      if (value) {
+        store.updateObject(editingId, { content: value } as any)
+      } else if (obj?.type === 'text') {
+        store.removeObjects([editingId])
+      }
+      setEditingId(null)
     }
-    setEditingId(null)
-  }, [editingId])
+  }, [editingId, editingPos])
 
   useEffect(() => {
-    if (!editingId || !stageRef.current || !textareaRef.current) return
+    const ta = textareaRef.current
+    const container = containerRef.current
+    if (!ta || !container) return
+
+    if (editingPos) {
+      ta.style.display = ''
+      const containerRect = container.getBoundingClientRect()
+      const screenX = editingPos.x * viewport.scale + viewport.x + containerRect.left
+      const screenY = editingPos.y * viewport.scale + viewport.y + containerRect.top
+      ta.style.left = (screenX - containerRect.left) + 'px'
+      ta.style.top = (screenY - containerRect.top) + 'px'
+      ta.style.fontSize = (16 * viewport.scale) + 'px'
+      ta.style.fontFamily = 'Inter, sans-serif'
+      ta.style.color = useScratchpadStore.getState().activeColor
+      ta.value = ''
+      ta.focus()
+      return
+    }
+
+    if (!editingId || !stageRef.current) return
     const stage = stageRef.current
     const node = stage.findOne('#' + editingId)
     if (!node) return
     const obj = useScratchpadStore.getState().objects.find((o) => o.id === editingId)
     if (!obj || (obj.type !== 'text' && obj.type !== 'sticky')) return
 
-    const absPos = node.getAbsolutePosition()
-    const scale = viewport.scale
-    const ta = textareaRef.current
+    ta.style.display = ''
+    const containerRect = container.getBoundingClientRect()
+    const nodeRect = node.getClientRect()
 
     if (obj.type === 'text') {
-      ta.style.left = absPos.x + 'px'
-      ta.style.top = absPos.y + 'px'
+      ta.style.left = (nodeRect.x - containerRect.left) + 'px'
+      ta.style.top = (nodeRect.y - containerRect.top) + 'px'
       ta.style.width = ''
       ta.style.height = ''
-      ta.style.fontSize = (obj.style.fontSize * scale) + 'px'
+      ta.style.fontSize = (obj.style.fontSize * viewport.scale) + 'px'
       ta.style.fontFamily = obj.style.fontFamily
       ta.style.color = obj.style.fill
     } else {
-      ta.style.left = (absPos.x + 8 * scale) + 'px'
-      ta.style.top = (absPos.y + 8 * scale) + 'px'
-      ta.style.width = ((obj.w - 16) * scale) + 'px'
-      ta.style.height = ((obj.h - 16) * scale) + 'px'
-      ta.style.fontSize = (13 * scale) + 'px'
+      ta.style.left = (nodeRect.x - containerRect.left + 8 * viewport.scale) + 'px'
+      ta.style.top = (nodeRect.y - containerRect.top + 8 * viewport.scale) + 'px'
+      ta.style.width = ((obj.w - 16) * viewport.scale) + 'px'
+      ta.style.height = ((obj.h - 16) * viewport.scale) + 'px'
+      ta.style.fontSize = (13 * viewport.scale) + 'px'
       ta.style.fontFamily = 'Inter, sans-serif'
       ta.style.color = '#211f1b'
     }
     ta.value = obj.content
     ta.focus()
     ta.select()
-  }, [editingId, viewport.scale])
+  }, [editingId, editingPos, viewport.scale])
 
   return (
     <div
       ref={containerRef}
       id="scratchpad-canvas-container"
-      className="w-full h-full overflow-hidden"
+      className="relative w-full h-full overflow-hidden"
       tabIndex={0}
       onWheel={onWheel}
       onMouseDown={onMouseDown}
@@ -298,6 +339,10 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
               )
             } else if (['rect', 'circle', 'line', 'arrow'].includes(store.activeTool)) {
               shapesTool.start(pos.x, pos.y, store.activeTool as ToolType, e.evt.shiftKey, setLiveObj)
+            } else if (store.activeTool === 'text') {
+              if (e.target === stage) {
+                setEditingPos({ x: pos.x, y: pos.y })
+              }
             } else if (store.activeTool === 'eraser') {
               const hit = e.target !== stage ? e.target.id() : null
               eraserTool.onMouseDown(hit)
@@ -393,10 +438,7 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
             const pos = stage?.getRelativePointerPosition()
             if (!pos) return
 
-            if (store.activeTool === 'text') {
-              const newId = textTool.onDblClick(pos.x, pos.y)
-              setEditingId(newId)
-            } else if (store.activeTool === 'sticky') {
+            if (store.activeTool === 'sticky') {
               const COLORS = ['#e8e0ff', '#d1f0d8', '#ffd6e0', '#fff3b0', '#b3e5fc']
               const color = COLORS[Math.floor(Math.random() * COLORS.length)]
               const id = crypto.randomUUID()
@@ -477,21 +519,48 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
           </Layer>
         </Stage>
       )}
-      {editingId && (
-        <textarea
-          ref={textareaRef}
-          className="absolute z-50 min-w-[120px] min-h-[24px] resize-none bg-[#fffdf9] rounded px-1 py-0.5 outline-none font-architect text-[14px] text-ink leading-relaxed"
-          style={{ border: '1.5px solid #262320' }}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              setEditingId(null)
-            } else if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              commitTextEdit()
-            }
-          }}
-          onBlur={commitTextEdit}
-        />
+      {(editingId || editingPos) && (
+        <>
+          <span
+            ref={mirrorRef}
+            className="absolute -top-[9999px] left-0 whitespace-pre invisible pointer-events-none"
+            style={{
+              fontFamily: editingId
+                ? (useScratchpadStore.getState().objects.find(o => o.id === editingId) as any)?.style?.fontFamily ?? 'Inter, sans-serif'
+                : 'Inter, sans-serif',
+              fontSize: (16 * viewport.scale) + 'px',
+              lineHeight: '1.5',
+            }}
+          />
+          <textarea
+            ref={textareaRef}
+            className="absolute z-50 resize-none bg-transparent rounded-sm px-0.5 py-0 outline-none leading-relaxed border border-transparent focus:border-[#b0a696] transition-colors"
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              color: useScratchpadStore.getState().activeColor,
+            }}
+            onInput={() => {
+              const ta = textareaRef.current
+              const mirror = mirrorRef.current
+              if (!ta || !mirror) return
+              mirror.textContent = ta.value || '\u200B'
+              const mw = mirror.getBoundingClientRect().width
+              const mh = mirror.getBoundingClientRect().height
+              ta.style.width = Math.max(16, mw + 8) + 'px'
+              ta.style.height = Math.max(20, mh) + 'px'
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setEditingId(null)
+                setEditingPos(null)
+              } else if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                commitTextEdit()
+              }
+            }}
+            onBlur={commitTextEdit}
+          />
+        </>
       )}
       {contextMenu && (
         <>
