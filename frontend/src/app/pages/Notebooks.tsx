@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useMemo, useCallback, useEffect, useRef, useState } from "react";
 import {
   PanelLeftOpen,
@@ -17,7 +17,6 @@ import {
   Workflow,
   StickyNote,
   Image as ImageIcon,
-  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -698,14 +697,7 @@ export function Notebooks() {
               <h1 className="mt-3 text-[2.75rem] leading-[1.1]">
                 {active.title}
               </h1>
-              <div className="mt-1 flex gap-2">
-                <Link
-                  to={`/notebook-v2/${activeId}`}
-                  className="inline-flex items-center gap-1 text-xs text-violet hover:underline"
-                >
-                  <ExternalLink className="size-3" /> Open in BlockSuite
-                </Link>
-              </div>
+
               {active.subtitle && (
                 <p className="mt-3 font-reading text-lg italic text-muted-foreground">
                   {active.subtitle}

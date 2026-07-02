@@ -16,30 +16,9 @@ function figmaAssetResolver() {
   }
 }
 
-/**
- * BlockSuite 0.19.5 ships a typo in @blocksuite/affine-components:
- * it imports `CheckBoxCkeckSolidIcon` (missing 'h') from @blocksuite/icons/lit,
- * but the icons package only exports `CheckBoxCheckSolidIcon`.
- * This plugin rewrites those imports at transform time so the build doesn't fail.
- */
-function blocksuiteIconTypoPatch() {
-  return {
-    name: 'blocksuite-icon-typo-patch',
-    transform(code: string, id: string) {
-      if (id.includes('@blocksuite/affine-components') && code.includes('CheckBoxCkeckSolidIcon')) {
-        return {
-          code: code.replaceAll('CheckBoxCkeckSolidIcon', 'CheckBoxCheckSolidIcon'),
-          map: null,
-        }
-      }
-    },
-  }
-}
-
 export default defineConfig({
   plugins: [
     figmaAssetResolver(),
-    blocksuiteIconTypoPatch(),
     // The React and Tailwind plugins are both required for Make, even if
     // Tailwind is not being actively used – do not remove them
     react(),
