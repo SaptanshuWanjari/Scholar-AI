@@ -6,9 +6,6 @@ const meta: Meta<typeof LearningPathCard> = {
   title: 'Components/Cards/LearningPathCard',
   component: LearningPathCard,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
 }
 
 export default meta
@@ -16,78 +13,59 @@ type Story = StoryObj<typeof LearningPathCard>
 
 export const Default: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <div className="max-w-xs">
-        <LearningPathCard
-          title="Deep Learning Foundations"
-          description="A structured path from linear algebra to neural networks."
-          progress={40}
-          steps={[
-            { title: 'Linear Algebra Basics', status: 'done', estimatedTime: '3h' },
-            { title: 'Calculus & Optimization', status: 'done', estimatedTime: '4h' },
-            { title: 'Neural Network Intro', status: 'active', estimatedTime: '5h' },
-            { title: 'Backpropagation', status: 'pending', estimatedTime: '4h' },
-            { title: 'CNNs & RNNs', status: 'pending', estimatedTime: '6h' },
-          ]}
-          onContinue={() => {}}
-        />
-      </div>
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
+      <LearningPathCard
+        title="Machine Learning Path"
+        steps={[
+          { id: '1', label: 'Linear Algebra Basics', completed: true },
+          { id: '2', label: 'Calculus & Optimization', completed: true },
+          { id: '3', label: 'Neural Networks', current: true },
+          { id: '4', label: 'Backpropagation' },
+        ]}
+        completedCount={2}
+        totalCount={4}
+        className="w-72"
+      />
     </div>
   ),
 }
 
-export const States: Story = {
+export const Interactive: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <div className="flex flex-col gap-8">
-        <div className="max-w-xs">
-          <h3 className="text-sm font-semibold mb-2 text-ink-muted">0% progress</h3>
-          <LearningPathCard
-            title="Deep Learning Foundations"
-            description="A structured path from linear algebra to neural networks."
-            progress={0}
-            steps={[
-              { title: 'Linear Algebra Basics', status: 'pending', estimatedTime: '3h' },
-              { title: 'Calculus & Optimization', status: 'pending', estimatedTime: '4h' },
-              { title: 'Neural Network Intro', status: 'pending', estimatedTime: '5h' },
-              { title: 'Backpropagation', status: 'pending', estimatedTime: '4h' },
-              { title: 'CNNs & RNNs', status: 'pending', estimatedTime: '6h' },
-            ]}
-            onContinue={() => {}}
-          />
-        </div>
-        <div className="max-w-xs">
-          <h3 className="text-sm font-semibold mb-2 text-ink-muted">50% progress</h3>
-          <LearningPathCard
-            title="Deep Learning Foundations"
-            description="A structured path from linear algebra to neural networks."
-            progress={50}
-            steps={[
-              { title: 'Linear Algebra Basics', status: 'done', estimatedTime: '3h' },
-              { title: 'Calculus & Optimization', status: 'done', estimatedTime: '4h' },
-              { title: 'Neural Network Intro', status: 'active', estimatedTime: '5h' },
-              { title: 'Backpropagation', status: 'pending', estimatedTime: '4h' },
-            ]}
-            onContinue={() => {}}
-          />
-        </div>
-        <div className="max-w-xs">
-          <h3 className="text-sm font-semibold mb-2 text-ink-muted">100% progress</h3>
-          <LearningPathCard
-            title="Deep Learning Foundations"
-            description="A structured path from linear algebra to neural networks."
-            progress={100}
-            steps={[
-              { title: 'Linear Algebra Basics', status: 'done', estimatedTime: '3h' },
-              { title: 'Calculus & Optimization', status: 'done', estimatedTime: '4h' },
-              { title: 'Neural Network Intro', status: 'done', estimatedTime: '5h' },
-              { title: 'Backpropagation', status: 'done', estimatedTime: '4h' },
-              { title: 'CNNs & RNNs', status: 'done', estimatedTime: '6h' },
-            ]}
-            onContinue={() => {}}
-          />
-        </div>
-      </div>
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
+      <LearningPathCard
+        title="Python Fundamentals"
+        steps={[
+          { id: '1', label: 'Syntax Basics', completed: true },
+          { id: '2', label: 'Data Types', current: true, description: 'Learn lists, dicts, tuples' },
+          { id: '3', label: 'Functions' },
+          { id: '4', label: 'Classes & OOP' },
+        ]}
+        completedCount={1}
+        totalCount={4}
+        onContinue={() => alert('Continue learning')}
+        className="w-72"
+      />
+    </div>
+  ),
+}
+
+export const PartialProgress: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
+      <LearningPathCard
+        title="Deep Learning"
+        steps={[
+          { id: '1', label: 'Foundations', completed: true },
+          { id: '2', label: 'CNNs', completed: true },
+          { id: '3', label: 'RNNs', completed: true },
+          { id: '4', label: 'Transformers', current: true },
+          { id: '5', label: 'Advanced Topics' },
+        ]}
+        completedCount={3}
+        totalCount={5}
+        className="w-72"
+      />
     </div>
   ),
 }

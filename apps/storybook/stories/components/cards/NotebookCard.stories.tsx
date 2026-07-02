@@ -6,9 +6,6 @@ const meta: Meta<typeof NotebookCard> = {
   title: 'Components/Cards/NotebookCard',
   component: NotebookCard,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
 }
 
 export default meta
@@ -16,10 +13,54 @@ type Story = StoryObj<typeof NotebookCard>
 
 export const Default: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <NotebookCard title="My Study Notes" description="Personal notebook for organizing study materials">
-        <p className="text-sm text-ink-muted">5 pages · Last edited 2h ago</p>
-      </NotebookCard>
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
+      <NotebookCard
+        title="Chapter 3 Notes"
+        course="Operating Systems"
+        blockCount={8}
+        lastEdited="2h ago"
+        className="w-72"
+      />
+    </div>
+  ),
+}
+
+export const Interactive: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
+      <NotebookCard
+        title="Study Notes"
+        course="Linear Algebra"
+        blockCount={12}
+        lastEdited="Today"
+        preview="Vector spaces, eigenvalues, matrix decomposition..."
+        tags={['Math', 'Theory']}
+        onClick={() => alert('Notebook opened')}
+        className="w-72"
+      />
+    </div>
+  ),
+}
+
+export const WithPreview: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
+      <NotebookCard
+        title="Machine Learning Journal"
+        course="AI & Data Science"
+        blockCount={24}
+        lastEdited="1h ago"
+        preview="Explored gradient descent optimization, backpropagation techniques, and neural network architectures..."
+        tags={['ML', 'Research']}
+        className="w-72"
+      />
+      <NotebookCard
+        title="Quick Thoughts"
+        blockCount={3}
+        lastEdited="Yesterday"
+        tags={['Misc']}
+        className="w-72"
+      />
     </div>
   ),
 }

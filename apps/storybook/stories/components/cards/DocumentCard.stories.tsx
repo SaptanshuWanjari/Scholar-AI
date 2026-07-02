@@ -6,9 +6,6 @@ const meta: Meta<typeof DocumentCard> = {
   title: 'Components/Cards/DocumentCard',
   component: DocumentCard,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
 }
 
 export default meta
@@ -16,77 +13,64 @@ type Story = StoryObj<typeof DocumentCard>
 
 export const Default: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
       <DocumentCard
-        title="Attention Is All You Need"
-        course="Machine Learning"
+        title="Chapter 3 Lecture Notes"
+        course="Operating Systems"
         type="pdf"
-        pageCount={12}
-        fileSize="2.4 MB"
-        dateAdded="Jun 28"
-        chunkCount={48}
-        tags={['Transformers', 'Attention', 'NLP']}
-        onOpen={() => {}}
-        onDelete={() => {}}
+        pageCount={24}
+        chunkCount={96}
+        dateAdded="Today"
         className="w-64"
       />
     </div>
   ),
 }
 
-export const Variants: Story = {
+export const Interactive: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <div className="flex flex-wrap gap-5">
-        <DocumentCard
-          title="Attention Is All You Need"
-          course="Machine Learning"
-          type="pdf"
-          pageCount={12}
-          fileSize="2.4 MB"
-          dateAdded="Jun 28"
-          chunkCount={48}
-          tags={['Transformers', 'Attention', 'NLP']}
-          onOpen={() => {}}
-          onDelete={() => {}}
-          className="w-64"
-        />
-        <DocumentCard
-          title="Linear Algebra Notes"
-          course="Mathematics"
-          type="md"
-          fileSize="48 KB"
-          dateAdded="Jun 25"
-          className="w-64"
-        />
-        <DocumentCard
-          title="Calculus Textbook Chapter 5"
-          course="Mathematics"
-          type="pdf"
-          pageCount={32}
-          fileSize="8.1 MB"
-          tags={['Integration', 'Derivatives']}
-          className="w-64"
-        />
-      </div>
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
+      <DocumentCard
+        title="Linear Algebra Textbook"
+        course="Mathematics"
+        type="pdf"
+        pageCount={450}
+        fileSize="12.5 MB"
+        dateAdded="Yesterday"
+        onOpen={() => alert('Document opened')}
+        onDelete={() => alert('Deleted')}
+        className="w-64"
+      />
     </div>
   ),
 }
 
-export const Playground: Story = {
+export const AllTypes: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
+    <div className="p-8 bg-[#f4f1ea] flex gap-6 flex-wrap">
       <DocumentCard
-        title="Attention Is All You Need"
+        title="Research Paper"
         course="Machine Learning"
         type="pdf"
-        pageCount={12}
+        pageCount={15}
         fileSize="2.4 MB"
-        dateAdded="Jun 28"
         chunkCount={48}
-        tags={['Transformers', 'Attention', 'NLP']}
-        onOpen={() => {}}
-        onDelete={() => {}}
+        className="w-64"
+      />
+      <DocumentCard
+        title="Study Guide"
+        course="Physics"
+        type="md"
+        fileSize="48 KB"
+        dateAdded="2 days ago"
+        className="w-64"
+      />
+      <DocumentCard
+        title="Textbook Chapter"
+        course="Data Structures"
+        type="txt"
+        fileSize="156 KB"
+        tags={['Algorithms', 'Trees']}
         className="w-64"
       />
     </div>
