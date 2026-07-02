@@ -32,12 +32,30 @@ const meta: Meta = {
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component: `## Utility Hooks
+
+Reusable React hooks for common UI patterns. Each hook is a standalone composition that manages state, side effects, or browser APIs.
+
+### Hooks
+- **useDisclosure** — open/close/toggle state for panels, drawers, and menus
+- **useBoolean** — boolean state with \`setTrue\`, \`setFalse\`, and \`toggle\` helpers
+- **useClipboard** — clipboard copy with timed feedback
+- **useDebounce** — debounced value tracking for search inputs
+- **useClickOutside** — click-outside detection via ref
+- **useToggle** — toggle between values with optional set
+- **useLocalStorage** — persisted state synced to localStorage
+- **useMediaQuery** — reactive media query matcher
+- **useHotkeys** — global keyboard shortcut bindings`,
+      },
+    },
   },
 };
 
 export default meta;
 
-export const UseDisclosureStory: StoryObj = {
+export const UseDisclosure: StoryObj = {
   name: 'useDisclosure',
   render: () => {
     const { isOpen, open, close, toggle } = useDisclosure();
@@ -82,7 +100,7 @@ export const UseDisclosureStory: StoryObj = {
   }
 };
 
-export const UseBooleanStory: StoryObj = {
+export const UseBoolean: StoryObj = {
   name: 'useBoolean',
   render: () => {
     const [isFocused, { setTrue, setFalse, toggle }] = useBoolean(false);
@@ -117,7 +135,7 @@ export const UseBooleanStory: StoryObj = {
   }
 };
 
-export const UseClipboardStory: StoryObj = {
+export const UseClipboard: StoryObj = {
   name: 'useClipboard',
   render: () => {
     const { copy, hasCopied } = useClipboard({ timeout: 2000 });
@@ -141,7 +159,7 @@ export const UseClipboardStory: StoryObj = {
   }
 };
 
-export const UseDebounceStory: StoryObj = {
+export const UseDebounce: StoryObj = {
   name: 'useDebounce',
   render: () => {
     const [searchTerm, setSearchTerm] = React.useState('');
@@ -179,7 +197,7 @@ export const UseDebounceStory: StoryObj = {
   }
 };
 
-export const UseClickOutsideStory: StoryObj = {
+export const UseClickOutside: StoryObj = {
   name: 'useClickOutside',
   render: () => {
     const [isOpen, setIsOpen] = React.useState(false);
@@ -218,7 +236,7 @@ export const UseClickOutsideStory: StoryObj = {
   }
 };
 
-export const UseToggleStory: StoryObj = {
+export const UseToggle: StoryObj = {
   name: 'useToggle',
   render: () => {
     const [value, toggle] = useToggle(false);
@@ -250,7 +268,7 @@ export const UseToggleStory: StoryObj = {
   }
 };
 
-export const UseLocalStorageStory: StoryObj = {
+export const UseLocalStorage: StoryObj = {
   name: 'useLocalStorage',
   render: () => {
     const [name, setName] = useLocalStorage('paper-ui-demo-name', 'Guest');
@@ -285,7 +303,7 @@ export const UseLocalStorageStory: StoryObj = {
   }
 };
 
-export const UseMediaQueryStory: StoryObj = {
+export const UseMediaQuery: StoryObj = {
   name: 'useMediaQuery',
   render: () => {
     const isDesktop = useMediaQuery('(min-width: 768px)');
@@ -330,7 +348,7 @@ export const UseMediaQueryStory: StoryObj = {
   }
 };
 
-export const UseHotkeysStory: StoryObj = {
+export const UseHotkeys: StoryObj = {
   name: 'useHotkeys',
   render: () => {
     const [logs, setLogs] = React.useState<string[]>([]);

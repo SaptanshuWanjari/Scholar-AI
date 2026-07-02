@@ -22,6 +22,20 @@ const meta: Meta = {
   title: "Utilities/Helpers",
   parameters: {
     layout: "centered",
+    docs: {
+      description: {
+        component: `## Utility Helpers
+
+General-purpose utility functions and constants exported from \`@paper-ui/utils\`.
+
+### Exports
+- **mergeRefs** / **composeRefs** — combine multiple refs into a single callback ref
+- **Keys** — named keyboard key constants
+- **isShortcut** — declarative keyboard shortcut matcher
+- **paperTransitions** — standard Framer Motion / CSS transition configs
+- **paperVariants** — standard animation variant objects`,
+      },
+    },
   },
 };
 export default meta;

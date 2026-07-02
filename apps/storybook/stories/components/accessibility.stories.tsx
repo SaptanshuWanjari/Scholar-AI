@@ -22,6 +22,19 @@ const meta = {
         disable: false,
         headingSelector: 'h2, h3',
       },
+      description: {
+        component: `## Accessibility
+
+Foundational accessibility primitives for building inclusive paper UI interfaces. Covers screen-reader-only content, focus management, keyboard navigation, and live announcements.
+
+### Components
+- **VisuallyHidden** — content visible only to screen readers
+- **FocusRing** — visible focus indicator ring with \`FocusRing.Target\` variant
+- **FocusScope** — focus trap container with auto-focus
+- **SkipNavigation** — skip-to-content navigation link
+- **LiveRegion** — ARIA live region for dynamic content announcements
+- **Announcer** / **useAnnouncer** — programmatic screen-reader announcements with polite/assertive modes`,
+      },
     },
   },
   argTypes: {

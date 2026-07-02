@@ -4,7 +4,7 @@ import { Nav } from '@paper-ui/components/navigation';
 import { BookOpen, Brain, FileText, Settings, Zap, FolderIcon, Star, Clock } from 'lucide-react';
 
 const meta = {
-  title: 'Components/Navigation',
+  title: 'Components/Navigation/Nav',
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 } satisfies Meta;
