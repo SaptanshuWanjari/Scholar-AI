@@ -12,22 +12,42 @@ export default meta;
 type Story = StoryObj<typeof StatusDot>;
 
 export const Default: Story = {
-  args: { status: 'online' },
   render: () => (
-    <div className="p-10 space-y-8 bg-[#f4f1ea] min-h-screen">
-      <h2 className="font-serif text-xl font-bold">StatusDot — all statuses</h2>
-      <div className="space-y-4">
-        {(['online', 'offline', 'away', 'busy', 'idle'] as const).map((status) => (
-          <div key={status} className="flex items-center gap-4">
-            <StatusDot status={status} />
-            <StatusDot status={status} size="sm" />
-            <StatusDot status={status} size="md" />
-            <StatusDot status={status} size="lg" />
-            <StatusDot status={status} pulse />
-            <span className="font-kalam text-[13px] text-ink-muted capitalize">{status}</span>
-          </div>
-        ))}
-      </div>
+    <div className="p-8 bg-[#f4f1ea]">
+      <StatusDot status="online" />
+    </div>
+  ),
+};
+
+export const AllStatuses: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] flex items-center gap-4">
+      {(['online', 'offline', 'away', 'busy', 'idle'] as const).map((s) => (
+        <div key={s} className="flex flex-col items-center gap-2">
+          <StatusDot status={s} />
+          <span className="font-kalam text-[10px] text-ink-muted capitalize">{s}</span>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+export const Sizes: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] flex items-center gap-6">
+      <StatusDot status="online" size="sm" />
+      <StatusDot status="online" size="md" />
+      <StatusDot status="online" size="lg" />
+    </div>
+  ),
+};
+
+export const WithPulse: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] flex items-center gap-6">
+      <StatusDot status="online" size="sm" pulse />
+      <StatusDot status="online" size="md" pulse />
+      <StatusDot status="online" size="lg" pulse />
     </div>
   ),
 };

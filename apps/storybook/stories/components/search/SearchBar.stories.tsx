@@ -79,3 +79,28 @@ export const Narrow: Story = {
     );
   },
 };
+
+export const Composed: Story = {
+  render: () => {
+    const [value, setValue] = useState("");
+    const [filtersActive, setFiltersActive] = useState(false);
+    return (
+      <div className="flex justify-center p-10 bg-[#f4f1ea]">
+        <SearchBar width={480}>
+          <SearchBar.Icon />
+          <SearchBar.Input
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Search notes, courses, flashcards…"
+          />
+          {value.length === 0 && <SearchBar.Shortcut>⌘K</SearchBar.Shortcut>}
+          <SearchBar.Clear visible={value.length > 0} onClick={() => setValue("")} />
+          <SearchBar.FilterToggle
+            active={filtersActive}
+            onClick={() => setFiltersActive((a) => !a)}
+          />
+        </SearchBar>
+      </div>
+    );
+  },
+};
