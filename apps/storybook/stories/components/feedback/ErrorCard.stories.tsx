@@ -14,10 +14,7 @@ type Story = StoryObj<typeof ErrorCard>;
 export const Default: Story = {
   render: () => (
     <div className="p-8 bg-[#f4f1ea] max-w-sm">
-      <ErrorCard
-        title="Upload failed"
-        message="The PDF could not be processed."
-      />
+      <ErrorCard title="Upload failed" message="The PDF could not be processed." />
     </div>
   ),
 };

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { SuccessBanner } from '@paper-ui/components/feedback';
-import { SketchButton } from '@paper-ui/components/buttons';
 
 const meta: Meta<typeof SuccessBanner> = {
   title: 'Components/Feedback/SuccessBanner',
@@ -15,10 +14,7 @@ type Story = StoryObj<typeof SuccessBanner>;
 export const Default: Story = {
   render: () => (
     <div className="p-8 bg-[#f4f1ea]">
-      <SuccessBanner
-        title="Success"
-        message="Your document has been processed."
-      />
+      <SuccessBanner title="Success" message="Your document has been processed." />
     </div>
   ),
 };
