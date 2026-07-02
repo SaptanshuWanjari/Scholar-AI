@@ -21,13 +21,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { cn } from "../ui/utils";
-import { Badge } from "../ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "../ui/dialog";
+import { cn } from "@/paper-ui/utils";
+import { PaperBadge } from "@/paper-ui/components/badges";
+import { PaperModal } from "@/paper-ui/components/dialogs";
+import { PaperH1, PaperH2 } from "@/paper-ui/core";
+import { PaperCard } from "@/paper-ui/core";
+import { PaperTable, TableHeader, TableRow, PaperTh, PaperTd } from "@/paper-ui/components/tables";
 import { MarkdownRenderer } from "../MarkdownRenderer";
 import { DiagramViewer } from "../DiagramViewer";
 import { StickyNoteComposer } from "../StickyNoteComposer";
@@ -51,15 +50,14 @@ function renderCiteText(text: string): (string | React.ReactNode)[] {
     const docId = m[1];
     const page = m[2] ? ` p.${m[2]}` : "";
     parts.push(
-      <Badge
+      <PaperBadge
         key={m.index}
-        variant="outline"
-        className="mx-0.5 inline-flex cursor-help gap-1 border-cyan/30 bg-cyan-soft/30 px-1.5 py-0.5 text-[11px] font-medium text-cyan hover:bg-cyan-soft/50"
-        title={`Source document #${docId}${page}`}
+        tone="sky"
+        className="mx-0.5 inline-flex cursor-help gap-1 px-1.5 py-0.5 text-[11px] font-medium"
       >
         <BookPlus className="mr-0.5 size-3" />
         Source {docId}{page}
-      </Badge>,
+      </PaperBadge>,
     );
     last = m.index + m[0].length;
   }
@@ -93,9 +91,9 @@ export function BlockInner({
   switch (block.type) {
     case "heading":
       return block.level === 1 ? (
-        <h1 className="mt-6 text-4xl font-bold">{block.text}</h1>
+        <PaperH1 marker markerColor="#f6e27a">{block.text}</PaperH1>
       ) : (
-        <h2 className="mt-5 text-2xl font-semibold">{block.text}</h2>
+        <PaperH2 marker markerColor="#f6e27aaa">{block.text}</PaperH2>
       );
     case "text": {
       if (block.source?.type === "reading") {
@@ -131,19 +129,6 @@ export function BlockInner({
           }
         };
         
-        const insertMd = (before: string, after: string = "") => {
-          const ta = textareaRef.current;
-          if (!ta) return;
-          const start = ta.selectionStart;
-          const end = ta.selectionEnd;
-          const sel = editContent.substring(start, end);
-          setEditContent(editContent.substring(0, start) + before + sel + after + editContent.substring(end));
-          setTimeout(() => {
-            ta.focus();
-            ta.setSelectionRange(start + before.length, end + before.length);
-          }, 0);
-        };
-        
         return (
           <>
           <div className="flex flex-wrap items-start gap-5 py-4">
@@ -173,11 +158,10 @@ export function BlockInner({
                     rotationClass,
                   )}
                 >
-                  {/* Tape */}
                   <div className="absolute -top-3 left-1/2 w-10 h-6 -translate-x-1/2 bg-yellow-600/15 mix-blend-multiply rotate-2 shadow-[0_1px_2px_rgba(0,0,0,0.1)]" />
                   
                   <div className="flex items-start justify-between mb-4 mt-1">
-                    <span className={cn("flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase", meta.dot)}>
+                    <span className={cn("flex items-center gap-1.5 font-architect text-xs font-semibold tracking-wide uppercase", meta.dot)}>
                       <meta.icon className="size-4" /> {meta.label}
                     </span>
                     <div className="flex items-center gap-2">
@@ -209,7 +193,7 @@ export function BlockInner({
                       >
                         <Trash2 className="size-3.5" />
                       </button>
-                      {note.pageNum && <span className="text-xs font-medium text-slate-600/70">p. {note.pageNum}</span>}
+                      {note.pageNum && <span className="font-architect text-xs font-medium text-slate-600/70">p. {note.pageNum}</span>}
                     </div>
                   </div>
 
@@ -218,7 +202,7 @@ export function BlockInner({
                   </div>
                   
                   {note.docTitle && (
-                    <div className="mt-4 text-[11px] font-medium text-slate-400 italic text-right border-t border-black/5 pt-2">
+                    <div className="mt-4 font-architect text-[11px] font-medium text-slate-400 italic text-right border-t border-black/5 pt-2">
                       from {note.docTitle}
                     </div>
                   )}
@@ -227,46 +211,46 @@ export function BlockInner({
             })}
           </div>
           
-          <Dialog open={editModalIdx !== null} onOpenChange={(open) => { if (!open) setEditModalIdx(null); }}>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogTitle>Edit Note</DialogTitle>
-              {editModalIdx !== null && (
-                <div className="mt-2">
-                  <StickyNoteComposer
-                    content={editContent}
-                    onChangeContent={setEditContent}
-                    category={editCat}
-                    onChangeCategory={setEditCat}
-                    onSave={() => {
-                      const note = parsedNotes[editModalIdx];
-                      if (note) saveEditModal(editModalIdx, note);
-                    }}
-                    onCancel={() => setEditModalIdx(null)}
-                    saving={editSaving}
-                    isEditing={true}
-                    autoFocus
-                  />
-                </div>
-              )}
-            </DialogContent>
-          </Dialog>
+          <PaperModal
+            open={editModalIdx !== null}
+            onClose={() => setEditModalIdx(null)}
+            title="Edit Note"
+            width={600}
+          >
+            {editModalIdx !== null && (
+              <StickyNoteComposer
+                content={editContent}
+                onChangeContent={setEditContent}
+                category={editCat}
+                onChangeCategory={setEditCat}
+                onSave={() => {
+                  const note = parsedNotes[editModalIdx];
+                  if (note) saveEditModal(editModalIdx, note);
+                }}
+                onCancel={() => setEditModalIdx(null)}
+                saving={editSaving}
+                isEditing={true}
+                autoFocus
+              />
+            )}
+          </PaperModal>
         </>
         );
       }
       return (
         <>
           {block.source && (
-            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-ink-muted/20 bg-ink/3 px-2.5 py-0.5 font-architect text-[11px] font-medium text-ink-muted">
               <BookPlus className="size-3" /> Source:{" "}
               {artifactLabel(block.source.type)}
             </span>
           )}
           {hasCitations(block.text) ? (
-            <div className="text-[18px] leading-relaxed [&>p]:mb-4">
+            <div className="font-kalam text-[18px] leading-relaxed [&>p]:mb-4">
               {renderCiteText(block.text)}
             </div>
           ) : (
-            <MarkdownRenderer content={block.text} className="text-[18px] leading-relaxed" />
+            <MarkdownRenderer content={block.text} className="font-kalam text-[18px] leading-relaxed" />
           )}
         </>
       );
@@ -274,77 +258,71 @@ export function BlockInner({
     case "callout": {
       const m = calloutMeta[block.tone];
       return (
-        <div className={cn("flex gap-4 rounded-xl border p-5", m.cls)}>
-          <m.icon className={cn("mt-0.5 size-6 shrink-0", m.iconCls)} />
-          <div className="font-reading text-[18px] leading-relaxed">{block.text}</div>
-        </div>
+        <PaperCard shadow="sm" surface="#fffdf9" border={{ strokeWidth: 1.3, roughness: 1 }}>
+          <div className={cn("flex gap-4 p-5", m.cls.replace(/border-border|bg-muted\/50|bg-violet-soft|bg-warning-soft/g, ""))}>
+            <m.icon className={cn("mt-0.5 size-6 shrink-0", m.iconCls)} />
+            <div className="font-kalam text-[18px] leading-relaxed">{block.text}</div>
+          </div>
+        </PaperCard>
       );
     }
     case "code":
       return (
-        <pre className="overflow-x-auto rounded-lg border border-border bg-secondary p-5">
-          <code className="font-mono text-[14.5px] leading-relaxed text-foreground/90">
-            {block.code}
-          </code>
-        </pre>
+        <PaperCard shadow="sm" surface="#f8f7f3" border={{ strokeWidth: 1, roughness: 0.9 }}>
+          <pre className="overflow-x-auto p-5">
+            <code className="font-mono text-[14.5px] leading-relaxed text-ink/90">
+              {block.code}
+            </code>
+          </pre>
+        </PaperCard>
       );
     case "table":
       return (
-        <div className="overflow-x-auto rounded-xl border border-border">
-          <table className="w-full border-collapse text-base">
-            <thead className="bg-muted/60">
-              <tr>
-                {block.headers.map((h) => (
-                  <th
-                    key={h}
-                    className="border-b border-border px-5 py-3 text-left font-semibold"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {block.rows.map((row, i) => (
-                <tr key={i}>
-                  {row.map((cell, j) => (
-                    <td
-                      key={j}
-                      className="border-b border-border/60 px-5 py-3 text-foreground/80"
-                    >
-                      {cell}
-                    </td>
-                  ))}
-                </tr>
+        <PaperTable striped>
+          <TableHeader>
+            <tr>
+              {block.headers.map((h) => (
+                <PaperTh key={h}>{h}</PaperTh>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </tr>
+          </TableHeader>
+          <tbody>
+            {block.rows.map((row, i) => (
+              <TableRow key={i} index={i}>
+                {row.map((cell, j) => (
+                  <PaperTd key={j}>{cell}</PaperTd>
+                ))}
+              </TableRow>
+            ))}
+          </tbody>
+        </PaperTable>
       );
     case "ai-answer":
       return (
-        <div className="overflow-hidden rounded-xl border border-violet/25 bg-violet-soft/40">
-          <div className="flex items-center justify-between border-b border-violet/15 px-5 py-3.5">
-            <span className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-violet">
-              <Sparkles className="size-4" /> Saved AI Answer
-            </span>
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Gauge className="size-3.5" /> {(block.confidence * 100).toFixed(0)}
-              % · {block.sources} sources
-            </span>
-          </div>
-          <div className="px-5 pb-4 pt-4">
-            <div className="mb-3 font-reading text-lg font-medium italic text-foreground">
-              {block.question}
+        <PaperCard shadow="sm" surface="#faf8ff" border={{ strokeWidth: 1.3, roughness: 1.1, stroke: "#a78bfa" }}>
+          <div className="overflow-hidden">
+            <div className="flex items-center justify-between border-b border-violet/15 px-5 py-3.5">
+              <span className="flex items-center gap-2 font-architect text-sm font-semibold uppercase tracking-[0.1em] text-violet">
+                <Sparkles className="size-4" /> Saved AI Answer
+              </span>
+              <span className="flex items-center gap-1.5 font-architect text-xs text-ink-muted">
+                <Gauge className="size-3.5" /> {(block.confidence * 100).toFixed(0)}
+                % · {block.sources} sources
+              </span>
             </div>
-            <MarkdownRenderer content={block.answer} className="text-[18px] leading-relaxed" />
+            <div className="px-5 pb-4 pt-4">
+              <div className="mb-3 font-caveat text-[22px] leading-snug italic text-ink">
+                {block.question}
+              </div>
+              <MarkdownRenderer content={block.answer} className="font-kalam text-[18px] leading-relaxed" />
+            </div>
           </div>
-        </div>
+        </PaperCard>
       );
     case "mermaid":
       return (
         <div>
-          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="mb-2 flex items-center gap-2 font-architect text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted">
             <Workflow className="size-3.5" /> Diagram
           </div>
           <DiagramViewer code={block.code} />
@@ -352,77 +330,80 @@ export function BlockInner({
       );
     case "flashdeck":
       return (
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <span className="flex items-center gap-2.5 text-base font-semibold">
-              <Layers className="size-5 text-violet" /> {block.name}
-            </span>
-            <Badge variant="outline" className="text-xs text-muted-foreground px-2.5 py-0.5">
-              {block.count} cards
-            </Badge>
+        <PaperCard shadow="sm" surface="#fffdf9" border={{ strokeWidth: 1.3, roughness: 1 }}>
+          <div className="p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <span className="flex items-center gap-2.5 font-caveat text-[22px] font-semibold text-ink">
+                <Layers className="size-5 text-violet" /> {block.name}
+              </span>
+              <PaperBadge tone="ink">
+                {block.count} cards
+              </PaperBadge>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {block.cards.map((c, i) => (
+                <PaperCard key={i} shadow="none" surface="#fffdf9" border={{ strokeWidth: 0.9, roughness: 0.8 }}>
+                  <div className="p-4">
+                    <div className="font-caveat text-[18px] leading-snug font-semibold text-ink">
+                      {c.front}
+                    </div>
+                    <div className="mt-2.5 border-t border-ink-muted/15 pt-2 font-kalam text-xs text-ink-muted">
+                      {c.back}
+                    </div>
+                  </div>
+                </PaperCard>
+              ))}
+            </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {block.cards.map((c, i) => (
-              <div
-                key={i}
-                className="rounded-lg border border-border bg-background/50 p-4"
-              >
-                <div className="font-reading text-base leading-snug font-medium">
-                  {c.front}
-                </div>
-                <div className="mt-2.5 border-t border-border pt-2 text-xs text-muted-foreground">
-                  {c.back}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        </PaperCard>
       );
     case "quiz-results": {
       const pct = Math.round((block.score / block.total) * 100);
       return (
-        <div className="flex items-center gap-5 rounded-xl border border-border bg-card p-5">
-          <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-xl bg-success-soft text-success">
-            <span className="font-display text-2xl leading-none">{pct}%</span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2.5 text-base font-semibold">
-              <ListChecks className="size-5 text-success" /> {block.title}
+        <PaperCard shadow="sm" surface="#fffdf9" border={{ strokeWidth: 1.3, roughness: 1 }}>
+          <div className="flex items-center gap-5 p-5">
+            <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-xl bg-success-soft text-success">
+              <span className="font-caveat text-[28px] leading-none">{pct}%</span>
             </div>
-            <div className="mt-1 text-sm text-muted-foreground">
-              Scored {block.score} of {block.total} · embedded quiz result
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2.5 font-caveat text-[19px] font-semibold text-ink">
+                <ListChecks className="size-5 text-success" /> {block.title}
+              </div>
+              <div className="mt-1 font-kalam text-sm text-ink-muted">
+                Scored {block.score} of {block.total} · embedded quiz result
+              </div>
             </div>
+            <Check className="size-6 text-success" />
           </div>
-          <Check className="size-6 text-success" />
-        </div>
+        </PaperCard>
       );
     }
     case "whiteboard":
-      // Static read-only snapshot — clicking opens the live whiteboard editor.
-      // A snapshot (not a live canvas) keeps notebooks lightweight.
       return (
-        <button
-          type="button"
-          onClick={() => navigate(`/whiteboards/${block.whiteboardId}`)}
-          className="group/wb block w-full overflow-hidden rounded-xl border border-border bg-card text-left transition-colors hover:border-violet/40"
-        >
-          <div className="flex aspect-video items-center justify-center overflow-hidden border-b border-border bg-muted/30">
-            {block.thumbnail ? (
-              <img src={block.thumbnail} alt="" className="h-full w-full object-contain" />
-            ) : (
-              <PencilRuler className="size-10 text-muted-foreground/40" />
-            )}
-          </div>
-          <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <span className="flex min-w-0 items-center gap-2.5 text-base font-semibold">
-              <PencilRuler className="size-5 shrink-0 text-violet" />
-              <span className="truncate">{block.title || "Whiteboard"}</span>
-            </span>
-            <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground group-hover/wb:text-violet">
-              Open <ExternalLink className="size-3.5" />
-            </span>
-          </div>
-        </button>
+        <PaperCard shadow="sm" lift surface="#fffdf9" border={{ strokeWidth: 1.3, roughness: 1, stroke: "#a78bfa" }}>
+          <button
+            type="button"
+            onClick={() => navigate(`/whiteboards/${block.whiteboardId}`)}
+            className="group/wb block w-full text-left"
+          >
+            <div className="flex aspect-video items-center justify-center overflow-hidden border-b border-ink-muted/10 bg-ink/[0.02]">
+              {block.thumbnail ? (
+                <img src={block.thumbnail} alt="" className="h-full w-full object-contain" />
+              ) : (
+                <PencilRuler className="size-10 text-ink-muted/30" />
+              )}
+            </div>
+            <div className="flex items-center justify-between gap-3 px-4 py-3">
+              <span className="flex min-w-0 items-center gap-2.5 font-caveat text-[19px] font-semibold text-ink">
+                <PencilRuler className="size-5 shrink-0 text-violet" />
+                <span className="truncate">{block.title || "Whiteboard"}</span>
+              </span>
+              <span className="flex shrink-0 items-center gap-1.5 font-architect text-xs text-ink-muted group-hover/wb:text-violet">
+                Open <ExternalLink className="size-3.5" />
+              </span>
+            </div>
+          </button>
+        </PaperCard>
       );
     case "image":
       return <ImageViewer url={block.url} alt={block.alt} />;

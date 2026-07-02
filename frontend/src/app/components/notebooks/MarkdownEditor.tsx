@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { applyMarkdown, type MarkdownAction } from "../../lib/markdown-format";
 import { MarkdownRenderer } from "../MarkdownRenderer";
-import { cn } from "../ui/utils";
+import { cn } from "@/paper-ui/utils";
 
 type Mode = "edit" | "split" | "preview";
 

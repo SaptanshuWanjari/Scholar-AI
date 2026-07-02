@@ -1,22 +1,8 @@
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { PaperModal } from "@/paper-ui/components/dialogs";
+import { PaperInput, PaperSelect } from "@/paper-ui/components/inputs";
+import { PaperButton } from "@/paper-ui/components/buttons";
 import type { Course } from "../../lib/types";
 import { api, type NotebookMeta } from "../../lib/api";
 import { useState } from "react";
@@ -69,65 +55,57 @@ export function CreateNotebookDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>New notebook</DialogTitle>
-          <DialogDescription>
-            Give your notebook a title and optionally link a course.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-2">
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
-              Title
-            </label>
-            <Input
-              autoFocus
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !creating) handleCreate();
-              }}
-              placeholder="e.g. Machine Learning"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
-              Course (optional)
-            </label>
-            <Select value={course} onValueChange={setCourse}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="No course" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No course</SelectItem>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button
-            variant="outline"
+    <PaperModal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="New notebook"
+      footer={
+        <>
+          <PaperButton
+            tone="paper"
+            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={creating}
           >
             Cancel
-          </Button>
-          <Button
+          </PaperButton>
+          <PaperButton
+            tone="dark"
+            size="sm"
             onClick={handleCreate}
             disabled={creating || !title.trim()}
           >
             {creating && <Loader2 className="mr-2 size-4 animate-spin" />}
             Create
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </PaperButton>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Give your notebook a title and optionally link a course.
+        </p>
+        <PaperInput
+          label="Title"
+          autoFocus
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !creating) handleCreate();
+          }}
+          placeholder="e.g. Machine Learning"
+        />
+        <PaperSelect
+          label="Course (optional)"
+          value={course}
+          onChange={setCourse}
+          options={[
+            { value: "none", label: "No course" },
+            ...courses.map((c) => ({ value: c.name, label: c.name })),
+          ]}
+          placeholder="No course"
+        />
+      </div>
+    </PaperModal>
   );
 }
