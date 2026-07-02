@@ -7,14 +7,9 @@ import {
   Merge,
   FolderOutput,
 } from "lucide-react";
-import { cn } from "../ui/utils";
-import { Button } from "../ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { cn } from "@/paper-ui/utils";
+import { IconButton } from "@/paper-ui/components/buttons";
+import { PaperDropdown, type DropdownItem } from "@/paper-ui/components/dialogs";
 import type { NotebookBlock } from "../../lib/notebook-data";
 import type { NotebookMeta } from "../../lib/api";
 import { BlockEditor } from "./BlockEditor";
@@ -65,6 +60,13 @@ export function BlockView({
   onMoveToNotebook?: (notebookId: string) => void;
 }) {
   const editable = EDITABLE_TYPES.has(block.type);
+
+  const moveItems: DropdownItem[] = availableNotebooks?.map((nb) => ({
+    key: nb.id,
+    label: nb.name,
+    onClick: () => onMoveToNotebook?.(nb.id),
+  })) ?? [];
+
   return (
     <div
       onDragOver={(e) => e.preventDefault()}
@@ -92,74 +94,49 @@ export function BlockView({
 
       {!editing && (
         <div className="absolute -top-1 right-1 z-10 flex items-center gap-0.5 opacity-0 transition-opacity group-hover/block:opacity-100">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-6 bg-card/80 backdrop-blur"
+          <IconButton
+            label={collapsed ? "Expand" : "Collapse"}
             onClick={onToggleCollapse}
-            title={collapsed ? "Expand" : "Collapse"}
           >
             {collapsed ? (
-              <ChevronRight className="size-3.5 text-muted-foreground" />
+              <ChevronRight className="size-3.5" />
             ) : (
-              <ChevronDown className="size-3.5 text-muted-foreground" />
+              <ChevronDown className="size-3.5" />
             )}
-          </Button>
+          </IconButton>
           {onMerge && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6 bg-card/80 backdrop-blur hover:text-primary"
+            <IconButton
+              label="Group with note above"
               onClick={onMerge}
-              title="Group with note above"
             >
-              <Merge className="size-3.5 text-muted-foreground hover:text-primary" />
-            </Button>
+              <Merge className="size-3.5" />
+            </IconButton>
           )}
           {editable && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6 bg-card/80 backdrop-blur"
+            <IconButton
+              label="Edit"
               onClick={onEdit}
-              title="Edit"
             >
-              <Wand2 className="size-3.5 text-muted-foreground" />
-            </Button>
+              <Wand2 className="size-3.5" />
+            </IconButton>
           )}
           {availableNotebooks && availableNotebooks.length > 0 && onMoveToNotebook && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-6 bg-card/80 backdrop-blur hover:text-primary"
-                  title="Move to notebook"
-                >
-                  <FolderOutput className="size-3.5 text-muted-foreground hover:text-primary" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
-                {availableNotebooks.map((nb) => (
-                  <DropdownMenuItem
-                    key={nb.id}
-                    onClick={() => onMoveToNotebook(nb.id)}
-                  >
-                    {nb.name}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <PaperDropdown
+              trigger={
+                <IconButton label="Move to notebook">
+                  <FolderOutput className="size-3.5" />
+                </IconButton>
+              }
+              items={moveItems}
+              placement="bottom-right"
+            />
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-6 bg-card/80 backdrop-blur hover:text-destructive"
+          <IconButton
+            label="Delete"
             onClick={onDelete}
-            title="Delete"
           >
-            <Trash2 className="size-3.5 text-muted-foreground hover:text-destructive" />
-          </Button>
+            <Trash2 className="size-3.5" />
+          </IconButton>
         </div>
       )}
 

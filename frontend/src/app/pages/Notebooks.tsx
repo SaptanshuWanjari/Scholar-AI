@@ -19,13 +19,11 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "../components/ui/dropdown-menu";
-import { Button } from "../components/ui/button";
+import { PaperDropdown, type DropdownItem } from "@/paper-ui/components/dialogs";
+import { PaperButton, IconButton } from "@/paper-ui/components/buttons";
+import { PaperH1 } from "@/paper-ui/core";
+import { LoadingPaper } from "@/paper-ui/components/feedback";
+import { IllustratedEmptyState } from "@/paper-ui/components/feedback";
 import { SelectionToolbar } from "../components/SelectionToolbar";
 import { type NotebookBlock } from "../lib/notebook-data";
 import { api, type NotebookMeta, type NotebookFull } from "../lib/api";
@@ -595,6 +593,90 @@ export function Notebooks() {
     };
   }, [active, activeMeta, blocks]);
 
+  const addBlockItems: DropdownItem[] = [
+    {
+      key: "note",
+      label: "Sticky Note",
+      icon: <StickyNote className="size-4" />,
+      onClick: () =>
+        addBlock({
+          type: "text",
+          text: "[ General] New note...",
+          source: { type: "reading", id: "new" },
+        }),
+    },
+    {
+      key: "text",
+      label: "Text",
+      icon: <FileText className="size-4" />,
+      onClick: () =>
+        addBlock({
+          type: "text",
+          text: "New text block. Edit me!",
+        }),
+    },
+    {
+      key: "heading",
+      label: "Heading",
+      icon: <Hash className="size-4" />,
+      onClick: () =>
+        addBlock({
+          type: "heading",
+          level: 2,
+          text: "New Heading",
+        }),
+    },
+    {
+      key: "callout",
+      label: "Callout",
+      icon: <Info className="size-4" />,
+      onClick: () =>
+        addBlock({
+          type: "callout",
+          tone: "note",
+          text: "New note callout.",
+        }),
+    },
+    {
+      key: "code",
+      label: "Code",
+      icon: <Code className="size-4" />,
+      onClick: () =>
+        addBlock({
+          type: "code",
+          lang: "python",
+          code: "print('Hello world')",
+        }),
+    },
+    {
+      key: "diagram",
+      label: "Diagram",
+      icon: <Workflow className="size-4" />,
+      onClick: () =>
+        addBlock({
+          type: "mermaid",
+          code: "graph TD\n  A[Start] --> B[End]",
+        }),
+    },
+    {
+      key: "table",
+      label: "Table",
+      icon: <Layers className="size-4" />,
+      onClick: () =>
+        addBlock({
+          type: "table",
+          headers: ["Column A", "Column B"],
+          rows: [["", ""]],
+        }),
+    },
+    {
+      key: "image",
+      label: "Image",
+      icon: <ImageIcon className="size-4" />,
+      onClick: () => fileInputRef.current?.click(),
+    },
+  ];
+
   return (
     <div className="flex h-full overflow-hidden">
       <Sidebar
@@ -629,26 +711,22 @@ export function Notebooks() {
         <div className="pointer-events-none sticky left-0 top-4 z-10 flex h-0 w-full justify-between px-4">
           <div className="pointer-events-auto">
             {leftCollapsed && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8 rounded-full sticky bg-card/80 backdrop-blur shadow-sm"
+              <IconButton
+                label="Show sidebar"
                 onClick={() => setLeftCollapsed(false)}
               >
                 <PanelLeftOpen className="size-4" />
-              </Button>
+              </IconButton>
             )}
           </div>
           <div className="pointer-events-auto">
             {rightCollapsed && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8 rounded-full sticky bg-card/80 backdrop-blur shadow-sm"
+              <IconButton
+                label="Show inspector"
                 onClick={() => setRightCollapsed(false)}
               >
                 <PanelRightOpen className="size-4" />
-              </Button>
+              </IconButton>
             )}
           </div>
         </div>
@@ -658,61 +736,58 @@ export function Notebooks() {
           className="mx-auto max-w-[1350px] px-6 md:px-10 py-12"
         >
           {loadingNotebook ? (
-            <div className="flex items-center gap-2 py-20 text-sm text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" /> Loading notebook…
+            <div className="flex items-center justify-center py-20">
+              <LoadingPaper variant="lines" size="lg" label="Opening notebook…" />
             </div>
           ) : !active ? (
-            <div className="flex flex-col items-center gap-4 py-24 text-center text-muted-foreground">
-              <BookOpen className="size-10 opacity-40" />
-              <div>
-                <div className="text-base font-medium text-foreground">
-                  {list.length === 0
-                    ? "No notebooks found"
-                    : "No notebook selected"}
-                </div>
-                <p className="mt-1 max-w-sm text-sm">
-                  {list.length === 0
-                    ? "Create a notebook. Use Teach Me to generate structured notes first."
-                    : "Pick a notebook from the sidebar or create a new one."}
-                </p>
-              </div>
-              {list.length === 0 ? (
-                <Button onClick={() => navigate("/teach")}>
-                  <Sparkles className="mr-2 size-4" /> Go to Teach Me
-                </Button>
-              ) : (
-                <Button onClick={() => setCreateOpen(true)}>
-                  <Plus className="mr-2 size-4" /> New notebook
-                </Button>
-              )}
-            </div>
+            list.length === 0 ? (
+              <IllustratedEmptyState
+                illustration="notebook"
+                title="No notebooks found"
+                description="Create a notebook. Use Teach Me to generate structured notes first."
+                action={
+                  <PaperButton tone="dark" onClick={() => navigate("/teach")}>
+                    <Sparkles className="mr-2 size-4" /> Go to Teach Me
+                  </PaperButton>
+                }
+              />
+            ) : (
+              <IllustratedEmptyState
+                illustration="notebook"
+                title="No notebook selected"
+                description="Pick a notebook from the sidebar or create a new one."
+                action={
+                  <PaperButton tone="dark" onClick={() => setCreateOpen(true)}>
+                    <Plus className="mr-2 size-4" /> New notebook
+                  </PaperButton>
+                }
+              />
+            )
           ) : (
             <>
-              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <div className="flex items-center gap-2 font-architect text-xs uppercase tracking-[0.12em] text-ink-muted">
                 <span>
                   {activeMeta?.name ?? active.title} · {active.updated}
                 </span>
                 {saving && <Loader2 className="size-3 animate-spin" />}
               </div>
-              <h1 className="mt-3 text-[2.75rem] leading-[1.1]">
-                {active.title}
-              </h1>
+              <PaperH1 marker markerColor="#f6e27a">{active.title}</PaperH1>
 
               {active.subtitle && (
-                <p className="mt-3 font-reading text-lg italic text-muted-foreground">
+                <p className="mt-3 font-caveat text-[22px] italic text-ink-muted leading-snug">
                   {active.subtitle}
                 </p>
               )}
 
               <div className="mt-8 space-y-6">
                 {showDraftBanner && (
-                  <div className="mb-3 flex items-center justify-between rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+                  <div className="mb-3 flex items-center justify-between rounded-md border border-amber-200 bg-amber-50 px-3 py-2 font-kalam text-sm text-amber-800">
                     <span>
                       Auto-saved changes from your last session have been
                       restored.
                     </span>
                     <button
-                      className="ml-4 text-xs font-medium underline hover:no-underline"
+                      className="ml-4 font-architect text-xs font-medium underline hover:no-underline"
                       onClick={dismissDraftBanner}
                     >
                       Got it
@@ -721,7 +796,7 @@ export function Notebooks() {
                 )}
 
                 {blocks.length === 0 && (
-                  <div className="rounded-xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
+                  <div className="rounded-xl border border-dashed border-ink-muted/30 px-6 py-10 text-center font-kalam text-sm text-ink-muted">
                     This notebook is empty. Add a block below, or select text
                     elsewhere and use AI assist.
                   </div>
@@ -794,103 +869,14 @@ export function Notebooks() {
                   />
                 )}
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="group flex w-full items-center gap-2.5 rounded-xl border border-dashed border-border px-5 py-4 text-base text-muted-foreground transition-colors hover:border-violet/50 hover:text-violet">
+                <PaperDropdown
+                  trigger={
+                    <button className="group flex w-full items-center gap-2.5 rounded-xl border border-dashed border-ink-muted/30 px-5 py-4 font-architect text-[16px] text-ink-muted transition-colors hover:border-violet/50 hover:text-violet">
                       <Plus className="size-5" /> Add block
                     </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-[300px]">
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "text",
-                          text: "[ General] New note...",
-                          source: { type: "reading", id: "new" },
-                        })
-                      }
-                    >
-                      <StickyNote className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Sticky Note
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "text",
-                          text: "New text block. Edit me!",
-                        })
-                      }
-                    >
-                      <FileText className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Text
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "heading",
-                          level: 2,
-                          text: "New Heading",
-                        })
-                      }
-                    >
-                      <Hash className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Heading
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "callout",
-                          tone: "note",
-                          text: "New note callout.",
-                        })
-                      }
-                    >
-                      <Info className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Callout
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "code",
-                          lang: "python",
-                          code: "print('Hello world')",
-                        })
-                      }
-                    >
-                      <Code className="mr-2 text-muted-foreground" />
-                      Code
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "mermaid",
-                          code: "graph TD\n  A[Start] --> B[End]",
-                        })
-                      }
-                    >
-                      <Workflow className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Diagram
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        addBlock({
-                          type: "table",
-                          headers: ["Column A", "Column B"],
-                          rows: [["", ""]],
-                        })
-                      }
-                    >
-                      <Layers className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Table
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <ImageIcon className="mr-2 size-4 text-muted-foreground" />{" "}
-                      Image
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  }
+                  items={addBlockItems}
+                />
                 <input
                   type="file"
                   accept="image/*"

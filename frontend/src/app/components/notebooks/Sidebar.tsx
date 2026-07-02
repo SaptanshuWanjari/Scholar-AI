@@ -13,30 +13,12 @@ import {
   Trash2,
   Loader2,
 } from "lucide-react";
-import { cn } from "../ui/utils";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { cn } from "@/paper-ui/utils";
+import { PaperInput } from "@/paper-ui/components/inputs";
+import { IconButton } from "@/paper-ui/components/buttons";
+import { Sidebar as PaperSidebar, SidebarGroup, SidebarHeader, SidebarDivider } from "@/paper-ui/components/navigation";
 import type { NotebookMeta, Collection } from "../../lib/api";
 import { iconFor } from "./utils";
-
-function Section({
-  label,
-  icon: Icon,
-  children,
-}: {
-  label: string;
-  icon: typeof Hash;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="border-t border-border px-2 py-3">
-      <div className="flex items-center gap-1.5 px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        <Icon className="size-3" /> {label}
-      </div>
-      {children}
-    </div>
-  );
-}
 
 export function Sidebar({
   list,
@@ -94,65 +76,51 @@ export function Sidebar({
     (n.name || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  if (collapsed) {
+    return (
+      <aside className="hidden shrink-0 w-0 border-r-0 overflow-hidden transition-all duration-300 lg:flex" />
+    );
+  }
+
   return (
-    <aside
-      className={cn(
-        "hidden shrink-0 flex-col overflow-y-auto scrollbar-none border-r border-border bg-card/40 transition-all duration-300 lg:flex",
-        collapsed ? "w-0 border-r-0" : "w-[280px]",
-      )}
-    >
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Notebooks
-          </span>
-        </div>
+    <PaperSidebar className="hidden w-[280px] lg:flex">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-ink-muted/15">
+        <SidebarHeader title="Notes" />
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            onClick={onToggleCollapse}
-          >
+          <IconButton label="Collapse sidebar" onClick={onToggleCollapse}>
             <PanelLeftClose className="size-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            onClick={onCreateNotebook}
-          >
+          </IconButton>
+          <IconButton label="Create notebook" onClick={onCreateNotebook}>
             <Plus className="size-4" />
-          </Button>
-        </div>
-      </div>
-      <div className="border-b border-border p-3">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            ref={searchInputRef}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search notes…"
-            className="h-8 bg-input-background pl-8 text-xs"
-          />
+          </IconButton>
         </div>
       </div>
 
-      <div className="space-y-1 p-2">
+      <div className="px-3 py-2 border-b border-ink-muted/10">
+        <PaperInput
+          ref={searchInputRef}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search notes…"
+          icon={<Search className="size-3.5" />}
+          wrapperClassName="[&_input]:h-8 [&_input]:text-xs [&_input]:font-architect"
+        />
+      </div>
+
+      <div className="px-2 py-1">
         {loadingList ? (
-          <div className="flex items-center gap-2 px-2.5 py-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 px-2.5 py-3 font-architect text-xs text-ink-muted">
             <Loader2 className="size-3.5 animate-spin" /> Loading notebooks…
           </div>
         ) : list.length === 0 ? (
           <button
             onClick={onCreateNotebook}
-            className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border px-2.5 py-3 text-left text-xs text-muted-foreground hover:border-violet/50 hover:text-violet"
+            className="flex w-full items-center gap-2 rounded-md border border-dashed border-ink-muted/30 px-2.5 py-3 text-left font-architect text-xs text-ink-muted hover:border-violet/50 hover:text-violet"
           >
             <Plus className="size-3.5" /> Create your first notebook
           </button>
         ) : filteredList.length === 0 ? (
-          <div className="flex items-center gap-2 px-2.5 py-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 px-2.5 py-3 font-architect text-xs text-ink-muted">
             No notebooks match your search.
           </div>
         ) : (
@@ -164,7 +132,7 @@ export function Sidebar({
                   key={n.id}
                   className="flex items-center gap-1.5 px-1.5 py-1"
                 >
-                  <Input
+                  <PaperInput
                     autoFocus
                     value={renameValue}
                     onChange={(e) => onRenameValueChange(e.target.value)}
@@ -172,7 +140,7 @@ export function Sidebar({
                       if (e.key === "Enter") onSaveRename(n.id);
                       if (e.key === "Escape") onCancelRename();
                     }}
-                    className="h-7 text-sm"
+                    wrapperClassName="[&_input]:h-7 [&_input]:text-sm [&_input]:font-architect flex-1"
                   />
                   <button
                     onClick={() => onSaveRename(n.id)}
@@ -183,7 +151,7 @@ export function Sidebar({
                   </button>
                   <button
                     onClick={onCancelRename}
-                    className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent"
+                    className="flex size-7 shrink-0 items-center justify-center rounded-md text-ink-muted hover:bg-accent"
                     aria-label="Cancel rename"
                   >
                     <X className="size-3.5" />
@@ -195,22 +163,22 @@ export function Sidebar({
               <div
                 key={n.id}
                 className={cn(
-                  "group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 transition-colors",
-                  activeId === n.id ? "bg-accent" : "hover:bg-accent/50",
+                  "group flex w-full items-center gap-3 rounded-md px-2.5 py-2 transition-colors",
+                  activeId === n.id ? "bg-black/[0.035]" : "hover:bg-black/[0.02]",
                 )}
               >
                 <button
                   onClick={() => onSelectNotebook(n.id)}
                   className="flex min-w-0 flex-1 items-center gap-3 text-left"
                 >
-                  <div className="flex h-6 w-6 items-center justify-center rounded bg-background/50">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex h-6 w-6 items-center justify-center rounded bg-ink/5">
+                    <Icon className="h-4 w-4 text-ink-muted" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">
+                    <div className="truncate font-architect text-[15px] text-ink">
                       {n.name}
                     </div>
-                    <div className="text-[11px] text-muted-foreground">
+                    <div className="font-kalam text-[11px] text-ink-muted">
                       {n.notes} notes · {n.lastEdited}
                     </div>
                   </div>
@@ -218,14 +186,14 @@ export function Sidebar({
                 <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                   <button
                     onClick={() => onStartRename(n.id, n.name)}
-                    className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-background/60 hover:text-foreground"
+                    className="flex size-7 items-center justify-center rounded-md text-ink-muted hover:bg-ink/5 hover:text-ink"
                     aria-label="Rename notebook"
                   >
                     <Pencil className="size-3.5" />
                   </button>
                   <button
                     onClick={() => onDeleteNotebook(n.id)}
-                    className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-danger-soft hover:text-danger"
+                    className="flex size-7 items-center justify-center rounded-md text-ink-muted hover:bg-red-50 hover:text-brick"
                     aria-label="Delete notebook"
                   >
                     <Trash2 className="size-3.5" />
@@ -241,60 +209,66 @@ export function Sidebar({
         )}
       </div>
 
-      <Section label="Collections" icon={FolderClosed}>
+      <SidebarDivider />
+
+      <SidebarGroup label="Collections">
         {collections.length === 0 ? (
-          <div className="px-2.5 py-1.5 text-xs text-muted-foreground">
+          <div className="px-4 py-1.5 font-kalam text-xs text-ink-muted">
             No collections
           </div>
         ) : (
           collections.map((c) => (
             <div
               key={c.id}
-              className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50"
+              className="flex items-center justify-between px-4 py-1.5 font-architect text-[15px] text-ink/80 hover:bg-black/[0.025]"
             >
               <span className="truncate">{c.name}</span>
-              <span className="text-xs text-muted-foreground">{c.count}</span>
+              <span className="font-kalam text-xs text-ink-muted">{c.count}</span>
             </div>
           ))
         )}
-      </Section>
+      </SidebarGroup>
 
-      <Section label="Tags" icon={Hash}>
+      <SidebarDivider />
+
+      <SidebarGroup label="Tags">
         {tags.length === 0 ? (
-          <div className="px-2.5 py-1.5 text-xs text-muted-foreground">
+          <div className="px-4 py-1.5 font-kalam text-xs text-ink-muted">
             No tags
           </div>
         ) : (
-          <div className="flex flex-wrap gap-1.5 px-2">
+          <div className="flex flex-wrap gap-1.5 px-3">
             {tags.map((t) => (
               <span
                 key={t}
-                className="rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground"
+                className="rounded-full border border-ink-muted/20 bg-ink/3 px-2 py-0.5 font-architect text-[11px] text-ink-muted"
               >
                 #{t}
               </span>
             ))}
           </div>
         )}
-      </Section>
+      </SidebarGroup>
 
-      <Section label="Recent" icon={Clock}>
+      <SidebarDivider />
+
+      <SidebarGroup label="Recent">
         {recentNotes.length === 0 ? (
-          <div className="px-2.5 py-1.5 text-xs text-muted-foreground">
+          <div className="px-4 py-1.5 font-kalam text-xs text-ink-muted">
             No recent notes
           </div>
         ) : (
           recentNotes.map((r) => (
             <div
               key={r.id}
-              className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-foreground/80 hover:bg-accent/50"
+              className="flex items-center gap-2 px-4 py-1.5 font-architect text-[15px] text-ink/80 hover:bg-black/[0.025]"
             >
-              <FileText className="size-3.5 shrink-0 text-muted-foreground" />
+              <FileText className="size-3.5 shrink-0 text-ink-muted" />
               <span className="truncate">{r.title}</span>
             </div>
           ))
         )}
-      </Section>
-    </aside>
+      </SidebarGroup>
+    </PaperSidebar>
   );
 }

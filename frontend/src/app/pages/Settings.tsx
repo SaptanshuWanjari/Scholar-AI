@@ -40,8 +40,8 @@ function Row({
   return (
     <div className="flex items-center justify-between gap-6 border-b border-[#e8e3d8] py-4 last:border-0">
       <div className="min-w-0">
-        <div className="font-architect text-[14px] text-ink">{title}</div>
-        {desc && <div className="font-kalam text-[12px] text-ink-muted/75">{desc}</div>}
+        <div className="font-architect text-[17px] text-ink">{title}</div>
+        {desc && <div className="font-kalam text-[14px] text-ink-muted/75">{desc}</div>}
       </div>
       <div className="shrink-0">{children}</div>
     </div>
@@ -241,7 +241,7 @@ export function SettingsPage() {
           )}
 
           {activeTab === "models" && (
-            <div>
+            <div className=''>
               <Row
                 title="AI Mode"
                 desc={
@@ -308,7 +308,7 @@ export function SettingsPage() {
                   onChange={(v) => s.set("streaming", v)}
                 />
               </Row>
-              <Row title="Prompt Enhancer" desc="Automatically refine and improve your prompts">
+              <Row title="Prompt Enhancer"  desc="Automatically refine and improve your prompts">
                 <PaperSwitch
                   checked={s.usePromptEnhancer}
                   onChange={(v) => s.set("usePromptEnhancer", v)}
@@ -758,7 +758,7 @@ export function SettingsPage() {
           <TriangleAlert className="size-5" />
         </div>
         <p className="font-kalam text-[14px] text-ink mt-2">This action cannot be undone. This will permanently delete:</p>
-        <ul className="list-disc list-inside mt-2 space-y-1 font-kalam text-[13px] text-ink-muted/80">
+        <ul className="list-disc list-inside mt-2 space-y-1 font-kalam text-[17px] tracking-wide text-ink-muted/80">
           <li>All your imported documents and notes</li>
           <li>The local vector database</li>
           <li>Your browser cache and IndexedDB</li>
