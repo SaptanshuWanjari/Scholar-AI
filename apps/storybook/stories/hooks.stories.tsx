@@ -87,7 +87,7 @@ export const UseClickOutside: StoryObj = {
   render: () => {
     const [open, setOpen] = React.useState(false);
     const ref = React.useRef<HTMLDivElement>(null);
-    useClickOutside(ref, () => setOpen(false));
+    useClickOutside(ref as React.RefObject<HTMLElement>, () => setOpen(false));
     return (
       <Bg>
         <div className="relative inline-block">

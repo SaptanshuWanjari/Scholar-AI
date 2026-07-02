@@ -1,7 +1,7 @@
 import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { SectionHeader, SectionLabel, PaperCard } from '@paper-ui/core'
-import { SketchButton } from '../../../../paper-ui/src/components/buttons'
+import { SketchButton } from '@paper-ui/components'
 import { Search } from 'lucide-react'
 
 const meta: Meta<typeof SectionHeader> = {

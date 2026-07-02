@@ -50,21 +50,22 @@ export const WithCollapse: Story = {
     <div className="p-8 bg-[#f4f1ea] inline-block">
       <Nav className="w-64 h-[480px]">
         <Nav.Label>Study Materials</Nav.Label>
-        <Nav.Collapse title="Science" defaultOpen>
+        <Nav.Group title="Science" defaultOpen>
           <Nav.Item icon={<FileText size={16} />}>Biology</Nav.Item>
           <Nav.Item icon={<FileText size={16} />}>Chemistry</Nav.Item>
           <Nav.Item icon={<FileText size={16} />}>Physics</Nav.Item>
-        </Nav.Collapse>
-        <Nav.Collapse title="Humanities">
+        </Nav.Group>
+        <Nav.Group title="Humanities">
           <Nav.Item icon={<FileText size={16} />}>History</Nav.Item>
           <Nav.Item icon={<FileText size={16} />}>Philosophy</Nav.Item>
-        </Nav.Collapse>
-        <Nav.Section />
-        <Nav.Label>Actions</Nav.Label>
-        <Nav.Item active icon={<Brain size={16} />}>
-          Practice
-        </Nav.Item>
-        <Nav.Item icon={<Zap size={16} />}>Quick Quiz</Nav.Item>
+        </Nav.Group>
+        <Nav.Section>
+          <Nav.Label>Actions</Nav.Label>
+          <Nav.Item active icon={<Brain size={16} />}>
+            Practice
+          </Nav.Item>
+          <Nav.Item icon={<Zap size={16} />}>Quick Quiz</Nav.Item>
+        </Nav.Section>
       </Nav>
     </div>
   ),

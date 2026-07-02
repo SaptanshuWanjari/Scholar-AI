@@ -1,8 +1,7 @@
 import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { PaperCard, PaperPanel, MarkerHighlight } from '@paper-ui/core'
-import { PushPinDoodle, StarDoodle } from '../../../../paper-ui/src/components/doodles'
-import { Tape } from '../../../../paper-ui/src/components/decorations'
+import { PaperCard, PaperPanel } from '@paper-ui/core'
+import { MarkerHighlight, PushPinDoodle, StarDoodle, Tape } from '@paper-ui/components'
 
 const meta: Meta<typeof PaperCard> = {
   title: 'Components/Wrappers/PaperCard',

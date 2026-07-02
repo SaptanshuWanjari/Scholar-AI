@@ -1,7 +1,7 @@
 import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { PaperSheetCard, MarkerHighlight } from '@paper-ui/core'
-import { Tape } from '../../../../paper-ui/src/components/decorations'
+import { PaperSheetCard } from '@paper-ui/core'
+import { MarkerHighlight, Tape } from '@paper-ui/components'
 
 const meta: Meta<typeof PaperSheetCard> = {
   title: 'Components/Wrappers/PaperSheetCard',

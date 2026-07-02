@@ -96,7 +96,7 @@ export const FocusRingGallery = () => (
           <PaperButton tone="paper">Focused PaperButton</PaperButton>
         </FocusRing>
 
-        <FocusRing within>
+        <FocusRing>
           <input
             type="text"
             placeholder="Type here..."
@@ -164,7 +164,7 @@ export const FocusScopeTrap = () => (
 
 export const SkipNavigationDemo = () => (
   <div className="bg-[#f4f1ea] dark:bg-[#1c1b1a]">
-    <SkipNavigation targetId="main-content-example" />
+    <SkipNavigation href="#main-content-example" />
 
     <header className="sticky top-0 z-10 flex items-center gap-4 px-6 py-4 bg-[#f4f1ea]/95 dark:bg-[#1c1b1a]/95
                         border-b-2 border-dashed border-[#3a3733]/20">

@@ -8,7 +8,7 @@ import {
   HoverEffect as HoverEffectComponent,
   AnimatedCounter as AnimatedCounterComponent,
 } from '@paper-ui/components/motion';
-import { PaperCard, PaperPanel } from '@paper-ui/core/PaperCard';
+import { PaperCard, PaperPanel } from '@paper-ui/core';
 import { PaperButton, SketchButton, StickyButton } from '@paper-ui/components/buttons';
 import { PaperBadge } from '@paper-ui/components/badges';
 import { StickyNoteCard } from '@paper-ui/components/cards';

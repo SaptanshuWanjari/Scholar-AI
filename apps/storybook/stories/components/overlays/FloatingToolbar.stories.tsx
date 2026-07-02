@@ -24,10 +24,10 @@ export const Default: Story = {
         </p>
       </div>
       <FloatingToolbar offsetY={8}>
-        <IconButton aria-label="Bold"><strong>B</strong></IconButton>
-        <IconButton aria-label="Italic"><em>I</em></IconButton>
-        <IconButton aria-label="Copy"><Copy size={14} /></IconButton>
-        <IconButton aria-label="Edit"><Edit3 size={14} /></IconButton>
+        <IconButton label="Bold"><strong>B</strong></IconButton>
+        <IconButton label="Italic"><em>I</em></IconButton>
+        <IconButton label="Copy"><Copy size={14} /></IconButton>
+        <IconButton label="Edit"><Edit3 size={14} /></IconButton>
       </FloatingToolbar>
     </div>
   ),
@@ -43,12 +43,12 @@ export const WithSeparators: Story = {
         </p>
       </div>
       <FloatingToolbar offsetY={8}>
-        <IconButton aria-label="Bold"><strong>B</strong></IconButton>
-        <IconButton aria-label="Italic"><em>I</em></IconButton>
-        <IconButton aria-label="Underline"><u>U</u></IconButton>
+        <IconButton label="Bold"><strong>B</strong></IconButton>
+        <IconButton label="Italic"><em>I</em></IconButton>
+        <IconButton label="Underline"><u>U</u></IconButton>
         <div className="w-px h-4 bg-[#d4cfc2]" />
-        <IconButton aria-label="Copy"><Copy size={14} /></IconButton>
-        <IconButton aria-label="Edit"><Edit3 size={14} /></IconButton>
+        <IconButton label="Copy"><Copy size={14} /></IconButton>
+        <IconButton label="Edit"><Edit3 size={14} /></IconButton>
       </FloatingToolbar>
     </div>
   ),

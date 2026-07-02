@@ -57,8 +57,8 @@ export const Full: Story = {
         eyebrow="Course Materials"
         subtitle="Learn the fundamentals and set up your workspace."
         breadcrumbs={[
-          { label: 'Home', href: '/' },
-          { label: 'Courses', href: '/courses' },
+          { label: 'Home', onClick: () => {} },
+          { label: 'Courses', onClick: () => {} },
           { label: 'Getting Started' },
         ]}
         marker
