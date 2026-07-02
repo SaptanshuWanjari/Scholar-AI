@@ -1,51 +1,49 @@
-import React from 'react'
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { LoadingPaper } from '@paper-ui/components/feedback'
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { LoadingPaper } from '@paper-ui/components/feedback';
 
 const meta: Meta<typeof LoadingPaper> = {
   title: 'Components/Feedback/LoadingPaper',
   component: LoadingPaper,
+  parameters: { layout: 'padded' },
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
-}
-
-export default meta
-type Story = StoryObj<typeof LoadingPaper>
+};
+export default meta;
+type Story = StoryObj<typeof LoadingPaper>;
 
 export const Default: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <LoadingPaper variant="dots" />
+    <div className="p-8 bg-[#f4f1ea]">
+      <LoadingPaper variant="dots" size="md" />
     </div>
   ),
-}
+};
+
+export const WithText: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea]">
+      <LoadingPaper
+        variant="spinner"
+        size="md"
+        label="Processing your document…"
+      />
+    </div>
+  ),
+};
 
 export const Variants: Story = {
   render: () => (
-    <div className="p-10 space-y-10 bg-[#f4f1ea]">
+    <div className="p-8 bg-[#f4f1ea] space-y-8">
       {(['dots', 'lines', 'spinner'] as const).map(variant => (
-        <div key={variant}>
-          <h3 className="font-serif text-base font-bold mb-4">{variant}</h3>
-          <div className="flex gap-10 items-end">
+        <div key={variant} className="flex items-center gap-6">
+          <span className="font-architect text-sm w-12">{variant}</span>
+          <div className="flex gap-6">
             {(['sm', 'md', 'lg'] as const).map(size => (
-              <div key={size} className="flex flex-col items-center gap-2">
-                <LoadingPaper variant={variant} size={size} />
-                <span className="font-mono text-xs text-gray-500">{size}</span>
-              </div>
+              <LoadingPaper key={size} variant={variant} size={size} />
             ))}
           </div>
         </div>
       ))}
     </div>
   ),
-}
-
-export const Composition: Story = {
-  render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <LoadingPaper variant="dots" label="Loading your documents…" />
-    </div>
-  ),
-}
+};
