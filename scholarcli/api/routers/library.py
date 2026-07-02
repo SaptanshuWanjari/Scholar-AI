@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from datetime import datetime
+from uuid import uuid4
 
 from datetime import datetime, timezone
 
@@ -30,7 +31,7 @@ from scholarcli.api.schemas import (
     SavedRevisionOut,
 )
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Card, Deck, Diagram, Mindmap, SavedQuiz, SavedRevision
+from scholarcli.storage.models import Card, Deck, Diagram, Mindmap, SavedQuiz, SavedRevision, TrashIndex
 
 router = APIRouter(prefix="/api", tags=["library"])
 
@@ -69,7 +70,7 @@ def _deck_out(deck: Deck) -> DeckOut:
 def list_decks() -> list[DeckOut]:
     session = get_session()
     try:
-        return [_deck_out(d) for d in session.query(Deck).order_by(Deck.last_opened_at.desc()).all()]
+        return [_deck_out(d) for d in session.query(Deck).filter(Deck.is_deleted == False).order_by(Deck.last_opened_at.desc()).all()]
     finally:
         session.close()
 
@@ -107,7 +108,18 @@ def delete_deck(deck_id: int) -> None:
         deck = session.get(Deck, deck_id)
         if not deck:
             raise HTTPException(status_code=404, detail="Deck not found")
-        session.delete(deck)
+        deck.is_deleted = True
+        deck.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="deck",
+            artifact_id=str(deck.id),
+            title=deck.name,
+            subtitle=None,
+            course_name=deck.course if deck.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()
@@ -122,7 +134,7 @@ def list_flashcards(deck: str | None = None, course: str | None = None) -> list[
             if d:
                 d.last_opened_at = datetime.now()
                 session.commit()
-        q = session.query(Card, Deck).join(Deck, Card.deck_id == Deck.id)
+        q = session.query(Card, Deck).join(Deck, Card.deck_id == Deck.id).filter(Card.is_deleted == False)
         if deck:
             q = q.filter(Deck.name == deck)
         if course:
@@ -229,7 +241,19 @@ def delete_card(card_id: int) -> None:
         card = session.get(Card, card_id)
         if not card:
             raise HTTPException(status_code=404, detail="Card not found")
-        session.delete(card)
+        card.is_deleted = True
+        card.deleted_at = datetime.now(timezone.utc)
+        deck = session.get(Deck, card.deck_id)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="card",
+            artifact_id=str(card.id),
+            title=card.front[:200],
+            subtitle=deck.name if deck else None,
+            course_name=deck.course if deck and deck.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()
@@ -259,7 +283,7 @@ def _quiz_out(q: SavedQuiz) -> QuizOut:
 def list_quizzes() -> list[QuizOut]:
     session = get_session()
     try:
-        return [_quiz_out(q) for q in session.query(SavedQuiz).order_by(SavedQuiz.created_at.desc()).all()]
+        return [_quiz_out(q) for q in session.query(SavedQuiz).filter(SavedQuiz.is_deleted == False).order_by(SavedQuiz.created_at.desc()).all()]
     finally:
         session.close()
 
@@ -294,7 +318,18 @@ def delete_quiz(quiz_id: int) -> None:
         quiz = session.get(SavedQuiz, quiz_id)
         if not quiz:
             raise HTTPException(status_code=404, detail="Quiz not found")
-        session.delete(quiz)
+        quiz.is_deleted = True
+        quiz.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="quiz",
+            artifact_id=str(quiz.id),
+            title=quiz.title,
+            subtitle=None,
+            course_name=quiz.course if quiz.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()
@@ -376,7 +411,7 @@ def list_diagrams() -> list[DiagramOut]:
                 grounded=True,
                 quality=_quality(d.quality_score),
             )
-            for d in session.query(Diagram).order_by(Diagram.last_opened_at.desc()).all()
+            for d in session.query(Diagram).filter(Diagram.is_deleted == False).order_by(Diagram.last_opened_at.desc()).all()
         ]
     finally:
         session.close()
@@ -389,7 +424,18 @@ def delete_diagram(diagram_id: int) -> None:
         d = session.get(Diagram, diagram_id)
         if not d:
             raise HTTPException(status_code=404, detail="Diagram not found")
-        session.delete(d)
+        d.is_deleted = True
+        d.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="diagram",
+            artifact_id=str(d.id),
+            title=d.title,
+            subtitle=None,
+            course_name=d.course if d.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()
@@ -408,7 +454,7 @@ def list_mindmaps() -> list[MindmapOut]:
                 id=str(m.id), title=m.title, course=m.course, text=m.text, grounded=True,
                 quality=_quality(m.quality_score),
             )
-            for m in session.query(Mindmap).order_by(Mindmap.created_at.desc()).all()
+            for m in session.query(Mindmap).filter(Mindmap.is_deleted == False).order_by(Mindmap.created_at.desc()).all()
         ]
     finally:
         session.close()
@@ -421,7 +467,18 @@ def delete_mindmap(mindmap_id: int) -> None:
         m = session.get(Mindmap, mindmap_id)
         if not m:
             raise HTTPException(status_code=404, detail="Mind map not found")
-        session.delete(m)
+        m.is_deleted = True
+        m.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="mindmap",
+            artifact_id=str(m.id),
+            title=m.title,
+            subtitle=None,
+            course_name=m.course if m.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()
@@ -446,7 +503,7 @@ def list_revisions() -> list[SavedRevisionOut]:
                 quality=_quality(r.quality_score),
                 timestamp=r.created_at.timestamp() * 1000,
             )
-            for r in session.query(SavedRevision).order_by(SavedRevision.created_at.desc()).all()
+            for r in session.query(SavedRevision).filter(SavedRevision.is_deleted == False).order_by(SavedRevision.created_at.desc()).all()
         ]
     finally:
         session.close()
@@ -492,7 +549,18 @@ def delete_revision(revision_id: int) -> None:
         rev = session.get(SavedRevision, revision_id)
         if not rev:
             raise HTTPException(status_code=404, detail="Revision not found")
-        session.delete(rev)
+        rev.is_deleted = True
+        rev.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="revision",
+            artifact_id=str(rev.id),
+            title=rev.title,
+            subtitle=rev.topic if rev.topic else None,
+            course_name=rev.course if rev.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()

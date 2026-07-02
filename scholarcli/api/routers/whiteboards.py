@@ -9,7 +9,8 @@ from __future__ import annotations
 from datetime import datetime
 
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
+from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
@@ -31,7 +32,7 @@ from scholarcli.api.schemas import (
     WhiteboardRevisionOut,
 )
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Whiteboard, WhiteboardRevision
+from scholarcli.storage.models import Whiteboard, WhiteboardRevision, TrashIndex
 
 router = APIRouter(prefix="/api/whiteboards", tags=["whiteboards"])
 
@@ -128,18 +129,7 @@ def _revision(rev: WhiteboardRevision) -> WhiteboardRevisionOut:
 def list_whiteboards(course: str | None = None, document_id: int | None = None) -> list[WhiteboardMeta]:
     session = get_session()
     try:
-        # Auto-delete binned whiteboards older than 10 days
-        cutoff = datetime.now(timezone.utc) - timedelta(days=10)
-        expired = session.query(Whiteboard).filter(
-            Whiteboard.status == "binned",
-            Whiteboard.deleted_at < cutoff
-        ).all()
-        for e in expired:
-            session.delete(e)
-        if expired:
-            session.commit()
-
-        q = session.query(Whiteboard)
+        q = session.query(Whiteboard).filter(Whiteboard.is_deleted == False)
         if course:
             q = q.filter(Whiteboard.course == course)
         if document_id is not None:
@@ -206,8 +196,22 @@ def update_whiteboard(whiteboard_id: int, patch: WhiteboardPatch) -> WhiteboardO
         if patch.status is not None:
             if patch.status == "binned" and wb.status != "binned":
                 wb.deleted_at = datetime.now(timezone.utc)
+                ti = TrashIndex(
+                    id=str(uuid4()),
+                    artifact_type="whiteboard",
+                    artifact_id=str(wb.id),
+                    title=wb.title,
+                    subtitle=None,
+                    course_name=wb.course if wb.course else None,
+                    deleted_at=datetime.now(timezone.utc),
+                )
+                session.add(ti)
             elif patch.status != "binned" and wb.status == "binned":
                 wb.deleted_at = None
+                session.query(TrashIndex).filter(
+                    TrashIndex.artifact_type == "whiteboard",
+                    TrashIndex.artifact_id == str(wb.id),
+                ).delete()
             wb.status = patch.status
         session.commit()
         session.refresh(wb)

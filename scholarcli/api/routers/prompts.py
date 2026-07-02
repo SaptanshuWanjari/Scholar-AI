@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+from uuid import uuid4
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from scholarcli.api import prompt_service
 from scholarcli.api.prompt_service import CATEGORIES
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Prompt
+from scholarcli.storage.models import Prompt, TrashIndex
 
 router = APIRouter(prefix="/api/prompts", tags=["prompts"])
 
@@ -46,7 +49,7 @@ def list_categories():
 def list_prompts(category: str | None = None):
     session = get_session()
     try:
-        q = session.query(Prompt)
+        q = session.query(Prompt).filter(Prompt.is_deleted == False)
         if category:
             q = q.filter(Prompt.category == category)
         return q.order_by(Prompt.category, Prompt.id).all()
@@ -100,7 +103,18 @@ def delete_prompt(prompt_id: int):
             raise HTTPException(404, "Prompt not found")
         if target.built_in:
             raise HTTPException(400, "Cannot delete built-in prompts")
-        session.delete(target)
+        target.is_deleted = True
+        target.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="prompt",
+            artifact_id=str(target.id),
+            title=target.name,
+            subtitle=target.category,
+            course_name=None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()

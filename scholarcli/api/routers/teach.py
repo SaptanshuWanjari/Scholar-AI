@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
+from datetime import datetime, timezone
+from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
@@ -29,7 +31,7 @@ from scholarcli.api.schemas import (
     TeachResumeRequest,
 )
 from scholarcli.storage import get_session
-from scholarcli.storage.models import LearningPackage
+from scholarcli.storage.models import LearningPackage, TrashIndex
 
 router = APIRouter(prefix="/api/teach", tags=["teach"])
 
@@ -159,6 +161,7 @@ def list_packages() -> list[PackageMeta]:
     try:
         rows = (
             session.query(LearningPackage)
+            .filter(LearningPackage.is_deleted == False)
             .order_by(LearningPackage.created_at.desc())
             .all()
         )
@@ -213,7 +216,18 @@ def delete_package(package_id: int) -> None:
         pkg = session.get(LearningPackage, package_id)
         if not pkg:
             raise HTTPException(status_code=404, detail="Package not found")
-        session.delete(pkg)
+        pkg.is_deleted = True
+        pkg.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="learning_package",
+            artifact_id=str(pkg.id),
+            title=pkg.title,
+            subtitle=None,
+            course_name=pkg.course if pkg.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()
