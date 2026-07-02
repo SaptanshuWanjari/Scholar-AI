@@ -8,6 +8,7 @@ history is kept in-memory until persistence is justified.
 from __future__ import annotations
 
 from datetime import datetime
+from uuid import uuid4
 
 import gzip
 import json
@@ -79,7 +80,33 @@ class Base(DeclarativeBase):
     pass
 
 
-class Course(Base):
+def _uuid4_str() -> str:
+    return str(uuid4())
+
+
+class TrashMixin:
+    """Soft-delete mixin for user artifacts participating in the global bin."""
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    archived: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class TrashIndex(Base):
+    """Denormalized index for fast bin listing — cross-artifact trash view."""
+    __tablename__ = "trash_index"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid4_str)
+    artifact_type: Mapped[str] = mapped_column(String(50), index=True)
+    artifact_id: Mapped[str] = mapped_column(String(36), index=True)
+    title: Mapped[str] = mapped_column(String(500))
+    subtitle: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    course_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    course_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    archived: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class Course(Base, TrashMixin):
     __tablename__ = "courses"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -91,7 +118,7 @@ class Course(Base):
     )
 
 
-class Document(Base):
+class Document(Base, TrashMixin):
     __tablename__ = "documents"
     __table_args__ = (
         UniqueConstraint("path", "course_id", name="uq_document_path_course"),
@@ -130,7 +157,7 @@ class Document(Base):
 # avoid premature normalization.
 # ---------------------------------------------------------------------------
 
-class Deck(Base):
+class Deck(Base, TrashMixin):
     __tablename__ = "decks"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -155,7 +182,7 @@ class Deck(Base):
     )
 
 
-class Card(Base):
+class Card(Base, TrashMixin):
     __tablename__ = "cards"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -171,7 +198,7 @@ class Card(Base):
     deck: Mapped["Deck"] = relationship(back_populates="cards")
 
 
-class SavedQuiz(Base):
+class SavedQuiz(Base, TrashMixin):
     __tablename__ = "quizzes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -191,7 +218,7 @@ class SavedQuiz(Base):
     )
 
 
-class Notebook(Base):
+class Notebook(Base, TrashMixin):
     __tablename__ = "notebooks"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -210,7 +237,7 @@ class Notebook(Base):
     )
 
 
-class Diagram(Base):
+class Diagram(Base, TrashMixin):
     __tablename__ = "diagrams"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -227,7 +254,7 @@ class Diagram(Base):
     )
 
 
-class Mindmap(Base):
+class Mindmap(Base, TrashMixin):
     __tablename__ = "mindmaps"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -240,7 +267,7 @@ class Mindmap(Base):
     )
 
 
-class Whiteboard(Base):
+class Whiteboard(Base, TrashMixin):
     """An interactive Excalidraw canvas — a first-class visual artifact.
 
     The full Excalidraw scene ({elements, appState, files}) is stored as JSON;
@@ -278,9 +305,6 @@ class Whiteboard(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
-    deleted_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
     last_opened_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -309,7 +333,7 @@ class WhiteboardRevision(Base):
     whiteboard: Mapped["Whiteboard"] = relationship(back_populates="revisions")
 
 
-class DifferenceTable(Base):
+class DifferenceTable(Base, TrashMixin):
     __tablename__ = "difference_tables"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -322,7 +346,7 @@ class DifferenceTable(Base):
     )
 
 
-class SavedRevision(Base):
+class SavedRevision(Base, TrashMixin):
     __tablename__ = "revisions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -341,7 +365,7 @@ class SavedRevision(Base):
     )
 
 
-class Prompt(Base):
+class Prompt(Base, TrashMixin):
     """A user-customizable system prompt for a generation category.
 
     Built-in prompts (``built_in=True``) are seeded from the RAG defaults and
@@ -465,7 +489,7 @@ class StickyNote(Base):
     )
 
 
-class QuestionPaper(Base):
+class QuestionPaper(Base, TrashMixin):
     """An uploaded previous-year question paper (PYQ)."""
 
     __tablename__ = "question_papers"
@@ -485,7 +509,7 @@ class QuestionPaper(Base):
     )
 
 
-class PYQQuestion(Base):
+class PYQQuestion(Base, TrashMixin):
     """A single question extracted from a question paper."""
 
     __tablename__ = "pyq_questions"
@@ -529,7 +553,7 @@ class TopicStat(Base):
     )
 
 
-class LearningPackage(Base):
+class LearningPackage(Base, TrashMixin):
     """A saved ``/teach`` workspace — a topic's whole mini-course bundled into
     one row. Overview, per-artifact payloads and sources are stored as JSON so
     the entire workspace can be restored without re-generating anything.
@@ -560,7 +584,7 @@ class LearningPackage(Base):
     )
 
 
-class LearningPath(Base):
+class LearningPath(Base, TrashMixin):
     """A saved Learning Path roadmap — a dependency-ordered set of stages and
     concepts inferred from the student's material, stored as one JSON snapshot.
     Per-concept ``status`` lives inside the ``stages`` JSON.
@@ -576,7 +600,6 @@ class LearningPath(Base):
     stages: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     sources: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     grounded: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    archived: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
