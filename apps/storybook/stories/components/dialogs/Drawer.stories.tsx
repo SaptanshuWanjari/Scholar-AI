@@ -1,12 +1,11 @@
-import React, { useState } from "react";
-import type { Meta, StoryObj } from "@storybook/react-vite";
-import { PaperDrawer } from "@paper-ui/components/dialogs";
-import { Box } from "@paper-ui/components/layout";
+import React, { useState } from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { PaperDrawer } from '@paper-ui/components/dialogs';
 
 const meta: Meta<typeof PaperDrawer> = {
-  title: "Components/Dialogs/Drawer",
+  title: 'Components/Dialogs/Drawer',
   component: PaperDrawer,
-  tags: ["autodocs"],
+  parameters: { layout: 'padded' },
 };
 export default meta;
 type Story = StoryObj<typeof PaperDrawer>;
@@ -15,114 +14,55 @@ export const Default: Story = {
   render: () => {
     const [open, setOpen] = useState(false);
     return (
-      <Box>
+      <div className="p-8 bg-[#f4f1ea]">
         <button
           onClick={() => setOpen(true)}
           className="px-4 py-2 bg-white border border-black/20 rounded font-kalam"
         >
           Right Drawer
         </button>
-        <PaperDrawer
-          open={open}
-          onClose={() => setOpen(false)}
-          title="Notes"
-          side="right"
-        >
-          <p className="font-inter text-ink">
-            Here is some extra content from the right side.
-          </p>
+        <PaperDrawer open={open} onClose={() => setOpen(false)} title="Notes" side="right">
+          <p className="font-kalam text-ink">Extra content from the right side.</p>
         </PaperDrawer>
-      </Box>
+      </div>
     );
   },
 };
 
-export const TopSide: Story = {
+export const Positions: Story = {
   render: () => {
     const [open, setOpen] = useState(false);
-
+    const [side, setSide] = useState<'left' | 'right'>('right');
     return (
-      <Box>
-        <button
-          onClick={() => setOpen(true)}
-          className="px-4 py-2 bg-white border border-black/20 rounded font-kalam"
-        >
-          Top Drawer
-        </button>
-
-        <PaperDrawer
-          open={open}
-          onClose={() => setOpen(false)}
-          title="Menu"
-          side="top"
-          height={280}
-        >
-          <div className="flex flex-col gap-4 font-architect">
-            <span>Home</span>
-            <span>Profile</span>
-            <span>Settings</span>
+      <div className="p-8 bg-[#f4f1ea]">
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={() => {
+              setSide('left');
+              setOpen(true);
+            }}
+            className="px-4 py-2 bg-white border border-black/20 rounded font-kalam"
+          >
+            Left Drawer
+          </button>
+          <button
+            onClick={() => {
+              setSide('right');
+              setOpen(true);
+            }}
+            className="px-4 py-2 bg-white border border-black/20 rounded font-kalam"
+          >
+            Right Drawer
+          </button>
+        </div>
+        <PaperDrawer open={open} onClose={() => setOpen(false)} title="Navigation" side={side}>
+          <div className="flex flex-col gap-4 font-kalam">
+            <span className="cursor-pointer hover:text-ink-muted">Home</span>
+            <span className="cursor-pointer hover:text-ink-muted">Profile</span>
+            <span className="cursor-pointer hover:text-ink-muted">Settings</span>
           </div>
         </PaperDrawer>
-      </Box>
-    );
-  },
-};
-
-export const BottomSide: Story = {
-  render: () => {
-    const [open, setOpen] = useState(false);
-
-    return (
-      <Box>
-        <button
-          onClick={() => setOpen(true)}
-          className="px-4 py-2 bg-white border border-black/20 rounded font-kalam"
-        >
-          Bottom Drawer
-        </button>
-
-        <PaperDrawer
-          open={open}
-          onClose={() => setOpen(false)}
-          title="Menu"
-          side="bottom"
-          height={280}
-        >
-          <div className="flex flex-col gap-4 font-architect">
-            <span>Home</span>
-            <span>Profile</span>
-            <span>Settings</span>
-          </div>
-        </PaperDrawer>
-      </Box>
-    );
-  },
-};
-
-export const LeftSide: Story = {
-  render: () => {
-    const [open, setOpen] = useState(false);
-    return (
-      <Box>
-        <button
-          onClick={() => setOpen(true)}
-          className="px-4 py-2 bg-sky-soft border border-black/20 rounded font-kalam"
-        >
-          Left Drawer
-        </button>
-        <PaperDrawer
-          open={open}
-          onClose={() => setOpen(false)}
-          title="Menu"
-          side="left"
-        >
-          <div className="flex flex-col gap-4 font-architect">
-            <span>Home</span>
-            <span>Profile</span>
-            <span>Settings</span>
-          </div>
-        </PaperDrawer>
-      </Box>
+      </div>
     );
   },
 };
