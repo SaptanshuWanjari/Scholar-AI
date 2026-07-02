@@ -1,148 +1,101 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Notification } from '@paper-ui/components/notifications';
-import { SparkleDoodle } from '@paper-ui/components/doodles';
 
-const meta: Meta<typeof Notification.Root> = {
+const meta: Meta<typeof Notification> = {
   title: 'Components/Notifications/Notification',
-  component: Notification.Root as any,
+  component: Notification as any,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };
 
 export default meta;
-type Story = StoryObj<typeof Notification.Root>;
+type Story = StoryObj<typeof Notification>;
 
-const Template = (args: any) => {
-  const [dismissed, setDismissed] = useState(false);
-
-  if (dismissed) {
-    return (
-      <button
-        onClick={() => setDismissed(false)}
-        className="font-architect text-sm underline text-ink-muted"
-      >
-        Show notification again
-      </button>
-    );
-  }
-
-  return (
-    <div className="max-w-sm mx-auto">
-      <Notification.Root {...args}>
-        <Notification.Dismiss onDismiss={() => setDismissed(true)} />
+export const Default: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] w-80">
+      <Notification variant="info">
         <div className="flex items-start gap-3">
-          <Notification.Icon {...args} />
+          <Notification.Icon />
           <div className="flex-1">
-            <Notification.Title {...args} />
-            {args.description && <Notification.Description {...args} />}
-            {args.timestamp && <Notification.Timestamp {...args} />}
-            {args.actionLabel && (
-              <Notification.Action
-                label={args.actionLabel}
-                onClick={args.onAction}
-              />
-            )}
+            <Notification.Title>Quiz Ready</Notification.Title>
+            <Notification.Description>Your Operating Systems quiz is ready to review.</Notification.Description>
+            <Notification.Timestamp>2 min ago</Notification.Timestamp>
           </div>
         </div>
-      </Notification.Root>
+      </Notification>
     </div>
-  );
-};
-
-export const Info: Story = {
-  render: () => (
-    <Template variant="info" title="New course material added" description="Operating Systems — Chapter 7 slides" timestamp="2 min ago" actionLabel="View" />
   ),
 };
 
-export const Success: Story = {
-  render: () => (
-    <Template variant="success" title="Flashcards generated" description="42 cards created for Data Structures" timestamp="10 min ago" />
-  ),
-};
-
-export const Warning: Story = {
-  render: () => (
-    <Template variant="warning" title="Storage running low" description="You have 200MB remaining. Consider archiving old materials." timestamp="1 hour ago" actionLabel="Manage storage" />
-  ),
-};
-
-export const Error: Story = {
-  render: () => (
-    <Template variant="error" title="Failed to sync notes" description="Could not connect to backup server. Last sync was 3 hours ago." timestamp="Just now" actionLabel="Retry" />
-  ),
-};
-
-export const AllVariants: Story = {
-  render: () => (
-    <div className="space-y-3 max-w-sm mx-auto bg-[#f4f1ea] p-6 rounded-lg">
-      <h2 className="font-architect text-lg text-ink mb-4">All Notification Variants</h2>
-      {(['info', 'success', 'warning', 'error'] as const).map(v => (
-        <Notification.Root key={v} variant={v}>
+export const WithAction: Story = {
+  render: () => {
+    const [dismissed, setDismissed] = useState(false);
+    return dismissed ? (
+      <button onClick={() => setDismissed(false)} className="font-architect text-sm underline text-ink-muted">
+        Show again
+      </button>
+    ) : (
+      <div className="p-8 bg-[#f4f1ea] w-80">
+        <Notification variant="success">
+          <Notification.Dismiss onDismiss={() => setDismissed(true)} />
           <div className="flex items-start gap-3">
-            <Notification.Icon variant={v} />
+            <Notification.Icon />
             <div className="flex-1">
-              <Notification.Title>
-                {v.charAt(0).toUpperCase() + v.slice(1)} notification
-              </Notification.Title>
-              <Notification.Description>
-                This is a {v} notification with some descriptive text.
-              </Notification.Description>
+              <Notification.Title>Flashcards Generated</Notification.Title>
+              <Notification.Description>42 cards created for Data Structures.</Notification.Description>
+              <Notification.Action label="View" onClick={() => console.log('View')} />
             </div>
           </div>
-        </Notification.Root>
-      ))}
-    </div>
-  ),
+        </Notification>
+      </div>
+    );
+  },
 };
 
-export const WithCustomIcon: Story = {
+export const Composed: Story = {
   render: () => (
-    <div className="max-w-sm mx-auto">
-      <Notification.Root variant="info">
+    <div className="p-8 bg-[#f4f1ea] space-y-3 w-80">
+      <Notification variant="info">
         <div className="flex items-start gap-3">
-          <Notification.Icon
-            variant="info"
-            icon={<SparkleDoodle size={18} color="#4f4d7a" />}
-          />
+          <Notification.Icon />
           <div className="flex-1">
-            <Notification.Title>Custom doodle icon!</Notification.Title>
-            <Notification.Description>
-              You can swap the default icon with any doodle or React node.
-            </Notification.Description>
-            <Notification.Timestamp>5 min ago</Notification.Timestamp>
+            <Notification.Title>Info</Notification.Title>
+            <Notification.Description>New material added.</Notification.Description>
           </div>
         </div>
-      </Notification.Root>
-    </div>
-  ),
-};
-
-export const ReadVsUnread: Story = {
-  render: () => (
-    <div className="space-y-3 max-w-sm mx-auto bg-[#f4f1ea] p-6 rounded-lg">
-      <h2 className="font-architect text-lg text-ink mb-4">Read State</h2>
-      <Notification.Root variant="success" read={false}>
+      </Notification>
+      <Notification variant="success">
         <div className="flex items-start gap-3">
-          <Notification.Icon variant="success" />
+          <Notification.Icon />
           <div className="flex-1">
-            <Notification.Title>Unread notification (full opacity)</Notification.Title>
-            <Notification.Description>This one is not read yet</Notification.Description>
-            <Notification.Timestamp>1 min ago</Notification.Timestamp>
+            <Notification.Title>Success</Notification.Title>
+            <Notification.Description>Operation completed.</Notification.Description>
+            <Notification.Timestamp>Just now</Notification.Timestamp>
           </div>
         </div>
-      </Notification.Root>
-      <Notification.Root variant="info" read={true}>
+      </Notification>
+      <Notification variant="warning">
+        <Notification.Dismiss />
         <div className="flex items-start gap-3">
-          <Notification.Icon variant="info" />
+          <Notification.Icon />
           <div className="flex-1">
-            <Notification.Title>Read notification (70% opacity)</Notification.Title>
-            <Notification.Description>This one has been read</Notification.Description>
-            <Notification.Timestamp>Yesterday</Notification.Timestamp>
+            <Notification.Title>Warning</Notification.Title>
+            <Notification.Description>Storage at 80%.</Notification.Description>
           </div>
         </div>
-      </Notification.Root>
+      </Notification>
+      <Notification variant="error">
+        <div className="flex items-start gap-3">
+          <Notification.Icon />
+          <div className="flex-1">
+            <Notification.Title>Error</Notification.Title>
+            <Notification.Description>Failed to sync.</Notification.Description>
+            <Notification.Action label="Retry" onClick={() => console.log('Retry')} />
+          </div>
+        </div>
+      </Notification>
     </div>
   ),
 };
