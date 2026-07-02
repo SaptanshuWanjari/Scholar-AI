@@ -1,78 +1,56 @@
-import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Timeline, TimelineItem } from '@paper-ui/components/dataDisplay';
-import { Rocket, Lightbulb, Code2, CheckCircle2 } from 'lucide-react';
+import React from 'react'
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { Timeline, TimelineItem } from '@paper-ui/components/dataDisplay'
+import { Rocket, Lightbulb, Code2 } from 'lucide-react'
 
-const meta = {
+const meta: Meta<typeof Timeline> = {
   title: 'Components/Composed/Timeline',
   component: Timeline,
-  parameters: {
-    layout: 'padded',
-  },
   tags: ['autodocs'],
-} satisfies Meta<typeof Timeline>;
+  parameters: { layout: 'padded' },
+}
 
-export default meta;
-type Story = StoryObj;
+export default meta
+type Story = StoryObj<typeof Timeline>
 
-const timelineItems = [
-  {
-    title: 'Idea Generation',
-    description: 'Brainstormed the core concepts and initial design directions.',
-    time: 'Jan 15, 2024',
-    icon: <Lightbulb size={24} strokeWidth={1.5} />,
-  },
-  {
-    title: 'Development Phase',
-    description: 'Started implementing the foundational UI components and tokens.',
-    time: 'Feb 1, 2024',
-    icon: <Code2 size={24} strokeWidth={1.5} />,
-  },
-  {
-    title: 'Beta Testing',
-    description: 'Released to a small group of users for feedback and bug hunting.',
-    time: 'March 10, 2024',
-  },
-  {
-    title: 'Official Launch',
-    description: '1.0 release is out in the wild!',
-    time: 'April 4, 2024',
-    icon: <Rocket size={24} strokeWidth={1.5} />,
-  },
-];
+const events = [
+  { title: 'Idea', time: 'Jan 15', icon: <Lightbulb size={20} strokeWidth={1.5} /> },
+  { title: 'Development', time: 'Feb 1', icon: <Code2 size={20} strokeWidth={1.5} /> },
+  { title: 'Testing', time: 'Mar 10' },
+  { title: 'Launch', time: 'Apr 4', icon: <Rocket size={20} strokeWidth={1.5} /> },
+]
 
-export const SketchLine: Story = {
+export const Default: Story = {
   render: () => (
-    <div className="w-[500px]">
+    <div className="p-8 bg-[#f4f1ea] w-full max-w-[500px]">
       <Timeline variant="sketch">
-        {timelineItems.map((item, idx) => (
+        {events.map((item, idx) => (
           <TimelineItem key={idx} {...item} />
         ))}
       </Timeline>
     </div>
   ),
-};
+}
 
-export const NotebookMargin: Story = {
+export const Composed: Story = {
   render: () => (
-    <div className="w-[500px]">
-      <Timeline variant="notebook">
-        {timelineItems.map((item, idx) => (
-          <TimelineItem key={idx} {...item} />
-        ))}
-      </Timeline>
+    <div className="p-8 bg-[#f4f1ea] space-y-8">
+      <div className="max-w-[500px]">
+        <h3 className="font-caveat text-lg text-ink-muted/70 mb-3">Sketch</h3>
+        <Timeline variant="sketch">
+          {events.map((item, idx) => (
+            <TimelineItem key={idx} {...item} />
+          ))}
+        </Timeline>
+      </div>
+      <div className="max-w-[500px]">
+        <h3 className="font-caveat text-lg text-ink-muted/70 mb-3">Dotted</h3>
+        <Timeline variant="dotted">
+          {events.map((item, idx) => (
+            <TimelineItem key={idx} {...item} />
+          ))}
+        </Timeline>
+      </div>
     </div>
   ),
-};
-
-export const DottedLine: Story = {
-  render: () => (
-    <div className="w-[500px]">
-      <Timeline variant="dotted">
-        {timelineItems.map((item, idx) => (
-          <TimelineItem key={idx} {...item} />
-        ))}
-      </Timeline>
-    </div>
-  ),
-};
+}
