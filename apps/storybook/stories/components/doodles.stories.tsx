@@ -9,9 +9,33 @@ import {
 import { PaperBadge } from '@paper-ui/components/badges';
 
 const meta = {
-  title: 'Components/Decorations/Doodles',
+  title: 'Components/Doodles',
   parameters: {
     layout: 'padded',
+    docs: {
+      description: {
+        component: `## Doodles
+
+A library of hand-drawn SVG doodle icons styled for paper UI. Each doodle renders as a casual sketch-style illustration — perfect for decorative accents, bullet points, badges, and callout markers. All doodles accept \`size\` and \`color\` props.
+
+### Available Doodles
+- **SunDoodle** — sun with rays
+- **ArrowDoodle** — hand-drawn arrow
+- **SignpostDoodle** — directional signpost
+- **StarDoodle** / **StarDoodleFilled** — outline and filled stars
+- **CheckmarkDoodle** — sketchy checkmark
+- **SparkleDoodle** — sparkle/starburst
+- **BookmarkDoodle** — page bookmark
+- **PaperPlaneDoodle** — folded paper plane
+- **PencilDoodle** — sketchy pencil
+- **TapeDoodle** — masking tape strip
+- **PushPinDoodle** — push-pin / thumbtack
+- **CloudDoodle** — fluffy cloud
+- **BrainDoodle** — brain illustration
+- **LightbulbDoodle** — lightbulb idea
+- **CompassDoodle** — drafting compass`,
+      },
+    },
   },
   tags: ['autodocs'],
 } satisfies Meta;

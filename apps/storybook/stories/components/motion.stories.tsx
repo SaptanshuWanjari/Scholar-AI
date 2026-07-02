@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import type { Meta } from '@storybook/react';
 import {
-  Fade,
-  Slide,
-  Scale,
-  Collapse,
-  HoverEffect,
-  AnimatedCounter,
+  Fade as FadeComponent,
+  Slide as SlideComponent,
+  Scale as ScaleComponent,
+  Collapse as CollapseComponent,
+  HoverEffect as HoverEffectComponent,
+  AnimatedCounter as AnimatedCounterComponent,
 } from '@paper-ui/components/motion';
 import { PaperCard, PaperPanel } from '@paper-ui/core/PaperCard';
 import { PaperButton, SketchButton, StickyButton } from '@paper-ui/components/buttons';
@@ -15,16 +15,31 @@ import { StickyNoteCard } from '@paper-ui/components/cards';
 import { Hand } from 'lucide-react';
 
 const meta = {
-  title: 'Components/Motion/Motion Primitives',
+  title: 'Components/Motion',
   parameters: {
     layout: 'padded',
+    docs: {
+      description: {
+        component: `## Motion Primitives
+
+Animation primitives for paper UI components. Built on CSS transitions with mount/unmount lifecycle support. Each primitive accepts directional parameters, delays, and standard transition easing.
+
+### Components
+- **Fade** — opacity transition with optional unmount
+- **Slide** — directional slide-in/out animation
+- **Scale** — scale transform with configurable initial scale
+- **Collapse** — height-based collapse/expand
+- **HoverEffect** — hover-triggered lift, glow, wiggle, and scale
+- **AnimatedCounter** — animated number counter with duration and decimals`,
+      },
+    },
   },
   tags: ['autodocs'],
 } satisfies Meta;
 
 export default meta;
 
-export const FadeExample = () => {
+export const Fade = () => {
   const [show, setShow] = useState(true);
 
   return (
@@ -33,20 +48,20 @@ export const FadeExample = () => {
         Toggle Fade
       </SketchButton>
       <div className="h-64">
-        <Fade in={show} unmountOnExit>
+        <FadeComponent in={show} unmountOnExit>
           <PaperCard shadow="lg" className="w-80 p-6">
             <h3 className="font-serif text-lg font-bold mb-2">Fading Paper</h3>
             <p className="font-mono text-sm text-gray-700">
               This card gently fades in and out. The paper texture remains crisp.
             </p>
           </PaperCard>
-        </Fade>
+        </FadeComponent>
       </div>
     </div>
   );
 };
 
-export const SlideExample = () => {
+export const Slide = () => {
   const [show, setShow] = useState(true);
 
   return (
@@ -55,25 +70,25 @@ export const SlideExample = () => {
         Toggle Slide
       </PaperButton>
       <div className="h-72 flex gap-6 items-start">
-        <Slide in={show} direction="up" unmountOnExit>
+        <SlideComponent in={show} direction="up" unmountOnExit>
           <StickyNoteCard title="Sliding Up!" color="yellow" rotate={2} pin="push-pin">
             Sticky note content sliding from the bottom.
             <div className="mt-2">
               <PaperBadge tone="ink">Sticky</PaperBadge>
             </div>
           </StickyNoteCard>
-        </Slide>
-        <Slide in={show} direction="left" delay={150} unmountOnExit>
+        </SlideComponent>
+        <SlideComponent in={show} direction="left" delay={150} unmountOnExit>
           <StickyNoteCard title="Sliding Left!" color="pink" rotate={-2} pin="tape">
             Another sticky note sliding from the right with a delay.
           </StickyNoteCard>
-        </Slide>
+        </SlideComponent>
       </div>
     </div>
   );
 };
 
-export const ScaleExample = () => {
+export const Scale = () => {
   const [show, setShow] = useState(true);
 
   return (
@@ -82,18 +97,18 @@ export const ScaleExample = () => {
         Toggle Scale
       </SketchButton>
       <div className="h-64 flex gap-8 items-center">
-        <Scale in={show} unmountOnExit initialScale={0.5}>
+        <ScaleComponent in={show} unmountOnExit initialScale={0.5}>
           <PaperCard shadow="md" className="p-6 rounded-full flex flex-col items-center justify-center bg-white">
             <Hand size={48} className="text-indigo-500 mb-2" />
             <span className="font-serif font-bold text-lg">Popup Stamp</span>
           </PaperCard>
-        </Scale>
+        </ScaleComponent>
       </div>
     </div>
   );
 };
 
-export const CollapseExample = () => {
+export const Collapse = () => {
   const [show, setShow] = useState(false);
 
   return (
@@ -105,7 +120,7 @@ export const CollapseExample = () => {
             {show ? 'Hide' : 'Reveal'}
           </SketchButton>
         </div>
-        <Collapse in={show}>
+        <CollapseComponent in={show}>
           <div className="p-4 bg-gray-50 border border-gray-200 rounded mt-2">
             <p className="text-gray-700 italic font-serif">
               This text is revealed with a smooth collapse animation. 
@@ -116,40 +131,40 @@ export const CollapseExample = () => {
               <PaperBadge tone="ink">Info</PaperBadge>
             </div>
           </div>
-        </Collapse>
+        </CollapseComponent>
       </PaperCard>
     </div>
   );
 };
 
-export const HoverEffectsExample = () => {
+export const HoverEffects = () => {
   return (
     <div className="p-8 flex gap-8 flex-wrap items-start">
-      <HoverEffect lift glow>
+      <HoverEffectComponent lift glow>
         <PaperCard shadow="md" className="w-64 p-6 cursor-pointer">
           <h3 className="font-bold text-lg mb-2">Lift & Glow</h3>
           <p className="text-sm text-gray-600">
             Hover over me to see the card lift off the page with a soft glow.
           </p>
         </PaperCard>
-      </HoverEffect>
+      </HoverEffectComponent>
 
-      <HoverEffect wiggle scale={false}>
+      <HoverEffectComponent wiggle scale={false}>
         <StickyNoteCard title="Wiggle!" color="green" rotate={1} pin="push-pin">
           Just a subtle wiggle on hover.
         </StickyNoteCard>
-      </HoverEffect>
+      </HoverEffectComponent>
 
-      <HoverEffect scale lift>
+      <HoverEffectComponent scale lift>
         <StickyButton tone="green" taped onClick={() => alert('Clicked!')}>
           Scale & Lift Button
         </StickyButton>
-      </HoverEffect>
+      </HoverEffectComponent>
     </div>
   );
 };
 
-export const AnimatedCounterExample = () => {
+export const AnimatedCounter = () => {
   const [value, setValue] = useState(0);
 
   return (
@@ -162,7 +177,7 @@ export const AnimatedCounterExample = () => {
       </div>
       
       <div className="flex gap-8 items-start">
-        <AnimatedCounter 
+        <AnimatedCounterComponent 
           title="Total"
           label="Score"
           value={value} 
@@ -170,7 +185,7 @@ export const AnimatedCounterExample = () => {
         
         <StickyNoteCard title="Percentage" color="blue" pin="tape" rotate={-2}>
           <div className="flex flex-col items-center">
-            <AnimatedCounter 
+            <AnimatedCounterComponent 
               value={Math.min(value / 100, 100)} 
               decimals={1}
               suffix="%"

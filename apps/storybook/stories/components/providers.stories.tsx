@@ -24,6 +24,18 @@ const meta = {
         disable: false,
         headingSelector: 'h2, h3',
       },
+      description: {
+        component: `## Providers
+
+Context providers for global application state. Compose them together to enable dark mode, overlay stacking, modal dialogs, tooltips, and toast notifications across the entire component tree.
+
+### Providers
+- **ThemeProvider** — light/dark theme with \`useTheme()\` consumer
+- **OverlayProvider** — z-index stacking context for overlays
+- **DialogProvider** — accessible modal dialog with focus trap, Escape key, and aria-modal
+- **TooltipProvider** — hover-triggered tooltips with configurable delay
+- **ToastProvider** — notification toast queue with auto-dismiss`,
+      },
     },
   },
   argTypes: {
@@ -110,7 +122,7 @@ export const ThemeToggle = () => (
 /* 2. DialogExample                                                      */
 /* ------------------------------------------------------------------ */
 
-export const DialogExample = () => {
+export const Dialog = () => {
   const [open, setOpen] = useState(false);
 
   return (
