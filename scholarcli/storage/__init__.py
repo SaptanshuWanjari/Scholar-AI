@@ -169,14 +169,6 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("duration_minutes", "INTEGER NOT NULL DEFAULT 0"),
         ("expires_at", "TEXT"),
     ],
-    "learning_paths": [("archived", "BOOLEAN NOT NULL DEFAULT 0")],
-    "whiteboards": [
-        ("deleted_at", "TEXT"),
-        # Reading-mode region annotation link (source == "annotation").
-        ("document_id", "INTEGER"),
-        ("page_number", "INTEGER"),
-        ("last_opened_at", "DATETIME DEFAULT '2025-01-01 00:00:00'"),
-    ],
 }
 
 
