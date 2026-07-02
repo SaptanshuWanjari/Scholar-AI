@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from uuid import uuid4
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
@@ -15,7 +17,7 @@ from scholarcli.api.worker_pool import get_pool
 from scholarcli.config import get_settings
 from scholarcli.ingest.pipeline import ingest_file
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Course, Document
+from scholarcli.storage.models import Course, Document, TrashIndex
 from scholarcli.storage.vectors import delete_document, hybrid_search, search
 
 router = APIRouter(prefix="/api", tags=["documents"])
@@ -42,7 +44,7 @@ def _serialize(doc: Document, course_name: str) -> DocumentOut:
 def list_documents(course: str | None = None, search: str | None = None) -> list[DocumentOut]:
     session = get_session()
     try:
-        q = session.query(Document).outerjoin(Course, Document.course_id == Course.id)
+        q = session.query(Document).filter(Document.is_deleted == False).outerjoin(Course, Document.course_id == Course.id)
         if course and course != "all":
             if course == "unassigned":
                 q = q.filter(Document.course_id.is_(None))
@@ -170,14 +172,20 @@ def delete_document_endpoint(document_id: int) -> None:
         doc = session.get(Document, document_id)
         if not doc:
             raise HTTPException(status_code=404, detail="Document not found")
-        delete_document(doc.id)
-        
-        if doc.content_hash:
-            import shutil
-            images_dir = get_settings().paths.resolved_data_dir() / "images" / doc.content_hash
-            shutil.rmtree(images_dir, ignore_errors=True)
-            
-        session.delete(doc)
+        doc.is_deleted = True
+        doc.deleted_at = datetime.now()
+        course_name = doc.course.name if doc.course else None
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="document",
+            artifact_id=str(doc.id),
+            title=doc.title,
+            subtitle=doc.file_type,
+            course_id=doc.course_id,
+            course_name=course_name,
+            deleted_at=datetime.now(),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()

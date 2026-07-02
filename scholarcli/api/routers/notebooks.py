@@ -3,6 +3,7 @@
 from __future__ import annotations
 import logging
 from datetime import datetime
+from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
@@ -25,7 +26,7 @@ from scholarcli.api.schemas import (
 )
 from scholarcli.llm import get_embeddings
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Notebook
+from scholarcli.storage.models import Notebook, TrashIndex
 from scholarcli.storage.vectors import add_notebook_chunks, delete_notebook_chunks, notebook_block_text
 
 def _reindex_notebook_chunks(nb: Notebook) -> None:
@@ -88,7 +89,7 @@ def _full(nb: Notebook) -> NotebookOut:
 def list_notebooks() -> list[NotebookMetaOut]:
     session = get_session()
     try:
-        return [_meta(nb) for nb in session.query(Notebook).order_by(Notebook.last_opened_at.desc()).all()]
+        return [_meta(nb) for nb in session.query(Notebook).filter(Notebook.is_deleted == False).order_by(Notebook.last_opened_at.desc()).all()]
     finally:
         session.close()
 
@@ -198,9 +199,19 @@ def delete_notebook(notebook_id: int) -> None:
         nb = session.get(Notebook, notebook_id)
         if not nb:
             raise HTTPException(status_code=404, detail="Notebook not found")
-        session.delete(nb)
+        nb.is_deleted = True
+        nb.deleted_at = datetime.now()
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="notebook",
+            artifact_id=str(nb.id),
+            title=nb.title,
+            subtitle=nb.subtitle if nb.subtitle else None,
+            course_name=nb.course if nb.course else None,
+            deleted_at=datetime.now(),
+        )
+        session.add(ti)
         session.commit()
-        delete_notebook_chunks(notebook_id)
     finally:
         session.close()
 

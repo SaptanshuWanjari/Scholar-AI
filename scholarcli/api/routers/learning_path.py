@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import copy
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
@@ -33,7 +34,7 @@ from scholarcli.api.schemas import (
     UpdateConceptStatusRequest,
 )
 from scholarcli.storage import get_session
-from scholarcli.storage.models import DepConcept, LearningPath, SavedRevision, TopicStat
+from scholarcli.storage.models import DepConcept, LearningPath, SavedRevision, TopicStat, TrashIndex
 
 router = APIRouter(prefix="/api/learning-paths", tags=["learning-path"])
 
@@ -294,7 +295,7 @@ async def generate_learning_path(req: GenerateLearningPathRequest) -> LearningPa
 def list_paths() -> list[LearningPathMeta]:
     session = get_session()
     try:
-        rows = session.query(LearningPath).order_by(LearningPath.created_at.desc()).all()
+        rows = session.query(LearningPath).filter(LearningPath.is_deleted == False).order_by(LearningPath.created_at.desc()).all()
         return [_meta(r) for r in rows]
     finally:
         session.close()
@@ -390,7 +391,18 @@ def delete_path(path_id: int) -> None:
         row = session.get(LearningPath, path_id)
         if not row:
             raise HTTPException(status_code=404, detail="Learning path not found")
-        session.delete(row)
+        row.is_deleted = True
+        row.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="learning_path",
+            artifact_id=str(row.id),
+            title=row.title,
+            subtitle=None,
+            course_name=row.course if row.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from uuid import uuid4
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
@@ -13,7 +15,7 @@ from scholarcli.api.schemas import CourseCreate, CourseOut, CourseStats, Artifac
 from scholarcli.storage import get_session
 from scholarcli.storage.models import (
     Course, Deck, Card, SavedQuiz, Notebook, Diagram, Mindmap,
-    DifferenceTable, SavedRevision, LearningPackage, Whiteboard,
+    DifferenceTable, SavedRevision, LearningPackage, Whiteboard, TrashIndex,
 )
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
@@ -36,7 +38,7 @@ def _serialize(course: Course) -> CourseOut:
 def list_courses() -> list[CourseOut]:
     session = get_session()
     try:
-        rows = session.query(Course).order_by(Course.name).all()
+        rows = session.query(Course).filter(Course.is_deleted == False).order_by(Course.name).all()
         return [_serialize(c) for c in rows]
     finally:
         session.close()
@@ -94,7 +96,18 @@ def delete_course(course_id: int) -> None:
         course = session.get(Course, course_id)
         if not course:
             raise HTTPException(status_code=404, detail="Course not found")
-        session.delete(course)
+        course.is_deleted = True
+        course.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="course",
+            artifact_id=str(course.id),
+            title=course.name,
+            subtitle=f"{len(course.documents)} documents",
+            course_name=course.name,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()

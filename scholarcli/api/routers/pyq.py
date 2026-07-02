@@ -10,7 +10,9 @@ are the source of truth here; analytics are computed deterministically from them
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
@@ -28,7 +30,7 @@ from scholarcli.api.schemas import (
 )
 from scholarcli.config import get_settings
 from scholarcli.storage import get_session
-from scholarcli.storage.models import PYQQuestion, QuestionPaper
+from scholarcli.storage.models import PYQQuestion, QuestionPaper, TrashIndex
 
 router = APIRouter(prefix="/api/pyq", tags=["pyq"])
 
@@ -94,7 +96,7 @@ async def upload_paper(
 def list_papers(course: str | None = None) -> list[PyqPaperOut]:
     session = get_session()
     try:
-        q = session.query(QuestionPaper)
+        q = session.query(QuestionPaper).filter(QuestionPaper.is_deleted == False)
         if course and course != "all":
             q = q.filter(QuestionPaper.course == course)
         rows = q.order_by(QuestionPaper.created_at.desc()).all()
@@ -110,7 +112,18 @@ def delete_paper(paper_id: int) -> None:
         paper = session.get(QuestionPaper, paper_id)
         if not paper:
             raise HTTPException(status_code=404, detail="Paper not found")
-        session.delete(paper)  # cascade removes its questions
+        paper.is_deleted = True
+        paper.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="pyq_paper",
+            artifact_id=str(paper.id),
+            title=paper.title,
+            subtitle=None,
+            course_name=paper.course if paper.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()
@@ -145,7 +158,7 @@ def list_questions(
 ) -> list[PyqQuestionOut]:
     session = get_session()
     try:
-        query = session.query(PYQQuestion).filter(PYQQuestion.course == course)
+        query = session.query(PYQQuestion).filter(PYQQuestion.is_deleted == False, PYQQuestion.course == course)
         if year is not None:
             query = query.filter(PYQQuestion.year == year)
         if topic:
@@ -220,7 +233,18 @@ def delete_question(question_id: int) -> None:
         if not q:
             raise HTTPException(status_code=404, detail="Question not found")
         paper = session.get(QuestionPaper, q.paper_id)
-        session.delete(q)
+        q.is_deleted = True
+        q.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="pyq_question",
+            artifact_id=str(q.id),
+            title=q.text[:100] if q.text else "",
+            subtitle=f"Paper #{q.paper_id}",
+            course_name=q.course if q.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         if paper and paper.question_count > 0:
             paper.question_count -= 1
         session.commit()

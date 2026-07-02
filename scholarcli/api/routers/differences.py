@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+from uuid import uuid4
+
 from fastapi import APIRouter, HTTPException
 from fastapi.concurrency import run_in_threadpool
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -20,7 +23,7 @@ from scholarcli.api.schemas import (
 from scholarcli.llm import get_llm
 from scholarcli.rag.prompts import DIFFERENCES_SYSTEM
 from scholarcli.storage import get_session
-from scholarcli.storage.models import Concept, DifferenceTable
+from scholarcli.storage.models import Concept, DifferenceTable, TrashIndex
 
 router = APIRouter(prefix="/api/differences", tags=["differences"])
 
@@ -105,6 +108,7 @@ def list_differences() -> list[DifferenceTableItem]:
     try:
         rows = (
             session.query(DifferenceTable)
+            .filter(DifferenceTable.is_deleted == False)
             .order_by(DifferenceTable.created_at.desc())
             .all()
         )
@@ -155,7 +159,18 @@ def delete_difference(table_id: int) -> dict:
         row = session.get(DifferenceTable, table_id)
         if not row:
             raise HTTPException(status_code=404, detail="not found")
-        session.delete(row)
+        row.is_deleted = True
+        row.deleted_at = datetime.now(timezone.utc)
+        ti = TrashIndex(
+            id=str(uuid4()),
+            artifact_type="difference",
+            artifact_id=str(row.id),
+            title=row.title,
+            subtitle=None,
+            course_name=row.course if row.course else None,
+            deleted_at=datetime.now(timezone.utc),
+        )
+        session.add(ti)
         session.commit()
     finally:
         session.close()
