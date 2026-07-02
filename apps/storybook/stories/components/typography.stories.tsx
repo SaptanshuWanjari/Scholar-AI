@@ -153,7 +153,7 @@ export const Link = () => (
 
     <TypographyParagraph>
       This{' '}
-      <TypographyLink href="#" underline="none" tone="ochre">
+      <TypographyLink href="#" underline="none" tone="sage">
         no-underline link
       </TypographyLink>{' '}
       is identified by colour alone.

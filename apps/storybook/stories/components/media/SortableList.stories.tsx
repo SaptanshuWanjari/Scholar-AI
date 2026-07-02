@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { SortableList } from '@paper-ui/components/media'
+import { SortableList, type SortableItem } from '@paper-ui/components/media'
 
 const meta: Meta<typeof SortableList> = {
   title: 'Components/Media/SortableList',
@@ -12,7 +12,7 @@ const meta: Meta<typeof SortableList> = {
 export default meta
 type Story = StoryObj<typeof SortableList>
 
-const items = [
+const items: SortableItem[] = [
   { id: '1', content: 'First item' },
   { id: '2', content: 'Second item' },
   { id: '3', content: 'Third item' },
@@ -21,7 +21,7 @@ const items = [
 
 export const Default: Story = {
   render: () => {
-    const [state, setState] = useState(items)
+    const [state, setState] = useState<SortableItem[]>(items)
     return (
       <div className="p-8 bg-[#f4f1ea] max-w-sm">
         <SortableList items={state} onReorder={setState} />

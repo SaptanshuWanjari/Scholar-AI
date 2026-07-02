@@ -40,8 +40,13 @@ export const Composed: Story = {
       </button>
     ) : (
       <div className="p-8 bg-[#f4f1ea] w-full max-w-2xl">
-        <Announcement>
-          <Announcement.Icon />
+        <Announcement message="">
+          <Announcement.Icon>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+              <path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </Announcement.Icon>
           <Announcement.Message>AI-powered concept graphs are now available.</Announcement.Message>
           <Announcement.Action label="Try it" onClick={() => console.log('Try')} />
           <Announcement.Dismiss onDismiss={() => setDismissed(true)} />

@@ -38,27 +38,27 @@ const radarData = [
 export const Default: Story = {
   render: () => (
     <div className="p-8 bg-[#f4f1ea] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl">
-      <Paper className="p-4" shadowVariant="hard">
+      <Paper className="p-4" shadow="lg">
         <h3 className="font-architect text-sm mb-3 text-center">Line</h3>
         <LineChart data={lineData} height={100} showDots showGrid />
       </Paper>
-      <Paper className="p-4" shadowVariant="hard">
+      <Paper className="p-4" shadow="lg">
         <h3 className="font-architect text-sm mb-3 text-center">Area</h3>
         <AreaChart data={lineData} height={100} showGrid />
       </Paper>
-      <Paper className="p-4" shadowVariant="hard">
+      <Paper className="p-4" shadow="lg">
         <h3 className="font-architect text-sm mb-3 text-center">Bar</h3>
         <BarChart data={barData} height={100} />
       </Paper>
-      <Paper className="p-4" shadowVariant="hard">
+      <Paper className="p-4" shadow="lg">
         <h3 className="font-architect text-sm mb-3 text-center">Pie</h3>
         <PieChart data={pieData} size={100} />
       </Paper>
-      <Paper className="p-4" shadowVariant="hard">
+      <Paper className="p-4" shadow="lg">
         <h3 className="font-architect text-sm mb-3 text-center">Radar</h3>
         <RadarChart data={radarData} size={100} />
       </Paper>
-      <Paper className="p-4" shadowVariant="hard">
+      <Paper className="p-4" shadow="lg">
         <h3 className="font-architect text-sm mb-3 text-center">Gauge</h3>
         <Gauge value={72} size={80} />
       </Paper>
@@ -69,12 +69,12 @@ export const Default: Story = {
 export const Composed: Story = {
   render: () => (
     <div className="p-8 bg-[#f4f1ea] space-y-6 max-w-2xl">
-      <Paper className="p-4 relative" shadowVariant="sketch">
+      <Paper className="p-4 relative" shadow="lg">
         <PushPin className="absolute -top-2 left-8" color="#d4a76a" />
         <h3 className="font-architect text-sm mb-3">Line Chart with Grid</h3>
         <LineChart data={lineData} height={140} showDots showGrid color="#6b8fba" />
       </Paper>
-      <Paper className="p-4 relative" shadowVariant="soft">
+      <Paper className="p-4 relative" shadow="md">
         <Tape className="absolute -top-3 right-10 rotate-[8deg]" color="#f0d3a8" />
         <h3 className="font-architect text-sm mb-3">Sparklines</h3>
         <div className="flex gap-6 justify-center">

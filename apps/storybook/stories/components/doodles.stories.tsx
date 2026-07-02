@@ -43,7 +43,7 @@ A library of hand-drawn SVG doodle icons styled for paper UI. Each doodle render
 export default meta;
 
 const DoodleCard = ({ title, children }: { title: string, children: React.ReactNode }) => (
-  <Paper className="w-32 h-32 flex flex-col items-center justify-center gap-2" shadowVariant="soft">
+  <Paper className="w-32 h-32 flex flex-col items-center justify-center gap-2" shadow="sm">
     {children}
     <span className="font-mono text-xs text-gray-500">{title}</span>
   </Paper>
@@ -77,7 +77,7 @@ export const AllDoodles = () => {
 export const DoodleUseCases = () => {
   return (
     <div className="p-12 flex gap-8 flex-wrap justify-center bg-[#f4f1ea]">
-      <Paper shadowVariant="sketch" className="w-64 p-6 relative">
+      <Paper shadow="md" className="w-64 p-6 relative">
         <div className="absolute -top-6 -right-6 text-yellow-500 rotate-12">
           <SunDoodle size={60} color="currentColor" />
         </div>

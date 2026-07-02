@@ -50,12 +50,12 @@ export const Inline: Story = {
 export const Composed: Story = {
   render: () => (
     <div className="p-8 bg-[#f4f1ea] space-y-3">
-      <ShortcutKey>
+      <ShortcutKey keys={[]}>
         <ShortcutKey.Key>⌘</ShortcutKey.Key>
         <ShortcutKey.Plus />
         <ShortcutKey.Key>K</ShortcutKey.Key>
       </ShortcutKey>
-      <ShortcutKey>
+      <ShortcutKey keys={[]}>
         <ShortcutKey.Key>Ctrl</ShortcutKey.Key>
         <ShortcutKey.Plus />
         <ShortcutKey.Key>Shift</ShortcutKey.Key>
