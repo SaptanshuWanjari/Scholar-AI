@@ -1,11 +1,12 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { TopBar } from '@paper-ui/components/navigation';
-import { Box } from '@paper-ui/components/layout';
+import { Search, Bell, User } from 'lucide-react';
 
 const meta: Meta<typeof TopBar> = {
   title: 'Components/Navigation/TopBar',
   component: TopBar,
+  parameters: { layout: 'fullscreen' },
   tags: ['autodocs'],
 };
 export default meta;
@@ -13,31 +14,20 @@ type Story = StoryObj<typeof TopBar>;
 
 export const Default: Story = {
   render: () => (
-    <Box className="w-full p-4 bg-[#f6f5f1]">
-      <TopBar start={<div className="font-kalam font-bold text-lg">My Project</div>}>
-        <button className="px-3 py-1 bg-white border border-black/10 rounded font-architect text-sm">Search</button>
+    <div className="bg-[#f4f1ea] p-4">
+      <TopBar start={<div className="font-kalam text-lg font-bold text-ink">StudyHub</div>}>
+        <input
+          type="text"
+          placeholder="Search documents..."
+          className="px-3 py-1.5 font-architect text-sm rounded-md border border-black/10 bg-white"
+        />
+        <button className="text-ink-muted hover:text-ink transition-colors">
+          <Bell size={18} />
+        </button>
+        <button className="text-ink-muted hover:text-ink transition-colors">
+          <User size={18} />
+        </button>
       </TopBar>
-    </Box>
-  )
-};
-
-export const WithManyItems: Story = {
-  render: () => (
-    <Box className="w-full p-4 bg-paper">
-      <TopBar start={<div className="font-architect font-bold text-xl">Dashboard</div>}>
-        <div className="flex gap-4">
-          <span className="font-kalam text-ink-muted">Alerts (3)</span>
-          <span className="font-kalam text-ink">User Profile</span>
-        </div>
-      </TopBar>
-    </Box>
-  )
-};
-
-export const Minimalist: Story = {
-  render: () => (
-    <Box className="w-full p-4 bg-white border-b border-black/5">
-      <TopBar start={<div className="font-inter font-medium tracking-widest uppercase text-sm">Minimal</div>} />
-    </Box>
-  )
+    </div>
+  ),
 };

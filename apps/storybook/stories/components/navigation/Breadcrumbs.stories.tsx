@@ -5,37 +5,37 @@ import { Breadcrumbs } from '@paper-ui/components/navigation';
 const meta: Meta<typeof Breadcrumbs> = {
   title: 'Components/Navigation/Breadcrumbs',
   component: Breadcrumbs,
+  parameters: { layout: 'padded' },
   tags: ['autodocs'],
 };
 export default meta;
 type Story = StoryObj<typeof Breadcrumbs>;
 
 export const Default: Story = {
-  args: {
-    items: [
-      { label: 'Home', onClick: () => {} },
-      { label: 'Library', onClick: () => {} },
-      { label: 'Data' }
-    ]
-  }
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea]">
+      <Breadcrumbs
+        items={[
+          { label: 'Courses', onClick: () => {} },
+          { label: 'Mathematics', onClick: () => {} },
+          { label: 'Calculus' }
+        ]}
+      />
+    </div>
+  ),
 };
 
-export const DeepPath: Story = {
-  args: {
-    items: [
-      { label: 'Home', onClick: () => {} },
-      { label: 'Projects', onClick: () => {} },
-      { label: 'Study CLI', onClick: () => {} },
-      { label: 'Settings' }
-    ]
-  }
-};
-
-export const Simple: Story = {
-  args: {
-    items: [
-      { label: 'Dashboard', onClick: () => {} },
-      { label: 'Current' }
-    ]
-  }
+export const WithIcons: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea]">
+      <Breadcrumbs
+        items={[
+          { label: 'Home', onClick: () => {} },
+          { label: 'Documents', onClick: () => {} },
+          { label: 'Notebooks', onClick: () => {} },
+          { label: 'Study Notes' }
+        ]}
+      />
+    </div>
+  ),
 };
