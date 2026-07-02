@@ -1,8 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Workspace, Box, Surface, ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@paper-ui/components/layout';
-import { PaperSidebar, TopBar } from '@paper-ui/components/navigation';
-import { PaperH2, PaperSheetCard } from '@paper-ui/core';
+import { Workspace, Box } from '@paper-ui/components/layout';
 
 const meta: Meta<typeof Workspace> = {
   title: 'Components/Layout/Workspace',
@@ -12,70 +10,31 @@ const meta: Meta<typeof Workspace> = {
 export default meta;
 type Story = StoryObj<typeof Workspace>;
 
-export const FullAppLayout: Story = {
-  parameters: { layout: 'fullscreen' },
-  render: () => {
-    const [active, setActive] = React.useState('dashboard');
-    const [collapsed, setCollapsed] = React.useState(false);
-
-    return (
-      <div className="h-screen w-full relative bg-[#f6f5f1]">
-        <Workspace>
-          <PaperSidebar
-            activeId={active}
-            onNavigate={setActive}
-            collapsed={collapsed}
-            onCollapse={setCollapsed}
-            header={<div className="font-kalam font-bold text-xl whitespace-nowrap overflow-hidden text-ellipsis px-2">Scholar AI</div>}
-            groups={[
-              {
-                id: 'main',
-                label: 'Overview',
-                items: [
-                  { id: 'dashboard', label: 'Dashboard', icon: <span className="w-4 h-4 bg-black/10 rounded-full inline-block" />, badge: 2 },
-                  { id: 'documents', label: 'Documents', icon: <span className="w-4 h-4 bg-black/10 rounded-full inline-block" /> },
-                ]
-              }
-            ]}
-          />
-          <Box className="flex-1 flex flex-col h-full overflow-hidden">
-            <TopBar start={<div className="font-inter font-medium text-ink-muted">Dashboard</div>}>
-              <button className="px-3 py-1.5 bg-white border border-black/10 rounded shadow-sm font-architect text-sm hover:bg-black/5 transition-colors">
-                New
-              </button>
-            </TopBar>
-            <Box className="flex-1 p-8 overflow-y-auto">
-              <PaperH2 className="mb-6">Workspace Area</PaperH2>
-              <PaperSheetCard className="min-h-[400px]">
-                <div className="font-kalam text-lg text-ink-muted">Content goes here...</div>
-              </PaperSheetCard>
-            </Box>
-          </Box>
-        </Workspace>
-      </div>
-    );
-  }
-};
-
-export const WithResizablePanels: Story = {
+export const Default: Story = {
   parameters: { layout: 'fullscreen' },
   render: () => (
-    <div className="h-screen w-full relative bg-paper">
-      <Workspace>
-        <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel defaultSize={20} minSize={15} className="bg-sage-soft border-r border-black/10 p-4 font-kalam">
-            Left Panel
-          </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={60} className="p-8">
-            <PaperH2>Main Editor</PaperH2>
-          </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={20} minSize={15} className="bg-sky-soft border-l border-black/10 p-4 font-kalam">
-            Right Panel
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </Workspace>
-    </div>
-  )
+    <Workspace>
+      <Box className="w-48 bg-sky-soft/20 border-r border-ink/20 p-4 overflow-y-auto">
+        <div className="font-architect font-bold text-sm mb-4">Sidebar</div>
+        <div className="space-y-2">
+          {['Item 1', 'Item 2', 'Item 3'].map((item) => (
+            <div key={item} className="font-kalam text-sm text-ink-muted p-2 hover:bg-ink/5 rounded">
+              {item}
+            </div>
+          ))}
+        </div>
+      </Box>
+      <Box className="flex-1 flex flex-col overflow-hidden">
+        <Box className="bg-white border-b border-ink/20 p-4 font-architecture font-bold text-sm">
+          Main Content
+        </Box>
+        <Box className="flex-1 p-8 overflow-y-auto bg-[#f4f1ea]">
+          <div className="max-w-3xl">
+            <div className="font-architect text-2xl font-bold mb-4">Workspace Area</div>
+            <p className="font-kalam text-ink-muted">Full-screen layout with sidebar and main content area.</p>
+          </div>
+        </Box>
+      </Box>
+    </Workspace>
+  ),
 };

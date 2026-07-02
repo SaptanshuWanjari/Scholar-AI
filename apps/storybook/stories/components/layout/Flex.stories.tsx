@@ -1,8 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Flex } from '@paper-ui/components/layout';
-import { TapeLabel, PushPin } from '@paper-ui/components/decorations';
-import { PaperCard } from '@paper-ui/core';
 
 const meta: Meta<typeof Flex> = {
   title: 'Components/Layout/Flex',
@@ -12,37 +10,47 @@ const meta: Meta<typeof Flex> = {
 export default meta;
 type Story = StoryObj<typeof Flex>;
 
-export const TapeTags: Story = {
+export const Default: Story = {
   render: () => (
-    <Flex className="gap-8 p-12 bg-[#f4f1ea] flex-wrap">
-      <TapeLabel color="brick" className="-rotate-2">Important</TapeLabel>
-      <TapeLabel color="sky" className="rotate-3">To Review</TapeLabel>
-      <TapeLabel color="ochre" className="-rotate-1">Archived</TapeLabel>
-      <TapeLabel color="sage" className="rotate-2">Personal</TapeLabel>
+    <Flex className="p-8 bg-[#f4f1ea] gap-4">
+      <div className="flex-1 p-4 bg-white border border-ink/20 rounded text-center">
+        <div className="font-kalam text-ink-muted">Item 1</div>
+      </div>
+      <div className="flex-1 p-4 bg-sky-soft/20 border border-ink/20 rounded text-center">
+        <div className="font-kalam text-ink-muted">Item 2</div>
+      </div>
+      <div className="flex-1 p-4 bg-sage-soft/20 border border-ink/20 rounded text-center">
+        <div className="font-kalam text-ink-muted">Item 3</div>
+      </div>
     </Flex>
   ),
 };
 
-export const PinBoardRow: Story = {
+export const Column: Story = {
   render: () => (
-    <Flex className="gap-8 p-12 items-start flex-wrap bg-[#c8a882]/20">
-      {[
-        { label: 'Research', rotation: '-rotate-2', pinColor: '#b5685e' },
-        { label: 'Design', rotation: 'rotate-1', pinColor: '#5e8ab5' },
-        { label: 'Build', rotation: '-rotate-1', pinColor: '#c9954f' },
-      ].map(({ label, rotation, pinColor }) => (
-        <PaperCard
-          key={label}
-          className={`w-32 h-32 flex items-center justify-center ${rotation}`}
-          surface="#fff"
-          shadow="md"
-          border={{ stroke: '#3a3733', strokeWidth: 1, bleed: 2 }}
-          texture={false}
-        >
-          <PushPin color={pinColor} position="top-center" />
-          <div className="font-kalam text-xl text-ink-muted">{label}</div>
-        </PaperCard>
-      ))}
+    <Flex direction="column" className="p-8 bg-[#f4f1ea] gap-3 max-w-sm">
+      <div className="p-3 bg-white border border-ink/20 rounded">
+        <div className="font-kalam text-ink-muted">Stacked Item 1</div>
+      </div>
+      <div className="p-3 bg-white border border-ink/20 rounded">
+        <div className="font-kalam text-ink-muted">Stacked Item 2</div>
+      </div>
+      <div className="p-3 bg-white border border-ink/20 rounded">
+        <div className="font-kalam text-ink-muted">Stacked Item 3</div>
+      </div>
+    </Flex>
+  ),
+};
+
+export const CenteredItems: Story = {
+  render: () => (
+    <Flex align="center" justify="center" className="p-8 bg-[#f4f1ea] gap-4 min-h-[200px]">
+      <div className="p-4 bg-ochre-soft/20 border border-ink/20 rounded">
+        <div className="font-kalam text-ink-muted">Aligned</div>
+      </div>
+      <div className="p-4 bg-brick-soft/20 border border-ink/20 rounded">
+        <div className="font-kalam text-ink-muted">Centered</div>
+      </div>
     </Flex>
   ),
 };
