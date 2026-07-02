@@ -102,11 +102,13 @@ export function ScratchpadDrawer() {
                   <ScratchpadExcalidraw />
                 </Suspense>
               ) : (
-                <div className="flex h-full items-center justify-center p-6 text-center">
-                  <p className="font-kalam text-sm text-ink-muted">
-                    Install the Excalidraw plugin in Settings → Plugins to use the drawing scratchpad.
-                  </p>
-                </div>
+                <>
+                  <div className="flex flex-1 min-h-0">
+                    <SketchToolbar />
+                    <ScratchCanvas stageRef={stageRef} />
+                  </div>
+                  <DrawerFooter stageRef={stageRef} />
+                </>
               )}
             </div>
           </motion.div>
