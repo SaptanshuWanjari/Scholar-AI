@@ -101,3 +101,29 @@ export const SingleResult: Story = {
     </div>
   ),
 };
+
+export const Composed: Story = {
+  render: () => (
+    <div className="flex justify-center p-10 bg-[#f4f1ea]">
+      <div className="w-[520px]">
+        <SearchResults>
+          <SearchResults.Header total={3} query="osmosis" />
+          <SearchResults.List maxHeight={320}>
+            <SearchResults.Item
+              item={{ id: "a", title: "Cell Transport — Chapter 4", description: "Active and passive transport across membranes.", icon: <BookOpen size={16} />, meta: "Biology" }}
+              onClick={() => {}}
+            />
+            <SearchResults.Item
+              item={{ id: "b", title: "Osmotic Pressure equations", description: "π = iMRT formula derivation and worked examples.", icon: <FileText size={16} />, meta: "Chemistry" }}
+              onClick={() => {}}
+            />
+            <SearchResults.Item
+              item={{ id: "c", title: "Lab notes: membrane permeability", description: "Observations from dialysis tubing experiment.", icon: <StickyNote size={16} />, meta: "Lab" }}
+              onClick={() => {}}
+            />
+          </SearchResults.List>
+        </SearchResults>
+      </div>
+    </div>
+  ),
+};
