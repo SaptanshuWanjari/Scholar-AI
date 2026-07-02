@@ -22,7 +22,7 @@ export const Default: Story = {
 export const List: Story = {
   render: () => (
     <div className="p-8 bg-[#f4f1ea] max-w-sm space-y-3">
-      {[1, 2, 3].map(i => (
+      {[1, 2, 3].map((i) => (
         <div key={i} className="flex gap-3 items-center">
           <SketchSkeleton variant="circle" width={40} height={40} />
           <div className="flex-1">

@@ -30,12 +30,12 @@ export const Default: Story = {
 export const Variants: Story = {
   render: () => (
     <div className="p-8 bg-[#f4f1ea] space-y-3">
-      {(['default', 'success', 'warning', 'error'] as const).map(v => (
+      {(['default', 'success', 'warning', 'error'] as const).map((variant) => (
         <PaperToast
-          key={v}
+          key={variant}
           visible
-          variant={v}
-          message={v.charAt(0).toUpperCase() + v.slice(1)}
+          variant={variant}
+          message={variant.charAt(0).toUpperCase() + variant.slice(1)}
           description="Toast message content here."
           onDismiss={() => {}}
           className="relative"
@@ -43,24 +43,4 @@ export const Variants: Story = {
       ))}
     </div>
   ),
-};
-
-export const Interactive: Story = {
-  render: () => {
-    const [visible, setVisible] = useState(false);
-    return (
-      <div className="p-8 bg-[#f4f1ea]">
-        <SketchButton size="sm" onClick={() => setVisible(true)}>
-          Show Toast
-        </SketchButton>
-        <PaperToast
-          visible={visible}
-          variant="success"
-          message="Document saved"
-          onDismiss={() => setVisible(false)}
-          timeout={3000}
-        />
-      </div>
-    );
-  },
 };

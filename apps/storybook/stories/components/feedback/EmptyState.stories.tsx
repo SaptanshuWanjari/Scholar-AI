@@ -41,10 +41,7 @@ export const WithAction: Story = {
 export const Search: Story = {
   render: () => (
     <div className="p-8 bg-[#f4f1ea]">
-      <EmptyState
-        title="No results found"
-        description="Try different search terms."
-      />
+      <EmptyState title="No results found" description="Try different search terms." />
     </div>
   ),
 };
