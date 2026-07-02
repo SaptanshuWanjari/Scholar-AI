@@ -1,75 +1,42 @@
-import React from 'react'
-import type { Meta, StoryObj } from '@storybook/react-vite'
-import { SketchButton } from '@paper-ui/components/buttons'
-import { Search } from 'lucide-react'
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { SketchButton } from '@paper-ui/components/buttons';
+import { Search } from 'lucide-react';
 
 const meta: Meta<typeof SketchButton> = {
   title: 'Components/Buttons/SketchButton',
   component: SketchButton,
+  parameters: { layout: 'padded' },
   tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
-}
-
-export default meta
-type Story = StoryObj<typeof SketchButton>
-
-export const Playground: Story = {
-  render: () => (
-    <div className="p-10 space-y-6 bg-[#f4f1ea]">
-      <h2 className="font-serif text-xl font-bold">SketchButton</h2>
-      <p className="font-mono text-sm text-gray-600">Alias for PaperButton with paper tone.</p>
-      <div className="flex flex-wrap gap-4">
-        <SketchButton>Default</SketchButton>
-        <SketchButton size="sm">Small</SketchButton>
-        <SketchButton size="lg"><Search size={16} /> Search</SketchButton>
-        <SketchButton disabled>Disabled</SketchButton>
-      </div>
-    </div>
-  ),
-}
+};
+export default meta;
+type Story = StoryObj<typeof SketchButton>;
 
 export const Default: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
-      <SketchButton>Default</SketchButton>
+    <div className="p-8 bg-[#f4f1ea]">
+      <SketchButton>Click me</SketchButton>
     </div>
   ),
-}
+};
 
-export const Variants: Story = {
+export const Sizes: Story = {
   render: () => (
-    <div className="p-10 space-y-6 bg-[#f4f1ea]">
-      <h2 className="font-serif text-xl font-bold">SketchButton</h2>
-      <p className="font-mono text-sm text-gray-600">Alias for PaperButton with paper tone.</p>
-      <div className="flex flex-wrap gap-4">
-        <SketchButton>Default</SketchButton>
-        <SketchButton size="sm">Small</SketchButton>
-        <SketchButton size="lg"><Search size={16} /> Search</SketchButton>
-      </div>
+    <div className="p-8 bg-[#f4f1ea] space-y-3">
+      <SketchButton size="sm">Small</SketchButton>
+      <SketchButton size="md">Medium</SketchButton>
+      <SketchButton size="lg">Large</SketchButton>
     </div>
   ),
-}
+};
 
-export const States: Story = {
+export const Tones: Story = {
   render: () => (
-    <div className="p-10 space-y-6 bg-[#f4f1ea]">
-      <h2 className="font-serif text-xl font-bold">SketchButton — states</h2>
-      <div className="flex flex-wrap gap-4">
-        <SketchButton disabled>Disabled</SketchButton>
-      </div>
+    <div className="p-8 bg-[#f4f1ea] space-y-3">
+      <SketchButton tone="paper">Paper</SketchButton>
+      <SketchButton tone="dark">Dark</SketchButton>
+      <SketchButton tone="green">Green</SketchButton>
+      <SketchButton tone="red">Red</SketchButton>
     </div>
   ),
-}
-
-export const Composition: Story = {
-  render: () => (
-    <div className="p-10 space-y-6 bg-[#f4f1ea]">
-      <h2 className="font-serif text-xl font-bold">SketchButton — with icon</h2>
-      <div className="flex flex-wrap gap-4">
-        <SketchButton size="lg"><Search size={16} /> Search</SketchButton>
-      </div>
-    </div>
-  ),
-}
+};
