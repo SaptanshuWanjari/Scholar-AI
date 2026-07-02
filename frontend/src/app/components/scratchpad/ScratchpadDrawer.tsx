@@ -76,10 +76,10 @@ export function ScratchpadDrawer() {
         {isOpen && (
           <motion.div
             key="scratchpad-panel"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: panelHeight, opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+            initial={isExcalidrawInstalled ? false : { height: 0, opacity: 0 }}
+            animate={isExcalidrawInstalled ? { opacity: 1 } : { height: panelHeight, opacity: 1 }}
+            exit={isExcalidrawInstalled ? { opacity: 0 } : { height: 0, opacity: 0 }}
+            transition={isExcalidrawInstalled ? { duration: 0.15 } : { type: 'spring', stiffness: 400, damping: 40 }}
             className="pointer-events-auto relative flex flex-col overflow-hidden"
             style={{ height: panelHeight }}
           >

@@ -17,6 +17,7 @@ export { whiteboardsApi } from "./whiteboards";
 export { readingApi } from "./reading";
 export { teachApi, type TeachOverview, type TeachDraft, type TeachArtifacts, type PackageMeta, type PackageFull, type ArtifactCoverage, type ConsistencySuggestion, type ConsistencyReport } from "./teach";
 export { systemApi, type BackendSettings, type ModelsList, type HealthStatus, type PromptAnalysis, type JobItem } from "./system";
+export { trashApi, type TrashItem, type TrashListResponse } from "./trash";
 
 import { coursesApi } from "./courses";
 import { documentsApi } from "./documents";
@@ -29,6 +30,7 @@ import { whiteboardsApi } from "./whiteboards";
 import { readingApi } from "./reading";
 import { teachApi } from "./teach";
 import { systemApi } from "./system";
+import { trashApi } from "./trash";
 
 export const api = {
   ...coursesApi,
@@ -42,4 +44,5 @@ export const api = {
   ...readingApi,
   ...teachApi,
   ...systemApi,
+  ...trashApi,
 };
