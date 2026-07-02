@@ -1,56 +1,46 @@
-import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { PaperCheckboxGroup } from '@paper-ui/components/inputs'
 
 const meta: Meta<typeof PaperCheckboxGroup> = {
   title: 'Components/Inputs/PaperCheckboxGroup',
   component: PaperCheckboxGroup,
-  tags: ['autodocs'],
-  parameters: {
-    layout: 'padded',
-  },
 }
 
 export default meta
 type Story = StoryObj<typeof PaperCheckboxGroup>
 
-const options = [
-  { value: 'ml', label: 'Machine Learning' },
-  { value: 'nlp', label: 'NLP' },
-  { value: 'cv', label: 'Computer Vision' },
-  { value: 'rl', label: 'Reinforcement Learning', disabled: true },
-]
-
 export const Default: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea]">
+    <div className="p-8 bg-[#f4f1ea]">
       <PaperCheckboxGroup
         label="Topics"
-        options={options}
+        options={[
+          { value: 'ml', label: 'Machine Learning' },
+          { value: 'nlp', label: 'NLP' },
+          { value: 'cv', label: 'Computer Vision' },
+        ]}
         defaultValue={['ml']}
-        onChange={vals => console.log('group:', vals)}
       />
     </div>
   ),
 }
 
-export const States: Story = {
+export const WithError: Story = {
   render: () => (
-    <div className="p-10 space-y-6 bg-[#f4f1ea]">
+    <div className="p-8 bg-[#f4f1ea] space-y-6">
       <PaperCheckboxGroup
-        label="With default"
+        label="Preferences"
         options={[
           { value: 'a', label: 'Option A' },
           { value: 'b', label: 'Option B' },
-          { value: 'c', label: 'Option C' },
         ]}
-        defaultValue={['a', 'c']}
+        defaultValue={['a']}
       />
       <PaperCheckboxGroup
         label="With disabled"
         options={[
           { value: 'x', label: 'Available' },
-          { value: 'y', label: 'Not Available', disabled: true },
+          { value: 'y', label: 'Unavailable', disabled: true },
         ]}
       />
     </div>
