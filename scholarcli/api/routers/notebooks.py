@@ -77,7 +77,6 @@ def _full(nb: Notebook) -> NotebookOut:
         course=nb.course,
         color=nb.color,
         blocks=blocks,
-        bs_snapshot=nb.bs_snapshot,
         tags=nb.tags or [],
         updated=_fmt_updated(nb),
         is_draft=nb.is_draft,
@@ -176,8 +175,6 @@ def update_notebook(notebook_id: int, patch: NotebookPatch) -> NotebookOut:
             nb.subtitle = patch.subtitle
         if patch.blocks is not None:
             nb.blocks = patch.blocks
-        if patch.bs_snapshot is not None:
-            nb.bs_snapshot = patch.bs_snapshot
         if patch.color is not None:
             nb.color = patch.color
         if patch.tags is not None:
