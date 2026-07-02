@@ -3,13 +3,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Lightbox } from '@paper-ui/components/media'
 import { PaperButton } from '@paper-ui/components/buttons'
 
-const images = [
-  { src: 'https://picsum.photos/seed/lb1/800/600', alt: 'Diagram 1', caption: 'Neural network architecture' },
-  { src: 'https://picsum.photos/seed/lb2/800/600', alt: 'Diagram 2', caption: 'Backpropagation visualized' },
-  { src: 'https://picsum.photos/seed/lb3/800/600', alt: 'Diagram 3', caption: 'Gradient descent surface' },
-  { src: 'https://picsum.photos/seed/lb4/800/600', alt: 'Diagram 4', caption: 'Activation functions' },
-]
-
 const meta: Meta<typeof Lightbox> = {
   title: 'Components/Media/Lightbox',
   component: Lightbox,
@@ -20,43 +13,30 @@ const meta: Meta<typeof Lightbox> = {
 export default meta
 type Story = StoryObj<typeof Lightbox>
 
-export const Playground: Story = {
-  render: () => {
-    const [open, setOpen] = useState(false)
-    return (
-      <div className="p-10 bg-[#f4f1ea]">
-        <PaperButton size="sm" onClick={() => setOpen(true)}>
-          View 4 diagrams
-        </PaperButton>
-        <Lightbox images={images} initialIndex={0} isOpen={open} onClose={() => setOpen(false)} />
-      </div>
-    )
-  },
-}
+const images = Array.from({ length: 6 }, (_, i) => ({
+  src: 'https://placehold.co/800x600',
+  alt: `Image ${i + 1}`,
+  caption: `Fig ${i + 1}`,
+}))
 
 export const Default: Story = {
   render: () => {
     const [open, setOpen] = useState(false)
     return (
-      <div className="p-10 bg-[#f4f1ea]">
+      <div className="p-8 bg-[#f4f1ea]">
+        <div className="flex flex-wrap gap-2 mb-6">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setOpen(true)}
+              className="w-24 h-24 bg-[#e8e4dc] rounded hover:bg-[#dfebd6]"
+            />
+          ))}
+        </div>
         <PaperButton size="sm" onClick={() => setOpen(true)}>
-          View 4 diagrams
+          Click image to open
         </PaperButton>
-        <Lightbox images={images} initialIndex={0} isOpen={open} onClose={() => setOpen(false)} />
-      </div>
-    )
-  },
-}
-
-export const Variants: Story = {
-  render: () => {
-    const [open, setOpen] = useState(false)
-    return (
-      <div className="p-10 space-y-6 bg-[#f4f1ea]">
-        <PaperButton size="sm" onClick={() => setOpen(true)}>
-          Open at slide 2
-        </PaperButton>
-        <Lightbox images={images} initialIndex={1} isOpen={open} onClose={() => setOpen(false)} />
+        <Lightbox images={images} isOpen={open} onClose={() => setOpen(false)} />
       </div>
     )
   },
