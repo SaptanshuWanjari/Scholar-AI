@@ -1,58 +1,67 @@
-import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ShortcutKey } from '@paper-ui/components/utility';
+import React from 'react'
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { ShortcutKey } from '@paper-ui/components/utility'
 
 const meta: Meta<typeof ShortcutKey> = {
   title: 'Components/Utility/ShortcutKey',
   component: ShortcutKey,
-  parameters: { layout: 'padded' },
   tags: ['autodocs'],
-  decorators: [
-    (Story) => <div className="p-10 bg-[#f4f1ea]">{Story()}</div>,
-  ],
-};
-export default meta;
-type Story = StoryObj<typeof ShortcutKey>;
+  parameters: { layout: 'padded' },
+}
 
-export const Default: Story = {
-  args: { keys: ['⌘', 'K'] },
-};
+export default meta
+type Story = StoryObj<typeof ShortcutKey>
 
-export const ThreeKeys: Story = {
-  args: { keys: ['Ctrl', 'Shift', 'P'] },
-};
-
-export const SingleKey: Story = {
-  args: { keys: ['Esc'] },
-};
-
-export const CompoundChildren: Story = {
+export const Playground: Story = {
   render: () => (
-    <ShortcutKey keys={['⌘', 'Shift', 'F']}>
-      <ShortcutKey.Key>
-        <span className="text-[13px]">⌘</span>
-      </ShortcutKey.Key>
-      <ShortcutKey.Plus />
-      <ShortcutKey.Key>Shift</ShortcutKey.Key>
-      <ShortcutKey.Plus />
-      <ShortcutKey.Key>F</ShortcutKey.Key>
-    </ShortcutKey>
+    <div className="p-8 bg-[#f4f1ea]">
+      <ShortcutKey keys={['⌘', 'K']} />
+    </div>
   ),
-};
+}
 
-export const InlineExample: Story = {
+export const Variants: Story = {
   render: () => (
-    <div className="space-y-3">
-      <p className="font-architect text-sm text-ink-muted">
+    <div className="p-8 bg-[#f4f1ea] space-y-3 flex flex-col w-fit">
+      <ShortcutKey keys={['⌘', 'K']} />
+      <ShortcutKey keys={['Ctrl', 'Shift', 'P']} />
+      <ShortcutKey keys={['Esc']} />
+      <ShortcutKey keys={['⌘', 'Z']} />
+    </div>
+  ),
+}
+
+export const Inline: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] space-y-2 max-w-md text-sm leading-relaxed">
+      <p className="font-architect">
         Press <ShortcutKey keys={['⌘', 'K']} /> to open command bar
       </p>
-      <p className="font-architect text-sm text-ink-muted">
-        Use <ShortcutKey keys={['Ctrl', 'C']} /> to copy and{' '}
-        <ShortcutKey keys={['Ctrl', 'V']} /> to paste
+      <p className="font-architect">
+        Use <ShortcutKey keys={['Ctrl', 'C']} /> to copy
       </p>
-      <p className="font-architect text-sm text-ink-muted">
+      <p className="font-architect">
         Dismiss with <ShortcutKey keys={['Esc']} />
       </p>
     </div>
   ),
-};
+}
+
+export const Composed: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] space-y-3">
+      <ShortcutKey>
+        <ShortcutKey.Key>⌘</ShortcutKey.Key>
+        <ShortcutKey.Plus />
+        <ShortcutKey.Key>K</ShortcutKey.Key>
+      </ShortcutKey>
+      <ShortcutKey>
+        <ShortcutKey.Key>Ctrl</ShortcutKey.Key>
+        <ShortcutKey.Plus />
+        <ShortcutKey.Key>Shift</ShortcutKey.Key>
+        <ShortcutKey.Plus />
+        <ShortcutKey.Key>P</ShortcutKey.Key>
+      </ShortcutKey>
+    </div>
+  ),
+}

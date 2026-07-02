@@ -14,57 +14,47 @@ type Story = StoryObj<typeof Separator>
 
 export const Playground: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] space-y-6 max-w-2xl">
+    <div className="p-8 bg-[#f4f1ea] max-w-2xl">
+      <p className="font-architect text-sm text-ink-muted mb-2">Above</p>
       <Separator />
+      <p className="font-architect text-sm text-ink-muted mt-2">Below</p>
     </div>
   ),
 }
 
-export const Default: Story = {
+export const Orientations: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] space-y-4 max-w-2xl">
-      <p className="font-architect text-sm text-ink-muted">Item above</p>
-      <Separator />
-      <p className="font-architect text-sm text-ink-muted">Item below</p>
-    </div>
-  ),
-}
-
-export const Variants: Story = {
-  render: () => (
-    <div className="p-10 bg-[#f4f1ea] space-y-8 max-w-2xl">
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-2">horizontal</p>
-        <div className="space-y-2">
-          <p className="font-architect text-sm text-ink-muted">Section A</p>
-          <Separator orientation="horizontal" />
-          <p className="font-architect text-sm text-ink-muted">Section B</p>
-        </div>
-      </section>
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-2">vertical</p>
-        <div className="flex items-center gap-1">
-          <span className="font-architect text-sm text-ink-muted">Cut</span>
+    <div className="p-8 bg-[#f4f1ea] space-y-6">
+      <div className="space-y-2">
+        <p className="font-architect text-xs text-ink-muted/60">horizontal</p>
+        <p className="font-architect text-sm text-ink-muted">Section A</p>
+        <Separator orientation="horizontal" />
+        <p className="font-architect text-sm text-ink-muted">Section B</p>
+      </div>
+      <div className="space-y-2">
+        <p className="font-architect text-xs text-ink-muted/60">vertical (in toolbar)</p>
+        <div className="flex items-center h-6 gap-1">
+          <span className="font-architect text-sm">Cut</span>
           <Separator orientation="vertical" />
-          <span className="font-architect text-sm text-ink-muted">Copy</span>
+          <span className="font-architect text-sm">Copy</span>
           <Separator orientation="vertical" />
-          <span className="font-architect text-sm text-ink-muted">Paste</span>
+          <span className="font-architect text-sm">Paste</span>
         </div>
-      </section>
+      </div>
     </div>
   ),
 }
 
-export const Composition: Story = {
+export const Menu: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] max-w-2xl">
-      <div className="space-y-0.5">
-        <p className="font-caveat text-xl font-semibold text-ink">Menu</p>
+    <div className="p-8 bg-[#f4f1ea] max-w-sm">
+      <div className="space-y-1">
+        <p className="font-caveat text-lg font-semibold text-ink">Menu</p>
         <Separator />
-        <p className="font-architect text-sm text-ink-muted">Settings</p>
-        <p className="font-architect text-sm text-ink-muted">Profile</p>
+        <p className="font-architect text-sm text-ink-muted py-1">Settings</p>
+        <p className="font-architect text-sm text-ink-muted py-1">Profile</p>
         <Separator />
-        <p className="font-architect text-sm text-ink-muted">Log out</p>
+        <p className="font-architect text-sm text-ink-muted py-1">Log out</p>
       </div>
     </div>
   ),

@@ -14,55 +14,49 @@ type Story = StoryObj<typeof KeyboardHint>
 
 export const Playground: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] max-w-2xl">
+    <div className="p-8 bg-[#f4f1ea]">
       <KeyboardHint keys={['⌘', 'K']} label="to search" />
-    </div>
-  ),
-}
-
-export const Default: Story = {
-  render: () => (
-    <div className="p-10 bg-[#f4f1ea] max-w-2xl">
-      <KeyboardHint keys={['⌘', 'K']} />
     </div>
   ),
 }
 
 export const Variants: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] space-y-4 max-w-2xl">
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-1">⌘K with label</p>
+    <div className="p-8 bg-[#f4f1ea] space-y-3">
+      <div>
         <KeyboardHint keys={['⌘', 'K']} label="to search" />
-      </section>
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-1">Ctrl+Shift+P with label</p>
-        <KeyboardHint keys={['Ctrl', 'Shift', 'P']} label="to open command palette" />
-      </section>
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-1">Esc with label</p>
-        <KeyboardHint keys={['Esc']} label="to dismiss" />
-      </section>
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-1">⌘Z with label</p>
+      </div>
+      <div>
+        <KeyboardHint keys={['Ctrl', 'Shift', 'P']} label="command palette" />
+      </div>
+      <div>
         <KeyboardHint keys={['⌘', 'Z']} label="to undo" />
-      </section>
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-1">⌘+Shift+Z with label</p>
-        <KeyboardHint keys={['⌘', 'Shift', 'Z']} label="to redo" />
-      </section>
+      </div>
+      <div>
+        <KeyboardHint keys={['Esc']} label="to dismiss" />
+      </div>
     </div>
   ),
 }
 
-export const Composition: Story = {
+export const WithoutLabel: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] max-w-2xl">
-      <p className="font-architect text-sm text-ink-muted leading-relaxed">
-        Press <KeyboardHint keys={['⌘', 'K']} label="to open search" /> from anywhere in the
-        application. Use <KeyboardHint keys={['⌘', 'Z']} label="to undo" /> or{' '}
-        <KeyboardHint keys={['⌘', 'Shift', 'Z']} label="to redo" /> for editing. Dismiss any
-        dialog with <KeyboardHint keys={['Esc']} />.
+    <div className="p-8 bg-[#f4f1ea] space-y-3">
+      <KeyboardHint keys={['⌘', 'K']} />
+      <KeyboardHint keys={['Ctrl', 'C']} />
+      <KeyboardHint keys={['Esc']} />
+    </div>
+  ),
+}
+
+export const Composed: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea] space-y-4 text-sm leading-relaxed max-w-md">
+      <p>
+        Press <KeyboardHint keys={['⌘', 'K']} /> to search.
+      </p>
+      <p>
+        Use <KeyboardHint keys={['⌘', 'Z']} /> or <KeyboardHint keys={['⌘', 'Shift', 'Z']} /> for undo/redo.
       </p>
     </div>
   ),
