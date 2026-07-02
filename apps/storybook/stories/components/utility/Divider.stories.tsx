@@ -14,15 +14,7 @@ type Story = StoryObj<typeof Divider>
 
 export const Playground: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] space-y-12 max-w-2xl">
-      <Divider variant="wavy" />
-    </div>
-  ),
-}
-
-export const Default: Story = {
-  render: () => (
-    <div className="p-10 bg-[#f4f1ea] max-w-2xl">
+    <div className="p-8 bg-[#f4f1ea] max-w-2xl">
       <Divider variant="wavy" />
     </div>
   ),
@@ -30,45 +22,46 @@ export const Default: Story = {
 
 export const Variants: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] space-y-12 max-w-2xl">
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-2">wavy</p>
+    <div className="p-8 bg-[#f4f1ea] max-w-2xl space-y-8">
+      <div className="space-y-2">
+        <p className="font-architect text-xs text-ink-muted/60">wavy</p>
         <Divider variant="wavy" />
-      </section>
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-2">straight</p>
+      </div>
+      <div className="space-y-2">
+        <p className="font-architect text-xs text-ink-muted/60">straight</p>
         <Divider variant="straight" />
-      </section>
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-2">dashed</p>
+      </div>
+      <div className="space-y-2">
+        <p className="font-architect text-xs text-ink-muted/60">dashed</p>
         <Divider variant="dashed" />
-      </section>
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-2">line</p>
+      </div>
+      <div className="space-y-2">
+        <p className="font-architect text-xs text-ink-muted/60">line</p>
         <Divider variant="line" />
-      </section>
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-2">wavy with label</p>
-        <Divider variant="wavy" label="Section" />
-      </section>
-      <section>
-        <p className="font-architect text-xs text-ink-muted/60 mb-2">dashed with label</p>
-        <Divider variant="dashed" label="Continue" />
-      </section>
+      </div>
     </div>
   ),
 }
 
-export const Composition: Story = {
+export const WithLabel: Story = {
   render: () => (
-    <div className="p-10 bg-[#f4f1ea] max-w-2xl">
-      <p className="font-architect text-xs text-ink-muted/60 mb-4">vertical dividers between text labels</p>
+    <div className="p-8 bg-[#f4f1ea] max-w-2xl space-y-6">
+      <Divider variant="wavy" label="Section Break" />
+      <Divider variant="dashed" label="Continue" />
+      <Divider variant="straight" label="Part 2" />
+    </div>
+  ),
+}
+
+export const Orientations: Story = {
+  render: () => (
+    <div className="p-8 bg-[#f4f1ea]">
       <div className="flex items-center gap-2 h-6">
-        <span className="font-architect text-sm text-ink-muted">Files</span>
+        <span className="font-architect text-sm">Files</span>
         <Divider orientation="vertical" />
-        <span className="font-architect text-sm text-ink-muted">Edits</span>
+        <span className="font-architect text-sm">Edits</span>
         <Divider orientation="vertical" />
-        <span className="font-architect text-sm text-ink-muted">Commits</span>
+        <span className="font-architect text-sm">Commits</span>
       </div>
     </div>
   ),
