@@ -58,6 +58,11 @@ import { AppearanceSync } from "./components/layout/AppearanceSync";
 
 export default function App() {
   const isEnabled = usePluginStore((s) => s.isEnabled);
+  const fetchPlugins = usePluginStore((s) => s.fetchPlugins);
+
+  useEffect(() => {
+    fetchPlugins();
+  }, [fetchPlugins]);
 
   return (
     <BrowserRouter>

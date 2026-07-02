@@ -1,9 +1,8 @@
 // Lazy-loaded Excalidraw canvas. The heavy editor (~150KB+) and its CSS are
 // only fetched when this component mounts, keeping the main bundle lean for
 // users who never open a whiteboard.
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import "@excalidraw/excalidraw/index.css";
 import type { WhiteboardScene } from "../../lib/types";
 
 const Excalidraw = lazy(() =>
@@ -30,6 +29,10 @@ function cleanScene(elements: readonly any[], appState: any, files: any): Whiteb
 }
 
 export function ExcalidrawCanvas({ initialScene, onChange, onApiReady }: ExcalidrawCanvasProps) {
+  useEffect(() => {
+    import("@excalidraw/excalidraw/index.css").catch(() => {});
+  }, []);
+
   const hasScene = initialScene && Object.keys(initialScene).length > 0;
   const initialData = hasScene
     ? {

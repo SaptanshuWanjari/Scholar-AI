@@ -9,6 +9,8 @@ export interface PluginRowProps {
   description?: string;
   /** Version chip, "Built-in" badge, or any inline meta. */
   meta?: React.ReactNode;
+  /** Install/Uninstall button rendered to the left of control. */
+  installAction?: React.ReactNode;
   /** Toggle switch or any right-side control. */
   control?: React.ReactNode;
   /** Settings panel rendered below when truthy. */
@@ -16,7 +18,7 @@ export interface PluginRowProps {
   className?: string;
 }
 
-export function PluginRow({ icon, title, description, meta, control, expanded, className }: PluginRowProps) {
+export function PluginRow({ icon, title, description, meta, installAction, control, expanded, className }: PluginRowProps) {
   return (
     <div className={cn("py-4", className)}>
       <div className="flex items-center justify-between gap-6">
@@ -34,7 +36,10 @@ export function PluginRow({ icon, title, description, meta, control, expanded, c
             )}
           </div>
         </div>
-        {control && <div className="shrink-0">{control}</div>}
+        <div className="flex shrink-0 items-center gap-2">
+          {installAction}
+          {control}
+        </div>
       </div>
 
       {expanded && (

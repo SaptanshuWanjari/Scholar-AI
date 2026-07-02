@@ -67,8 +67,7 @@ export function SettingsPage() {
   const logs = useLogStore((state) => state.logs);
   const clearLogs = useLogStore((state) => state.clearLogs);
   const navigate = useNavigate();
-  const pluginEnabled = usePluginStore((st) => st.enabled);
-  const togglePlugin = usePluginStore((st) => st.toggle);
+  const { install, uninstall, enable, disable, isInstalled, isEnabled, getInstallState, restartRequired, dismissRestart } = usePluginStore();
   const toursEnabled = useGuidanceStore((g) => g.prefs.toursEnabled);
   const tipsEnabled = useGuidanceStore((g) => g.prefs.tipsEnabled);
   const setGuidancePref = useGuidanceStore((g) => g.setPref);
@@ -592,13 +591,30 @@ export function SettingsPage() {
 
           {activeTab === "plugins" && (
             <div>
+              {restartRequired && (
+                <div className="mb-4 flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm dark:border-amber-800 dark:bg-amber-950">
+                  <span className="font-kalam text-amber-800 dark:text-amber-200">
+                    Plugin changes applied. Refresh the page to activate.
+                  </span>
+                  <button
+                    onClick={dismissRestart}
+                    className="ml-4 shrink-0 font-kalam text-xs text-amber-600 underline dark:text-amber-400"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
               {KNOWN_PLUGINS.length === 0 ? (
                 <div className="py-10 text-center font-kalam text-sm text-ink-muted/75">
                   No plugins available.
                 </div>
               ) : (
                 KNOWN_PLUGINS.map((plugin, i) => {
-                  const enabled = pluginEnabled[plugin.id] ?? false;
+                  const installed = isInstalled(plugin.id);
+                  const enabled = isEnabled(plugin.id);
+                  const state = getInstallState(plugin.id);
+                  const busy = state === "installing" || state === "uninstalling";
+
                   return (
                     <React.Fragment key={plugin.id}>
                       <PluginRow
@@ -606,25 +622,40 @@ export function SettingsPage() {
                         title={plugin.name}
                         description={plugin.description}
                         meta={
-                          <>
-                            {plugin.builtIn && (
-                              <span className="rounded bg-violet/10 px-1.5 py-0.5 text-[10px] font-medium text-violet mr-2">
-                                Built-in
-                              </span>
-                            )}
-                            <span className="text-[10px] text-muted-foreground font-mono">
-                              v{plugin.version}
+                          <span className="font-mono text-[10px] text-muted-foreground">
+                            v{plugin.version}
+                          </span>
+                        }
+                        installAction={
+                          busy ? (
+                            <span className="font-kalam text-xs text-ink-muted">
+                              {state === "installing" ? "Installing…" : "Uninstalling…"}
                             </span>
-                          </>
+                          ) : installed ? (
+                            <button
+                              onClick={() => uninstall(plugin.id)}
+                              className="font-kalam text-xs text-red-500 underline hover:text-red-600"
+                            >
+                              Uninstall
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => install(plugin.id)}
+                              className="rounded bg-violet/10 px-2 py-1 font-kalam text-xs font-medium text-violet hover:bg-violet/20"
+                            >
+                              Install
+                            </button>
+                          )
                         }
                         control={
                           <PaperSwitch
                             checked={enabled}
-                            onChange={() => togglePlugin(plugin.id)}
+                            onChange={() => (enabled ? disable(plugin.id) : enable(plugin.id))}
+                            disabled={!installed || busy}
                           />
                         }
                         expanded={
-                          plugin.settingsTab && enabled ? (
+                          plugin.settingsTab && installed && enabled ? (
                             <div>
                               <div className="mb-3 flex items-center gap-2 font-architect text-[10px] font-semibold uppercase tracking-widest text-ink-muted/60">
                                 <plugin.settingsTab.icon className="size-3.5" />
