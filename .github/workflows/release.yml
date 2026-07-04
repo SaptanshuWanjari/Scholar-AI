@@ -1,0 +1,57 @@
+name: Build & Release
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install frontend deps
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+
+      - name: Pin production deps
+        run: uv pip compile pyproject.toml --output-file=requirements.txt
+
+      - name: Assemble release dir
+        run: |
+          mkdir -p dist/ScholarAI-${{ github.ref_name }}
+          cp -r scholarcli dist/ScholarAI-${{ github.ref_name }}/
+          cp -r frontend/dist dist/ScholarAI-${{ github.ref_name }}/frontend/dist/
+          cp -r config dist/ScholarAI-${{ github.ref_name }}/
+          cp requirements.txt pyproject.toml dist/ScholarAI-${{ github.ref_name }}/
+          cp setup.sh dist/ScholarAI-${{ github.ref_name }}/ 2>/dev/null || true
+          cp setup.ps1 dist/ScholarAI-${{ github.ref_name }}/ 2>/dev/null || true
+        shell: bash
+
+      - name: Archive (Unix)
+        if: runner.os != 'Windows'
+        run: tar czf ScholarAI-${{ github.ref_name }}-${{ runner.os }}.tar.gz -C dist ScholarAI-${{ github.ref_name }}
+
+      - name: Archive (Windows)
+        if: runner.os == 'Windows'
+        run: Compress-Archive -Path dist/ScholarAI-${{ github.ref_name }} -DestinationPath ScholarAI-${{ github.ref_name }}-windows.zip
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: "ScholarAI-*"
