@@ -25,15 +25,13 @@ export default defineConfig({
     tailwindcss(),
   ],
   resolve: {
+    modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@paper-ui/tokens':     path.resolve(__dirname, '../paper-ui/src/tokens'),
       '@paper-ui/utils':      path.resolve(__dirname, '../paper-ui/src/utils'),
       '@paper-ui/core':       path.resolve(__dirname, '../paper-ui/src/core'),
       '@paper-ui/components': path.resolve(__dirname, '../paper-ui/src/components'),
-      'roughjs': path.resolve(__dirname, './node_modules/roughjs'),
-      'react': path.resolve(__dirname, './node_modules/react'),
-      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
     },
   },
 
