@@ -121,7 +121,7 @@ export default function OnboardingWidget() {
                     <PaperH3 className="mt-6">
                       {status === "uploading" ? "Ingesting Documents…" : "Analyzing Library…"}
                     </PaperH3>
-                    <p className="mt-2 font-kalam text-[13px] text-ink-muted max-w-sm">
+                    <p className="mt-2 font-kalam  text-ink-muted max-w-sm">
                       You can close this and continue using the app while we process in the background.
                     </p>
                   </div>

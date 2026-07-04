@@ -128,7 +128,7 @@ export function OnboardingImport() {
       >
         <div className="text-center mb-8">
           <PaperH2>Import your documents</PaperH2>
-          <p className="mt-2 font-kalam text-[14px] text-ink-muted">
+          <p className="mt-2 font-kalam text-ink-muted">
             Drop files below or browse your machine. Supports PDFs, DOCX, Markdown and plain text.
           </p>
         </div>
@@ -150,8 +150,8 @@ export function OnboardingImport() {
               <PaperIconCircle tone="lavender" size={56}>
                 <Upload size={24} />
               </PaperIconCircle>
-              <p className="mt-4 font-architect text-[15px] text-ink">Drop files here</p>
-              <p className="mt-1 font-kalam text-[13px] text-ink-muted">or</p>
+              <p className="mt-4 font-architect  text-ink">Drop files here</p>
+              <p className="mt-1 font-kalam text-[15px] text-ink-muted">or</p>
               <div className="mt-3" onClick={(e) => { e.stopPropagation(); fileInput.current?.click(); }}>
                 <PaperButton tone="paper" size="sm">Browse Files</PaperButton>
               </div>
@@ -232,13 +232,13 @@ export function OnboardingImport() {
         {/* Setup Mode */}
         <div className="mt-8 border-t border-[#d4cfc2] pt-6">
           <PaperH3 className="mb-4">Workspace Setup</PaperH3>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch">
             {/* Guided */}
             <div
-              className={`flex-1 cursor-pointer ${setupMode === "guided" ? "ring-2 ring-[#262320] ring-offset-2 rounded-lg" : ""}`}
+              className={`flex-1 cursor-pointer flex flex-col ${setupMode === "guided" ? "ring-2 ring-[#262320] ring-offset-2 rounded-lg" : ""}`}
               onClick={() => setSetupMode("guided")}
             >
-              <PaperCard shadow={setupMode === "guided" ? "md" : "sm"} className="p-4">
+              <PaperCard shadow={setupMode === "guided" ? "md" : "sm"} className="p-4 h-full">
                 <div className="flex items-start gap-3">
                   <PaperRadio
                     value="guided"
@@ -247,11 +247,11 @@ export function OnboardingImport() {
                     name="setupMode"
                   />
                   <div>
-                    <p className="font-architect text-[14px] text-ink flex items-center gap-2">
+                    <p className="font-architect  text-ink flex items-center gap-2">
                       Guided Learning
                       <PaperBadge tone="lavender">Recommended</PaperBadge>
                     </p>
-                    <p className="font-kalam text-[12px] text-ink-muted mt-1">
+                    <p className="font-kalam text-[15px] text-ink-muted mt-1">
                       Organize library, Detect subjects, Build roadmap. Let AI do the heavy lifting.
                     </p>
                   </div>
@@ -261,10 +261,10 @@ export function OnboardingImport() {
 
             {/* Explore */}
             <div
-              className={`flex-1 cursor-pointer ${setupMode === "explore" ? "ring-2 ring-[#262320] ring-offset-2 rounded-lg" : ""}`}
+              className={`flex-1 cursor-pointer flex flex-col ${setupMode === "explore" ? "ring-2 ring-[#262320] ring-offset-2 rounded-lg" : ""}`}
               onClick={() => setSetupMode("explore")}
             >
-              <PaperCard shadow={setupMode === "explore" ? "md" : "sm"} className="p-4">
+              <PaperCard shadow={setupMode === "explore" ? "md" : "sm"} className="p-4 h-full">
                 <div className="flex items-start gap-3">
                   <PaperRadio
                     value="explore"
@@ -273,8 +273,8 @@ export function OnboardingImport() {
                     name="setupMode"
                   />
                   <div>
-                    <p className="font-architect text-[14px] text-ink">Explore Freely</p>
-                    <p className="font-kalam text-[12px] text-ink-muted mt-1">
+                    <p className="font-architect text-ink">Explore Freely</p>
+                    <p className="font-kalam text-[15px] text-ink-muted mt-1">
                       Import only. Manually organize your knowledge base later.
                     </p>
                   </div>
@@ -285,13 +285,13 @@ export function OnboardingImport() {
         </div>
 
         {/* Advanced Settings */}
-        <div className="mt-6">
+        <div className="mt-6 bg-[#fffdf9]">
           <PaperPanel className="overflow-hidden">
             <button
               onClick={() => setShowSettings(!showSettings)}
               className="flex w-full items-center justify-between p-4"
             >
-              <span className="font-architect text-[14px] text-ink flex items-center gap-2">
+              <span className="font-architect  font-bold text-ink flex items-center gap-2">
                 <Settings2 size={15} className="text-ink-muted" />
                 Advanced AI Settings
               </span>
