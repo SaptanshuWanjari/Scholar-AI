@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import path from 'path'
-import fs from 'fs'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
@@ -21,11 +20,11 @@ function paperUiPeerResolver() {
   const nm = path.resolve(__dirname, 'node_modules')
   return {
     name: 'paper-ui-peer-resolver',
-    resolveId(id, importer) {
+    async resolveId(id, importer) {
       if (!importer || !importer.includes('paper-ui/src')) return
       if (id.startsWith('.') || id.startsWith('/') || id.startsWith('@paper-ui')) return
-      const resolved = path.join(nm, id)
-      if (fs.existsSync(resolved)) return resolved
+      const fakeImporter = path.join(nm, 'resolve-trigger.js')
+      return this.resolve(id, fakeImporter, { skipSelf: true })
     },
   }
 }
