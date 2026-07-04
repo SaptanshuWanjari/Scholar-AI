@@ -114,6 +114,11 @@ const OnboardingReady = lazy(() =>
     default: m.OnboardingReady,
   })),
 );
+const OnboardingProviderPage = lazy(() =>
+  import("./pages/onboarding/OnboardingProviderPage").then((m) => ({
+    default: m.OnboardingProviderPage,
+  })),
+);
 const ComponentsShowcase = lazy(() => import("./pages/ComponentsShowcase"));
 function FirstLaunchGuard({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
@@ -150,6 +155,7 @@ export default function App() {
             {/* Onboarding flow — full-page, no sidebar */}
             <Route path="/onboarding" element={<OnboardingHero />} />
             <Route path="/onboarding/setup" element={<OnboardingSetup />} />
+            <Route path="/onboarding/provider" element={<OnboardingProviderPage />} />
             <Route path="/onboarding/import" element={<OnboardingImport />} />
             <Route
               path="/onboarding/analyzing"

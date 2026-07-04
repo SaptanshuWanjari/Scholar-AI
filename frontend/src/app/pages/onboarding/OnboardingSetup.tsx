@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { ServerCrash, CheckCircle2, RefreshCcw, Terminal } from "lucide-react";
-import { PaperButton } from "@paper-ui/components/buttons";
+import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 import { LoadingPaper } from "@paper-ui/components/feedback";
 import { PaperCard } from "@paper-ui/core";
 import { PaperH2, PaperH3, PaperIconCircle } from "@paper-ui/core";
@@ -23,7 +23,7 @@ export function OnboardingSetup() {
 
       // If everything is good, proceed to next step
       if (res.ollama_reachable && res.embed_available) {
-        setTimeout(() => navigate("/onboarding/import"), 500);
+        setTimeout(() => navigate("/onboarding/provider"), 500);
       }
     } catch (e) {
       setError(true);
@@ -45,7 +45,7 @@ export function OnboardingSetup() {
       >
         <div className="mb-8 text-center">
           <PaperH2>Checking System Setup</PaperH2>
-          <p className="mt-2 font-kalam text-[14px] text-ink-muted">
+          <p className="mt-2 font-kalam text-[16px] text-ink-muted">
             Verifying your local AI engine is ready
           </p>
         </div>
@@ -85,8 +85,8 @@ export function OnboardingSetup() {
                   )}
                 </PaperIconCircle>
                 <div>
-                  <p className="font-architect text-[15px] text-ink">Ollama Running</p>
-                  <p className="font-kalam text-[13px] text-ink-muted mt-1">
+                  <p className="font-architect  text-ink">Ollama Running</p>
+                  <p className="font-kalam text-[14px] text-ink-muted mt-1">
                     {status?.ollama_reachable
                       ? "Successfully connected to local Ollama instance."
                       : "Could not connect to Ollama on localhost:11434."}
@@ -139,7 +139,10 @@ export function OnboardingSetup() {
               )}
 
               {(!status?.ollama_reachable || !status?.embed_available) && (
-                <div className="pt-4 flex justify-end border-t border-[#e8e3d8] mt-2">
+                <div className="pt-4 flex justify-between items-center border-t border-[#e8e3d8] mt-2">
+                  <GhostButton size="sm" onClick={() => navigate("/onboarding/provider")}>
+                    Skip to Cloud Providers →
+                  </GhostButton>
                   <PaperButton tone="dark" onClick={checkHealth}>
                     <RefreshCcw size={14} /> Check Again
                   </PaperButton>
