@@ -8,11 +8,11 @@ import pytest
 
 # Prime the RAG graph first so prompt_service finishes loading before any router
 # module imports it (avoids a pre-existing module-load-order circular import that
-# only surfaces when a router is the very first scholarcli.api import).
-import scholarcli.rag.graph  # noqa: F401,E402  (import for side-effect ordering)
+# only surfaces when a router is the very first scholarai.api import).
+import scholarai.rag.graph  # noqa: F401,E402  (import for side-effect ordering)
 
-from scholarcli.storage import get_session, init_db
-from scholarcli.storage.models import (
+from scholarai.storage import get_session, init_db
+from scholarai.storage.models import (
     Card,
     Concept,
     ConceptEdge,
@@ -37,9 +37,9 @@ def _db():
 # Concept prune / merge
 # ---------------------------------------------------------------------------
 
-@patch("scholarcli.llm.get_embeddings")
+@patch("scholarai.llm.get_embeddings")
 def test_merge_concepts_repoints_edges_and_deletes_drop(mock_get_embeddings):
-    from scholarcli.api import knowledge_service
+    from scholarai.api import knowledge_service
 
     session = get_session()
     try:
@@ -72,7 +72,7 @@ def test_merge_concepts_repoints_edges_and_deletes_drop(mock_get_embeddings):
 
 
 def test_merge_same_id_is_noop():
-    from scholarcli.api import knowledge_service
+    from scholarai.api import knowledge_service
 
     session = get_session()
     try:
@@ -86,7 +86,7 @@ def test_merge_same_id_is_noop():
 
 
 def test_delete_concept_removes_edges():
-    from scholarcli.api import knowledge_service
+    from scholarai.api import knowledge_service
 
     session = get_session()
     try:
@@ -115,7 +115,7 @@ def test_delete_concept_removes_edges():
 # ---------------------------------------------------------------------------
 
 def test_exam_remaining_seconds_and_timeout_flag():
-    from scholarcli.api.routers.exam import _remaining_seconds, _GRACE_SECONDS
+    from scholarai.api.routers.exam import _remaining_seconds, _GRACE_SECONDS
 
     now = datetime.now(timezone.utc)
 

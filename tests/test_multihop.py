@@ -2,14 +2,14 @@
 
 from unittest.mock import patch
 
-from scholarcli.rag import build_rag
-from scholarcli.storage import get_session, init_db
-from scholarcli.storage.models import Course
+from scholarai.rag import build_rag
+from scholarai.storage import get_session, init_db
+from scholarai.storage.models import Course
 
 
 def _ensure_course(name: str) -> None:
     init_db()
-    from scholarcli.storage.models import get_course
+    from scholarai.storage.models import get_course
     session = get_session()
     try:
         if not get_course(session, name):
@@ -33,12 +33,12 @@ class _NullMockLLM:
         return Resp()
 
 
-@patch("scholarcli.rag.nodes.verifier.get_llm")
-@patch("scholarcli.rag.nodes.generator.get_llm")
-@patch("scholarcli.rag.nodes.router.get_llm")
-@patch("scholarcli.rag.nodes.decomposer.get_llm")
-@patch("scholarcli.llm.get_embeddings")
-@patch("scholarcli.ingest.pipeline.get_embeddings")
+@patch("scholarai.rag.nodes.verifier.get_llm")
+@patch("scholarai.rag.nodes.generator.get_llm")
+@patch("scholarai.rag.nodes.router.get_llm")
+@patch("scholarai.rag.nodes.decomposer.get_llm")
+@patch("scholarai.llm.get_embeddings")
+@patch("scholarai.ingest.pipeline.get_embeddings")
 def test_decompose_produces_sub_queries(mock_pipe_emb, mock_llm_emb, mock_dec_llm, mock_router_llm, mock_gen_llm, mock_ver_llm, sample_pdf):
     """When decompose returns 2 sub-queries, state carries them and traces."""
     from tests.test_retrieval import _MockEmbeddings
@@ -51,7 +51,7 @@ def test_decompose_produces_sub_queries(mock_pipe_emb, mock_llm_emb, mock_dec_ll
     mock_ver_llm.return_value.invoke.return_value.content = '{"score": 8}'
 
     _ensure_course("Networks")
-    from scholarcli.ingest.pipeline import ingest_file
+    from scholarai.ingest.pipeline import ingest_file
     ingest_file(sample_pdf, "Networks", embeddings=m)
 
     rag = build_rag()
@@ -63,12 +63,12 @@ def test_decompose_produces_sub_queries(mock_pipe_emb, mock_llm_emb, mock_dec_ll
     assert result["traces"][1]["hop"] == 2
 
 
-@patch("scholarcli.rag.nodes.verifier.get_llm")
-@patch("scholarcli.rag.nodes.generator.get_llm")
-@patch("scholarcli.rag.nodes.router.get_llm")
-@patch("scholarcli.rag.nodes.decomposer.get_llm")
-@patch("scholarcli.llm.get_embeddings")
-@patch("scholarcli.ingest.pipeline.get_embeddings")
+@patch("scholarai.rag.nodes.verifier.get_llm")
+@patch("scholarai.rag.nodes.generator.get_llm")
+@patch("scholarai.rag.nodes.router.get_llm")
+@patch("scholarai.rag.nodes.decomposer.get_llm")
+@patch("scholarai.llm.get_embeddings")
+@patch("scholarai.ingest.pipeline.get_embeddings")
 def test_single_hop_when_decompose_returns_null(mock_pipe_emb, mock_llm_emb, mock_dec_llm, mock_router_llm, mock_gen_llm, mock_ver_llm, sample_pdf):
     """When decompose returns null, single-hop retrieval is used."""
     from tests.test_retrieval import _MockEmbeddings
@@ -81,7 +81,7 @@ def test_single_hop_when_decompose_returns_null(mock_pipe_emb, mock_llm_emb, moc
     mock_ver_llm.return_value.invoke.return_value.content = '{"score": 8}'
 
     _ensure_course("Networks")
-    from scholarcli.ingest.pipeline import ingest_file
+    from scholarai.ingest.pipeline import ingest_file
     ingest_file(sample_pdf, "Networks", embeddings=m)
 
     rag = build_rag()
@@ -90,15 +90,15 @@ def test_single_hop_when_decompose_returns_null(mock_pipe_emb, mock_llm_emb, moc
     assert result.get("traces") is None
 
 
-@patch("scholarcli.rag.nodes.verifier.get_llm")
-@patch("scholarcli.rag.nodes.generator.get_llm")
-@patch("scholarcli.rag.nodes.router.get_llm")
-@patch("scholarcli.rag.nodes.decomposer.get_llm")
-@patch("scholarcli.llm.get_embeddings")
-@patch("scholarcli.ingest.pipeline.get_embeddings")
+@patch("scholarai.rag.nodes.verifier.get_llm")
+@patch("scholarai.rag.nodes.generator.get_llm")
+@patch("scholarai.rag.nodes.router.get_llm")
+@patch("scholarai.rag.nodes.decomposer.get_llm")
+@patch("scholarai.llm.get_embeddings")
+@patch("scholarai.ingest.pipeline.get_embeddings")
 def test_multihop_disabled_skips_decompose(mock_pipe_emb, mock_llm_emb, mock_dec_llm, mock_router_llm, mock_gen_llm, mock_ver_llm, sample_pdf):
     """When multi_hop.enabled=False, decompose is a no-op."""
-    from scholarcli.config import get_settings
+    from scholarai.config import get_settings
     s = get_settings()
     s.multi_hop.enabled = False
 
@@ -111,7 +111,7 @@ def test_multihop_disabled_skips_decompose(mock_pipe_emb, mock_llm_emb, mock_dec
     mock_ver_llm.return_value.invoke.return_value.content = '{"score": 8}'
 
     _ensure_course("Networks")
-    from scholarcli.ingest.pipeline import ingest_file
+    from scholarai.ingest.pipeline import ingest_file
     ingest_file(sample_pdf, "Networks", embeddings=m)
 
     rag = build_rag()
@@ -120,12 +120,12 @@ def test_multihop_disabled_skips_decompose(mock_pipe_emb, mock_llm_emb, mock_dec
     assert result.get("answer") is not None
 
 
-@patch("scholarcli.rag.nodes.verifier.get_llm")
-@patch("scholarcli.rag.nodes.generator.get_llm")
-@patch("scholarcli.rag.nodes.router.get_llm")
-@patch("scholarcli.rag.nodes.decomposer.get_llm")
-@patch("scholarcli.llm.get_embeddings")
-@patch("scholarcli.ingest.pipeline.get_embeddings")
+@patch("scholarai.rag.nodes.verifier.get_llm")
+@patch("scholarai.rag.nodes.generator.get_llm")
+@patch("scholarai.rag.nodes.router.get_llm")
+@patch("scholarai.rag.nodes.decomposer.get_llm")
+@patch("scholarai.llm.get_embeddings")
+@patch("scholarai.ingest.pipeline.get_embeddings")
 def test_multihop_accumulates_chunks_from_both_hops(mock_pipe_emb, mock_llm_emb, mock_dec_llm, mock_router_llm, mock_gen_llm, mock_ver_llm, sample_pdf):
     """Both hops' chunks end up in retrieved and all_retrieved."""
     from tests.test_retrieval import _MockEmbeddings
@@ -138,7 +138,7 @@ def test_multihop_accumulates_chunks_from_both_hops(mock_pipe_emb, mock_llm_emb,
     mock_ver_llm.return_value.invoke.return_value.content = '{"score": 8}'
 
     _ensure_course("Networks")
-    from scholarcli.ingest.pipeline import ingest_file
+    from scholarai.ingest.pipeline import ingest_file
     ingest_file(sample_pdf, "Networks", embeddings=m)
 
     rag = build_rag()

@@ -2,7 +2,7 @@
 
 from sqlalchemy import inspect
 
-from scholarcli.storage import get_engine, init_db
+from scholarai.storage import get_engine, init_db
 
 
 def test_init_db_adds_auto_save_columns():
@@ -18,7 +18,7 @@ def test_init_db_adds_auto_save_columns():
 
 def test_notebook_is_draft_round_trip():
     from fastapi.testclient import TestClient
-    from scholarcli.api.app import create_app
+    from scholarai.api.app import create_app
     init_db()
     client = TestClient(create_app())
     r = client.post("/api/notebooks", json={"title": "Draft NB"})
@@ -37,7 +37,7 @@ def test_notebook_is_draft_round_trip():
 
 def test_quiz_session_patch_and_clear():
     from fastapi.testclient import TestClient
-    from scholarcli.api.app import create_app
+    from scholarai.api.app import create_app
     init_db()
     client = TestClient(create_app())
 

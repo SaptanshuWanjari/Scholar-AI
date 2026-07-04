@@ -4,9 +4,9 @@ from datetime import date, timezone
 
 import pytest
 
-from scholarcli.api.pyq_service import prioritize_weak_topic_cards, record_topic_results
-from scholarcli.storage import get_session, init_db
-from scholarcli.storage.models import Card, Deck, DepConcept, TopicStat
+from scholarai.api.pyq_service import prioritize_weak_topic_cards, record_topic_results
+from scholarai.storage import get_session, init_db
+from scholarai.storage.models import Card, Deck, DepConcept, TopicStat
 
 
 @pytest.fixture(autouse=True)

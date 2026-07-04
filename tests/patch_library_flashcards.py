@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 
-text = Path("scholarcli/api/routers/library.py").read_text()
+text = Path("scholarai/api/routers/library.py").read_text()
 # We want to find list_flashcards and add:
 # if deck:
 #     d = session.query(Deck).filter(Deck.name == deck).first()
@@ -14,4 +14,4 @@ new_text = re.sub(
     r'\1        if deck:\n            d = session.query(Deck).filter(Deck.name == deck).first()\n            if d:\n                d.last_opened_at = datetime.now()\n                session.commit()\n',
     text
 )
-Path("scholarcli/api/routers/library.py").write_text(new_text)
+Path("scholarai/api/routers/library.py").write_text(new_text)

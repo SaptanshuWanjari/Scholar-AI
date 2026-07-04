@@ -2,9 +2,9 @@
 
 from fastapi.testclient import TestClient
 
-from scholarcli.api.app import create_app
-from scholarcli.storage import get_session, init_db
-from scholarcli.storage.models import Document
+from scholarai.api.app import create_app
+from scholarai.storage import get_session, init_db
+from scholarai.storage.models import Document
 
 
 def _make_doc() -> int:

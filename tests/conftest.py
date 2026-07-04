@@ -23,8 +23,8 @@ def clean_config(monkeypatch):
     the cached DB engine since it points at the old temp dir."""
     import tempfile
 
-    from scholarcli.config import get_settings
-    from scholarcli.storage import reset_engine
+    from scholarai.config import get_settings
+    from scholarai.storage import reset_engine
 
     with tempfile.TemporaryDirectory() as td:
         get_settings.cache_clear()

@@ -1,4 +1,4 @@
-# ScholarCLI default configuration.
+# ScholarAI default configuration.
 # Override by copying to config/local.toml (loaded last if present).
 
 [ollama]

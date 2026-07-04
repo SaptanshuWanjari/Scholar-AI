@@ -1,6 +1,6 @@
 """Unit tests for the objective artifact quality scoring engine."""
 
-from scholarcli.api.quality import (
+from scholarai.api.quality import (
     balance_entropy,
     grounding,
     lexical_coverage,

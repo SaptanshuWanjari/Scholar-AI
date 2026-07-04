@@ -4,9 +4,9 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from scholarcli.api.app import app
-from scholarcli.storage import get_session, init_db
-from scholarcli.storage.models import PYQQuestion, QuestionPaper
+from scholarai.api.app import app
+from scholarai.storage import get_session, init_db
+from scholarai.storage.models import PYQQuestion, QuestionPaper
 
 
 @pytest.fixture

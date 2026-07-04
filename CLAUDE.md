@@ -4,22 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Context
 
-ScholarCLI is a local-first AI study assistant with a Python FastAPI/Typer backend and React/Vite frontend. It ingests study materials (PDFs, markdown) into a local vector database (LanceDB) and provides RAG-powered tools: document chat, flashcard/quiz generation, exam mode, reading mode, and concept graphs.
+ScholarAI is a local-first AI study assistant with a Python FastAPI/Typer backend and React/Vite frontend. It ingests study materials (PDFs, markdown) into a local vector database (LanceDB) and provides RAG-powered tools: document chat, flashcard/quiz generation, exam mode, reading mode, and concept graphs.
 
 ### Architecture
 
-- **Backend**: Python 3.12, FastAPI (REST API), Typer (CLI), SQLAlchemy (SQLite), LangGraph (RAG orchestration). Located in `scholarcli/`.
+- **Backend**: Python 3.12, FastAPI (REST API), Typer (CLI), SQLAlchemy (SQLite), LangGraph (RAG orchestration). Located in `scholarai/`.
 - **Frontend**: React 18+, Vite, TypeScript, Tailwind CSS v4, shadcn/ui, Zustand.
 - **LLM Integration**: Ollama (local models). Task-specific model routing via `config/default.toml`.
 - **Storage**: SQLite (metadata/artifacts in `.data/scholar.db`), LanceDB (vector search in `.data/lancedb/`).
 
 ### Key Directories
 
-- `scholarcli/api/`: FastAPI app and route handlers
-- `scholarcli/rag/`: LangGraph state machines and RAG nodes
-- `scholarcli/storage/`: Database models, session management, LanceDB integration
-- `scholarcli/ingest/`: Document chunking and ingestion pipeline
-- `scholarcli/llm/`: Ollama model factory and task routing
+- `scholarai/api/`: FastAPI app and route handlers
+- `scholarai/rag/`: LangGraph state machines and RAG nodes
+- `scholarai/storage/`: Database models, session management, LanceDB integration
+- `scholarai/ingest/`: Document chunking and ingestion pipeline
+- `scholarai/llm/`: Ollama model factory and task routing
 - `config/`: Model configuration (default.toml)
 - `.data/`: Local database and vector store (git-ignored)
 - `frontend/`: React application (separate dev server)
@@ -47,7 +47,7 @@ Refer to `context/` directory for detailed architecture:
 ```bash
 uv sync                                    # Install dependencies
 uv run scholar serve                       # Start API on port 8000
-# Or: uvicorn scholarcli.api.app:app --reload
+# Or: uvicorn scholarai.api.app:app --reload
 ```
 
 **Frontend**:
@@ -71,9 +71,9 @@ uv run scholar courses                     # List all courses
 ### Backend
 
 - **Framework**: FastAPI for REST endpoints, Typer for CLI commands
-- **Routing**: Endpoints organized in `scholarcli/api/routers/`. Register new routes in `scholarcli/api/app.py`
-- **Database**: SQLAlchemy ORM; models in `scholarcli/storage/models.py`. Always use `get_session()` for database access
-- **RAG**: LangGraph state definitions in `scholarcli/rag/`; node implementations in `scholarcli/rag/nodes/`
+- **Routing**: Endpoints organized in `scholarai/api/routers/`. Register new routes in `scholarai/api/app.py`
+- **Database**: SQLAlchemy ORM; models in `scholarai/storage/models.py`. Always use `get_session()` for database access
+- **RAG**: LangGraph state definitions in `scholarai/rag/`; node implementations in `scholarai/rag/nodes/`
 - **Type hints**: Use `from __future__ import annotations` and strict type hints
 - **LLM/Embeddings**: Use `get_llm(task)` to route to task-specific models, `get_embeddings()` for embeddings
 - **Database init**: Happens automatically via `init_db()` on first run; SQLite created in `.data/scholar.db`
@@ -115,8 +115,8 @@ Model assignments in `config/default.toml` control which model handles which tas
 
 ### Adding an API Endpoint
 
-1. Create route handler in `scholarcli/api/routers/new_router.py`
-2. Import and register in `scholarcli/api/app.py`
+1. Create route handler in `scholarai/api/routers/new_router.py`
+2. Import and register in `scholarai/api/app.py`
 3. Test via `http://localhost:8000/docs` (auto-generated Swagger UI)
 
 ### Ingesting Documents

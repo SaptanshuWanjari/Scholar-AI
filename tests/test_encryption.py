@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from scholarcli.storage.encryption import clear_cache, decrypt, encrypt
+from scholarai.storage.encryption import clear_cache, decrypt, encrypt
 
 
 @pytest.fixture(autouse=True)
