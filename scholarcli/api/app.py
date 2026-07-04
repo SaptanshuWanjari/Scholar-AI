@@ -5,10 +5,13 @@ Run with: ``scholar serve`` (or ``uvicorn scholarcli.api.app:app --reload``).
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from scholarcli.storage import init_db, get_session
 from scholarcli.api.plugin_catalog import PLUGIN_CATALOG
@@ -169,6 +172,10 @@ def create_app() -> FastAPI:
             "embed_available": embed_available,
             "embed_model": embed_model,
         }
+
+    frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
+    if frontend_dist.exists():
+        app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
 
     return app
 
