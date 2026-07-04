@@ -3,10 +3,16 @@ import { Trash2, RotateCcw, Archive, Loader2 } from "lucide-react";
 import { useBinStore } from "../stores/useBinStore";
 import type { TrashItem } from "../lib/api/trash";
 import { toast } from "@/app/lib/toast";
-import { PaperButton, GhostButton } from "@/paper-ui/components/buttons";
+import { PaperButton, IconButton } from "@/paper-ui/components/buttons";
 import { ConfirmationDialog } from "@/paper-ui/components/dialogs";
-import { PaperSheetCard } from "@/paper-ui/components/cards";
-import { PaperH1 } from "@/paper-ui/core";
+import { StickyNoteCard } from "@/paper-ui/components/cards";
+import { PaperH1, PaperCard } from "@/paper-ui/core";
+import { ArtifactRow } from "@/paper-ui/components/rows/ArtifactRow";
+import { Tabs } from "@/paper-ui/components/navigation/Tabs";
+import { PaperBadge } from "@/paper-ui/components/badges/PaperBadge";
+import { EmptyState } from "@/paper-ui/components/feedback/EmptyState";
+import type { IconTone } from "@/paper-ui/core";
+import { FileText, BookOpen, Brain, Layout, HelpCircle } from "lucide-react";
 
 const TYPE_LABELS: Record<string, string> = {
   course: "Course",
@@ -27,6 +33,23 @@ const TYPE_LABELS: Record<string, string> = {
   learning_package: "Teach Package",
 };
 
+const getTypeIconAndTone = (type: string): { icon: React.ReactNode; tone: IconTone } => {
+  switch (type) {
+    case "course": return { icon: <BookOpen size={16} />, tone: "brick" };
+    case "document":
+    case "revision":
+    case "difference":
+    case "notebook": return { icon: <FileText size={16} />, tone: "sky" };
+    case "mindmap": return { icon: <Brain size={16} />, tone: "sage" };
+    case "whiteboard":
+    case "diagram": return { icon: <Layout size={16} />, tone: "lavender" };
+    case "quiz":
+    case "pyq_paper":
+    case "pyq_question": return { icon: <HelpCircle size={16} />, tone: "ochre" };
+    default: return { icon: <FileText size={16} />, tone: "ink" };
+  }
+};
+
 function daysAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -37,9 +60,23 @@ function daysAgo(dateStr: string): string {
 }
 
 export default function Bin() {
-  const { items, grouped, loading, fetchItems, restoreItem, archiveItem, permanentDelete, purgeAll } = useBinStore();
+  const { items, loading, fetchItems, restoreItem, archiveItem, permanentDelete, purgeAll } = useBinStore();
   const [purgeConfirmOpen, setPurgeConfirmOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: string; id: string; title: string } | null>(null);
+  const [activeTab, setActiveTab] = useState("deleted");
+
+  const displayItems = useMemo(() => {
+    return items.filter((i) => activeTab === "archived" ? i.archived : !i.archived);
+  }, [items, activeTab]);
+
+  const displayGroups = useMemo(() => {
+    const groups: Record<string, TrashItem[]> = {};
+    for (const item of displayItems) {
+      if (!groups[item.artifact_type]) groups[item.artifact_type] = [];
+      groups[item.artifact_type].push(item);
+    }
+    return Object.entries(groups);
+  }, [displayItems]);
 
   useEffect(() => {
     fetchItems();
@@ -83,8 +120,6 @@ export default function Bin() {
     setPurgeConfirmOpen(false);
   };
 
-  const typeGroups = useMemo(() => Object.entries(grouped), [grouped]);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -94,77 +129,96 @@ export default function Bin() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4">
+    <div className="max-w-5xl mx-auto py-8 px-4 w-full">
       <div className="flex items-center justify-between mb-8">
         <div>
           <PaperH1>Global Bin</PaperH1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {items.length} item{items.length !== 1 ? "s" : ""} · Permanently deleted after 10 days
+          <p className="text-sm font-kalam text-muted-foreground mt-1">
+            {displayItems.length} item{displayItems.length !== 1 ? "s" : ""} 
+            {activeTab === "deleted" ? " · Permanently deleted after 10 days" : " · Kept indefinitely"}
           </p>
         </div>
-        {items.length > 0 && (
+        {activeTab === "deleted" && items.filter((i) => !i.archived).length > 0 && (
           <PaperButton onClick={() => setPurgeConfirmOpen(true)}>
             Empty Bin
           </PaperButton>
         )}
       </div>
 
-      {items.length === 0 ? (
-        <PaperSheetCard className="text-center p-12">
-          <div className="text-6xl mb-4">🗑️</div>
-          <h2 className="text-xl font-semibold mb-2">Bin is empty</h2>
-          <p className="text-muted-foreground mb-6">
-            Deleted items will appear here for 10 days before permanent removal.
-          </p>
-        </PaperSheetCard>
+      <div className="mb-6">
+        <Tabs
+          active={activeTab}
+          onChange={setActiveTab}
+          items={[
+            { key: "deleted", label: "Deleted", count: items.filter((i) => !i.archived).length },
+            { key: "archived", label: "Archived", count: items.filter((i) => i.archived).length },
+          ]}
+        />
+      </div>
+
+      {displayItems.length === 0 ? (
+        <EmptyState
+          icon={<Trash2 size={32} className="text-ink-muted" />}
+          title="No items found"
+          description={
+            activeTab === "deleted"
+              ? "Deleted items will appear here for 10 days before permanent removal."
+              : "You don't have any archived items."
+          }
+          className="my-12 max-w-lg mx-auto"
+        />
       ) : (
-        <div className="space-y-6">
-          {typeGroups.map(([type, typeItems]) => (
-            <PaperSheetCard key={type} className="p-4">
-              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                <span className="font-medium">{TYPE_LABELS[type] || type}</span>
-                <span className="text-xs text-muted-foreground ml-auto">{typeItems.length}</span>
+        <div className="space-y-8">
+          {displayGroups.map(([type, typeItems]) => (
+            <PaperCard key={type} className="p-6">
+              <div className="flex items-center gap-2 mb-4 pb-2 border-b border-border/50">
+                <span className="font-medium font-architect text-xl">{TYPE_LABELS[type] || type}</span>
+                <span className="text-sm text-ink-muted ml-auto bg-black/5 px-2.5 py-0.5 rounded-full">{typeItems.length}</span>
               </div>
-              <div className="space-y-1">
-                {typeItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{item.title}</div>
-                      <div className="text-xs text-muted-foreground flex gap-2">
-                        {item.course_name && <span>{item.course_name}</span>}
-                        {item.course_name && <span>·</span>}
-                        <span>{daysAgo(item.deleted_at)}</span>
-                        {item.archived && (
-                          <>
-                            <span>·</span>
-                            <span className="text-amber-500">Archived</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-0.5 shrink-0">
-                      <GhostButton onClick={() => handleRestore(item)} title="Restore">
-                        <RotateCcw className="w-4 h-4" />
-                      </GhostButton>
-                      <GhostButton onClick={() => handleArchive(item)} title={item.archived ? "Unarchive" : "Archive"}>
-                        <Archive className={`w-4 h-4 ${item.archived ? "text-amber-500" : ""}`} />
-                      </GhostButton>
-                      <GhostButton
-                        onClick={() =>
-                          setDeleteConfirm({ type: item.artifact_type, id: item.artifact_id, title: item.title })
-                        }
-                        title="Delete permanently"
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </GhostButton>
-                    </div>
-                  </div>
-                ))}
+              <div className="space-y-1.5">
+                {typeItems.map((item) => {
+                  const { icon, tone } = getTypeIconAndTone(type);
+                  return (
+                    <ArtifactRow
+                      key={item.id}
+                      title={item.title}
+                      icon={icon}
+                      tone={tone}
+                      date={daysAgo(item.deleted_at)}
+                      badge={
+                        <div className="flex gap-1.5 items-center mt-1">
+                          {item.course_name && (
+                            <PaperBadge tone="ink">{item.course_name}</PaperBadge>
+                          )}
+                          {item.archived && (
+                            <PaperBadge tone="ochre">Archived</PaperBadge>
+                          )}
+                        </div>
+                      }
+                      actions={
+                        <>
+                          <IconButton onClick={() => handleRestore(item)} label="Restore">
+                            <RotateCcw className="w-4 h-4" />
+                          </IconButton>
+                          <IconButton onClick={() => handleArchive(item)} label={item.archived ? "Unarchive" : "Archive"}>
+                            <Archive className={`w-4 h-4 ${item.archived ? "text-amber-500" : ""}`} />
+                          </IconButton>
+                          <IconButton
+                            onClick={() =>
+                              setDeleteConfirm({ type: item.artifact_type, id: item.artifact_id, title: item.title })
+                            }
+                            label="Delete permanently"
+                            className="hover:bg-red-50 hover:text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </IconButton>
+                        </>
+                      }
+                    />
+                  );
+                })}
               </div>
-            </PaperSheetCard>
+            </PaperCard>
           ))}
         </div>
       )}

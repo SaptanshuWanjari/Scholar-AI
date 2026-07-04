@@ -811,3 +811,31 @@ class PluginState(Base):
     installed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
+class ProviderConfig(Base):
+    """Stores connection state and encrypted API key per cloud provider."""
+
+    __tablename__ = "provider_configs"
+
+    provider_id: Mapped[str] = mapped_column(String, primary_key=True)
+    api_key_encrypted: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    connected: Mapped[bool] = mapped_column(Boolean, default=False)
+    default_model: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class UsageRecord(Base):
+    """One row per LLM call — tracks tokens and estimated cost."""
+
+    __tablename__ = "usage_records"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    provider_id: Mapped[str] = mapped_column(String, index=True)
+    task: Mapped[str] = mapped_column(String)
+    model: Mapped[str] = mapped_column(String)
+    input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+

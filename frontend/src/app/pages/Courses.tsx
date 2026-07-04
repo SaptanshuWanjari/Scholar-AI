@@ -5,7 +5,6 @@ import { toast } from "@/app/lib/toast";
 import { api } from "../lib/api";
 import type { Course } from "../lib/types";
 import { useCourseWorkspaceStore } from "../stores/useCourseWorkspaceStore";
-import { cn } from "@/paper-ui/utils";
 import { DataEmptyState } from "@/paper-ui/components/dataDisplay";
 import { ConfirmationDialog } from "@/paper-ui/components/dialogs";
 import { PaperButton, GhostButton } from "@/paper-ui/components/buttons";
@@ -109,7 +108,7 @@ export function Courses() {
 
         {creating && (
           <div className="mx-3 mb-2 rounded-xl bg-panel p-3 space-y-2 shrink-0 border border-[#e4e0d6]">
-            <input
+            <PaperInput
               placeholder="Course name"
               value={newCourseName}
               onChange={(e) => setNewCourseName(e.target.value)}

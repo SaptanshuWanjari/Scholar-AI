@@ -99,6 +99,9 @@ def create_app() -> FastAPI:
         trace,
         trash,
         whiteboards,
+        providers,
+        routing,
+        usage,
     )
     from scholarcli.api import notebook_service
 
@@ -132,6 +135,9 @@ def create_app() -> FastAPI:
         trash,
         whiteboards,
         notebook_service,
+        providers,
+        routing,
+        usage,
     ):
         app.include_router(module.router)
 

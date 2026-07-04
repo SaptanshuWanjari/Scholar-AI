@@ -18,15 +18,28 @@ export interface PaperBadgeProps {
 }
 
 /** Small handwritten tag/pill. */
-export function PaperBadge({ children, tone = "ink", className }: PaperBadgeProps) {
-  const t = TONES[tone];
+export function PaperBadge({
+  children,
+  tone = "ink",
+  className,
+}: PaperBadgeProps) {
+  console.log({
+    tone,
+    keys: Object.keys(TONES),
+  });
+
+  const t = TONES[tone as keyof typeof TONES] ?? TONES.ink;
+
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-architect text-xs",
         className,
       )}
-      style={{ backgroundColor: t.bg, color: t.fg }}
+      style={{
+        backgroundColor: t.bg,
+        color: t.fg,
+      }}
     >
       {children}
     </span>

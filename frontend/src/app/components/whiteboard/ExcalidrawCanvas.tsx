@@ -1,12 +1,13 @@
 // Lazy-loaded Excalidraw canvas. The heavy editor (~150KB+) and its CSS are
 // only fetched when this component mounts, keeping the main bundle lean for
 // users who never open a whiteboard.
-import { lazy, Suspense, useEffect } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import type { WhiteboardScene } from "../../lib/types";
 
-const Excalidraw = lazy(() =>
-  import("@excalidraw/excalidraw").then((m) => ({ default: m.Excalidraw })),
+// Cast to ComponentType<any>: lazy() drops Excalidraw's prop types, causing TS2322
+const Excalidraw = lazy<React.ComponentType<any>>(() =>
+  import("@excalidraw/excalidraw").then((m) => ({ default: m.Excalidraw as React.ComponentType<any> })),
 );
 
 export interface ExcalidrawCanvasProps {

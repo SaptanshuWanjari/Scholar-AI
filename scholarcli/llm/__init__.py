@@ -1,16 +1,19 @@
-"""Ollama model factory.
+"""Ollama model factory — with optional cloud provider routing.
 
-Single entry point: ``get_llm(task)`` returns a ``ChatOllama`` bound to the model
-tag that ``config/models.toml`` maps the task label to. ``get_embeddings()``
-returns ``OllamaEmbeddings`` with the configured embedding model.
+Single entry point: ``get_llm(task)`` returns a ``BaseChatModel`` bound to the
+model tag that ``config/models.toml`` maps the task label to, OR routes through
+``RoutingEngine`` when the cloud-model-providers plugin is enabled.
+
+``get_embeddings()`` always returns ``OllamaEmbeddings`` (embeddings are local-only).
 """
 
 from __future__ import annotations
 
-import json
-
 import functools
+import time
 
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 
 from scholarcli.config import get_settings
@@ -18,6 +21,31 @@ from scholarcli.config import get_settings
 # Tasks that prefer the more capable "reasoning" model when the user has
 # configured a separate one. Everything else uses the fast model.
 _REASONING_TASKS = {"deep_analysis"}
+
+# Cache for cloud plugin enabled state (TTL: 30s) to avoid per-call DB reads
+_plugin_cache: tuple[bool, float] | None = None
+_PLUGIN_CACHE_TTL = 30.0
+
+
+def _cloud_plugin_enabled() -> bool:
+    """Return True if cloud-model-providers plugin is installed and enabled."""
+    global _plugin_cache
+    now = time.monotonic()
+    if _plugin_cache is not None and (now - _plugin_cache[1]) < _PLUGIN_CACHE_TTL:
+        return _plugin_cache[0]
+    try:
+        from scholarcli.storage import get_session
+        from scholarcli.storage.models import PluginState
+        db = get_session()
+        try:
+            row = db.get(PluginState, "cloud-model-providers")
+            enabled = bool(row and row.installed and row.enabled)
+        finally:
+            db.close()
+    except Exception:
+        enabled = False
+    _plugin_cache = (enabled, now)
+    return enabled
 
 
 def _active_model(task: str) -> str:
@@ -43,8 +71,17 @@ def _active_model(task: str) -> str:
 def _get_llm_cached(tag: str, temperature: float, base_url: str) -> ChatOllama:
     return ChatOllama(model=tag, temperature=temperature, base_url=base_url, keep_alive="5m", num_ctx=8192)
 
-def get_llm(task: str = "quick_qa", *, temperature: float = 0.0) -> ChatOllama:
-    """Return a ``ChatOllama`` for the given task label."""
+def get_llm(task: str = "quick_qa", *, temperature: float = 0.0) -> BaseChatModel:
+    """Return a chat model for the given task label.
+
+    When the cloud-model-providers plugin is enabled, routes through
+    ``RoutingEngine`` which may select Gemini, Groq, or OpenRouter.
+    When disabled (default), behaves exactly as before — returns ChatOllama.
+    """
+    if _cloud_plugin_enabled():
+        from scholarcli.llm.routing import RoutingEngine
+        return RoutingEngine().resolve(task, temperature)
+    # Fast path: plugin disabled — zero overhead, exact same behaviour as before
     s = get_settings()
     tag = _active_model(task)
     return _get_llm_cached(tag, temperature, s.ollama.base_url)
@@ -59,7 +96,10 @@ def _active_embedding_model() -> str:
     ui = load_settings()
     return ui.get("embeddingModel") or get_settings().models.embedding
 
-def get_embeddings() -> OllamaEmbeddings:
+def get_embeddings() -> Embeddings:
+    if _cloud_plugin_enabled():
+        from scholarcli.llm.routing import RoutingEngine
+        return RoutingEngine().resolve_embeddings()
     s = get_settings()
     return _get_embeddings_cached(_active_embedding_model(), s.ollama.base_url)
 

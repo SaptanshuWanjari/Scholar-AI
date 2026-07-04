@@ -74,14 +74,14 @@ const MASTERY_DOT: Record<string, string> = {
   "Needs Revision": "bg-orange-400",
 };
 
-const ACTIONS: { label: string; icon: typeof Sparkles; runLabel: string }[] = [
-  { label: "Explain", icon: Sparkles, runLabel: "Explain Concept" },
-  { label: "Summary", icon: NotebookPen, runLabel: "Generate Summary" },
-  { label: "Flashcards", icon: Layers, runLabel: "Generate Flashcards" },
-  { label: "Quiz", icon: ListChecks, runLabel: "Generate Quiz" },
-  { label: "Mind Map", icon: Network, runLabel: "Generate Mind Map" },
-  { label: "Diagram", icon: Workflow, runLabel: "Generate Diagram" },
-  { label: "Notebook", icon: Notebook, runLabel: "Add To Notebook" },
+const ACTIONS: { label: string; icon: typeof Sparkles; runLabel: string; iconClass: string }[] = [
+  { label: "Explain", icon: Sparkles, runLabel: "Explain Concept", iconClass: "text-[#6f63a3]" },
+  { label: "Summary", icon: NotebookPen, runLabel: "Generate Summary", iconClass: "text-[#3f7a4e]" },
+  { label: "Flashcards", icon: Layers, runLabel: "Generate Flashcards", iconClass: "text-[#a3544a]" },
+  { label: "Quiz", icon: ListChecks, runLabel: "Generate Quiz", iconClass: "text-[#b07a2e]" },
+  { label: "Mind Map", icon: Network, runLabel: "Generate Mind Map", iconClass: "text-[#4a6f91]" },
+  { label: "Diagram", icon: Workflow, runLabel: "Generate Diagram", iconClass: "text-[#a3771f]" },
+  { label: "Notebook", icon: Notebook, runLabel: "Add To Notebook", iconClass: "text-ink-muted" },
 ];
 
 function fmtMinutes(min: number): string {
@@ -153,25 +153,27 @@ function ConceptCard({
         </p>
       )}
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-architect text-[12px] text-ink-muted">
-        <span className="flex items-center gap-1">
+      <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+        <PaperBadge tone="sky" className="flex items-center gap-1 font-medium">
           <Clock className="size-3" /> {fmtMinutes(concept.estimatedMinutes)}
-        </span>
+        </PaperBadge>
         {concept.prerequisites.length > 0 && (
-          <span
-            className="flex items-center gap-1"
+          <PaperBadge
+            tone="brick"
+            className="flex items-center gap-1 font-medium cursor-help"
             title={concept.prerequisites.join(", ")}
           >
             <Lock className="size-3" /> {concept.prerequisites.length} prereq
-          </span>
+          </PaperBadge>
         )}
         {concept.unlocks.length > 0 && (
-          <span
-            className="flex items-center gap-1"
+          <PaperBadge
+            tone="sage"
+            className="flex items-center gap-1 font-medium cursor-help"
             title={concept.unlocks.join(", ")}
           >
             <Unlock className="size-3" /> unlocks {concept.unlocks.length}
-          </span>
+          </PaperBadge>
         )}
       </div>
 
@@ -185,8 +187,8 @@ function ConceptCard({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
-        <GhostButton onClick={openTeach} size="sm" className="text-[#6f63a3]">
-          <Lightbulb className="size-3" /> Teach Me
+        <GhostButton onClick={openTeach} size="sm">
+          <Lightbulb className="size-3 text-[#b07a2e]" /> Teach Me
         </GhostButton>
         {concept.depConceptId != null && (
           <GhostButton
@@ -195,7 +197,7 @@ function ConceptCard({
               navigate(`/knowledge-base?conceptId=${concept.depConceptId}`)
             }
           >
-            <Network className="size-3" /> Graph
+            <Network className="size-3 text-[#4a6f91]" /> Graph
           </GhostButton>
         )}
         {ACTIONS.map((a) => {
@@ -223,7 +225,7 @@ function ConceptCard({
               {busy && running === a.runLabel ? (
                 <Loader2 className="size-3 animate-spin" />
               ) : (
-                <a.icon className="size-3" />
+                <a.icon className={cn("size-3", a.iconClass)} />
               )}
               {a.label}
             </GhostButton>
@@ -284,11 +286,19 @@ function ConceptCard({
   );
 }
 
+const STAT_COLORS: Record<string, string> = {
+  "Difficulty": "text-[#a3544a]", // brick
+  "Concepts": "text-[#4a6f91]",   // sky
+  "Est. Time": "text-[#3f7a4e]",  // sage
+  "Sessions": "text-[#6f63a3]",   // lavender
+  "Pace": "text-[#b07a2e]",       // ochre
+};
+
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <PaperCard className="px-4 py-3">
       <SectionLabel className="text-[11px]">{label}</SectionLabel>
-      <div className="mt-1 font-caveat text-lg font-bold text-ink">{value}</div>
+      <div className={cn("mt-1 font-caveat text-xl font-bold", STAT_COLORS[label] || "text-ink")}>{value}</div>
     </PaperCard>
   );
 }
@@ -399,25 +409,27 @@ function InputPhase() {
           <SectionHeader title="Saved paths" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {saved.map((p) => (
-              <PaperCard className="group flex w-full items-center justify-between gap-3 p-4">
-                <button
-                  onClick={() => loadPath(p.id)}
-                  className="min-w-0 flex-1 text-left"
-                >
-                  <div className="font-kalam text-[15px] font-bold text-ink">
-                    {p.title}
-                  </div>
-                  <div className="mt-1 font-architect text-[12px] text-ink-muted">
-                    {p.conceptCount} concepts{p.course ? ` · ${p.course}` : ""}
-                  </div>
-                </button>
+              <PaperCard key={p.id} className="group p-4">
+                <div className="flex w-full items-center justify-between gap-3">
+                  <button
+                    onClick={() => loadPath(p.id)}
+                    className="min-w-0 flex-1 text-left"
+                  >
+                    <div className="font-kalam text-[15px] font-bold text-ink">
+                      {p.title}
+                    </div>
+                    <div className="mt-1 font-architect text-[12px] text-ink-muted">
+                      {p.conceptCount} concepts{p.course ? ` · ${p.course}` : ""}
+                    </div>
+                  </button>
 
-                <button
-                  onClick={() => deletePath(p.id)}
-                  className="shrink-0 rounded-md p-1.5 text-ink-muted opacity-0 transition-opacity hover:bg-[rgba(159,58,54,0.1)] hover:text-[#9f3a36] group-hover:opacity-100"
-                >
-                  <Trash2 className="size-4" />
-                </button>
+                  <button
+                    onClick={() => deletePath(p.id)}
+                    className="shrink-0 rounded-md p-1.5 text-ink-muted opacity-0 transition-opacity hover:bg-[rgba(159,58,54,0.1)] hover:text-[#9f3a36] group-hover:opacity-100"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
               </PaperCard>
             ))}
           </div>
@@ -511,8 +523,8 @@ function RoadmapPhase() {
             <div key={i}>
               <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <h3 className="font-kalam text-[15px] font-bold text-ink">
-                    Stage {i + 1} · {stage.title}
+                  <h3 className="font-kalam text-[17px] font-bold text-ink">
+                    <span className="text-[#a3544a]">Stage {i + 1}</span> · {stage.title}
                   </h3>
                   {stage.summary && (
                     <p className="font-kalam text-[13px] text-ink-muted">
@@ -520,7 +532,7 @@ function RoadmapPhase() {
                     </p>
                   )}
                 </div>
-                <PaperBadge tone="ink" className="text-[10px]">
+                <PaperBadge tone={stageCompletion(stage) === 100 ? "sage" : (stageCompletion(stage) > 0 ? "sky" : "ink")} className="text-[10px] px-2 py-0.5">
                   {stageCompletion(stage)}%
                 </PaperBadge>
               </div>
@@ -542,10 +554,10 @@ function RoadmapPhase() {
                 <div key={c.title} className="flex flex-col items-start">
                   <span
                     className={cn(
-                      "rounded-md px-2 py-1 font-architect text-[12px]",
+                      "rounded-md px-2 py-1 font-architect text-[13px] transition-colors",
                       c.status === "completed"
-                        ? "text-[#3f7a4e] line-through"
-                        : "text-ink",
+                        ? "text-[#3f7a4e] line-through bg-[#e7efe4]"
+                        : "text-ink hover:bg-black/5",
                     )}
                   >
                     {c.title}
@@ -566,10 +578,12 @@ function RoadmapPhase() {
               <AnalyticsRow
                 label="Strongest stage"
                 value={analytics.strongestStage}
+                valueColor="text-[#3f7a4e]"
               />
               <AnalyticsRow
                 label="Weakest stage"
                 value={analytics.weakestStage}
+                valueColor="text-[#a3544a]"
               />
               <AnalyticsRow
                 label="Most revised"
@@ -602,14 +616,16 @@ function RoadmapPhase() {
 function AnalyticsRow({
   label,
   value,
+  valueColor,
 }: {
   label: string;
   value: string | null;
+  valueColor?: string;
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
       <dt className="text-ink-muted">{label}</dt>
-      <dd className="text-right font-medium text-ink">{value ?? "—"}</dd>
+      <dd className={cn("text-right font-medium", valueColor || "text-ink")}>{value ?? "—"}</dd>
     </div>
   );
 }

@@ -24,4 +24,11 @@ PLUGIN_CATALOG: list[dict] = [
         "npm_packages": [],
         "default_installed": False,
     },
+    {
+        "id": "cloud-model-providers",
+        "name": "Cloud Model Providers",
+        "description": "Connect external AI providers (Gemini, Groq, OpenRouter) to use cloud models alongside your local models.",
+        "npm_packages": [],  # Pure Python + settings UI — no frontend rebuild needed
+        "default_installed": False,
+    },
 ]

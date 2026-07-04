@@ -18,28 +18,11 @@ import { NOTE_CATEGORIES, type CategoryMeta } from "../stores/useReadingNotesSto
 import { useNotificationStore } from "../stores/useNotificationStore";
 import { PaperButton } from "@/paper-ui/components/buttons";
 import { PaperInput } from "@/paper-ui/components/inputs";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "./ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+import { PaperModal, ConfirmationDialog } from "@paper-ui/components/dialogs";
+import { cn } from "@paper-ui/utils";
 
 interface AddToNotebookMenuProps {
   artifactType?: string;
-  /** Raw artifact payload; serialized by `serializeArtifact(artifactType, content)`. */
   content?: unknown;
   sourceId?: string;
   label?: string;
@@ -47,17 +30,7 @@ interface AddToNotebookMenuProps {
   size?: React.ComponentProps<typeof PaperButton>["size"];
   className?: string;
   course?: string | null;
-  /**
-   * Optional note data to embed the id into the footer if this is a reading note.
-   */
   noteData?: { docId: string; page: number; id: string; cat: string };
-  /**
-   * When provided, the artifact is appended as these rich blocks instead of being
-   * serialized to a Markdown text block. Used for embed-style blocks (e.g. a
-   * whiteboard snapshot that links back to the live editor). The builder may be
-   * async so callers can compute a fresh thumbnail at insert time. Dedup is
-   * skipped in this mode.
-   */
   customBlocks?: () => NotebookBlock[] | Promise<NotebookBlock[]>;
   trigger?: React.ReactNode;
   asyncBackground?: boolean;
@@ -137,7 +110,6 @@ export function AddToNotebookMenu({
 
   const addTo = useCallback(
     async (notebookId: string, notebookName: string) => {
-      // Embed-block mode: append rich blocks directly (no serialize, no dedup).
       if (customBlocks) {
         if (asyncBackground) {
           setOpen(false);
@@ -269,119 +241,116 @@ export function AddToNotebookMenu({
     } finally {
       setBusy(false);
     }
-  }, [dedup, forceAppend]);
-
-  return (
+  }, [dedup, forceAppend]);  return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogTrigger asChild>
-          {trigger ? (
-            trigger
+      <span onClick={() => onOpenChange(true)} className={cn("contents", className)}>
+        {trigger ? (
+          trigger
+        ) : (
+          <PaperButton tone={tone} size={size}>
+            <BookPlus className="size-4" />
+            {label && <span className="ml-1.5">{label}</span>}
+          </PaperButton>
+        )}
+      </span>
+
+      <PaperModal
+        open={open}
+        onClose={() => onOpenChange(false)}
+        title="Add to notebook"
+        width={440}
+      >
+        <div className="font-kalam text-[13px] text-ink-muted mb-4">
+          Pick a notebook to add this {artifactLabel(artifactType ?? "").toLowerCase()} to.
+        </div>
+
+        <div className="max-h-60 space-y-1 overflow-y-auto py-1">
+          {loading && (
+            <div className="flex items-center gap-2 px-2 py-6 text-sm text-ink-muted font-kalam">
+              <Loader2 className="size-4 animate-spin" /> Loading…
+            </div>
+          )}
+          {!loading && notebooks?.length === 0 && (
+            <div className="px-2 py-6 text-center text-sm text-ink-muted font-kalam">
+              No notebooks yet. Create one below.
+            </div>
+          )}
+          {!loading &&
+            notebooks?.map((nb) => (
+              <button
+                key={nb.id}
+                type="button"
+                disabled={busy}
+                onClick={() => void addTo(nb.id, nb.name)}
+                className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-black/[0.03] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {pendingId === nb.id ? (
+                  <Loader2 className="size-3.5 shrink-0 animate-spin text-[#6f63a3]" />
+                ) : (
+                  <span
+                    className="size-2.5 shrink-0 rounded-full border border-black/10"
+                    style={{ backgroundColor: nb.color }}
+                  />
+                )}
+                <div className="min-w-0 flex-1 leading-tight font-kalam">
+                  <span className="block truncate text-[14px] font-bold text-ink">{nb.name}</span>
+                  <span className="block truncate text-xs text-ink-muted mt-0.5">
+                    {pendingId === nb.id
+                      ? "Adding…"
+                      : `${nb.course || "Uncategorized"} · ${nb.notes} notes`}
+                  </span>
+                </div>
+              </button>
+            ))}
+        </div>
+
+        <div className="border-t border-border pt-4 mt-3">
+          {creating ? (
+            <div className="flex items-center gap-2">
+              <PaperInput
+                autoFocus
+                placeholder="Notebook name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") void createAndAdd();
+                  if (e.key === "Escape") setCreating(false);
+                }}
+                className="h-9 flex-1"
+              />
+              <PaperButton onClick={() => void createAndAdd()} disabled={busy || !newName.trim()} size="sm">
+                {busy ? <Loader2 className="size-4 animate-spin" /> : "Create & add"}
+              </PaperButton>
+            </div>
           ) : (
-            <PaperButton tone={tone} size={size} className={className}>
-              <BookPlus className="size-4" />
-              {label && <span className="ml-1.5">{label}</span>}
+            <PaperButton
+              tone="paper"
+              className="w-full justify-center gap-1.5"
+              onClick={() => setCreating(true)}
+              size="md"
+            >
+              <Plus className="size-4" /> Create new notebook
             </PaperButton>
           )}
-        </DialogTrigger>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add to notebook</DialogTitle>
-            <DialogDescription>
-              Pick a notebook to add this {artifactLabel(artifactType ?? "").toLowerCase()} to.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="max-h-72 space-y-1 overflow-y-auto py-1">
-            {loading && (
-              <div className="flex items-center gap-2 px-2 py-6 text-sm text-muted-foreground">
-                <Loader2 className="size-4 animate-spin" /> Loading…
-              </div>
-            )}
-            {!loading && notebooks?.length === 0 && (
-              <div className="px-2 py-6 text-center text-sm text-muted-foreground">
-                No notebooks yet. Create one below.
-              </div>
-            )}
-            {!loading &&
-              notebooks?.map((nb) => (
-                <button
-                  key={nb.id}
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void addTo(nb.id, nb.name)}
-                  className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {pendingId === nb.id ? (
-                    <Loader2 className="size-3 shrink-0 animate-spin text-violet" />
-                  ) : (
-                    <span
-                      className="size-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: nb.color }}
-                    />
-                  )}
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">{nb.name}</span>
-                    <span className="block truncate text-xs text-muted-foreground">
-                      {pendingId === nb.id
-                        ? "Adding…"
-                        : `${nb.course || "Uncategorized"} · ${nb.notes} notes`}
-                    </span>
-                  </span>
-                </button>
-              ))}
-          </div>
-
-          <div className="border-t border-border pt-3">
-            {creating ? (
-              <div className="flex items-center gap-2">
-                <PaperInput
-                  autoFocus
-                  placeholder="Notebook name"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") void createAndAdd();
-                    if (e.key === "Escape") setCreating(false);
-                  }}
-                  className="h-9"
-                />
-                <PaperButton onClick={() => void createAndAdd()} disabled={busy || !newName.trim()}>
-                  {busy ? <Loader2 className="size-4 animate-spin" /> : "Create & add"}
-                </PaperButton>
-              </div>
-            ) : (
-              <PaperButton
-                tone="paper"
-                className="w-full justify-center gap-1.5"
-                onClick={() => setCreating(true)}
-              >
-                <Plus className="size-4" /> Create new notebook
-              </PaperButton>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </PaperModal>
 
       {/* Dedup warning */}
-      <AlertDialog open={dedup !== null} onOpenChange={(o) => !o && setDedup(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Similar content already exists</AlertDialogTitle>
-            <AlertDialogDescription>
-              This {artifactLabel(artifactType ?? "").toLowerCase()} looks very similar to something
-              already in “{dedup?.notebookName}”. Merge it into the existing note, or skip to
-              avoid duplicates.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={busy}>Skip</AlertDialogCancel>
-            <AlertDialogAction onClick={mergeIntoExisting} disabled={busy}>
-              {busy ? "Merging…" : "Merge"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={dedup !== null}
+        onConfirm={mergeIntoExisting}
+        onCancel={() => setDedup(null)}
+        title="Similar content already exists"
+        message={
+          <>
+            This {artifactLabel(artifactType ?? "").toLowerCase()} looks very similar to something
+            already in “{dedup?.notebookName}”. Merge it into the existing note, or skip to
+            avoid duplicates.
+          </>
+        }
+        confirmLabel={busy ? "Merging…" : "Merge"}
+        cancelLabel="Skip"
+      />
     </>
   );
 }

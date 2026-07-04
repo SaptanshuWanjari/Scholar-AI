@@ -73,6 +73,8 @@ export function JobsIndicator() {
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const notifications = useNotificationStore((s) => s.notifications);
+  const unread = useNotificationStore((s) => s.unread);
+  const markRead = useNotificationStore((s) => s.markRead);
   const clearAll = useNotificationStore((s) => s.clearAll);
 
   const hasActive = jobs.some(
@@ -136,11 +138,11 @@ export function JobsIndicator() {
     <Menubar className="h-auto border-0 bg-transparent p-0 [&>div]:hidden">
       <MenubarMenu>
         <MenubarTrigger asChild>
-          <IconButton label="Notifications" className="relative overflow-hidden">
+          <IconButton label="Notifications" className="relative overflow-hidden" onClick={() => markRead()}>
             <Bell className="size-5" />
-            {activeCount > 0 && (
+            {(activeCount > 0 || unread) && (
               <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary font-architect text-[9px] font-bold leading-none text-primary-foreground animate-pulse">
-                {activeCount}
+                {activeCount > 0 ? activeCount : notifications.length}
               </span>
             )}
           </IconButton>

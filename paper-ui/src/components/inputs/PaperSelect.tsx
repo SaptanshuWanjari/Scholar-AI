@@ -107,7 +107,7 @@ export function PaperSelect({
             roughness={1.1}
             shadow={0}
           />
-          <span className={cn("relative z-[1] flex-1", !selected && "text-ink-muted/60")}>
+          <span className={cn("relative z-[1] flex-1 truncate", !selected && "text-ink-muted/60")}>
             {selected ? selected.label : placeholder}
           </span>
           <ChevronDown
@@ -161,7 +161,7 @@ export function PaperSelect({
                         {opt.icon && (
                           <span className="shrink-0 text-ink-muted/80">{opt.icon}</span>
                         )}
-                        <span className="flex-1">{opt.label}</span>
+                        <span className="flex-1 truncate">{opt.label}</span>
                         {isSelected && (
                           <Check size={13} className="shrink-0 text-ink-muted" />
                         )}

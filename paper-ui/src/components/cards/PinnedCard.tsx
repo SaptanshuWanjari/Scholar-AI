@@ -33,7 +33,7 @@ export function PinnedCard({
       style={{ transform: rotate ? `rotate(${rotate}deg)` : undefined }}
     >
       {pinStyle === "push-pin" && (
-        <div className="absolute -top-4 left-1/2 z-30 -translate-x-1/2">
+        <div className="absolute  left-1/2 z-30 -translate-x-1/2">
           <PushPin size={26} />
         </div>
       )}

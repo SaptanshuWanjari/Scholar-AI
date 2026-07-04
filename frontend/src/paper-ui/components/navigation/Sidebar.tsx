@@ -64,20 +64,16 @@ export interface SidebarHeaderProps {
 
 export function SidebarHeader({ title, subtitle }: SidebarHeaderProps) {
   return (
-    <div className="mb-7 flex items-center gap-3 px-5">
-      <div
-        className="relative flex h-10 w-10 -rotate-3 items-center justify-center"
-        style={{ color: "#fbf8f2" }}
-      >
-        <SketchBorder fill="#262320" stroke="#262320" strokeWidth={1.5} radius={6} shadow={2} roughness={0.9} bleed={5} />
-        <span className="relative z-[1]">
-          <GraduationCap size={22} />
-        </span>
-      </div>
-      <div className="leading-tight">
-        <div className="font-caveat text-2xl font-bold text-ink">{title}</div>
-        {subtitle && <div className="font-architect text-xs text-ink-muted">{subtitle}</div>}
-      </div>
+    <div className="leading-tight">
+      <h2 className="font-caveat text-[42px] font-bold leading-none text-ink">
+        {title}
+      </h2>
+
+      {subtitle && (
+        <p className="mt-1 font-architect text-xs text-ink-muted">
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 }
@@ -115,7 +111,7 @@ export function Sidebar({ children, className }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "flex h-full w-64 shrink-0 flex-col overflow-y-auto py-6 paper-scrollbar",
+        "flex h-full w-64 shrink-0 flex-col overflow-y-auto  paper-scrollbar",
         className,
       )}
       style={{ borderRight: "1.5px solid #c8c0b0" }}

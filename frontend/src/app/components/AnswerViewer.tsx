@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Check, Copy, Sparkles, User, Loader2 } from "lucide-react";
+import { Check, Copy, Sparkles, User } from "lucide-react";
 import { motion } from "motion/react";
 import type { ChatMessage } from "../lib/types";
 import { MarkdownRenderer } from "./MarkdownRenderer";
-import { Button } from "./ui/button";
+import { PaperIconCircle } from "@paper-ui/core";
+import { Spinner, Shimmer } from "@paper-ui/components/loading";
+import { GhostButton } from "@paper-ui/components/buttons";
+import { cn } from "@paper-ui/utils";
 
 interface AnswerViewerProps {
   message: ChatMessage;
@@ -12,16 +15,17 @@ interface AnswerViewerProps {
 
 export function AnswerViewer({ message, onCitationClick }: AnswerViewerProps) {
   const [copied, setCopied] = useState(false);
+  const isError = message.content.startsWith("[Errno") || message.content.includes("Connection refused") || message.content.toLowerCase().includes("failed to fetch");
 
   if (message.role === "user") {
     return (
       <div className="flex justify-end gap-3 py-2">
-        <div className="max-w-[80%] rounded-2xl rounded-tr-sm border border-border bg-secondary px-4 py-2.5 text-sm">
+        <div className="max-w-[80%] rounded-2xl rounded-tr-sm border border-border bg-[#fdfcf8] px-4 py-2.5 font-kalam text-[14px] text-ink shadow-sm">
           {message.content}
         </div>
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-card">
-          <User className="size-4 text-muted-foreground" />
-        </div>
+        <PaperIconCircle tone="ink" size={32} className="shrink-0">
+          <User className="size-4 text-ink-muted" />
+        </PaperIconCircle>
       </div>
     );
   }
@@ -38,25 +42,32 @@ export function AnswerViewer({ message, onCitationClick }: AnswerViewerProps) {
       animate={{ opacity: 1, y: 0 }}
       className="flex gap-3 py-2"
     >
-      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+      <PaperIconCircle tone="lavender" size={32} className="shrink-0">
         <Sparkles className="size-4" />
-      </div>
+      </PaperIconCircle>
       <div className="min-w-0 flex-1">
         {message.content ? (
-          <MarkdownRenderer
-            content={message.content}
-            onCitationClick={onCitationClick}
-          />
+          isError ? (
+            <div className="flex items-center gap-2 font-kalam text-[#9f3a36] text-[15px] italic">
+              <span>⚠️</span>
+              <span>{message.content}</span>
+            </div>
+          ) : (
+            <MarkdownRenderer
+              content={message.content}
+              onCitationClick={onCitationClick}
+            />
+          )
         ) : (
           <div className="flex flex-col gap-3 py-1">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="size-4 animate-spin text-primary" />
+            <div className="flex items-center gap-2 font-kalam text-[14px] text-ink-muted">
+              <Spinner variant="scribble" size="sm" color="ink" className="inline-flex" />
               Searching your knowledge base…
             </div>
-            <div className="space-y-2">
-              <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
-              <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
-            </div>
+            <Shimmer className="space-y-2 max-w-xl">
+              <Shimmer.Line width="90%" />
+              <Shimmer.Line width="65%" />
+            </Shimmer>
           </div>
         )}
         {message.streaming && message.content && (
@@ -64,11 +75,11 @@ export function AnswerViewer({ message, onCitationClick }: AnswerViewerProps) {
         )}
         {!message.streaming && message.content && (
           <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
-            <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs" onClick={copy}>
+            <GhostButton size="sm" className="h-8 gap-1.5 text-xs font-architect" onClick={copy}>
               {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
               {copied ? "Copied" : "Copy answer"}
-            </Button>
-            <span className="text-xs text-muted-foreground">
+            </GhostButton>
+            <span className="text-xs font-architect text-ink-muted">
               {message.sources?.length ?? 0} sources cited
             </span>
           </div>

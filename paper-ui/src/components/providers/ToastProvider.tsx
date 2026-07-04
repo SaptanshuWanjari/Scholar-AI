@@ -274,10 +274,11 @@ function ToastViewport({
 
   const viewport = createElement("div", {
     className: cn(
-      "z-[10000] flex flex-col gap-6 pointer-events-auto w-[480px] max-w-[calc(100vw-2rem)]",
+      "flex flex-col gap-6 pointer-events-auto w-[480px] max-w-[calc(100vw-2rem)]",
       POSITION_CLASSES[position],
       className,
     ),
+    style: { zIndex: 99999 },
     children: toasts.map((toast) =>
       createElement(ToastUnit, {
         key: toast.id,

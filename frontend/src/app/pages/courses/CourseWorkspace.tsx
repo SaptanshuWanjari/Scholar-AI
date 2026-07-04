@@ -167,8 +167,8 @@ export function CourseWorkspace({
     <div className="flex flex-col h-full overflow-hidden bg-paper">
       {/* Header */}
       <div className="px-8 pt-8 pb-6 shrink-0">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-4 min-w-0">
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-4 min-w-0">
             <span
               className="relative inline-flex shrink-0 items-center justify-center"
               style={{ width: 48, height: 48, color: course.color }}
@@ -185,17 +185,17 @@ export function CourseWorkspace({
               {isRenaming ? (
                 <div className="flex items-center gap-2">
                   <input
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") onRenameSubmit();
-                      if (e.key === "Escape") onRenameCancel();
-                    }}
-                    onBlur={onRenameSubmit}
-                    autoFocus
-                    spellCheck={false}
-                    className="font-caveat text-[34px] font-bold leading-[1.1] tracking-[-0.01em] text-ink bg-transparent border-0 border-b-2 border-ink/30 focus:border-ink focus:ring-0 outline-none px-0 py-0 min-w-50 transition-colors"
-                    style={{ width: `${Math.max(editName.length, 5)}ch` }}
+                     value={editName}
+                     onChange={(e) => setEditName(e.target.value)}
+                     onKeyDown={(e) => {
+                       if (e.key === "Enter") onRenameSubmit();
+                       if (e.key === "Escape") onRenameCancel();
+                     }}
+                     onBlur={onRenameSubmit}
+                     autoFocus
+                     spellCheck={false}
+                     className="font-caveat text-[34px] font-bold leading-[1.1] tracking-[-0.01em] text-ink bg-transparent border-0 border-b-2 border-ink/30 focus:border-ink focus:ring-0 outline-none px-0 py-0 min-w-50 transition-colors"
+                     style={{ width: `${Math.max(editName.length, 5)}ch` }}
                   />
                 </div>
               ) : (
@@ -203,36 +203,20 @@ export function CourseWorkspace({
                   {course.name}
                 </h1>
               )}
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-ink-muted">
-                <span className="font-architect  text-ink-muted uppercase tracking-wider">
-                  {course.code}
-                </span>
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-ink-muted text-sm font-kalam">
                 {stats && (
                   <>
-                    <Divider
-                      orientation="vertical"
-                      className="h-5 opacity-45"
-                      color="var(--paper-ink-muted)"
-                    />
-                    <span className="font-kalam  text-ink-muted">
+                    <span>
                       {stats.documents} Documents
                     </span>
-                    <Divider
-                      orientation="vertical"
-                      className="h-5 opacity-45"
-                      color="var(--paper-ink-muted)"
-                    />
-                    <span className="font-kalam  text-ink-muted">
+                    <span className="text-ink-muted/50">&middot;</span>
+                    <span>
                       {stats.total_artifacts} Artifacts
                     </span>
                     {stats.last_updated && (
                       <>
-                        <Divider
-                          orientation="vertical"
-                          className="h-5 opacity-45"
-                          color="var(--paper-ink-muted)"
-                        />
-                        <span className="font-architect  text-ink-muted">
+                        <span className="text-ink-muted/50">&middot;</span>
+                        <span className="font-architect text-xs">
                           Updated {fmtDate(stats.last_updated)}
                         </span>
                       </>
@@ -242,7 +226,7 @@ export function CourseWorkspace({
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2">
             {!isRenaming && (
               <GhostButton size="md" onClick={onRenameStart}>
                 <Pencil className="size-3.5" /> Rename

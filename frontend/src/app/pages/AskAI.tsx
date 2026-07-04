@@ -16,21 +16,45 @@ import { useChatStore } from "../stores/useChatStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { SourcePanel } from "../components/SourcePanel";
 import { AnswerViewer } from "../components/AnswerViewer";
-import { PaperButton, GhostButton, IconButton, ToggleButton } from "@paper-ui/components/buttons";
+import {
+  PaperButton,
+  GhostButton,
+  IconButton,
+  ToggleButton,
+} from "@paper-ui/components/buttons";
 import { PaperBadge } from "@paper-ui/components/badges";
 import { PaperSelect } from "@paper-ui/components/inputs";
 import { ScrollArea } from "@paper-ui/components/layout";
 import { PaperSheetBorder } from "@paper-ui/core";
-import { SectionLabel, PaperH1, PaperIconCircle, PaperCard } from "@paper-ui/core";
+import {
+  SectionLabel,
+  PaperH1,
+  PaperIconCircle,
+  PaperCard,
+} from "@paper-ui/core";
 import { SketchDivider } from "@paper-ui/components/decorations";
 import { api } from "../lib/api";
 import type { Course, DocumentItem } from "../lib/types";
 
 export function AskAI() {
   const {
-    messages, isStreaming, ask, reset, course, setCourse, document, setDocument,
-    sessions, activeSessionId, loadSessions, loadSession, deleteSession,
-    socratic, setSocratic, highlightsOnly, setHighlightsOnly,
+    messages,
+    isStreaming,
+    ask,
+    reset,
+    course,
+    setCourse,
+    document,
+    setDocument,
+    sessions,
+    activeSessionId,
+    loadSessions,
+    loadSession,
+    deleteSession,
+    socratic,
+    setSocratic,
+    highlightsOnly,
+    setHighlightsOnly,
   } = useChatStore();
   const streaming = useSettingsStore((s) => s.streaming);
   const ragMode = useSettingsStore((s) => s.ragMode);
@@ -43,10 +67,24 @@ export function AskAI() {
   const [sourcesPanelOpen, setSourcesPanelOpen] = useState(true);
   const [hoveredSessionId, setHoveredSessionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    api.listCourses().then(setCourses).catch(() => setCourses([]));
-    api.listDocuments().then(setDocuments).catch(() => setDocuments([]));
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [input]);
+
+  useEffect(() => {
+    api
+      .listCourses()
+      .then(setCourses)
+      .catch(() => setCourses([]));
+    api
+      .listDocuments()
+      .then(setDocuments)
+      .catch(() => setDocuments([]));
     loadSessions();
   }, []);
 
@@ -56,23 +94,33 @@ export function AskAI() {
       "What are the most important formulas to remember?",
     ];
     if (!documents.length) return generic;
-    const dynamic = documents.slice(0, 2).map((doc) => `Explain the main topics in ${doc.title}`);
+    const dynamic = documents
+      .slice(0, 2)
+      .map((doc) => `Explain the main topics in ${doc.title}`);
     return [...dynamic, ...generic].slice(0, 4);
   }, [documents]);
 
-  const courseOptions = useMemo(() => [
-    { value: "all", label: "All courses" },
-    ...courses.map((c) => ({ value: c.name, label: c.name })),
-  ], [courses]);
+  const courseOptions = useMemo(
+    () => [
+      { value: "all", label: "All courses" },
+      ...courses.map((c) => ({ value: c.name, label: c.name })),
+    ],
+    [courses],
+  );
 
-  const documentOptions = useMemo(() => [
-    { value: "all", label: "All documents" },
-    ...documents
-      .filter((d) => (course ? d.course === course : true))
-      .map((d) => ({ value: d.id, label: d.title })),
-  ], [documents, course]);
+  const documentOptions = useMemo(
+    () => [
+      { value: "all", label: "All documents" },
+      ...documents
+        .filter((d) => (course ? d.course === course : true))
+        .map((d) => ({ value: d.id, label: d.title })),
+    ],
+    [documents, course],
+  );
 
-  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+  const lastAssistant = [...messages]
+    .reverse()
+    .find((m) => m.role === "assistant");
   const sources = lastAssistant?.sources ?? [];
   const confidence = lastAssistant?.confidence;
 
@@ -86,6 +134,9 @@ export function AskAI() {
     if (!value || isStreaming) return;
     ask(value, { stream: streaming, ragMode }).then(() => loadSessions());
     setInput("");
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
   };
 
   const jumpToSource = (index: number) => {
@@ -102,12 +153,16 @@ export function AskAI() {
     <div className="flex h-full">
       {/* ── Left: Sessions panel ── */}
       <div
-        className={`hidden lg:flex flex-col overflow-hidden transition-all duration-200 ${
-          sessionsPanelOpen ? "w-[220px]" : "w-0"
-        }`}
+        className={`hidden lg:flex flex-col overflow-hidden transition-all duration-200 ${sessionsPanelOpen ? "w-[220px]" : "w-0"
+          }`}
       >
         <div className="relative flex min-h-0 flex-1 flex-col">
-          <PaperSheetBorder fill="#fdfcf8" stroke="#c0b9ae" strokeWidth={1.2} shadow={0} />
+          <PaperSheetBorder
+            fill="#fdfcf8"
+            stroke="#c0b9ae"
+            strokeWidth={1.2}
+            shadow={0}
+          />
           <div className="relative z-[1] flex flex-1 flex-col">
             {/* Header */}
             <div className="flex h-12 shrink-0 items-center justify-between px-4">
@@ -115,7 +170,9 @@ export function AskAI() {
               <GhostButton
                 size="sm"
                 className="h-7 gap-1 px-2"
-                onClick={() => { reset(); }}
+                onClick={() => {
+                  reset();
+                }}
               >
                 <Plus className="size-3.5" /> New
               </GhostButton>
@@ -133,17 +190,18 @@ export function AskAI() {
                   {sessions.map((s) => (
                     <div
                       key={s.id}
-                      className={`group flex cursor-pointer items-start gap-2 rounded-lg px-3 py-2.5 transition-colors ${
-                        s.id === activeSessionId
+                      className={`group flex cursor-pointer items-start gap-2 rounded-lg px-3 py-2.5 transition-colors ${s.id === activeSessionId
                           ? "bg-black/5 text-ink"
                           : "text-ink-muted hover:bg-black/[0.03] hover:text-ink"
-                      }`}
+                        }`}
                       onClick={() => loadSession(s.id)}
                       onMouseEnter={() => setHoveredSessionId(s.id)}
                       onMouseLeave={() => setHoveredSessionId(null)}
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="truncate font-architect text-[13px]">{s.title}</div>
+                        <div className="truncate font-architect text-[13px]">
+                          {s.title}
+                        </div>
                         <div className="mt-0.5 font-kalam text-[11px] text-ink-muted/70">
                           {s.messageCount} msg · {relativeTime(s.updatedAt)}
                         </div>
@@ -151,7 +209,10 @@ export function AskAI() {
                       {hoveredSessionId === s.id && (
                         <button
                           className="shrink-0 text-ink-muted/60 hover:text-danger transition-colors"
-                          onClick={(e) => { e.stopPropagation(); void deleteSession(s.id); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void deleteSession(s.id);
+                          }}
                         >
                           <Trash2 className="size-3.5" />
                         </button>
@@ -166,122 +227,121 @@ export function AskAI() {
       </div>
 
       {/* ── Center: Chat area ── */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Top bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border px-4 py-2 sm:py-0 sm:h-12 gap-2">
-          {/* Left: nav toggles + filters */}
-          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            <IconButton
-              label="Toggle history"
-              className="shrink-0"
-              onClick={() => setSessionsPanelOpen((v) => !v)}
-              title={sessionsPanelOpen ? "Hide history" : "Show history"}
-            >
-              <MessageSquare className="size-4" />
-            </IconButton>
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        {/* Absolute collapse buttons */}
+        <IconButton
+          label="Toggle history"
+          className="absolute left-3 top-2 z-20  "
+          onClick={() => setSessionsPanelOpen((v) => !v)}
+          title={sessionsPanelOpen ? "Hide history" : "Show history"}
+        >
+          <MessageSquare className="size-4" />
+        </IconButton>
+        <IconButton
+          label="Toggle sources"
+          className="absolute right-3 top-2 z-20 hidden lg:inline-flex bg-background/80 backdrop-blur-md"
+          onClick={() => setSourcesPanelOpen((v) => !v)}
+          title={sourcesPanelOpen ? "Hide sources" : "Show sources"}
+        >
+          <PanelRight className="size-4" />
+        </IconButton>
 
-            <div className="flex items-center gap-2 flex-1 sm:flex-none">
-              <PaperSelect
-                value={course ?? "all"}
-                onChange={(v) => setCourse(v === "all" ? null : v)}
-                options={courseOptions}
-                placeholder="All courses"
-                className="flex-1 sm:w-36 md:w-44 min-w-[90px]"
-                wrapperClassName="flex-1 sm:flex-none"
-              />
-              <PaperSelect
-                value={document ?? "all"}
-                onChange={(v) => setDocument(v === "all" ? null : v)}
-                options={documentOptions}
-                placeholder="All documents"
-                className="flex-1 sm:w-36 md:w-44 min-w-[90px]"
-                wrapperClassName="flex-1 sm:flex-none"
-              />
-            </div>
+        {/* Top bar */}
+        <div className="flex flex-wrap items-center justify-between border-b border-border pl-12 pr-4 lg:pr-12 py-2 min-h-[48px] gap-3 shrink-0 z-10 bg-background">
+          {/* Left: Filters + Toggles in the same line */}
+          <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+            <PaperSelect
+              value={course ?? "all"}
+              onChange={(v) => setCourse(v === "all" ? null : v)}
+              options={courseOptions}
+              placeholder="All courses"
+              className="flex-1 sm:w-36 md:w-44 min-w-[120px]"
+              wrapperClassName="flex-1 sm:flex-none"
+            />
+            <PaperSelect
+              value={document ?? "all"}
+              onChange={(v) => setDocument(v === "all" ? null : v)}
+              options={documentOptions}
+              placeholder="All documents"
+              className="flex-1 sm:w-64 md:w-80 min-w-[120px]"
+              wrapperClassName="flex-1 sm:flex-none min-w-0"
+            />
+
+            {/* RAG Mode toggle */}
+            <ToggleButton
+              size="sm"
+              pressed={ragMode === "strict"}
+              onPressedChange={(v) =>
+                setSettingsField("ragMode", v ? "strict" : "fallback")
+              }
+              title={
+                ragMode === "strict"
+                  ? "Strict RAG — click to switch to AI Fallback"
+                  : "AI Fallback — click to switch to Strict RAG"
+              }
+              className="gap-1 text-[11px] shrink-0"
+            >
+              <ShieldCheck className="size-3" />
+              <span>{ragMode === "strict" ? "Strict" : "Fallback"}</span>
+            </ToggleButton>
+
+            {/* Highlights Only toggle */}
+            {document && document !== "all" && (
+              <ToggleButton
+                size="sm"
+                pressed={!!highlightsOnly}
+                onPressedChange={(v) => setHighlightsOnly(v)}
+                title={
+                  highlightsOnly
+                    ? "Highlights Only ON — answers derived exclusively from your highlights"
+                    : "Enable Highlights Only"
+                }
+                className="gap-1 text-[11px] shrink-0"
+              >
+                <BookOpen className="size-3" />
+                <span>Highlights</span>
+              </ToggleButton>
+            )}
+
+            {/* Socratic Mode toggle */}
+            <ToggleButton
+              size="sm"
+              pressed={!!socratic}
+              onPressedChange={(v) => setSocratic(v)}
+              title={
+                socratic
+                  ? "Socratic Mode ON — AI guides, does not answer"
+                  : "Enable Socratic Mode"
+              }
+              className="gap-1 text-[11px] shrink-0"
+            >
+              <GraduationCap className="size-3" />
+              <span>Socratic</span>
+            </ToggleButton>
           </div>
 
-          {/* Right: toggles + actions */}
-          <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 w-full sm:w-auto">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              {confidence !== undefined && !isStreaming && (
-                <PaperBadge tone="sage" className="gap-1 px-2 py-0.5">
-                  <Gauge className="size-3" />
-                  <span>
-                    {(confidence * 100).toFixed(0)}%{" "}
-                    <span className="hidden md:inline">confidence</span>
-                  </span>
-                </PaperBadge>
-              )}
+          {/* Right: Confidence + Clear button */}
+          <div className="flex items-center gap-2 ml-auto shrink-0">
+            {confidence !== undefined && !isStreaming && (
+              <PaperBadge tone="sage" className="gap-1 px-2 py-0.5">
+                <Gauge className="size-3" />
+                <span>
+                  {(confidence * 100).toFixed(0)}%{" "}
+                  <span className="hidden md:inline">confidence</span>
+                </span>
+              </PaperBadge>
+            )}
 
-              {/* RAG Mode toggle */}
-              <ToggleButton
+            {messages.length > 0 && (
+              <GhostButton
                 size="sm"
-                pressed={ragMode === "strict"}
-                onPressedChange={(v) =>
-                  setSettingsField("ragMode", v ? "strict" : "fallback")
-                }
-                title={
-                  ragMode === "strict"
-                    ? "Strict RAG — click to switch to AI Fallback"
-                    : "AI Fallback — click to switch to Strict RAG"
-                }
-                className="gap-1 text-[11px]"
+                className="h-8 px-2.5 gap-1.5"
+                onClick={reset}
               >
-                <ShieldCheck className="size-3" />
-                <span>{ragMode === "strict" ? "Strict" : "Fallback"}</span>
-              </ToggleButton>
-
-              {/* Highlights Only toggle */}
-              {document && document !== "all" && (
-                <ToggleButton
-                  size="sm"
-                  pressed={!!highlightsOnly}
-                  onPressedChange={(v) => setHighlightsOnly(v)}
-                  title={
-                    highlightsOnly
-                      ? "Highlights Only ON — answers derived exclusively from your highlights"
-                      : "Enable Highlights Only"
-                  }
-                  className="gap-1 text-[11px]"
-                >
-                  <BookOpen className="size-3" />
-                  <span>Highlights</span>
-                </ToggleButton>
-              )}
-
-              {/* Socratic Mode toggle */}
-              <ToggleButton
-                size="sm"
-                pressed={!!socratic}
-                onPressedChange={(v) => setSocratic(v)}
-                title={
-                  socratic
-                    ? "Socratic Mode ON — AI guides, does not answer"
-                    : "Enable Socratic Mode"
-                }
-                className="gap-1 text-[11px]"
-              >
-                <GraduationCap className="size-3" />
-                <span>Socratic</span>
-              </ToggleButton>
-            </div>
-
-            <div className="flex items-center gap-1">
-              {messages.length > 0 && (
-                <GhostButton size="sm" className="h-8 px-2.5 gap-1.5" onClick={reset}>
-                  <Trash2 className="size-3.5" />
-                  <span className="hidden xs:inline">Clear</span>
-                </GhostButton>
-              )}
-              <IconButton
-                label="Toggle sources"
-                className="hidden lg:inline-flex"
-                onClick={() => setSourcesPanelOpen((v) => !v)}
-                title={sourcesPanelOpen ? "Hide sources" : "Show sources"}
-              >
-                <PanelRight className="size-4" />
-              </IconButton>
-            </div>
+                <Trash2 className="size-3.5" />
+                <span className="hidden xs:inline">Clear</span>
+              </GhostButton>
+            )}
           </div>
         </div>
 
@@ -293,7 +353,11 @@ export function AskAI() {
             ) : (
               <div className="space-y-4">
                 {messages.map((m) => (
-                  <AnswerViewer key={m.id} message={m} onCitationClick={jumpToSource} />
+                  <AnswerViewer
+                    key={m.id}
+                    message={m}
+                    onCitationClick={jumpToSource}
+                  />
                 ))}
               </div>
             )}
@@ -303,43 +367,49 @@ export function AskAI() {
         {/* Sticky input */}
         <div className="border-t border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
           <div className="mx-auto max-w-5xl">
-            <PaperCard
-              data-tour="ask-input"
-              shadow="sm"
-              className="flex items-end gap-2 p-2"
-            >
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    submit();
-                  }
-                }}
-                rows={1}
-                placeholder="Ask anything about your materials…"
-                className="max-h-40 min-h-9 flex-1 resize-none bg-transparent py-1.5 font-architect text-sm text-ink outline-none placeholder:text-ink-muted/60"
-              />
-              <PaperButton
-                data-tour="ask-send"
-                tone="dark"
-                size="sm"
-                disabled={!input.trim() || isStreaming}
-                onClick={() => submit()}
-                className="shrink-0"
-              >
-                <ArrowUp className="size-[18px]" />
-              </PaperButton>
+            <PaperCard data-tour="ask-input" shadow="sm" className="p-2">
+              <div className="flex items-end gap-2">
+                <textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      submit();
+                    }
+                  }}
+                  rows={1}
+                  placeholder="Ask anything about your materials…"
+                  className="max-h-40 min-h-9 flex-1 resize-none bg-transparent py-1.5 font-architect text-sm text-ink outline-none placeholder:text-ink-muted/60"
+                />
+                <PaperButton
+                  data-tour="ask-send"
+                  tone="dark"
+                  size="sm"
+                  disabled={!input.trim() || isStreaming}
+                  onClick={() => submit()}
+                  className="shrink-0"
+                >
+                  <ArrowUp className="size-[18px]" />
+                </PaperButton>
+              </div>
             </PaperCard>
             <div className="mt-2 flex items-center justify-between px-1 font-kalam text-xs text-ink-muted">
               <span className="flex items-center gap-1.5">
                 <Sparkles className="size-3 text-primary" />
-                Grounded in {courses.length} courses · {streaming ? "Streaming on" : "Streaming off"}
+                Grounded in {courses.length} courses ·{" "}
+                {streaming ? "Streaming on" : "Streaming off"}
               </span>
               <span>
-                <kbd className="rounded border border-border bg-muted px-1 font-mono">Enter</kbd> to send ·{" "}
-                <kbd className="rounded border border-border bg-muted px-1 font-mono">Shift+Enter</kbd> newline
+                <kbd className="rounded border border-border bg-muted px-1 font-mono">
+                  Enter
+                </kbd>{" "}
+                to send ·{" "}
+                <kbd className="rounded border border-border bg-muted px-1 font-mono">
+                  Shift+Enter
+                </kbd>{" "}
+                newline
               </span>
             </div>
           </div>
@@ -348,17 +418,25 @@ export function AskAI() {
 
       {/* ── Right: Sources panel ── */}
       <div
-        className={`hidden lg:flex flex-col overflow-hidden transition-all duration-200 ${
-          sourcesPanelOpen ? "w-[25%] min-w-[260px] max-w-[360px]" : "w-0"
-        }`}
+        className={`hidden lg:flex flex-col overflow-hidden transition-all duration-200 ${sourcesPanelOpen ? "w-[25%] min-w-[260px] max-w-[360px]" : "w-0"
+          }`}
       >
         <div className="relative flex min-h-0 flex-1 flex-col">
-          <PaperSheetBorder fill="#fdfcf8" stroke="#c0b9ae" strokeWidth={1.2} shadow={0} />
+          <PaperSheetBorder
+            fill="#fdfcf8"
+            stroke="#c0b9ae"
+            strokeWidth={1.2}
+            shadow={0}
+          />
           <div
             data-tour="ask-sources"
             className="relative z-[1] flex min-h-0 flex-1 flex-col px-1 py-1"
           >
-            <SourcePanel sources={sources} activeId={activeSource} onSelect={setActiveSource} />
+            <SourcePanel
+              sources={sources}
+              activeId={activeSource}
+              onSelect={setActiveSource}
+            />
           </div>
         </div>
       </div>
@@ -378,7 +456,13 @@ function relativeTime(iso: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-function EmptyAsk({ onPick, suggestions }: { onPick: (q: string) => void; suggestions: string[] }) {
+function EmptyAsk({
+  onPick,
+  suggestions,
+}: {
+  onPick: (q: string) => void;
+  suggestions: string[];
+}) {
   return (
     <div className="flex flex-col items-center pt-12 text-center">
       <motion.div
@@ -392,7 +476,8 @@ function EmptyAsk({ onPick, suggestions }: { onPick: (q: string) => void; sugges
 
       <PaperH1 className="mt-5 text-4xl">Ask your knowledge base</PaperH1>
       <p className="mt-2 max-w-md font-kalam text-[15px] text-ink-muted">
-        Get source-grounded answers with citations, drawn directly from your documents, notes and lectures.
+        Get source-grounded answers with citations, drawn directly from your
+        documents, notes and lectures.
       </p>
 
       <div className="mt-8 grid w-full max-w-xl gap-2 sm:grid-cols-2">
@@ -403,15 +488,8 @@ function EmptyAsk({ onPick, suggestions }: { onPick: (q: string) => void; sugges
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 + i * 0.06 }}
           >
-            <button
-              onClick={() => onPick(s)}
-              className="w-full text-left"
-            >
-              <PaperCard
-                lift
-                shadow="sm"
-                className="p-3.5 cursor-pointer"
-              >
+            <button onClick={() => onPick(s)} className="w-full text-left">
+              <PaperCard lift shadow="sm" className="p-3.5 cursor-pointer">
                 <p className="font-architect text-sm text-ink">{s}</p>
               </PaperCard>
             </button>

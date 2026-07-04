@@ -21,6 +21,7 @@ export interface PaperSelectProps {
   disabled?: boolean;
   className?: string;
   wrapperClassName?: string;
+  icon?: React.ReactNode;
 }
 
 export function PaperSelect({
@@ -35,6 +36,7 @@ export function PaperSelect({
   disabled = false,
   className,
   wrapperClassName,
+  icon,
 }: PaperSelectProps) {
   const isControlled = value !== undefined;
   const [internal, setInternal] = useState(defaultValue ?? "");
@@ -107,6 +109,7 @@ export function PaperSelect({
             roughness={1.1}
             shadow={0}
           />
+          {icon && <span className="relative z-[1] shrink-0">{icon}</span>}
           <span className={cn("relative z-[1] flex-1", !selected && "text-ink-muted/60")}>
             {selected ? selected.label : placeholder}
           </span>
