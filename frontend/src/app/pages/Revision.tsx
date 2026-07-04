@@ -273,10 +273,10 @@ export function Revision() {
                     onClick={() => loadRevision(r.id)}
                     className="w-full text-left focus:outline-none"
                   >
-                    <span className="text-sm font-semibold truncate w-full pr-8 block text-ink">
+                    <span className="text-sm font-bold truncate w-full pr-8 block text-ink font-architect">
                       {r.title}
                     </span>
-                    <span className="text-xs text-ink-muted line-clamp-2 mt-1">
+                    <span className="text-xs text-ink-muted line-clamp-2 mt-1 font-kalam">
                       {r.content.replace(/[#*]/g, "").trim()}
                     </span>
                     <span className="text-[10px] text-ink-muted/60 mt-1 block font-architect">

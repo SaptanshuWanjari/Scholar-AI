@@ -57,10 +57,10 @@ export function ConceptNode({
   onClick,
   className,
 }: ConceptNodeProps) {
-  return (
+return (
     <PaperPanel
       className={cn(
-        "group relative pl-8 pr-4 py-3",
+        "group relative pl-8 pr-10 py-3", // extra right padding for the button
         onClick && "cursor-pointer",
         className,
       )}
@@ -70,9 +70,14 @@ export function ConceptNode({
 
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="font-kalam font-bold text-[15px] text-ink leading-snug">{title}</p>
+          <p className="font-kalam font-bold text-[15px] text-ink leading-snug">
+            {title}
+          </p>
+
           {description && (
-            <p className="font-kalam text-sm text-ink-muted mt-0.5 line-clamp-2">{description}</p>
+            <p className="font-kalam text-sm text-ink-muted mt-0.5 line-clamp-2">
+              {description}
+            </p>
           )}
         </div>
 
@@ -80,14 +85,16 @@ export function ConceptNode({
           <div className="flex flex-col items-end gap-0.5 shrink-0">
             {badge}
             {meta && (
-              <span className="font-architect text-xs text-ink-muted">{meta}</span>
+              <span className="font-architect text-xs text-ink-muted">
+                {meta}
+              </span>
             )}
           </div>
         )}
       </div>
 
       {actions && (
-        <div className="flex flex-wrap gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
           {actions}
         </div>
       )}

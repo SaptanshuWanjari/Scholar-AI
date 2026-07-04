@@ -76,21 +76,18 @@ export function ConceptNode({
           )}
         </div>
 
-        {(badge !== undefined || meta !== undefined) && (
-          <div className="flex flex-col items-end gap-0.5 shrink-0">
-            {badge}
-            {meta && (
-              <span className="font-architect text-xs text-ink-muted">{meta}</span>
-            )}
-          </div>
-        )}
-      </div>
-
-      {actions && (
-        <div className="flex flex-wrap gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          {actions}
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
+          {actions && (
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+              {actions}
+            </div>
+          )}
+          {badge}
+          {meta && (
+            <span className="font-architect text-xs text-ink-muted">{meta}</span>
+          )}
         </div>
-      )}
+      </div>
     </PaperPanel>
   );
 }

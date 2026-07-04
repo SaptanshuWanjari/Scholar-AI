@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
 import { Loader2, AlertCircle, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { PaperCard } from "@paper-ui/core";
+import { EmptyState } from "@paper-ui/components/feedback";
 
 mermaid.initialize({
   startOnLoad: false,
@@ -65,9 +67,23 @@ export function DiagramViewer({ code, flush, title = "diagram", kind }: { code: 
 
       try {
         ref.current.innerHTML = "";
+        
+        // Clean AI generated code
+        let cleanCode = code;
+        cleanCode = cleanCode.replace(/^```mermaid\n?/, "").replace(/```$/, "").trim();
+        // Quote labels with parens or commas to prevent syntax errors
+        cleanCode = cleanCode.replace(/(\w+)\s*\[([^"\]]+)\]/g, (match, id, text) => {
+          if (text.includes('"')) return match;
+          return `${id}["${text}"]`;
+        });
+        cleanCode = cleanCode.replace(/(\w+)\s*\(([^")]+)\)/g, (match, id, text) => {
+          if (text.includes('"')) return match;
+          return `${id}("${text}")`;
+        });
+
         // Validate syntax first so it throws instead of rendering an error SVG
-        await mermaid.parse(code);
-        const { svg } = await mermaid.render(id, code);
+        await mermaid.parse(cleanCode);
+        const { svg } = await mermaid.render(id, cleanCode);
 
         if (isMounted && ref.current) {
           ref.current.innerHTML = svg;
@@ -89,8 +105,10 @@ export function DiagramViewer({ code, flush, title = "diagram", kind }: { code: 
     };
   }, [code, isPlantUML]);
 
+  const Container = flush ? "div" : PaperCard;
+
   return (
-    <div className={`relative flex w-full items-center justify-center overflow-hidden ${flush ? "h-full" : "min-h-[400px] rounded-lg border border-border bg-card p-8 paper"}`}>
+    <Container className={`relative flex w-full items-center justify-center overflow-hidden ${flush ? "h-full" : "min-h-[400px] p-8"}`}>
       {loading && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-card/50 backdrop-blur-sm">
           <Loader2 className="size-8 animate-spin text-primary" />
@@ -99,17 +117,17 @@ export function DiagramViewer({ code, flush, title = "diagram", kind }: { code: 
       )}
       
       {error ? (
-        <div className="flex flex-col items-center gap-4 text-center max-w-md px-6">
-          <div className="flex size-12 items-center justify-center rounded-full bg-danger/10 text-danger">
-            <AlertCircle className="size-6" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold">Diagram Error</h3>
-            <p className="mt-1 text-xs text-muted-foreground">{isPlantUML ? "The PlantUML syntax might be invalid or the server is unavailable." : "The Mermaid syntax might be invalid or there was a rendering issue."}</p>
-          </div>
-          <pre className="mt-2 w-full overflow-x-auto rounded-lg border border-border bg-secondary p-3 text-left text-[11px] font-mono text-danger">
-            {code}
-          </pre>
+        <div className="flex w-full items-center justify-center p-6">
+          <EmptyState
+            icon={<AlertCircle className="size-8 text-danger" />}
+            title="Diagram Error"
+            description={isPlantUML ? "The PlantUML syntax might be invalid or the server is unavailable." : "The Mermaid syntax might be invalid or there was a rendering issue."}
+            action={
+              <pre className="mt-2 w-full max-w-lg overflow-x-auto rounded-lg border border-border bg-danger-soft/20 p-3 text-left text-[11px] font-mono text-danger">
+                {code}
+              </pre>
+            }
+          />
         </div>
       ) : (
         <TransformWrapper initialScale={1} minScale={0.1} maxScale={8} centerOnInit>
@@ -149,6 +167,6 @@ export function DiagramViewer({ code, flush, title = "diagram", kind }: { code: 
           )}
         </TransformWrapper>
       )}
-    </div>
+    </Container>
   );
 }
