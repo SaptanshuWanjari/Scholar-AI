@@ -1,7 +1,7 @@
 """Unit tests for the structural chunker."""
 
-from scholarcli.ingest.chunker import chunk_pages
-from scholarcli.ingest.loaders import Page
+from scholarai.ingest.chunker import chunk_pages
+from scholarai.ingest.loaders import Page
 
 
 def test_empty_pages():

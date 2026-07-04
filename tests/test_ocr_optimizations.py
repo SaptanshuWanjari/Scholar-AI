@@ -1,7 +1,7 @@
 """Tests for OCR pipeline optimizations."""
 from unittest.mock import MagicMock, patch
 import pytest
-from scholarcli.storage import init_db
+from scholarai.storage import init_db
 
 
 @pytest.fixture
@@ -12,7 +12,7 @@ def db():
 # --- tables ---
 
 def test_extract_table_markdowns_returns_strings():
-    from scholarcli.ingest.tables import extract_table_markdowns
+    from scholarai.ingest.tables import extract_table_markdowns
 
     mock_tbl = MagicMock()
     mock_tbl.to_markdown.return_value = "| A | B |\n|---|---|\n| 1 | 2 |"
@@ -27,7 +27,7 @@ def test_extract_table_markdowns_returns_strings():
 
 
 def test_extract_table_markdowns_skips_trivial():
-    from scholarcli.ingest.tables import extract_table_markdowns
+    from scholarai.ingest.tables import extract_table_markdowns
 
     mock_tbl = MagicMock()
     mock_tbl.to_markdown.return_value = "| A |\n|---|"  # only 1 newline → skip
@@ -44,10 +44,10 @@ def test_extract_table_markdowns_skips_trivial():
 # --- ocr_page_bytes ---
 
 def test_ocr_page_bytes_calls_vision_on_miss(db):
-    from scholarcli.ingest import ocr
+    from scholarai.ingest import ocr
 
     fake_png = b"fake png data"
-    with patch("scholarcli.ingest.vision.transcribe", return_value="extracted text") as mock_t:
+    with patch("scholarai.ingest.vision.transcribe", return_value="extracted text") as mock_t:
         text = ocr.ocr_page_bytes(fake_png, cache_enabled=True)
 
     assert text == "extracted text"
@@ -55,14 +55,14 @@ def test_ocr_page_bytes_calls_vision_on_miss(db):
 
 
 def test_ocr_page_bytes_cache_hit_skips_vision(db):
-    from scholarcli.ingest import ocr
-    from scholarcli.ingest.page_cache import image_hash, store_ocr
+    from scholarai.ingest import ocr
+    from scholarai.ingest.page_cache import image_hash, store_ocr
 
     fake_png = b"cached png bytes"
     h = image_hash(fake_png)
     store_ocr(h, "cached result")
 
-    with patch("scholarcli.ingest.vision.transcribe") as mock_t:
+    with patch("scholarai.ingest.vision.transcribe") as mock_t:
         text = ocr.ocr_page_bytes(fake_png, cache_enabled=True)
 
     assert text == "cached result"
@@ -70,11 +70,11 @@ def test_ocr_page_bytes_cache_hit_skips_vision(db):
 
 
 def test_ocr_page_bytes_stores_result_in_cache(db):
-    from scholarcli.ingest import ocr
-    from scholarcli.ingest.page_cache import image_hash, get_cached_ocr
+    from scholarai.ingest import ocr
+    from scholarai.ingest.page_cache import image_hash, get_cached_ocr
 
     fake_png = b"new png bytes"
-    with patch("scholarcli.ingest.vision.transcribe", return_value="fresh text"):
+    with patch("scholarai.ingest.vision.transcribe", return_value="fresh text"):
         ocr.ocr_page_bytes(fake_png, cache_enabled=True)
 
     h = image_hash(fake_png)
@@ -83,7 +83,7 @@ def test_ocr_page_bytes_stores_result_in_cache(db):
 
 def test_ocr_page_tesseract_bytes_raises_when_unavailable():
     import unittest.mock
-    from scholarcli.ingest import ocr
+    from scholarai.ingest import ocr
 
     with unittest.mock.patch.object(ocr, "_TESSERACT_AVAILABLE", False):
         with pytest.raises(RuntimeError, match="pytesseract not installed"):
@@ -93,17 +93,17 @@ def test_ocr_page_tesseract_bytes_raises_when_unavailable():
 # --- loaders ---
 
 def test_page_has_bbox_field():
-    from scholarcli.ingest.loaders import Page
+    from scholarai.ingest.loaders import Page
     p = Page(page_number=1, title="T", heading="", text="hello")
     assert p.bbox is None  # default
 
 
 def test_load_pdf_pages_in_order(sample_pdf, db):
     """load_pdf returns pages sorted by page_number even with parallel processing."""
-    from scholarcli.ingest.loaders import load_pdf
+    from scholarai.ingest.loaders import load_pdf
 
-    with patch("scholarcli.ingest.vision.transcribe", return_value="text"), \
-         patch("scholarcli.ingest.vision.describe_image",
+    with patch("scholarai.ingest.vision.transcribe", return_value="text"), \
+         patch("scholarai.ingest.vision.describe_image",
                return_value={"type": "image", "description": "img"}):
         pages = load_pdf(sample_pdf, "testhash")
 

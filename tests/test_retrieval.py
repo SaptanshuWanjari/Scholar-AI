@@ -5,16 +5,16 @@ Uses mock embeddings API so no Ollama server required.
 
 from unittest.mock import patch
 
-from scholarcli.ingest.pipeline import ingest_file
-from scholarcli.rag import build_rag
-from scholarcli.storage import get_session, init_db
-from scholarcli.storage.models import Course
-from scholarcli.storage.vectors import search
+from scholarai.ingest.pipeline import ingest_file
+from scholarai.rag import build_rag
+from scholarai.storage import get_session, init_db
+from scholarai.storage.models import Course
+from scholarai.storage.vectors import search
 
 
 def _ensure_course(name: str) -> None:
     init_db()
-    from scholarcli.storage.models import get_course
+    from scholarai.storage.models import get_course
     session = get_session()
     try:
         if not get_course(session, name):
@@ -47,8 +47,8 @@ class _MockEmbeddings:
         return vals[:self._dim]
 
 
-@patch("scholarcli.llm.get_embeddings")
-@patch("scholarcli.ingest.pipeline.get_embeddings")
+@patch("scholarai.llm.get_embeddings")
+@patch("scholarai.ingest.pipeline.get_embeddings")
 def test_search_returns_chunks(mock_pipe_emb, mock_llm_emb, sample_pdf):
     """After ingestion, search for a known term returns the matching chunk."""
     m = _MockEmbeddings()
@@ -67,10 +67,10 @@ def test_search_returns_chunks(mock_pipe_emb, mock_llm_emb, sample_pdf):
     assert any("Slow Start" in t for t in texts)
 
 
-@patch("scholarcli.rag.nodes.generator.get_llm")
-@patch("scholarcli.rag.nodes.router.get_llm")
-@patch("scholarcli.llm.get_embeddings")
-@patch("scholarcli.ingest.pipeline.get_embeddings")
+@patch("scholarai.rag.nodes.generator.get_llm")
+@patch("scholarai.rag.nodes.router.get_llm")
+@patch("scholarai.llm.get_embeddings")
+@patch("scholarai.ingest.pipeline.get_embeddings")
 def test_grounding_off_topic(mock_pipe_emb, mock_llm_emb, mock_router_llm, mock_gen_llm, sample_pdf):
     """A query unrelated to any chunk returns grounded=False."""
     m = _MockEmbeddings()

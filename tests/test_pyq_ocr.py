@@ -26,8 +26,8 @@ def test_read_text_uses_ocr_for_sparse_page(tmp_path):
     doc, pages = _make_mock_doc(["   "])  # page has no text
 
     with patch("fitz.open", return_value=doc):
-        with patch("scholarcli.ingest.ocr.ocr_page", return_value=("Q1. What is an OS?", None)) as mock_ocr:
-            from scholarcli.api import pyq_service
+        with patch("scholarai.ingest.ocr.ocr_page", return_value=("Q1. What is an OS?", None)) as mock_ocr:
+            from scholarai.api import pyq_service
             result = pyq_service._read_text(pdf)
 
     mock_ocr.assert_called_once_with(pages[0])
@@ -43,8 +43,8 @@ def test_read_text_skips_ocr_for_rich_page(tmp_path):
     doc, _ = _make_mock_doc([rich_text])
 
     with patch("fitz.open", return_value=doc):
-        with patch("scholarcli.ingest.ocr.ocr_page") as mock_ocr:
-            from scholarcli.api import pyq_service
+        with patch("scholarai.ingest.ocr.ocr_page") as mock_ocr:
+            from scholarai.api import pyq_service
             result = pyq_service._read_text(pdf)
 
     mock_ocr.assert_not_called()
@@ -59,8 +59,8 @@ def test_read_text_mixes_native_and_ocr(tmp_path):
     doc, pages = _make_mock_doc(["x" * 100, "  "])  # page1 rich, page2 sparse
 
     with patch("fitz.open", return_value=doc):
-        with patch("scholarcli.ingest.ocr.ocr_page", return_value=("OCR content", None)) as mock_ocr:
-            from scholarcli.api import pyq_service
+        with patch("scholarai.ingest.ocr.ocr_page", return_value=("OCR content", None)) as mock_ocr:
+            from scholarai.api import pyq_service
             result = pyq_service._read_text(pdf)
 
     mock_ocr.assert_called_once_with(pages[1])
@@ -73,8 +73,8 @@ def test_read_text_non_pdf_unchanged(tmp_path):
     md = tmp_path / "paper.md"
     md.write_text("# Q1\nDefine deadlock.")
 
-    with patch("scholarcli.ingest.ocr.ocr_page") as mock_ocr:
-        from scholarcli.api import pyq_service
+    with patch("scholarai.ingest.ocr.ocr_page") as mock_ocr:
+        from scholarai.api import pyq_service
         result = pyq_service._read_text(md)
 
     mock_ocr.assert_not_called()

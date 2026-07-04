@@ -2,15 +2,15 @@
 
 from unittest.mock import patch
 
-from scholarcli.storage import get_session, init_db
-from scholarcli.storage.models import Course, Document
-from scholarcli.storage.vectors import detect_overlapping_document
-from scholarcli.ingest.pipeline import ingest_file
+from scholarai.storage import get_session, init_db
+from scholarai.storage.models import Course, Document
+from scholarai.storage.vectors import detect_overlapping_document
+from scholarai.ingest.pipeline import ingest_file
 
 
 def _ensure_course(name: str) -> None:
     init_db()
-    from scholarcli.storage.models import get_course
+    from scholarai.storage.models import get_course
     session = get_session()
     try:
         if not get_course(session, name):
@@ -34,7 +34,7 @@ def test_detect_overlapping_no_match(sample_pdf):
     from tests.test_retrieval import _MockEmbeddings
     m = _MockEmbeddings()
     _ensure_course("Networks")
-    with patch("scholarcli.ingest.pipeline.get_embeddings", return_value=m):
+    with patch("scholarai.ingest.pipeline.get_embeddings", return_value=m):
         ingest_file(sample_pdf, "Networks", embeddings=m)
 
     new_vecs = [[0.0] * 384 for _ in range(5)]
@@ -49,7 +49,7 @@ def test_detect_overlapping_self_excluded(sample_pdf):
     from tests.test_retrieval import _MockEmbeddings
     m = _MockEmbeddings()
     _ensure_course("Networks")
-    with patch("scholarcli.ingest.pipeline.get_embeddings", return_value=m):
+    with patch("scholarai.ingest.pipeline.get_embeddings", return_value=m):
         result = ingest_file(sample_pdf, "Networks", embeddings=m)
     assert result == "indexed"
 

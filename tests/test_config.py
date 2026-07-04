@@ -1,4 +1,4 @@
-from scholarcli.config import get_settings
+from scholarai.config import get_settings
 
 
 def test_ingest_config_defaults():

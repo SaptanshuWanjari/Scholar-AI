@@ -1,4 +1,4 @@
-from scholarcli.storage import vectors
+from scholarai.storage import vectors
 try:
     tbl = vectors._open_table()
     tbl.create_fts_index("text", replace=True)

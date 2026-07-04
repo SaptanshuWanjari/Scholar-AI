@@ -1,6 +1,6 @@
-from scholarcli.storage import get_session
-from scholarcli.storage.models import Document
-from scholarcli.ingest.pipeline import ingest_file
+from scholarai.storage import get_session
+from scholarai.storage.models import Document
+from scholarai.ingest.pipeline import ingest_file
 from pathlib import Path
 
 session = get_session()

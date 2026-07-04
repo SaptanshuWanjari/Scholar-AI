@@ -1,6 +1,6 @@
 import asyncio
 from fastapi import FastAPI
-from scholarcli.api.app import lifespan
+from scholarai.api.app import lifespan
 
 async def test():
     app = FastAPI()

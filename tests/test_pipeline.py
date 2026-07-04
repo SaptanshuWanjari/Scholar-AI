@@ -6,9 +6,9 @@ Uses mock embeddings (list of zeros) so no Ollama server is needed.
 import uuid
 from unittest.mock import patch
 
-from scholarcli.ingest.pipeline import ingest_file
-from scholarcli.storage.models import Document
-from scholarcli.storage import get_session, init_db
+from scholarai.ingest.pipeline import ingest_file
+from scholarai.storage.models import Document
+from scholarai.storage import get_session, init_db
 
 
 class _MockEmbeddings:

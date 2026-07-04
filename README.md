@@ -53,7 +53,7 @@ Install dependencies and run the API server using `uv`:
 ```bash
 uv sync
 uv run scholar serve
-# Or manually: uvicorn scholarcli.api.app:app --reload
+# Or manually: uvicorn scholarai.api.app:app --reload
 ```
 
 ### 3. Frontend
