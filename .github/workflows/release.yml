@@ -35,9 +35,9 @@ jobs:
 
       - name: Assemble release dir
         run: |
-          mkdir -p dist/ScholarAI-${{ github.ref_name }}
+          mkdir -p dist/ScholarAI-${{ github.ref_name }}/frontend/dist
           cp -r scholarai dist/ScholarAI-${{ github.ref_name }}/
-          cp -r frontend/dist dist/ScholarAI-${{ github.ref_name }}/frontend/dist/
+          cp -r frontend/dist/* dist/ScholarAI-${{ github.ref_name }}/frontend/dist/
           cp -r config dist/ScholarAI-${{ github.ref_name }}/
           cp requirements.txt pyproject.toml dist/ScholarAI-${{ github.ref_name }}/
           cp setup.sh dist/ScholarAI-${{ github.ref_name }}/ 2>/dev/null || true
