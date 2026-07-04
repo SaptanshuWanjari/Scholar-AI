@@ -31,6 +31,7 @@ export default defineConfig({
       '@paper-ui/utils':      path.resolve(__dirname, '../paper-ui/src/utils'),
       '@paper-ui/core':       path.resolve(__dirname, '../paper-ui/src/core'),
       '@paper-ui/components': path.resolve(__dirname, '../paper-ui/src/components'),
+      'roughjs': path.resolve(__dirname, './node_modules/roughjs'),
       'react': path.resolve(__dirname, './node_modules/react'),
       'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
     },
