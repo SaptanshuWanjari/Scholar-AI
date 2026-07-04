@@ -14,6 +14,32 @@ It ingests your PDFs and Markdown notes into a local knowledge base (RAG) and pr
 - **Concept Graph**: Extracts and visualizes semantic relationships between key concepts.
 - **Consistency Checker**: Cross-checks user-generated notes against source documents to flag contradictions.
 
+## Quick Install
+
+Download the latest archive for your platform from [GitHub Releases](https://github.com/SaptanshuWanjari/Scholar-AI/releases), extract it, and run:
+
+```bash
+# Linux / macOS
+tar xzf ScholarAI-*-Linux.tar.gz   # or *-macOS.tar.gz
+cd ScholarAI-*
+./setup.sh
+
+# Windows (PowerShell)
+Expand-Archive ScholarAI-*-windows.zip
+cd ScholarAI-*
+.\setup.ps1
+```
+
+**Prerequisite**: [Ollama](https://ollama.ai) must be installed and running with the required models:
+
+```bash
+ollama pull qwen3:8b
+ollama pull gemma4:12b
+ollama pull nomic-embed-text
+```
+
+Then open `http://localhost:8000` in your browser.
+
 ## Tech Stack
 
 **Backend**
@@ -33,11 +59,9 @@ It ingests your PDFs and Markdown notes into a local knowledge base (RAG) and pr
 - Zustand (State management)
 - React Router
 
-## Setup & Installation
+## Development Setup
 
 ### 1. Ollama (LLM Engine)
-
-Start the local Ollama server and pull the required models:
 
 ```bash
 ollama serve            # Run in a separate terminal
@@ -48,25 +72,19 @@ ollama pull nomic-embed-text
 
 ### 2. Backend
 
-Install dependencies and run the API server using `uv`:
-
 ```bash
 uv sync
 uv run scholar serve
-# Or manually: uvicorn scholarai.api.app:app --reload
 ```
 
 ### 3. Frontend
 
-In a new terminal, install dependencies and start the Vite dev server:
-
 ```bash
 cd frontend
-pnpm install
-pnpm run dev
+npm install
+npm run dev
+# Opens at http://localhost:5173
 ```
-
-Then open `http://localhost:5173` in your browser.
 
 ## CLI Usage
 
