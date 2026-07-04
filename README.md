@@ -24,6 +24,9 @@ tar xzf ScholarAI-*-Linux.tar.gz   # or *-macOS.tar.gz
 cd ScholarAI-*
 ./setup.sh
 
+```
+
+```bash
 # Windows (PowerShell)
 Expand-Archive ScholarAI-*-windows.zip
 cd ScholarAI-*
@@ -49,14 +52,13 @@ Then open `http://localhost:8000` in your browser.
 - LangGraph & LangChain
 - LanceDB (embedded vector + BM25 search)
 - SQLite + SQLAlchemy (metadata & durable artifact persistence)
-- Ollama (Local LLMs and embeddings)
-
-**Frontend**
+- Ollama
+  **Frontend**
 
 - React + Vite
 - TypeScript
 - Tailwind CSS
-- Zustand (State management)
+- Zustand
 - React Router
 
 ## Development Setup
