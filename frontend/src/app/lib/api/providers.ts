@@ -9,6 +9,7 @@ export interface ProviderStatus {
   enabled: boolean;
   default_model: string | null;
   capabilities: string[];
+  base_url: string | null;
 }
 
 export interface ProviderModel {
@@ -40,11 +41,11 @@ export const providersApi = {
     return request<ProviderStatus[]>("/api/providers");
   },
 
-  connect(providerId: string, apiKey: string): Promise<{ connected: boolean; model_count: number }> {
+  connect(providerId: string, apiKey: string, baseUrl?: string): Promise<{ connected: boolean; model_count: number }> {
     return request(`/api/providers/${providerId}/connect`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ api_key: apiKey }),
+      body: JSON.stringify({ api_key: apiKey, base_url: baseUrl ?? null }),
     });
   },
 

@@ -1,4 +1,3 @@
-import { useLogStore } from "../../stores/useLogStore";
 
 export const BASE: string = (import.meta as any).env?.VITE_API_BASE_URL ?? "";
 
@@ -16,7 +15,6 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       /* non-JSON error body */
     }
-    useLogStore.getState().addLog("error", `API Error: ${path}`, detail);
     throw new Error(detail);
   }
   if (res.status === 204) return undefined as T;

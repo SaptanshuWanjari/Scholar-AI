@@ -12,6 +12,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   gemini: "Google Gemini",
   groq: "Groq",
   openrouter: "OpenRouter",
+  openai_compat: "OpenAI-Compatible API",
 };
 
 const PROVIDER_DESCRIPTIONS: Record<string, string> = {
@@ -19,6 +20,7 @@ const PROVIDER_DESCRIPTIONS: Record<string, string> = {
   gemini: "Google's Gemini models — excellent for vision, reasoning, and long-context tasks.",
   groq: "Ultra-fast inference for open-source models (Llama, Mixtral).",
   openrouter: "Unified API for 100+ cloud models from Anthropic, Google, Meta, and more.",
+  openai_compat: "Any server that speaks the OpenAI REST spec: LM Studio, vLLM, Together AI, Fireworks, Anyscale, and more.",
 };
 
 // ── Badge tones: "sage" | "ochre" | "sky" | "lavender" | "brick" | "ink"
@@ -292,6 +294,151 @@ function CloudProviderCard({ provider }: { provider: ProviderStatus }) {
   );
 }
 
+function OpenAICompatCard({ provider }: { provider: ProviderStatus }) {
+  const { connect, disconnect, connectingId, fetchModels, models, testProvider, testResults, health, fetchHealth } =
+    useProvidersStore();
+  const [apiKey, setApiKey] = React.useState("");
+  const [baseUrl, setBaseUrl] = React.useState(provider.base_url ?? "http://localhost:1234/v1");
+  const [showKey, setShowKey] = React.useState(false);
+  const isConnecting = connectingId === provider.provider_id;
+  const providerModels = models[provider.provider_id] ?? [];
+  const testResult = testResults[provider.provider_id];
+  const providerHealth = health[provider.provider_id];
+
+  React.useEffect(() => {
+    if (provider.connected) {
+      fetchModels(provider.provider_id);
+      fetchHealth(provider.provider_id);
+    }
+  }, [provider.connected, provider.provider_id, fetchModels, fetchHealth]);
+
+  const handleConnect = async () => {
+    if (!baseUrl.trim()) return;
+    await connect(provider.provider_id, apiKey.trim() || "none", baseUrl.trim());
+    setApiKey("");
+  };
+
+  return (
+    <PaperCard className="p-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-architect text-[16px] text-ink">
+              {PROVIDER_LABELS[provider.provider_id]}
+            </span>
+            <StatusBadge connected={provider.connected} isLocal={false} />
+            {provider.connected && providerHealth && (
+              <HealthDot status={providerHealth.status as "online" | "slow" | "offline"} />
+            )}
+          </div>
+          <p className="font-kalam text-[13px] text-ink-muted mt-0.5">
+            {PROVIDER_DESCRIPTIONS[provider.provider_id]}
+          </p>
+        </div>
+
+        {provider.connected && (
+          <div className="flex gap-2 shrink-0 self-start">
+            <PaperButton
+              tone="paper"
+              size="sm"
+              onClick={() => testProvider(provider.provider_id)}
+              className="flex items-center gap-1.5"
+            >
+              <TestTube2 size={13} />
+              Test
+            </PaperButton>
+            <PaperButton
+              tone="red"
+              size="sm"
+              onClick={() => disconnect(provider.provider_id)}
+              className="flex items-center gap-1.5"
+            >
+              <WifiOff size={13} />
+              Disconnect
+            </PaperButton>
+          </div>
+        )}
+      </div>
+
+      <CapabilityBadges capabilities={provider.capabilities} />
+
+      {!provider.connected && (
+        <div className="mt-3 flex flex-col gap-2">
+          <div>
+            <label className="text-xs font-architect text-ink-muted mb-1 block">Base URL</label>
+            <PaperInput
+              type="url"
+              placeholder="http://localhost:1234/v1"
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
+            <div className="flex-1">
+              <label className="text-xs font-architect text-ink-muted mb-1 block">
+                API Key <span className="font-kalam text-ink-muted">(leave blank if not required)</span>
+              </label>
+              <PaperInput
+                type={showKey ? "text" : "password"}
+                placeholder="Optional — leave blank for local servers"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleConnect()}
+                trailingIcon={
+                  <GhostButton
+                    size="sm"
+                    border={null}
+                    onClick={() => setShowKey(!showKey)}
+                    className="!min-h-0 !py-0 !px-1 text-xs font-kalam text-ink-muted hover:text-ink"
+                  >
+                    {showKey ? "Hide" : "Show"}
+                  </GhostButton>
+                }
+              />
+            </div>
+            <PaperButton
+              tone="dark"
+              size="sm"
+              disabled={!baseUrl.trim() || isConnecting}
+              onClick={handleConnect}
+              className="flex items-center gap-1.5 self-start sm:self-auto"
+            >
+              {isConnecting ? <Loader2 size={13} className="animate-spin" /> : <Wifi size={13} />}
+              Connect
+            </PaperButton>
+          </div>
+        </div>
+      )}
+
+      {provider.connected && (
+        <div className="mt-2 rounded-md border border-[#e8e3d8] bg-ink/[0.02] px-3 py-2 text-sm font-kalam text-ink-muted">
+          Endpoint: <code className="font-mono text-xs text-ink">{provider.base_url}</code>
+        </div>
+      )}
+
+      {provider.connected && providerModels.length > 0 && (
+        <div className="mt-3">
+          <div className="text-xs font-architect text-ink-muted mb-1">
+            Available models ({providerModels.length})
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {providerModels.slice(0, 8).map((m) => (
+              <span key={m.id} className="rounded px-2 py-0.5 text-xs font-mono bg-ink/5 text-ink">
+                {m.label}
+              </span>
+            ))}
+            {providerModels.length > 8 && (
+              <span className="text-xs text-ink-muted self-center">+{providerModels.length - 8} more</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {testResult && <TestResultBanner result={testResult} />}
+    </PaperCard>
+  );
+}
+
 export function ModelProvidersTab() {
   const { providers, loading, fetchProviders, fetchHealth, health } = useProvidersStore();
 
@@ -320,9 +467,13 @@ export function ModelProvidersTab() {
   return (
     <div className="flex flex-col gap-3 py-2">
       {ollama && <OllamaCard provider={ollama} health={health["ollama"]} />}
-      {cloud.map((p) => (
-        <CloudProviderCard key={p.provider_id} provider={p} />
-      ))}
+      {cloud.map((p) =>
+        p.provider_id === "openai_compat" ? (
+          <OpenAICompatCard key={p.provider_id} provider={p} />
+        ) : (
+          <CloudProviderCard key={p.provider_id} provider={p} />
+        )
+      )}
     </div>
   );
 }

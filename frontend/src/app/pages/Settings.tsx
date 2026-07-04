@@ -16,7 +16,6 @@ import { PaperButton, ChipButton } from "@paper-ui/components/buttons";
 import { PaperModal } from "@paper-ui/components/dialogs";
 import { PaperCard } from "@paper-ui/core";
 import { useSettingsStore } from "../stores/useSettingsStore";
-import { useLogStore } from "../stores/useLogStore";
 import { navItems } from "../lib/nav";
 import { api, type ModelsList } from "../lib/api";
 import { KNOWN_PLUGINS } from "../plugins/registry";
@@ -60,7 +59,6 @@ const TABS = [
   { key: "shortcuts", icon: Keyboard, label: "Shortcuts" },
   { key: "guidance", icon: LifeBuoy, label: "Help & Guidance" },
   { key: "plugins", icon: Puzzle, label: "Plugins" },
-  { key: "logs", icon: Terminal, label: "Logs" },
   { key: "data", icon: Database, label: "Data" },
 ] as const;
 
@@ -68,8 +66,6 @@ export function SettingsPage() {
   const s = useSettingsStore();
   const { theme, setTheme } = useTheme();
   const appearance = useAppearanceStore();
-  const logs = useLogStore((state) => state.logs);
-  const clearLogs = useLogStore((state) => state.clearLogs);
   const navigate = useNavigate();
   const { install, uninstall, enable, disable, isInstalled, isEnabled, getInstallState, restartRequired, dismissRestart } = usePluginStore();
   const toursEnabled = useGuidanceStore((g) => g.prefs.toursEnabled);
@@ -707,40 +703,6 @@ export function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "logs" && (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-architect text-[14px] text-ink">System Logs</h3>
-                <PaperButton size="sm" onClick={() => clearLogs()}>
-                  Clear Logs
-                </PaperButton>
-              </div>
-              <div className="space-y-3">
-                {logs.length === 0 ? (
-                  <div className="font-kalam text-sm text-ink-muted/75">No high-importance logs found.</div>
-                ) : (
-                  logs.map((log) => (
-                    <div key={log.id} className="rounded-lg border border-border bg-muted/50 p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${log.level === 'critical' ? 'bg-danger text-danger-foreground' : 'bg-amber-500/20 text-amber-500'}`}>
-                          {log.level.toUpperCase()}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(log.timestamp).toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="text-sm font-medium">{log.message}</div>
-                      {log.details && (
-                        <pre className="mt-2 text-xs text-muted-foreground bg-background p-2 rounded overflow-x-auto whitespace-pre-wrap font-mono">
-                          {log.details}
-                        </pre>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
 
           {activeTab === "data" && (
             <>

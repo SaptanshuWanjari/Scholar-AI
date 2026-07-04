@@ -29,6 +29,7 @@ const MODEL_PLACEHOLDER: Record<string, string> = {
   gemini: "e.g. gemini-2.5-flash",
   groq: "e.g. llama-3.3-70b-versatile",
   openrouter: "e.g. anthropic/claude-3-5-haiku",
+  openai_compat: "e.g. llama-3.1-8b-instruct",
 };
 
 // Controlled text input that saves on blur or Enter; empty string → null (provider default)
@@ -167,7 +168,7 @@ export function ModelRoutingTab() {
           <div className="space-y-1 text-sm font-kalam text-ink">
             <div>• Vision tasks → first connected provider with vision capability</div>
             <div>• Reasoning tasks → first provider with reasoning (Gemini preferred)</div>
-            <div>• Embeddings → always Ollama (local)</div>
+            <div>• Embeddings → configured embedding provider (Settings → Embedding)</div>
             <div>• Everything else → first connected chat provider</div>
           </div>
         </div>

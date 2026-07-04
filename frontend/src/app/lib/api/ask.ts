@@ -1,6 +1,5 @@
 import type { Source } from "../types";
 import { request, json, BASE } from "./client";
-import { useLogStore } from "../../stores/useLogStore";
 
 // ---- Ask ----
 export interface AskResponse {
@@ -97,7 +96,6 @@ export const askApi = {
     });
     if (!res.ok || !res.body) {
       const msg = `Request failed (${res.status})`;
-      useLogStore.getState().addLog("error", `RAG/Generation Stream Error`, msg);
       handlers.onError?.(msg);
       return;
     }
@@ -120,7 +118,6 @@ export const askApi = {
         else if (evt.type === "done")
           handlers.onDone?.({ sources: evt.sources, confidence: evt.confidence, grounded: evt.grounded, route: evt.route ?? "" });
         else if (evt.type === "error") {
-          useLogStore.getState().addLog("error", `Generation Stream Error`, evt.value);
           handlers.onError?.(evt.value);
         }
       }
