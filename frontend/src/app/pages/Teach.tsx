@@ -20,7 +20,6 @@ import {
   CheckCircle2,
   XCircle,
   ShieldCheck,
-  Star,
   FolderOpen,
   ChevronLeft,
   PauseCircle,
@@ -45,19 +44,18 @@ import {
 } from "@paper-ui/components/buttons";
 import { PaperInput, PaperSelect, PaperCheckbox, PaperSwitch } from "@paper-ui/components/inputs";
 import { PaperBadge } from "@paper-ui/components/badges";
-import { ScrollArea } from "@paper-ui/components/layout";
+import { ScrollArea, SplitLayout } from "@paper-ui/components/layout";
 import {
   PaperCard,
   PaperPanel,
   PaperH1,
-  PaperH2,
   PaperH3,
   PaperH5,
-  PaperH6,
   PaperIconCircle,
 } from "@paper-ui/core";
 import { PrerequisiteCard, ConceptNode } from "@paper-ui/components/teaching";
 import { StarDoodle, StarDoodleFilled } from "@paper-ui/components/doodles";
+import { EmptyState } from "@paper-ui/components/feedback";
 import { PaperModal } from "@paper-ui/components/dialogs";
 import { api, type PackageMeta, type FlashcardSet, type GeneratedQuiz, type GeneratedDiagram, type GeneratedMindmap, type GeneratedRevision, type ReadinessMissing } from "../lib/api";
 import type { GeneratedDifference, Flashcard, QuizQuestion } from "../lib/types";
@@ -323,7 +321,7 @@ function InputPhase() {
                 {recommendations && (
                   <button
                     onClick={applyRecommendations}
-                    className="rounded px-2 py-0.5 text-xs text-primary transition-colors hover:bg-violet-soft/60"
+                    className="font-kalam rounded px-2 py-0.5 text-sm text-primary transition-colors hover:bg-violet-soft/60"
                   >
                     Use Recommended
                   </button>
@@ -470,10 +468,11 @@ function InputPhase() {
 
 function ViewState({ icon: Icon, message }: { icon: typeof Sparkles; message: string }) {
       return (
-        <div className="flex flex-col items-center justify-center gap-3 pt-24 text-center text-muted-foreground">
-          <Icon className="size-7 opacity-50" />
-          <p className="max-w-sm text-sm">{message}</p>
-        </div>
+        <EmptyState 
+          icon={<Icon className="size-6 text-ink-muted/60" />} 
+          title={message}
+          className="mt-12"
+        />
       );
     }
 
@@ -496,36 +495,41 @@ function QuizReview({ questions }: { questions: QuizQuestion[] }) {
           {questions.map((q, i) => {
             const show = revealed[q.id];
             return (
-              <div key={q.id} className="rounded-xl border border-border bg-card p-4">
-                <div className="flex items-start gap-2">
-                  <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md bg-violet-soft text-[11px] font-medium text-primary">{i + 1}</span>
-                  <p className="text-sm font-medium leading-snug">{q.prompt}</p>
+              <PaperCard key={q.id} className="p-5">
+                <div className="flex items-start gap-3">
+                  <PaperIconCircle tone="lavender" size={24} className="mt-0.5 shrink-0">
+                    <span className="text-xs font-bold">{i + 1}</span>
+                  </PaperIconCircle>
+                  <p className="text-[15px] font-medium leading-relaxed text-ink">{q.prompt}</p>
                 </div>
                 {q.options && q.options.length > 0 && (
-                  <ul className="mt-3 space-y-1.5 pl-7">
+                  <ul className="mt-4 space-y-2 pl-[36px]">
                     {q.options.map((opt, oi) => {
                       const isAnswer = show && opt.trim() === q.answer.trim();
                       return (
                         <li
                           key={oi}
                           className={cn(
-                            "flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm",
-                            isAnswer ? "border-success/50 bg-success-soft text-success" : "border-border",
+                            "flex items-center gap-3 rounded-xl border px-4 py-2.5 text-[15px] font-architect",
+                            isAnswer
+                              ? "border-success/30 bg-success-soft text-success-dark font-medium shadow-sm"
+                              : "border-black/10 text-ink hover:bg-black/[0.02]",
+                            !show && "hover:border-black/20 transition-colors cursor-pointer"
                           )}
                         >
-                          {isAnswer && <CheckCircle2 className="size-3.5 shrink-0" />}
+                          {isAnswer && <CheckCircle2 className="size-4 shrink-0" />}
                           {opt}
                         </li>
                       );
                     })}
                   </ul>
                 )}
-                <div className="mt-3 pl-7">
+                <div className="mt-4 pl-[36px]">
                   {show ? (
                     q.explanation && (
-                      <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm">
-                        <p className="text-muted-foreground">{q.explanation}</p>
-                      </div>
+                      <PaperPanel tone="sage" className="p-4 text-sm mt-2">
+                        <p className="text-ink/80 leading-relaxed">{q.explanation}</p>
+                      </PaperPanel>
                     )
                   ) : (
                     <PaperButton tone="paper" size="sm" onClick={() => setRevealed((r) => ({ ...r, [q.id]: true }))}>
@@ -533,7 +537,7 @@ function QuizReview({ questions }: { questions: QuizQuestion[] }) {
                     </PaperButton>
                   )}
                 </div>
-              </div>
+              </PaperCard>
             );
           })}
         </div>
@@ -686,7 +690,7 @@ function StatusIcon({ status, paused }: { status: SlotStatus; paused?: boolean }
         case "queued":
           return paused
             ? <PauseCircle className="size-3.5 shrink-0 text-amber-500/70" />
-            : <Clock className="size-3.5 shrink-0 text-muted-foreground/60" />;
+            : <Clock className="size-3.5 shrink-0 text-ink-muted/50" />;
         default:
           return null;
       }
@@ -762,23 +766,23 @@ function WorkspacePhase() {
       return (
         <div className="flex h-full">
           {/* Nav rail */}
-          <div className="flex w-64 shrink-0 flex-col border-r border-border bg-card/40">
-            <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-              <GraduationCap className="size-4 text-primary" />
-              <span className="truncate text-sm font-medium">{topic}</span>
+          <div className="flex w-64 shrink-0 flex-col border-r border-black/10 bg-surface">
+            <div className="flex items-center gap-2.5 border-b border-black/10 px-5 py-4">
+              <GraduationCap className="size-[18px] text-primary" />
+              <span className="truncate font-architect text-[16px] font-semibold text-ink">{topic}</span>
             </div>
 
             {/* Live progress strip */}
-            <div className="border-b border-border px-4 py-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-medium text-muted-foreground">
+            <div className="border-b border-black/10 px-5 py-3">
+              <div className="flex items-center justify-between text-xs font-kalam">
+                <span className="font-medium text-ink-muted">
                   {generating ? (
-                    <span className="flex items-center gap-1.5 text-foreground">
+                    <span className="flex items-center gap-1.5 text-ink">
                       <Loader2 className="size-3 animate-spin text-primary" />
                       Generating {currentLabel ?? "…"}
                     </span>
                   ) : isPaused ? (
-                    <span className="flex items-center gap-1.5 text-amber-500">
+                    <span className="flex items-center gap-1.5 text-amber-600">
                       <PauseCircle className="size-3" />
                       Awaiting your review
                     </span>
@@ -788,9 +792,9 @@ function WorkspacePhase() {
                     "Ready"
                   )}
                 </span>
-                <span className="font-mono text-muted-foreground">{done}/{total}</span>
+                <span className="font-mono text-ink-muted">{done}/{total}</span>
               </div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/5">
                 <motion.div
                   className="h-full rounded-full bg-primary"
                   animate={{ width: `${total ? (done / total) * 100 : 0}%` }}
@@ -801,7 +805,7 @@ function WorkspacePhase() {
 
             <div className="min-h-0 flex-1">
               <ScrollArea className="h-full">
-              <nav className="space-y-1 p-2">
+              <nav className="space-y-1 p-3">
                 {NAV.map((item) => {
                   const st = statusFor(item.id);
                   const isArtifact = (ARTIFACT_KEYS as string[]).includes(item.id);
@@ -811,12 +815,12 @@ function WorkspacePhase() {
                       key={item.id}
                       onClick={() => openView(item.id)}
                       className={cn(
-                        "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                        activeView === item.id ? "bg-violet-soft text-primary" : "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
+                        "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-[14.5px] font-kalam transition-colors",
+                        activeView === item.id ? "bg-violet-soft text-ink font-semibold shadow-sm" : "text-ink-muted hover:bg-black/5 hover:text-ink",
                         notIncluded && "opacity-40",
                       )}
                     >
-                      <item.icon className="size-4 shrink-0" />
+                      <item.icon className="size-[15px] shrink-0" />
                       <span className="flex-1 truncate">{item.label}</span>
                       <StatusIcon status={st} paused={isPaused && st === "queued"} />
                     </button>
@@ -825,7 +829,7 @@ function WorkspacePhase() {
               </nav>
               </ScrollArea>
             </div>
-            <div className="space-y-2 border-t border-border p-3">
+            <div className="space-y-2 border-t border-black/10 p-3 bg-surface">
               <PaperButton onClick={savePackage} disabled={saving || !overview} className="w-full gap-2" size="sm" tone="dark">
                 {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
                 {packageId ? "Saved" : "Save Learning Package"}
@@ -849,9 +853,9 @@ function WorkspacePhase() {
           </div>
 
           {/* Main panel */}
-          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-            <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background/80 px-6 backdrop-blur-xl">
-              <span className="text-sm font-medium">{NAV.find((n) => n.id === activeView)?.label}</span>
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="flex h-12 shrink-0 items-center gap-3 border-b border-black/10 bg-surface/80 px-6 backdrop-blur-xl">
+              <span className="font-architect text-[17px] font-medium text-ink">{NAV.find((n) => n.id === activeView)?.label}</span>
               {isPaused && activeView === "notes" && (
                 <PaperBadge tone="ochre" className="gap-1 text-[10px]">
                   <PenLine className="size-2.5" /> Draft — editable
@@ -888,12 +892,21 @@ function WorkspacePhase() {
                   </p>
                 </div>
                 <div className="min-h-0 flex-1 p-6">
-                  <textarea
-                    className="h-full w-full resize-none rounded-lg border border-border bg-background p-4 font-mono text-sm leading-relaxed text-foreground outline-none focus:ring-2 focus:ring-primary/30"
-                    value={approvedNotes}
-                    onChange={(e) => setApprovedNotes(e.target.value)}
-                    placeholder="Your draft notes will appear here…"
-                    spellCheck={false}
+                  <SplitLayout
+                    left={
+                      <textarea
+                        className="h-full w-full resize-none rounded-lg border border-border bg-background p-4 font-mono text-sm leading-relaxed text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                        value={approvedNotes}
+                        onChange={(e) => setApprovedNotes(e.target.value)}
+                        placeholder="Your draft notes will appear here…"
+                        spellCheck={false}
+                      />
+                    }
+                    right={
+                      <div className="min-h-full rounded-lg border border-border bg-background/50 p-6">
+                        <MarkdownRenderer content={approvedNotes || "Your preview will appear here..."} />
+                      </div>
+                    }
                   />
                 </div>
                 <div className="flex shrink-0 items-center justify-between gap-4 border-t border-border bg-background/90 px-6 py-3 backdrop-blur-sm">
