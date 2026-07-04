@@ -23,6 +23,7 @@ const MODEL_PLACEHOLDER: Record<string, string> = {
   gemini: "e.g. gemini-2.5-flash",
   groq: "e.g. llama-3.3-70b-versatile",
   openrouter: "e.g. anthropic/claude-3-5-haiku",
+  openai_compat: "e.g. llama-3.1-8b-instruct",
 };
 
 // Saves on blur or Enter; empty string → null (use provider default)

@@ -818,6 +818,7 @@ class ProviderConfig(Base):
 
     provider_id: Mapped[str] = mapped_column(String, primary_key=True)
     api_key_encrypted: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    base_url: Mapped[str | None] = mapped_column(String, nullable=True)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     connected: Mapped[bool] = mapped_column(Boolean, default=False)
     default_model: Mapped[str | None] = mapped_column(String, nullable=True)

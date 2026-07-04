@@ -12,7 +12,7 @@ interface ProvidersState {
   fetchProviders: () => Promise<void>;
   fetchModels: (providerId: string) => Promise<void>;
   fetchHealth: (providerId: string) => Promise<void>;
-  connect: (providerId: string, apiKey: string) => Promise<void>;
+  connect: (providerId: string, apiKey: string, baseUrl?: string) => Promise<void>;
   disconnect: (providerId: string) => Promise<void>;
   testProvider: (providerId: string) => Promise<void>;
 }
@@ -53,10 +53,10 @@ export const useProvidersStore = create<ProvidersState>((set, get) => ({
     }
   },
 
-  connect: async (providerId, apiKey) => {
+  connect: async (providerId, apiKey, baseUrl) => {
     set({ connectingId: providerId });
     try {
-      await providersApi.connect(providerId, apiKey);
+      await providersApi.connect(providerId, apiKey, baseUrl);
       await get().fetchProviders();
       await get().fetchModels(providerId);
     } finally {

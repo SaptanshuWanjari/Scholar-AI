@@ -39,10 +39,12 @@ class ProviderStatus(BaseModel):
     enabled: bool
     default_model: str | None
     capabilities: list[str]
+    base_url: str | None = None
 
 
 class ConnectRequest(BaseModel):
     api_key: str
+    base_url: str | None = None
 
 
 class ProviderModelOut(BaseModel):
@@ -95,6 +97,12 @@ _PROVIDER_META = {
         "is_local": False,
         "capabilities": ["chat", "streaming", "vision", "json", "tools", "embeddings"],
     },
+    "openai_compat": {
+        "name": "OpenAI-Compatible API",
+        "description": "Any server that speaks the OpenAI REST spec: LM Studio, vLLM, Together AI, Fireworks, Anyscale, Perplexity, and more.",
+        "is_local": False,
+        "capabilities": ["chat", "streaming", "json", "tools"],
+    },
 }
 
 
@@ -132,6 +140,7 @@ def list_providers() -> list[ProviderStatus]:
                 enabled=bool(row and row.enabled),
                 default_model=row.default_model if row else None,
                 capabilities=meta["capabilities"],
+                base_url=row.base_url if row else None,
             ))
         return result
     finally:
@@ -142,12 +151,15 @@ def list_providers() -> list[ProviderStatus]:
 def connect_provider(provider_id: str, payload: ConnectRequest) -> dict:
     """Store an API key and mark provider as connected after validating it."""
     _require_plugin()
-    if provider_id not in ("gemini", "groq", "openrouter"):
+    if provider_id not in ("gemini", "groq", "openrouter", "openai_compat"):
         raise HTTPException(status_code=404, detail=f"Unknown cloud provider: {provider_id}")
+
+    if provider_id == "openai_compat" and not payload.base_url:
+        raise HTTPException(status_code=400, detail="base_url is required for openai_compat provider")
 
     # Validate key by instantiating provider and listing models
     try:
-        provider = _get_provider_instance(provider_id, payload.api_key)
+        provider = _get_provider_instance(provider_id, payload.api_key, payload.base_url)
         models = provider.list_models()
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Connection failed: {exc}") from exc
@@ -159,6 +171,7 @@ def connect_provider(provider_id: str, payload: ConnectRequest) -> dict:
             row = ProviderConfig(provider_id=provider_id)
             db.add(row)
         row.api_key_encrypted = encrypt(payload.api_key)
+        row.base_url = payload.base_url
         row.connected = True
         row.enabled = True
         db.commit()
@@ -172,7 +185,7 @@ def connect_provider(provider_id: str, payload: ConnectRequest) -> dict:
 def disconnect_provider(provider_id: str) -> dict:
     """Remove the API key and mark provider as disconnected."""
     _require_plugin()
-    if provider_id not in ("gemini", "groq", "openrouter"):
+    if provider_id not in ("gemini", "groq", "openrouter", "openai_compat"):
         raise HTTPException(status_code=404, detail=f"Unknown cloud provider: {provider_id}")
 
     db = get_session()
@@ -286,13 +299,14 @@ def _get_connected_provider(provider_id: str):  # type: ignore[return]
         if not (row and row.connected and row.api_key_encrypted):
             raise HTTPException(status_code=404, detail=f"Provider '{provider_id}' is not connected")
         key = decrypt(row.api_key_encrypted)
+        base_url = row.base_url
     finally:
         db.close()
 
-    return _get_provider_instance(provider_id, key)
+    return _get_provider_instance(provider_id, key, base_url)
 
 
-def _get_provider_instance(provider_id: str, api_key: str):  # type: ignore[return]
+def _get_provider_instance(provider_id: str, api_key: str, base_url: str | None = None):  # type: ignore[return]
     if provider_id == "gemini":
         from scholarai.llm.providers.gemini import GeminiProvider
         return GeminiProvider(api_key)
@@ -302,4 +316,7 @@ def _get_provider_instance(provider_id: str, api_key: str):  # type: ignore[retu
     if provider_id == "openrouter":
         from scholarai.llm.providers.openrouter import OpenRouterProvider
         return OpenRouterProvider(api_key)
+    if provider_id == "openai_compat":
+        from scholarai.llm.providers.openai_compat import OpenAICompatProvider
+        return OpenAICompatProvider(api_key, base_url or "http://localhost:1234/v1")
     raise HTTPException(status_code=404, detail=f"Unknown provider: {provider_id}")

@@ -36,6 +36,10 @@ def _load_provider(db: Session, provider_id: str) -> "BaseProvider | None":
     if provider_id == "openrouter":
         from scholarai.llm.providers.openrouter import OpenRouterProvider
         return OpenRouterProvider(key)
+    if provider_id == "openai_compat":
+        from scholarai.llm.providers.openai_compat import OpenAICompatProvider
+        base_url = row.base_url or "http://localhost:1234/v1"
+        return OpenAICompatProvider(key, base_url)
 
     return None
 
@@ -61,11 +65,11 @@ class ProviderRegistry:
     def list_connected(self) -> list[BaseProvider]:
         """Return all currently connected providers (ollama + any cloud)."""
         providers: list[BaseProvider] = [self._ollama]
-        for pid in ("gemini", "groq", "openrouter"):
+        for pid in ("gemini", "groq", "openrouter", "openai_compat"):
             p = _load_provider(self._db, pid)
             if p is not None:
                 providers.append(p)
         return providers
 
     def all_provider_ids(self) -> list[str]:
-        return ["ollama", "gemini", "groq", "openrouter"]
+        return ["ollama", "gemini", "groq", "openrouter", "openai_compat"]

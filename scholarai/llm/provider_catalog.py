@@ -39,6 +39,12 @@ PROVIDER_CAPABILITIES: dict[str, list[ProviderCapability]] = {
         ProviderCapability.TOOL_CALLING,
         ProviderCapability.EMBEDDINGS,
     ],
+    "openai_compat": [
+        ProviderCapability.CHAT,
+        ProviderCapability.STREAMING,
+        ProviderCapability.JSON_MODE,
+        ProviderCapability.TOOL_CALLING,
+    ],
 }
 
 # Tasks that must always go to the embeddings provider (Ollama)

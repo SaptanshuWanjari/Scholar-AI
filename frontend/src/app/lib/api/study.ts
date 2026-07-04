@@ -1,6 +1,5 @@
 import type { Flashcard, Quiz, DiagramItem, GeneratedDifference, DifferenceTableItem, QualityScore, Source } from "../types";
 import { request, json, BASE } from "./client";
-import { useLogStore } from "../../stores/useLogStore";
 
 // ---- Flashcards ----
 export interface FlashcardSet {
@@ -157,7 +156,6 @@ export const studyApi = {
     });
     if (!res.ok || !res.body) {
       const msg = `Request failed (${res.status})`;
-      useLogStore.getState().addLog("error", `Revision Stream Error`, msg);
       handlers.onError?.(msg);
       return;
     }
@@ -179,7 +177,6 @@ export const studyApi = {
         if (evt.type === "token") handlers.onToken(evt.value);
         else if (evt.type === "done") handlers.onDone?.({ grounded: evt.grounded, title: evt.title ?? "", quality: evt.quality });
         else if (evt.type === "error") {
-          useLogStore.getState().addLog("error", `Revision Generation Error`, evt.value);
           handlers.onError?.(evt.value);
         }
       }

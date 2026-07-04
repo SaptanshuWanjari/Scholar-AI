@@ -23,10 +23,6 @@ export function PaperBadge({
   tone = "ink",
   className,
 }: PaperBadgeProps) {
-  console.log({
-    tone,
-    keys: Object.keys(TONES),
-  });
 
   const t = TONES[tone as keyof typeof TONES] ?? TONES.ink;
 
