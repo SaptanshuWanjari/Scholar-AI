@@ -81,16 +81,19 @@ def test_patch_question_clears_marks(client, paper_with_question):
 
 
 def test_delete_question_removes_row_and_decrements_count(client, paper_with_question):
-    """DELETE removes the question and decrements the paper's question_count."""
+    """DELETE soft-deletes the question and decrements the paper's question_count."""
     paper_id, qid = paper_with_question
 
     resp = client.delete(f"/api/pyq/questions/{qid}")
     assert resp.status_code == 204
 
-    # Question is gone.
+    # Question is soft-deleted.
     session = get_session()
     try:
-        assert session.get(PYQQuestion, qid) is None
+        q = session.get(PYQQuestion, qid)
+        assert q is not None
+        assert q.is_deleted is True
+        assert q.deleted_at is not None
         paper = session.get(QuestionPaper, paper_id)
         assert paper.question_count == 0
     finally:

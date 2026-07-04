@@ -7,6 +7,9 @@ import { PaperInput } from "@/paper-ui/components/inputs";
 import { PaperSelect } from "@/paper-ui/components/inputs";
 import { PaperBadge } from "@/paper-ui/components/badges";
 import { ChipButton } from "@/paper-ui/components/buttons";
+import { PaperCard } from "@/paper-ui/core";
+import { SearchResultRow } from "@/paper-ui/components/rows/SearchResultRow";
+import { EmptyState } from "@/paper-ui/components/feedback/EmptyState";
 import { cn } from "@/paper-ui/utils";
 import { api, type SearchResult } from "../lib/api";
 import { type Course } from "../lib/types";
@@ -127,27 +130,23 @@ export function SearchPage() {
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            <BookOpen className="size-4 shrink-0 text-ink-muted" />
-            <PaperSelect
-              value={courseFilter}
-              onChange={setCourseFilter}
-              options={[
-                { value: "all", label: "All Courses" },
-                ...courses.map(c => ({ value: c.name, label: c.name })),
-              ]}
-              placeholder="Course"
-            />
-          </div>
+          <PaperSelect
+            value={courseFilter}
+            onChange={setCourseFilter}
+            options={[
+              { value: "all", label: "All Courses" },
+              ...courses.map(c => ({ value: c.name, label: c.name })),
+            ]}
+            placeholder="Course"
+            icon={<BookOpen className="size-4 text-ink-muted" />}
+          />
 
-          <div className="flex items-center gap-2">
-            <Tag className="size-4 shrink-0 text-ink-muted" />
-            <PaperInput
-              value={topicFilter === "all" ? "" : topicFilter}
-              onChange={e => setTopicFilter(e.target.value || "all")}
-              placeholder="Filter by topic..."
-            />
-          </div>
+          <PaperInput
+            value={topicFilter === "all" ? "" : topicFilter}
+            onChange={e => setTopicFilter(e.target.value || "all")}
+            placeholder="Filter by topic..."
+            icon={<Tag className="size-4 text-ink-muted" />}
+          />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -169,52 +168,57 @@ export function SearchPage() {
       </div>
 
       {!hasQuery ? (
-        <div className="flex flex-col items-center pt-16 text-center text-muted-foreground">
-          <SearchIcon className="size-8" />
-          <p className="mt-3 text-sm">
-            {tooShort
+        <EmptyState
+          icon={<SearchIcon size={32} className="text-ink-muted" />}
+          title={tooShort ? "Query too short" : "Search everything"}
+          description={
+            tooShort
               ? `Type at least ${MIN_QUERY_LEN} characters to search.`
-              : "Search semantically across your indexed documents."}
-          </p>
-        </div>
+              : "Search semantically across your indexed documents."
+          }
+          className="my-12 max-w-lg mx-auto"
+        />
       ) : (
         <div className="space-y-6">
           {Object.entries(grouped).map(([group, items]) => {
             const Icon = groupIcon[group] ?? FileText;
             return (
-              <div key={group}>
-                <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  <Icon className="size-3.5" /> {group}
+              <PaperCard key={group} className="p-4">
+                <div className="mb-3 pb-2 border-b border-border/40 flex items-center gap-2 text-sm font-architect text-ink-muted">
+                  <Icon className="size-4 text-[#4a6f91]" /> {group}
                 </div>
-                <div className="space-y-2">
+                <div className="divide-y divide-border/30">
                   {items.map((r, i) => (
-                    <motion.button
+                    <motion.div
                       key={r.id}
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.04 }}
-                      className="block w-full rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/40"
                     >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="truncate text-sm font-medium">{r.title}</span>
-                        <PaperBadge tone="ink" className="shrink-0 text-xs">
-                          {r.course}
-                        </PaperBadge>
-                      </div>
-                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                        {highlight(r.snippet, trimmed)}
-                      </p>
-                    </motion.button>
+                      <SearchResultRow
+                        title={r.title}
+                        snippet={highlight(r.snippet, trimmed)}
+                        badge={
+                          r.course && (
+                            <PaperBadge tone="ink" className="text-xs">
+                              {r.course}
+                            </PaperBadge>
+                          )
+                        }
+                      />
+                    </motion.div>
                   ))}
                 </div>
-              </div>
+              </PaperCard>
             );
           })}
           {!loading && results.length === 0 ? (
-            <div className="flex flex-col items-center pt-16 text-center text-muted-foreground">
-              <SearchIcon className="size-8" />
-              <p className="mt-3 text-sm">No results for “{trimmed}”.</p>
-            </div>
+            <EmptyState
+              icon={<SearchIcon size={32} className="text-ink-muted" />}
+              title="No results found"
+              description={`We couldn't find any results for "${trimmed}".`}
+              className="my-12 max-w-lg mx-auto"
+            />
           ) : null}
         </div>
       )}

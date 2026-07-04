@@ -349,7 +349,7 @@ export function Revision() {
           </TopBar>
         </div>
 
-        <div className="mx-auto max-w-3xl px-8 py-8">
+        <div className="mx-auto  px-8 py-8">
           {output ? (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -361,7 +361,7 @@ export function Revision() {
                   surface="#fffbeb"
                   shadow="none"
                   border={{ stroke: "#a3771f", strokeWidth: 1.5 }}
-                  className="mb-5 flex items-start gap-2.5 px-4 py-3 text-sm text-[#a3771f]"
+                  className="mb-5 flex items-start gap-2.5 px-5 py-3 text-sm text-[#a3771f]"
                 >
                   <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                   <span>
@@ -371,14 +371,14 @@ export function Revision() {
                   </span>
                 </PaperCard>
               )}
-              <PaperSheetCard title={title ?? "Revision Notes"}>
-                <div className="prose prose-neutral dark:prose-invert max-w-none text-ink font-kalam">
+              <PaperCard title={title ?? "Revision Notes"}>
+                <div className="prose prose-neutral dark:prose-invert p-3 max-w-none text-ink font-kalam">
                   <MarkdownRenderer content={output} />
                 </div>
                 {loading && (
                   <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-ink" />
                 )}
-              </PaperSheetCard>
+              </PaperCard>
             </motion.div>
           ) : loading ? (
             <div className="flex flex-col items-center pt-24 text-ink-muted">

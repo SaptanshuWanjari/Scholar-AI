@@ -12,10 +12,21 @@ import {
 import { toast } from "@/app/lib/toast";
 import { Page } from "../components/Page";
 import { UploadZone } from "../components/UploadZone";
-import { ContextualTip } from "../guidance/components/ContextualTip";
 import { IconButton } from "@paper-ui/components/buttons";
-import { SketchSearch, PaperSelect } from "@paper-ui/components/inputs";
-import { PaperTable, TableHeader, TableRow, TableCell, EmptyTable } from "@paper-ui/components/tables";
+import {
+  SketchSearch,
+  PaperSelect,
+  PaperInput,
+} from "@paper-ui/components/inputs";
+import {
+  PaperTable,
+  TableHeader,
+  TableRow,
+  TableCell,
+  EmptyTable,
+} from "@paper-ui/components/tables";
+import { InsightBox } from "@paper-ui/components/stats/InsightBox";
+import { PaperBadge } from "@paper-ui/components/badges";
 import { api } from "../lib/api";
 import type { Course, DocStatus, DocType, DocumentItem } from "../lib/types";
 
@@ -26,10 +37,13 @@ const typeIcon: Record<DocType, typeof FileText> = {
   text: File,
 };
 
-const statusMeta: Record<DocStatus, { label: string; icon: typeof CheckCircle2; cls: string }> = {
-  indexed: { label: "Indexed", icon: CheckCircle2, cls: "border-success/40 bg-success-soft text-success" },
-  processing: { label: "Processing", icon: Loader2, cls: "border-warning/40 bg-warning-soft text-warning" },
-  failed: { label: "Failed", icon: XCircle, cls: "border-danger/40 bg-danger-soft text-danger" },
+const statusMeta: Record<
+  DocStatus,
+  { label: string; icon: typeof CheckCircle2; tone: "sage" | "ochre" | "brick" }
+> = {
+  indexed: { label: "Indexed", icon: CheckCircle2, tone: "sage" },
+  processing: { label: "Processing", icon: Loader2, tone: "ochre" },
+  failed: { label: "Failed", icon: XCircle, tone: "brick" },
 };
 
 export function Documents() {
@@ -39,8 +53,14 @@ export function Documents() {
   const [courses, setCourses] = useState<Course[]>([]);
 
   const refresh = () => {
-    api.listDocuments().then(setDocuments).catch(() => {});
-    api.listCourses().then(setCourses).catch(() => {});
+    api
+      .listDocuments()
+      .then(setDocuments)
+      .catch(() => { });
+    api
+      .listCourses()
+      .then(setCourses)
+      .catch(() => { });
   };
 
   useEffect(refresh, []);
@@ -48,7 +68,9 @@ export function Documents() {
   const filtered = documents.filter(
     (d) =>
       d.title.toLowerCase().includes(query.toLowerCase()) &&
-      (course === "all" || d.course === course || (course === "unassigned" && !d.course)),
+      (course === "all" ||
+        d.course === course ||
+        (course === "unassigned" && !d.course)),
   );
 
   const onDelete = async (id: string, title: string) => {
@@ -63,21 +85,45 @@ export function Documents() {
   };
 
   const handleUploadFile = async (file: File) => {
-    const target = course !== "all" && course !== "unassigned" ? course : undefined;
+    const target =
+      course !== "all" && course !== "unassigned" ? course : undefined;
     const doc = await api.uploadDocument(file, target);
     if (doc.jobId) {
       const job = await api.pollJobUntilDone(doc.jobId);
-      if (job.status === "failed") throw new Error(job.error ?? "Indexing failed");
+      if (job.status === "failed")
+        throw new Error(job.error ?? "Indexing failed");
     }
   };
 
   const onBatchComplete = (result: { completed: number; failed: number }) => {
     if (result.completed > 0) {
-      toast.success(`${result.completed} document${result.completed > 1 ? "s" : ""} indexed`, {
-        description: result.failed > 0 ? `${result.failed} failed` : undefined,
-      });
+      toast.success(
+        `${result.completed} document${result.completed > 1 ? "s" : ""} indexed`,
+        {
+          description:
+            result.failed > 0 ? `${result.failed} failed` : undefined,
+        },
+      );
     }
     refresh();
+  };
+
+  const onCourseChange = async (docId: string, newCourse: string) => {
+    try {
+      const targetCourse = newCourse === "unassigned" ? "" : newCourse;
+      await api.updateDocument(docId, targetCourse);
+      setDocuments((docs) =>
+        docs.map((d) => (d.id === docId ? { ...d, course: targetCourse } : d)),
+      );
+      toast.success("Document updated", {
+        description: `Moved to ${newCourse === "unassigned" ? "Unassigned" : newCourse}`,
+      });
+    } catch (err) {
+      toast.error("Update failed", {
+        description:
+          err instanceof Error ? err.message : "Failed to move document",
+      });
+    }
   };
 
   return (
@@ -88,49 +134,76 @@ export function Documents() {
         description={`PDF, Markdown or plain text${course !== "all" ? ` · into ${course}` : " · into first course"}`}
       />
 
-      <ContextualTip id="documents-formats">
-        Drag &amp; drop straight onto the box above, or upload PDFs, Markdown and
-        plain text. Everything you add becomes searchable across the whole app.
-      </ContextualTip>
+      <InsightBox variant="tip">
+        Drag &amp; drop straight onto the box above, or upload PDFs, Markdown
+        and plain text. Everything you add becomes searchable across the whole
+        app.
+      </InsightBox>
 
       {/* Toolbar */}
-      <div data-tour="documents-toolbar" className="flex flex-wrap items-center gap-3">
-        <SketchSearch
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search documents…"
-          className="flex-1 min-w-56"
-          width="100%"
-        />
-        <PaperSelect
-          value={course}
-          onChange={setCourse}
-          options={[
-            { value: "all", label: "All courses" },
-            { value: "unassigned", label: "Unassigned" },
-            ...courses.map((c) => ({ value: c.name, label: c.name })),
-          ]}
-          placeholder="All courses"
-          className="w-52"
-        />
-        <span className="font-architect text-sm text-ink-muted">{filtered.length} documents</span>
-      </div>
+      <div
+        data-tour="documents-toolbar"
+        className="grid grid-cols-4 items-center gap-3"
+      >
+        <div className="col-span-2 w-full">
+          <PaperInput
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search documents…"
+            width="100%"
+            className="w-full"
+          />
+        </div>
 
+        <div className="w-full">
+          <PaperSelect
+            value={course}
+            onChange={setCourse}
+            options={[
+              { value: "all", label: "All courses" },
+              { value: "unassigned", label: "Unassigned" },
+              ...courses.map((c) => ({ value: c.name, label: c.name })),
+            ]}
+            placeholder="All courses"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex justify-end">
+          <span className="font-architect text-sm text-ink-muted whitespace-nowrap">
+            {filtered.length} documents
+          </span>
+        </div>
+      </div>
       {/* Table */}
       <div data-tour="documents-list">
         <PaperTable>
           <TableHeader>
             <tr>
-              <th className="font-architect text-[13px] text-ink-muted uppercase tracking-wide px-4 py-3 text-left">Name</th>
-              <th className="font-architect text-[13px] text-ink-muted uppercase tracking-wide px-4 py-3 text-left">Course</th>
-              <th className="font-architect text-[13px] text-ink-muted uppercase tracking-wide px-4 py-3 text-left">Size</th>
-              <th className="font-architect text-[13px] text-ink-muted uppercase tracking-wide px-4 py-3 text-left w-20">Pages</th>
-              <th className="font-architect text-[13px] text-ink-muted uppercase tracking-wide px-4 py-3 text-left w-28">Status</th>
+              <th className="font-architect text-[13px] text-ink-muted uppercase tracking-wide px-4 py-3 text-left">
+                Name
+              </th>
+              <th className="font-architect text-[13px] text-ink-muted uppercase tracking-wide px-4 py-3 text-left">
+                Course
+              </th>
+              <th className="font-architect text-[13px] text-ink-muted uppercase tracking-wide px-4 py-3 text-left">
+                Size
+              </th>
+              <th className="font-architect text-[13px] text-ink-muted uppercase tracking-wide px-4 py-3 text-left w-20">
+                Pages
+              </th>
+              <th className="font-architect text-[13px] text-ink-muted uppercase tracking-wide px-4 py-3 text-left w-28">
+                Status
+              </th>
               <th className="w-12" />
             </tr>
           </TableHeader>
           {filtered.length === 0 ? (
-            <EmptyTable colSpan={6} message="No documents yet." hint="Upload a PDF, Markdown or text file to get started." />
+            <EmptyTable
+              colSpan={6}
+              message="No documents yet."
+              hint="Upload a PDF, Markdown or text file to get started."
+            />
           ) : (
             <tbody>
               {filtered.map((d, i) => {
@@ -145,24 +218,54 @@ export function Documents() {
                           <Icon className="size-4" />
                         </div>
                         <div className="min-w-0">
-                          <div className="truncate font-kalam text-[15px] font-bold text-ink">{d.title}</div>
-                          <div className="font-architect text-xs uppercase text-ink-muted">{d.type}</div>
+                          <div className="truncate font-kalam text-[15px] font-bold text-ink">
+                            {d.title}
+                          </div>
+                          <div className="font-architect text-xs uppercase text-ink-muted">
+                            {d.type}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell muted className="max-w-32">
-                      <span className="truncate">{d.course || "—"}</span>
+                    <TableCell className="max-w-44 py-1">
+                      <PaperSelect
+                        value={d.course || "unassigned"}
+                        onChange={(val) => void onCourseChange(d.id, val)}
+                        options={[
+                          { value: "unassigned", label: "Unassigned" },
+                          ...courses.map((c) => ({
+                            value: c.name,
+                            label: c.name,
+                          })),
+                        ]}
+                        className="h-8 py-1 px-2 text-xs font-architect"
+                        wrapperClassName="w-36"
+                        placeholder="Assign course..."
+                      />
                     </TableCell>
-                    <TableCell muted>{d.sizeKb > 1024 ? `${(d.sizeKb / 1024).toFixed(1)} MB` : `${d.sizeKb} KB`}</TableCell>
+                    <TableCell muted>
+                      {d.sizeKb > 1024
+                        ? `${(d.sizeKb / 1024).toFixed(1)} MB`
+                        : `${d.sizeKb} KB`}
+                    </TableCell>
                     <TableCell muted>{d.pages}</TableCell>
                     <TableCell>
-                      <span className={`inline-flex items-center gap-1.5 font-architect text-[13px] ${status.cls}`}>
-                        <StatusIcon className={`size-3 ${d.status === "processing" ? "animate-spin" : ""}`} />
+                      <PaperBadge
+                        tone={status.tone}
+                        className="gap-1 px-2 py-0.5 text-sm font-architect font-medium"
+                      >
+                        <StatusIcon
+                          className={`size-3 ${d.status === "processing" ? "animate-spin" : ""}`}
+                        />
                         {status.label}
-                      </span>
+                      </PaperBadge>
                     </TableCell>
                     <TableCell>
-                      <IconButton label={`Delete ${d.title}`} onClick={() => void onDelete(d.id, d.title)}>
+                      <IconButton
+                        label={`Delete ${d.title}`}
+                        onClick={() => void onDelete(d.id, d.title)}
+                          className='bg-red-500/50 hover:bg-red-400 text-black rounded-lg hover:text-white'
+                      >
                         <Trash2 className="size-4" />
                       </IconButton>
                     </TableCell>

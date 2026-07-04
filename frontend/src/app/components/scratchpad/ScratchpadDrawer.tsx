@@ -9,6 +9,7 @@ import { DrawerFooter } from './DrawerFooter'
 import { ScratchCanvas } from './ScratchCanvas'
 import { SketchToolbar } from './SketchToolbar'
 import { ScratchpadExcalidraw } from './ScratchpadExcalidraw'
+import { ExcalidrawErrorBoundary } from './ExcalidrawErrorBoundary'
 import { PaperSheetBorder } from '@/paper-ui/core'
 
 const MEDIUM_VH = 0.4
@@ -72,14 +73,9 @@ export function ScratchpadDrawer() {
         <DrawerHandle />
       </div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            key="scratchpad-panel"
-            initial={isExcalidrawInstalled ? false : { height: 0, opacity: 0 }}
-            animate={isExcalidrawInstalled ? { opacity: 1 } : { height: panelHeight, opacity: 1 }}
-            exit={isExcalidrawInstalled ? { opacity: 0 } : { height: 0, opacity: 0 }}
-            transition={isExcalidrawInstalled ? { duration: 0.15 } : { type: 'spring', stiffness: 400, damping: 40 }}
+      {isExcalidrawInstalled ? (
+        isOpen ? (
+          <div
             className="pointer-events-auto relative flex flex-col overflow-hidden"
             style={{ height: panelHeight }}
           >
@@ -97,23 +93,50 @@ export function ScratchpadDrawer() {
                 onMouseDown={onDragStart}
               />
               <DrawerHeader />
-              {isExcalidrawInstalled ? (
+              <ExcalidrawErrorBoundary>
                 <Suspense fallback={SPINNER}>
                   <ScratchpadExcalidraw />
                 </Suspense>
-              ) : (
-                <>
-                  <div className="flex flex-1 min-h-0">
-                    <SketchToolbar />
-                    <ScratchCanvas stageRef={stageRef} />
-                  </div>
-                  <DrawerFooter stageRef={stageRef} />
-                </>
-              )}
+              </ExcalidrawErrorBoundary>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        ) : null
+      ) : (
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              key="scratchpad-panel"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: panelHeight, opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+              className="pointer-events-auto relative flex flex-col overflow-hidden"
+              style={{ height: panelHeight }}
+            >
+              <PaperSheetBorder
+                fill="#fffdf9"
+                stroke="#3a3733"
+                strokeWidth={1.8}
+                shadow={4}
+                fold={false}
+                attachedBottom={true}
+              />
+              <div className="relative z-[1] flex flex-col h-full pt-[2.2vw]">
+                <div
+                  className="absolute top-[1.8vw] left-0 right-0 h-4 cursor-ns-resize bg-transparent hover:bg-[#c0b9ae]/30 z-10"
+                  onMouseDown={onDragStart}
+                />
+                <DrawerHeader />
+                <div className="flex flex-1 min-h-0">
+                  <SketchToolbar />
+                  <ScratchCanvas stageRef={stageRef} />
+                </div>
+                <DrawerFooter stageRef={stageRef} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </div>
   )
 }

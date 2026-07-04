@@ -1,6 +1,5 @@
 import { PaperCard } from "@paper-ui/core";
 import { SectionLabel } from "@paper-ui/core";
-import { Tape } from "../decorations/Tape";
 import { SketchDivider } from "../decorations/SketchDivider";
 import { SessionRow, type SessionRowProps } from "../rows/SessionRow";
 import { ArrowDoodle } from "../doodles";
@@ -14,8 +13,7 @@ export interface SessionCardProps {
 /** A taped notebook sheet listing recent study sessions. */
 export function SessionCard({ title, sessions, onViewAll }: SessionCardProps) {
   return (
-    <PaperCard lift className="overflow-visible px-6 pb-5 pt-6">
-      <Tape corner="top-left" />
+    <PaperCard lift className="relative overflow-visible px-6 pb-5 pt-6">
       <SectionLabel>{title}</SectionLabel>
       <div className="mt-4 space-y-3">
         {sessions.map((s, i) => (

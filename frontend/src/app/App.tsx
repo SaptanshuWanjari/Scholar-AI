@@ -85,6 +85,9 @@ const PromptLibrary = lazy(() =>
 const Guide = lazy(() =>
   import("./pages/Guide").then((m) => ({ default: m.Guide })),
 );
+const Bin = lazy(() =>
+  import("./pages/Bin").then((m) => ({ default: m.default })),
+);
 
 const OnboardingHero = lazy(() =>
   import("./pages/onboarding/OnboardingHero").then((m) => ({
@@ -185,6 +188,7 @@ export default function App() {
               <Route path="/differences" element={<Differences />} />
               <Route path="/consistency" element={<Consistency />} />
               <Route path="/prompts" element={<PromptLibrary />} />
+              <Route path="/bin" element={<Bin />} />
 
               <Route path="/guide" element={<Guide />} />
               {KNOWN_PLUGINS.flatMap((plugin) =>

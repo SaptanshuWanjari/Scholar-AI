@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle, Terminal, Paintbrush, Save } from "lucide-react";
+import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle, Terminal, Paintbrush, Save, Cloud, Route, Sliders, BarChart2 } from "lucide-react";
+import { ModelProvidersTab } from "./settings/ModelProvidersTab";
+import { ModelRoutingTab } from "./settings/ModelRoutingTab";
+import { ModelDefaultsTab } from "./settings/ModelDefaultsTab";
+import { ModelUsageTab } from "./settings/ModelUsageTab";
 import { Page } from "../components/Page";
 import { useGuidanceStore } from "../guidance/useGuidanceStore";
 import { PaperSelect } from "@paper-ui/components/inputs";
@@ -8,7 +12,7 @@ import type { SelectOption } from "@paper-ui/components/inputs";
 import { PaperSwitch } from "@paper-ui/components/inputs";
 import { PaperSlider } from "@paper-ui/components/inputs";
 import { PaperInput } from "@paper-ui/components/inputs";
-import { PaperButton } from "@paper-ui/components/buttons";
+import { PaperButton, ChipButton } from "@paper-ui/components/buttons";
 import { PaperModal } from "@paper-ui/components/dialogs";
 import { PaperCard } from "@paper-ui/core";
 import { useSettingsStore } from "../stores/useSettingsStore";
@@ -73,6 +77,7 @@ export function SettingsPage() {
   const setGuidancePref = useGuidanceStore((g) => g.setPref);
   const resetGuidance = useGuidanceStore((g) => g.resetAll);
   const [activeTab, setActiveTab] = useState("models");
+  const [modelsSubTab, setModelsSubTab] = useState<"providers" | "routing" | "defaults" | "usage">("providers");
   const [models, setModels] = useState<ModelsList>({
     fastModels: [],
     reasoningModels: [],
@@ -239,8 +244,42 @@ export function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "models" && (
+          {activeTab === "models" && isEnabled("cloud-model-providers") && (
+            <div className="border-b border-[#e8e3d8] mb-2">
+              <div className="flex flex-wrap gap-1 p-2">
+                {([
+                  { key: "providers", label: "Providers", icon: Cloud },
+                  { key: "routing",   label: "Routing",   icon: Route },
+                  { key: "defaults",  label: "Defaults",  icon: Sliders },
+                  { key: "usage",     label: "Usage",     icon: BarChart2 },
+                ] as const).map((sub) => (
+                  <ChipButton
+                    key={sub.key}
+                    selected={modelsSubTab === sub.key}
+                    onClick={() => setModelsSubTab(sub.key)}
+                    className="flex items-center gap-1.5 text-sm"
+                  >
+                    <sub.icon size={14} />
+                    {sub.label}
+                  </ChipButton>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "models" && isEnabled("cloud-model-providers") && modelsSubTab === "providers" && (
+            <ModelProvidersTab />
+          )}
+          {activeTab === "models" && isEnabled("cloud-model-providers") && modelsSubTab === "routing" && (
+            <ModelRoutingTab />
+          )}
+          {activeTab === "models" && isEnabled("cloud-model-providers") && modelsSubTab === "usage" && (
+            <ModelUsageTab />
+          )}
+
+          {activeTab === "models" && (!isEnabled("cloud-model-providers") || modelsSubTab === "defaults") && (
             <div className=''>
+              {isEnabled("cloud-model-providers") && <ModelDefaultsTab />}
               <Row
                 title="AI Mode"
                 desc={
@@ -250,11 +289,8 @@ export function SettingsPage() {
                 }
               >
                 <div className="flex items-center gap-2">
-                  <ShieldCheck
-                    className={`size-5 ${s.ragMode === "strict" ? "text-amber-500" : "text-muted-foreground"}`}
-                  />
                   <span
-                    className={`text-sm font-medium ${s.ragMode === "strict" ? "text-amber-600" : "text-muted-foreground"}`}
+                    className={`text-sm font-medium font-architect ${s.ragMode === "strict" ? "text-amber-600" : "text-muted-foreground"}`}
                   >
                     {s.ragMode === "strict" ? "Strict RAG" : "AI Fallback"}
                   </span>
@@ -316,7 +352,7 @@ export function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "models" && (
+          {activeTab === "models" && (!isEnabled("cloud-model-providers") || modelsSubTab === "defaults") && (
             <>
               <div>
                 <h3 className="pt-4 font-architect text-[13px] text-ink-muted">
@@ -443,9 +479,6 @@ export function SettingsPage() {
                 }
               >
                 <div className="flex items-center gap-2">
-                  <ShieldCheck
-                    className={`size-4 ${s.ragMode === "strict" ? "text-amber-500" : "text-muted-foreground"}`}
-                  />
                   <PaperSwitch
                     checked={s.ragMode === "strict"}
                     onChange={(v) =>

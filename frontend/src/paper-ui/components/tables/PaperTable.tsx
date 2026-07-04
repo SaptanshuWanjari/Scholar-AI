@@ -19,7 +19,7 @@ export function PaperTable({ striped = false, className, children, ...props }: P
     <TableContext.Provider value={{ striped }}>
       <div className={cn("relative", className)}>
         <SketchBorder fill="#fffdf9" stroke="#3a3733" strokeWidth={1.5} radius={8} shadow={3} roughness={1.1} bleed={6} />
-        <div className="relative z-[1] overflow-hidden">
+        <div className="relative z-[1] overflow-visible">
           <table className="w-full border-collapse" {...props}>
             {children}
           </table>

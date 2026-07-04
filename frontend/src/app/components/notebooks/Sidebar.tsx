@@ -16,7 +16,12 @@ import {
 import { cn } from "@/paper-ui/utils";
 import { PaperInput } from "@/paper-ui/components/inputs";
 import { IconButton } from "@/paper-ui/components/buttons";
-import { Sidebar as PaperSidebar, SidebarGroup, SidebarHeader, SidebarDivider } from "@/paper-ui/components/navigation";
+import {
+  Sidebar as PaperSidebar,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarDivider,
+} from "@/paper-ui/components/navigation";
 import type { NotebookMeta, Collection } from "../../lib/api";
 import { iconFor } from "./utils";
 
@@ -69,11 +74,12 @@ export function Sidebar({
       }
     };
     window.addEventListener("keydown", handleKeyDown, { capture: true });
-    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
+    return () =>
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
   }, []);
 
   const filteredList = list.filter((n) =>
-    (n.name || "").toLowerCase().includes(searchQuery.toLowerCase())
+    (n.name || "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   if (collapsed) {
@@ -84,12 +90,14 @@ export function Sidebar({
 
   return (
     <PaperSidebar className="hidden w-[280px] lg:flex">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-ink-muted/15">
+      <div className="flex items-center justify-between border-b border-ink-muted/15 px-5 py-4">
         <SidebarHeader title="Notes" />
+
         <div className="flex items-center gap-1">
           <IconButton label="Collapse sidebar" onClick={onToggleCollapse}>
             <PanelLeftClose className="size-4" />
           </IconButton>
+
           <IconButton label="Create notebook" onClick={onCreateNotebook}>
             <Plus className="size-4" />
           </IconButton>
@@ -164,7 +172,9 @@ export function Sidebar({
                 key={n.id}
                 className={cn(
                   "group flex w-full items-center gap-3 rounded-md px-2.5 py-2 transition-colors",
-                  activeId === n.id ? "bg-black/[0.035]" : "hover:bg-black/[0.02]",
+                  activeId === n.id
+                    ? "bg-black/[0.035]"
+                    : "hover:bg-black/[0.02]",
                 )}
               >
                 <button
@@ -223,7 +233,9 @@ export function Sidebar({
               className="flex items-center justify-between px-4 py-1.5 font-architect text-[15px] text-ink/80 hover:bg-black/[0.025]"
             >
               <span className="truncate">{c.name}</span>
-              <span className="font-kalam text-xs text-ink-muted">{c.count}</span>
+              <span className="font-kalam text-xs text-ink-muted">
+                {c.count}
+              </span>
             </div>
           ))
         )}
