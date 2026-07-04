@@ -15,6 +15,7 @@ from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 from langchain_core.outputs import ChatGenerationChunk, ChatResult
+from pydantic import Field
 
 from scholarcli.llm.provider_catalog import (
     PROVIDER_CAPABILITIES,
@@ -65,22 +66,86 @@ def update_routing_config(patch: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Cloud error classification
+# ---------------------------------------------------------------------------
+
+# HTTP status codes that indicate permanent config problems — don't retry these.
+_PERMANENT_STATUS_CODES: frozenset[int] = frozenset({401, 403})
+
+# Status codes that are transient — fall back to the next provider.
+_TRANSIENT_STATUS_CODES: frozenset[int] = frozenset({429, 500, 502, 503, 504})
+
+
+def _status_code(exc: Exception) -> int | None:
+    """Extract HTTP status code from openai/groq/google SDK exceptions."""
+    return getattr(exc, "status_code", None) or getattr(exc, "code", None)
+
+
+def _is_permanent(exc: Exception) -> bool:
+    """Auth / permission errors — retrying a different model won't help."""
+    code = _status_code(exc)
+    if code in _PERMANENT_STATUS_CODES:
+        return True
+    # Also catch network-level errors where status is unavailable but the
+    # exception type name makes the intent clear.
+    name = type(exc).__name__
+    return any(k in name for k in ("AuthenticationError", "PermissionDenied", "Forbidden"))
+
+
+def _user_message(exc: Exception, provider_id: str) -> str:
+    """Return a human-readable description of a cloud API error."""
+    code = _status_code(exc)
+    if code == 429:
+        return (
+            f"[{provider_id}] Rate limit / quota exceeded. "
+            "Add credits or wait for the limit to reset."
+        )
+    if code == 401:
+        return (
+            f"[{provider_id}] Authentication failed — API key is invalid or revoked. "
+            "Update it in Settings → Models → Providers."
+        )
+    if code == 403:
+        return (
+            f"[{provider_id}] Permission denied. "
+            "Your API key may lack access to this model or endpoint."
+        )
+    if code == 404:
+        return (
+            f"[{provider_id}] Model not found. "
+            "Check the model ID in Settings → Models → Routing."
+        )
+    if code in (500, 502, 503, 504):
+        return f"[{provider_id}] Provider server error ({code}). Falling back."
+    name = type(exc).__name__
+    if "Timeout" in name or "Connection" in name:
+        return f"[{provider_id}] Network error — provider unreachable. Falling back."
+    return f"[{provider_id}] {name}: {exc}"
+
+
+# ---------------------------------------------------------------------------
 # Usage tracking wrapper
 # ---------------------------------------------------------------------------
 
 class UsageTrackingWrapper(BaseChatModel):
-    """Wraps any BaseChatModel and writes a UsageRecord after each call."""
+    """Wraps any BaseChatModel and writes a UsageRecord after each call.
+
+    ``fallback_models`` holds sibling wrappers to try in order when the primary
+    provider fails with a transient error (rate-limit, server error, timeout).
+    Permanent failures (auth, permission) surface immediately without retrying.
+    """
 
     inner: Any  # BaseChatModel — typed as Any to avoid Pydantic schema issues
     provider_id: str
     task: str
+    fallback_models: list[Any] = Field(default_factory=list)  # list[UsageTrackingWrapper]
 
     class Config:
         arbitrary_types_allowed = True
 
     @property
     def _llm_type(self) -> str:
-        return f"usage-tracking"
+        return "usage-tracking"
 
     def _generate(
         self,
@@ -89,9 +154,29 @@ class UsageTrackingWrapper(BaseChatModel):
         run_manager: Any = None,
         **kwargs: Any,
     ) -> ChatResult:
-        result: ChatResult = self.inner._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
-        self._record_usage(result)
-        return result
+        try:
+            result: ChatResult = self.inner._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
+            self._record_usage(result)
+            return result
+        except Exception as primary_exc:
+            msg = _user_message(primary_exc, self.provider_id)
+            if _is_permanent(primary_exc) or not self.fallback_models:
+                logger.error("Provider %s failed (no fallback): %s", self.provider_id, msg)
+                raise RuntimeError(msg) from primary_exc
+            logger.warning("%s — trying fallback providers", msg)
+            last_exc: Exception = primary_exc
+            for fb in self.fallback_models:
+                try:
+                    result = fb.inner._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
+                    fb._record_usage(result)
+                    logger.info("Fallback to %s succeeded for task %s", fb.provider_id, self.task)
+                    return result
+                except Exception as fb_exc:
+                    logger.warning("Fallback %s also failed: %s", fb.provider_id, _user_message(fb_exc, fb.provider_id))
+                    last_exc = fb_exc
+            raise RuntimeError(
+                f"All providers failed for task '{self.task}'. Last error: {_user_message(last_exc, self.fallback_models[-1].provider_id)}"
+            ) from last_exc
 
     def _stream(
         self,
@@ -100,9 +185,35 @@ class UsageTrackingWrapper(BaseChatModel):
         run_manager: Any = None,
         **kwargs: Any,
     ) -> Iterator[ChatGenerationChunk]:
-        # Delegate streaming to inner model; record usage on final chunk
-        for chunk in self.inner._stream(messages, stop=stop, run_manager=run_manager, **kwargs):
-            yield chunk
+        # Try primary; on transient error before any chunks arrive, fall back.
+        # Once chunks are streaming we cannot switch mid-stream, so errors surface directly.
+        primary_failed = False
+        primary_exc: Exception | None = None
+        try:
+            gen = self.inner._stream(messages, stop=stop, run_manager=run_manager, **kwargs)
+            first = next(gen)  # probe: raises immediately if provider is down
+        except Exception as exc:
+            if _is_permanent(exc) or not self.fallback_models:
+                raise RuntimeError(_user_message(exc, self.provider_id)) from exc
+            logger.warning("%s — trying fallback for streaming", _user_message(exc, self.provider_id))
+            primary_failed = True
+            primary_exc = exc
+
+        if not primary_failed:
+            yield first  # type: ignore[possibly-undefined]
+            yield from gen  # type: ignore[possibly-undefined]
+            return
+
+        for fb in self.fallback_models:
+            try:
+                yield from fb.inner._stream(messages, stop=stop, run_manager=run_manager, **kwargs)
+                logger.info("Streaming fallback to %s succeeded for task %s", fb.provider_id, self.task)
+                return
+            except Exception as fb_exc:
+                logger.warning("Streaming fallback %s failed: %s", fb.provider_id, fb_exc)
+        raise RuntimeError(
+            f"All providers failed for streaming task '{self.task}'."
+        ) from primary_exc
 
     def _record_usage(self, result: ChatResult) -> None:
         try:
@@ -196,10 +307,31 @@ class RoutingEngine:
                 provider, provider_id = self._try_fallback(config, registry, provider_id)
 
             chat_model = provider.get_chat_model(model_id, temperature=temperature)  # type: ignore[union-attr]
+
+            # Build fallback wrappers from the configured chain (excluding the primary)
+            fallback_wrappers: list[UsageTrackingWrapper] = []
+            for pid in config.get("fallback_chain", ["ollama"]):
+                if pid == provider_id:
+                    continue
+                fp = registry.get(pid)
+                if fp is None:
+                    continue
+                try:
+                    fm = fp.get_chat_model(None, temperature=temperature)
+                    fallback_wrappers.append(
+                        UsageTrackingWrapper(inner=fm, provider_id=pid, task=task)
+                    )
+                except Exception:
+                    pass  # skip unavailable fallback providers silently
         finally:
             db.close()
 
-        return UsageTrackingWrapper(inner=chat_model, provider_id=provider_id, task=task)
+        return UsageTrackingWrapper(
+            inner=chat_model,
+            provider_id=provider_id,
+            task=task,
+            fallback_models=fallback_wrappers,
+        )
 
     def _auto_select(self, task: str, registry: ProviderRegistry) -> tuple[str, str | None]:
         required = TASK_CAPABILITY_REQUIREMENTS.get(task, ProviderCapability.CHAT)
