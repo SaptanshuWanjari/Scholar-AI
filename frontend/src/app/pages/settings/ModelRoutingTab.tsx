@@ -104,7 +104,7 @@ export function ModelRoutingTab() {
       {/* Mode toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#e8e3d8] pb-4">
         <div>
-          <div className="font-architect text-[17px] text-ink">Routing mode</div>
+          <div className="font-architect text-sm text-ink">Routing mode</div>
           <div className="font-kalam text-[13px] text-ink-muted">
             {config.mode === "auto"
               ? "Auto — routes by capability (vision → Gemini, fast → Groq, etc.)"
@@ -124,7 +124,7 @@ export function ModelRoutingTab() {
       {/* Per-task overrides (manual mode) */}
       {config.mode === "manual" && (
         <div>
-          <div className="font-architect text-[13px] text-ink-muted mb-2">Per-task routing</div>
+          <div className="font-architect text-sm text-ink-muted mb-2">Per-task routing</div>
           <div className="overflow-x-auto rounded-md border border-[#e8e3d8]">
             <div className="min-w-[520px]">
               {ALL_TASKS.map((task, i) => {
@@ -176,7 +176,7 @@ export function ModelRoutingTab() {
 
       {/* Fallback chain */}
       <div>
-        <div className="font-architect text-[13px] text-ink-muted mb-2">Fallback chain</div>
+        <div className="font-architect text-sm text-ink-muted mb-2">Fallback chain</div>
         <div className="space-y-1">
           {config.fallback_chain.map((pid, idx) => {
             const p = providers.find((x) => x.provider_id === pid);
@@ -211,7 +211,7 @@ export function ModelRoutingTab() {
 
       {/* Embedding provider */}
       <div className="border-t border-[#e8e3d8] pt-4">
-        <div className="font-architect text-[17px] text-ink mb-0.5">Embedding provider</div>
+        <div className="font-architect text-sm text-ink mb-0.5">Embedding provider</div>
         <div className="font-kalam text-[13px] text-ink-muted mb-3">
           Used for document ingestion and semantic search. Changing this requires re-ingesting your documents.
         </div>

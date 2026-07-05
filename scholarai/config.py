@@ -115,6 +115,10 @@ class PathsConfig(BaseModel):
         return p
 
 
+class FeaturesConfig(BaseModel):
+    cloud_providers_enabled: bool = False
+
+
 class Settings(BaseModel):
     ollama: OllamaConfig = Field(default_factory=OllamaConfig)
     models: ModelsConfig = Field(default_factory=ModelsConfig)
@@ -124,6 +128,7 @@ class Settings(BaseModel):
     retrieval: RetrievalConfig = Field(default_factory=RetrievalConfig)
     ingest: IngestConfig = Field(default_factory=IngestConfig)
     paths: PathsConfig = Field(default_factory=PathsConfig)
+    features: FeaturesConfig = Field(default_factory=FeaturesConfig)
 
     @property
     def db_path(self) -> Path:

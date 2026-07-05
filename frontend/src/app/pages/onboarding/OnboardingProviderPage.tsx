@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -12,62 +13,148 @@ import {
   Eye,
   EyeOff,
   Loader2,
+  Search,
 } from "lucide-react";
 import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 import { PaperInput } from "@paper-ui/components/inputs";
+import type { ProviderModel } from "../../lib/api/providers";
 import { PaperCard, PaperH2, PaperH3, PaperIconCircle } from "@paper-ui/core";
 import { PaperBadge } from "@paper-ui/components/badges";
 import { LoadingPaper } from "@paper-ui/components/feedback";
 import { api, type HealthStatus } from "../../lib/api";
 import { usePluginStore } from "../../plugins/usePluginStore";
 import { useProvidersStore } from "../../stores/useProvidersStore";
+import { routingApi, type RoutingConfig } from "../../lib/api/routing";
 
 type FormState = { apiKey: string; baseUrl: string; showKey: boolean };
 
+const ALL_TASKS = [
+  "quick_qa", "flashcards", "quiz", "mermaid", "mindmap",
+  "study_notes", "deep_analysis", "differences", "learning_path", "data_qa", "plantuml",
+];
+
+const DEFAULT_ROUTING: RoutingConfig = {
+  mode: "manual",
+  per_task: {},
+  fallback_chain: ["ollama"],
+  budget: { monthly_usd: 0, warn_at_pct: 80 },
+  embedding_provider: "ollama",
+  embedding_model: null,
+};
+
 const CLOUD_PROVIDERS = [
-  {
-    id: "gemini",
-    name: "Google Gemini",
-    desc: "Vision, reasoning, long context. Best for deep analysis.",
-    Icon: Sparkles,
-  },
-  {
-    id: "groq",
-    name: "Groq",
-    desc: "Extremely fast inference. Best for quick Q&A and flashcards.",
-    Icon: Zap,
-  },
-  {
-    id: "openrouter",
-    name: "OpenRouter",
-    desc: "Access 100+ models from a single API key.",
-    Icon: Globe,
-  },
-  {
-    id: "openai_compat",
-    name: "OpenAI-Compatible",
-    desc: "LM Studio, vLLM, Together AI, Fireworks, and more.",
-    Icon: Cpu,
-  },
+  { id: "gemini",       name: "Google Gemini",       desc: "Vision, reasoning, long context. Best for deep analysis.", Icon: Sparkles },
+  { id: "groq",         name: "Groq",                desc: "Extremely fast inference. Best for quick Q&A and flashcards.", Icon: Zap },
+  { id: "openrouter",   name: "OpenRouter",          desc: "Access 100+ models from a single API key.", Icon: Globe },
+  { id: "openai_compat",name: "OpenAI-Compatible",   desc: "LM Studio, vLLM, Together AI, Fireworks, and more.", Icon: Cpu },
 ] as const;
+
+function ModelSearchSelect({
+  models,
+  value,
+  onChange,
+}: {
+  models: ProviderModel[];
+  value: string;
+  onChange: (id: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const selectedLabel = value ? (models.find((m) => m.id === value)?.label ?? value) : undefined;
+  const filtered = search
+    ? models.filter((m) => m.label.toLowerCase().includes(search.toLowerCase()))
+    : models;
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+        setSearch("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const openDropdown = () => {
+    if (wrapperRef.current) {
+      const r = wrapperRef.current.getBoundingClientRect();
+      setMenuStyle({
+        position: "fixed",
+        top: `${r.bottom + 4}px`,
+        left: `${r.left}px`,
+        width: `${r.width}px`,
+        zIndex: 9999,
+      });
+    }
+    setIsOpen(true);
+  };
+
+  return (
+    <div ref={wrapperRef}>
+      <PaperInput
+        placeholder={selectedLabel ?? "Search models…"}
+        icon={<Search size={14} />}
+        value={search}
+        onChange={(e) => { setSearch(e.target.value); openDropdown(); }}
+        onFocus={openDropdown}
+        wrapperClassName=""
+      />
+      {isOpen && createPortal(
+        <div
+          style={menuStyle}
+          className="rounded-lg border border-[#d4cfc2] bg-[#faf6ee] shadow-[0_4px_16px_rgba(0,0,0,0.12)] max-h-60 overflow-y-auto py-1"
+        >
+          {!search && (
+            <div
+              className={`px-3 py-2 text-sm cursor-pointer font-kalam ${!value ? "bg-black/[0.06]" : "hover:bg-black/[0.04]"}`}
+              onMouseDown={() => { onChange(""); setSearch(""); setIsOpen(false); }}
+            >
+              Provider default
+            </div>
+          )}
+          {filtered.length === 0 ? (
+            <div className="px-3 py-2 text-sm font-kalam text-ink-muted">No models match</div>
+          ) : (
+            filtered.map((m) => (
+              <div
+                key={m.id}
+                className={`flex items-center gap-2 px-3 py-2 text-sm cursor-pointer font-mono ${m.id === value ? "bg-black/[0.06]" : "hover:bg-black/[0.04]"}`}
+                onMouseDown={() => { onChange(m.id); setSearch(""); setIsOpen(false); }}
+              >
+                {m.is_recommended && <span className="text-amber-500 text-xs shrink-0">★</span>}
+                {m.label}
+              </div>
+            ))
+          )}
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+}
 
 export function OnboardingProviderPage() {
   const navigate = useNavigate();
 
   const { install, isEnabled, getInstallState } = usePluginStore();
-  const { providers, connect, disconnect, fetchProviders, models, connectingId } =
+  const { providers, connect, disconnect, fetchProviders, fetchModels, models, connectingId } =
     useProvidersStore();
 
   const [ollamaHealth, setOllamaHealth] = useState<HealthStatus | null>(null);
   const [healthLoading, setHealthLoading] = useState(true);
   const [formState, setFormState] = useState<Record<string, FormState>>({});
-  const [connectErrors, setConnectErrors] = useState<Record<string, string>>(
-    {},
-  );
+  const [connectErrors, setConnectErrors] = useState<Record<string, string>>({});
+  const [selectedModels, setSelectedModels] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
   const pluginInstalled = isEnabled("cloud-model-providers");
   const installState = getInstallState("cloud-model-providers");
 
+  // Health check on mount
   useEffect(() => {
     api
       .health()
@@ -76,18 +163,36 @@ export function OnboardingProviderPage() {
       .finally(() => setHealthLoading(false));
   }, []);
 
+  // Fetch providers when plugin becomes enabled
   useEffect(() => {
     if (pluginInstalled) {
       fetchProviders();
     }
   }, [pluginInstalled, fetchProviders]);
 
+  // Fetch models for already-connected providers (e.g. re-running onboarding)
+  useEffect(() => {
+    if (!pluginInstalled) return;
+    providers
+      .filter((p) => !p.is_local && p.connected && !models[p.provider_id])
+      .forEach((p) => fetchModels(p.provider_id));
+  }, [providers, pluginInstalled]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-select recommended (or first) model when a provider's model list loads
+  useEffect(() => {
+    CLOUD_PROVIDERS.forEach(({ id }) => {
+      const list = models[id];
+      if (list?.length && !selectedModels[id]) {
+        const pick = list.find((m) => m.is_recommended) ?? list[0];
+        setSelectedModels((s) => ({ ...s, [id]: pick.id }));
+      }
+    });
+  }, [models]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── helpers ──────────────────────────────────────────────────────────────
+
   const getForm = (id: string): FormState =>
-    formState[id] ?? {
-      apiKey: "",
-      baseUrl: "http://localhost:1234/v1",
-      showKey: false,
-    };
+    formState[id] ?? { apiKey: "", baseUrl: "http://localhost:1234/v1", showKey: false };
 
   const updateForm = (id: string, patch: Partial<FormState>) =>
     setFormState((s) => ({ ...s, [id]: { ...getForm(id), ...patch } }));
@@ -101,11 +206,7 @@ export function OnboardingProviderPage() {
     const apiKey = form.apiKey.trim();
     const baseUrl = form.baseUrl.trim() || "http://localhost:1234/v1";
 
-    setConnectErrors((e) => {
-      const n = { ...e };
-      delete n[providerId];
-      return n;
-    });
+    setConnectErrors((e) => { const n = { ...e }; delete n[providerId]; return n; });
 
     try {
       await connect(
@@ -115,33 +216,54 @@ export function OnboardingProviderPage() {
       );
       updateForm(providerId, { apiKey: "" });
     } catch (err) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : "Connection failed. Check your API key.";
+      const msg = err instanceof Error ? err.message : "Connection failed. Check your API key.";
       setConnectErrors((e) => ({ ...e, [providerId]: msg }));
     }
   };
 
-  const cloudProvider = (id: string) =>
-    providers.find((p) => p.provider_id === id);
+  // Apply routing: set all tasks to the first connected provider that has a model selected
+  const handleContinue = async () => {
+    const connectedCloud = providers.filter((p) => !p.is_local && p.connected);
+    const primary = connectedCloud.find((p) => selectedModels[p.provider_id]);
+
+    if (primary) {
+      setSaving(true);
+      try {
+        const current = await routingApi.get().catch(() => DEFAULT_ROUTING);
+        const per_task = { ...current.per_task };
+        const model = selectedModels[primary.provider_id] || null;
+        ALL_TASKS.forEach((task) => {
+          per_task[task] = { provider: primary.provider_id, model };
+        });
+        await routingApi.update({ ...current, mode: "manual", per_task });
+      } catch {
+        // Non-fatal — user can configure routing in Settings
+      } finally {
+        setSaving(false);
+      }
+    }
+
+    navigate("/onboarding/import");
+  };
+
+  const cloudProvider = (id: string) => providers.find((p) => p.provider_id === id);
   const connectedCloud = providers.filter((p) => !p.is_local && p.connected);
 
-  const primaryLabel =
-    connectedCloud.length > 0
+  const primaryLabel = saving
+    ? "Saving…"
+    : connectedCloud.length > 0
       ? `Continue with ${connectedCloud.length} provider${connectedCloud.length > 1 ? "s" : ""} →`
       : ollamaHealth?.ollama_reachable
         ? "Continue with Ollama →"
         : "Continue anyway →";
 
   const primaryTone: "dark" | "paper" =
-    !ollamaHealth?.ollama_reachable && connectedCloud.length === 0
-      ? "paper"
-      : "dark";
+    !ollamaHealth?.ollama_reachable && connectedCloud.length === 0 ? "paper" : "dark";
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] py-16 px-6">
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -151,8 +273,7 @@ export function OnboardingProviderPage() {
         >
           <PaperH2>Choose your AI</PaperH2>
           <p className="mt-2 font-kalam text-sm text-ink-muted">
-            Ollama runs locally by default. Optionally connect cloud providers
-            for more powerful models.
+            Ollama runs locally by default. Optionally connect cloud providers for more powerful models.
           </p>
         </motion.div>
 
@@ -166,34 +287,21 @@ export function OnboardingProviderPage() {
             {healthLoading ? (
               <div className="flex items-center gap-3">
                 <LoadingPaper variant="dots" size="sm" />
-                <span className="font-kalam text-[13px] text-ink-muted">
-                  Checking Ollama…
-                </span>
+                <span className="font-kalam text-[13px] text-ink-muted">Checking Ollama…</span>
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                <PaperIconCircle
-                  tone={ollamaHealth?.ollama_reachable ? "sage" : "ochre"}
-                  size={36}
-                >
-                  {ollamaHealth?.ollama_reachable ? (
-                    <CheckCircle2 size={16} />
-                  ) : (
-                    <WifiOff size={16} />
-                  )}
+                <PaperIconCircle tone={ollamaHealth?.ollama_reachable ? "sage" : "ochre"} size={36}>
+                  {ollamaHealth?.ollama_reachable ? <CheckCircle2 size={16} /> : <WifiOff size={16} />}
                 </PaperIconCircle>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-architect text-ink">
-                      Ollama (Local)
-                    </span>
-                    <PaperBadge
-                      tone={ollamaHealth?.ollama_reachable ? "sage" : "ochre"}
-                    >
+                    <span className="font-architect text-ink">Ollama (Local)</span>
+                    <PaperBadge tone={ollamaHealth?.ollama_reachable ? "sage" : "ochre"}>
                       {ollamaHealth?.ollama_reachable ? "● Running" : "Offline"}
                     </PaperBadge>
                   </div>
-                  <p className="font-kalam text-[14px] text-ink-muted mt-0.5">
+                  <p className="font-kalam text-[13px] text-ink-muted mt-0.5">
                     {ollamaHealth?.ollama_reachable
                       ? "Connected on localhost:11434 — private and offline-first"
                       : "Connect a cloud provider below, or start Ollama and come back"}
@@ -216,19 +324,15 @@ export function OnboardingProviderPage() {
                 key="value-prop"
                 exit={{ opacity: 0, y: -12, transition: { duration: 0.2 } }}
               >
-                <PaperCard
-                  shadow="md"
-                  className="p-6 flex flex-col items-center text-center gap-4"
-                >
+                <PaperCard shadow="md" className="p-6 flex flex-col items-center text-center gap-4">
                   <PaperIconCircle tone="sky" size={48}>
                     <Cloud size={22} />
                   </PaperIconCircle>
                   <div>
                     <PaperH3>Unlock Cloud Models</PaperH3>
                     <p className="mt-2 font-kalam text-[14px] text-ink-muted max-w-sm">
-                      Connect Gemini, Groq, or OpenRouter for more powerful
-                      models. Your API keys are encrypted and stored locally —
-                      never sent to ScholarAI.
+                      Connect Gemini, Groq, or OpenRouter for more powerful models.
+                      Your API keys are encrypted and stored locally — never sent to ScholarAI.
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-center">
@@ -242,10 +346,7 @@ export function OnboardingProviderPage() {
                     disabled={installState === "installing"}
                   >
                     {installState === "installing" ? (
-                      <>
-                        <Loader2 size={14} className="animate-spin" />
-                        Installing…
-                      </>
+                      <><Loader2 size={14} className="animate-spin" /> Installing…</>
                     ) : (
                       "Enable Cloud Providers"
                     )}
@@ -261,15 +362,16 @@ export function OnboardingProviderPage() {
                 className="flex flex-col gap-3"
               >
                 <p className="font-kalam text-sm text-ink-muted">
-                  Optional — connect one or more providers. You can skip this
-                  and configure later in Settings.
+                  Optional — connect one or more providers. You can skip this and configure later in Settings.
                 </p>
+
                 {CLOUD_PROVIDERS.map(({ id, name, desc, Icon }, i) => {
                   const provider = cloudProvider(id);
                   const connected = provider?.connected ?? false;
                   const isConnecting = connectingId === id;
                   const form = getForm(id);
-                  const modelCount = models[id]?.length ?? 0;
+                  const providerModels = models[id] ?? [];
+                  const modelCount = providerModels.length;
                   const error = connectErrors[id];
 
                   return (
@@ -278,8 +380,10 @@ export function OnboardingProviderPage() {
                       initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: i * 0.07 }}
+                      className="relative"
+                      style={{ zIndex: 50 - i }}
                     >
-                      <PaperCard shadow="sm" className="p-4 overflow-hidden">
+                      <PaperCard shadow="sm" className="p-4">
                         <AnimatePresence mode="wait">
                           {connected ? (
                             <motion.div
@@ -288,28 +392,42 @@ export function OnboardingProviderPage() {
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
                               transition={{ duration: 0.2 }}
-                              className="flex items-center gap-3 flex-wrap"
+                              className="flex flex-col gap-3"
                             >
-                              <PaperIconCircle
-                                tone={modelCount > 0 ? "sage" : "ochre"}
-                                size={32}
-                              >
-                                <CheckCircle2 size={20} />
-                              </PaperIconCircle>
-                              <span className="font-architect text-[15px] text-ink flex-1 min-w-0">
-                                {name}
-                              </span>
-                              {modelCount > 0 ? (
-                                <>
-                                  <PaperBadge tone="sage">Connected</PaperBadge>
-                                  <PaperBadge tone="sky">{modelCount} models</PaperBadge>
-                                </>
-                              ) : (
-                                <PaperBadge tone="ochre">No models found</PaperBadge>
+                              {/* Status row */}
+                              <div className="flex items-center gap-3 flex-wrap">
+                                <PaperIconCircle tone={modelCount > 0 ? "sage" : "ochre"} size={32}>
+                                  <CheckCircle2 size={16} />
+                                </PaperIconCircle>
+                                <span className="font-architect text-[15px] text-ink flex-1 min-w-0 truncate">
+                                  {name}
+                                </span>
+                                {modelCount > 0 ? (
+                                  <>
+                                    <PaperBadge tone="sage">Connected</PaperBadge>
+                                    <PaperBadge tone="sky">{modelCount} models</PaperBadge>
+                                  </>
+                                ) : (
+                                  <PaperBadge tone="ochre">No models found</PaperBadge>
+                                )}
+                                <GhostButton size="sm" onClick={() => disconnect(id)}>
+                                  Disconnect
+                                </GhostButton>
+                              </div>
+
+                              {/* Model selector — shown when models are available */}
+                              {modelCount > 0 && (
+                                <div>
+                                  <label className="text-xs font-architect text-ink-muted mb-1 block">Default model</label>
+                                  <ModelSearchSelect
+                                    models={providerModels}
+                                    value={selectedModels[id] ?? ""}
+                                    onChange={(v) =>
+                                      setSelectedModels((s) => ({ ...s, [id]: v }))
+                                    }
+                                  />
+                                </div>
                               )}
-                              <GhostButton size="sm" onClick={() => disconnect(id)}>
-                                Disconnect
-                              </GhostButton>
                             </motion.div>
                           ) : (
                             <motion.div
@@ -327,14 +445,10 @@ export function OnboardingProviderPage() {
                                 </PaperIconCircle>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="font-architect text-ink">
-                                      {name}
-                                    </span>
+                                    <span className="font-architect text-ink">{name}</span>
                                     <PaperBadge tone="sky">Cloud</PaperBadge>
                                   </div>
-                                  <p className="font-kalam text-[15px] text-ink-muted">
-                                    {desc}
-                                  </p>
+                                  <p className="font-kalam text-[13px] text-ink-muted">{desc}</p>
                                 </div>
                               </div>
 
@@ -343,14 +457,12 @@ export function OnboardingProviderPage() {
                                 <PaperInput
                                   value={form.baseUrl}
                                   placeholder="http://localhost:1234/v1"
-                                  onChange={(e) =>
-                                    updateForm(id, { baseUrl: e.target.value })
-                                  }
+                                  onChange={(e) => updateForm(id, { baseUrl: e.target.value })}
                                   disabled={isConnecting}
                                 />
                               )}
 
-                              {/* API key input + connect */}
+                              {/* API key + Connect button */}
                               <div className="flex gap-2 items-center">
                                 <div className="flex-1 min-w-0">
                                   <PaperInput
@@ -361,29 +473,17 @@ export function OnboardingProviderPage() {
                                         ? "API key (optional — leave blank for local servers)"
                                         : "API key"
                                     }
-                                    onChange={(e) =>
-                                      updateForm(id, { apiKey: e.target.value })
-                                    }
-                                    onKeyDown={(e) => {
-                                      if (e.key === "Enter") handleConnect(id);
-                                    }}
+                                    onChange={(e) => updateForm(id, { apiKey: e.target.value })}
+                                    onKeyDown={(e) => { if (e.key === "Enter") handleConnect(id); }}
                                     disabled={isConnecting}
                                     trailingIcon={
                                       <button
                                         type="button"
-                                        onClick={() =>
-                                          updateForm(id, {
-                                            showKey: !form.showKey,
-                                          })
-                                        }
+                                        onClick={() => updateForm(id, { showKey: !form.showKey })}
                                         aria-label="Toggle key visibility"
                                         className="focus:outline-none text-ink-muted hover:text-ink transition-colors flex items-center justify-center"
                                       >
-                                        {form.showKey ? (
-                                          <EyeOff size={16} />
-                                        ) : (
-                                          <Eye size={16} />
-                                        )}
+                                        {form.showKey ? <EyeOff size={16} /> : <Eye size={16} />}
                                       </button>
                                     }
                                   />
@@ -391,27 +491,17 @@ export function OnboardingProviderPage() {
                                 <PaperButton
                                   tone="dark"
                                   onClick={() => handleConnect(id)}
-                                  disabled={
-                                    isConnecting ||
-                                    (id !== "openai_compat" &&
-                                      !form.apiKey.trim())
-                                  }
+                                  disabled={isConnecting || (id !== "openai_compat" && !form.apiKey.trim())}
                                 >
-                                  {isConnecting ? (
-                                    <Loader2
-                                      size={14}
-                                      className="animate-spin"
-                                    />
-                                  ) : (
-                                    "Connect"
-                                  )}
+                                  {isConnecting
+                                    ? <Loader2 size={14} className="animate-spin" />
+                                    : "Connect"
+                                  }
                                 </PaperButton>
                               </div>
 
                               {error && (
-                                <p className="font-kalam text-[12px] text-red-700">
-                                  {error}
-                                </p>
+                                <p className="font-kalam text-[12px] text-red-700">{error}</p>
                               )}
                             </motion.div>
                           )}
@@ -432,16 +522,14 @@ export function OnboardingProviderPage() {
           transition={{ duration: 0.4, delay: 0.3 }}
           className="border-t border-[#d4cfc2] pt-6 flex justify-between items-center"
         >
-          <GhostButton size="sm" onClick={() => navigate("/onboarding/import")}>
+          <GhostButton size="sm" onClick={() => navigate("/onboarding/import")} disabled={saving}>
             Skip for now →
           </GhostButton>
-          <PaperButton
-            tone={primaryTone}
-            onClick={() => navigate("/onboarding/import")}
-          >
-            {primaryLabel}
+          <PaperButton tone={primaryTone} onClick={handleContinue} disabled={saving}>
+            {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : primaryLabel}
           </PaperButton>
         </motion.div>
+
       </div>
     </div>
   );

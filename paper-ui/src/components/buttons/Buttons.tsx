@@ -92,13 +92,7 @@ export const StickyButton = React.forwardRef<
             corner="top-left"
             width={34}
             rotate={-24}
-            className="-top-2 left-1"
-          />
-          <Tape
-            corner="top-right"
-            width={34}
-            rotate={24}
-            className="-top-2 right-1"
+            className="-top-1 -left-2"
           />
         </>
       )}

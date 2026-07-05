@@ -9,9 +9,14 @@ from pathlib import Path
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+import logging
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+
+logger = logging.getLogger(__name__)
 
 from scholarai.storage import init_db, get_session
 from scholarai.api.plugin_catalog import PLUGIN_CATALOG
@@ -102,13 +107,11 @@ def create_app() -> FastAPI:
         trace,
         trash,
         whiteboards,
-        providers,
-        routing,
-        usage,
     )
     from scholarai.api import notebook_service
+    from scholarai.config import get_settings
 
-    for module in (
+    _core_modules = (
         ask,
         backup,
         consistency,
@@ -138,11 +141,22 @@ def create_app() -> FastAPI:
         trash,
         whiteboards,
         notebook_service,
-        providers,
-        routing,
-        usage,
-    ):
+    )
+    for module in _core_modules:
         app.include_router(module.router)
+
+    if get_settings().features.cloud_providers_enabled:
+        from scholarai.api.routers import providers, routing, usage
+        for module in (providers, routing, usage):
+            app.include_router(module.router)
+
+    @app.exception_handler(Exception)
+    async def unhandled_error_handler(request: Request, exc: Exception):
+        logger.warning("Unhandled exception at %s: %s", request.url.path, exc)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(exc)},
+        )
 
     @app.get("/api/health", tags=["health"])
     async def health() -> dict:

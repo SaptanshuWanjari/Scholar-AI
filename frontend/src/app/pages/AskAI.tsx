@@ -365,7 +365,7 @@ export function AskAI() {
         </ScrollArea>
 
         {/* Sticky input */}
-        <div className="border-t border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
+        <div className="border-t border-border bg-background/80 px-1 py-2 backdrop-blur-xl">
           <div className="mx-auto max-w-5xl">
             <PaperCard data-tour="ask-input" shadow="sm" className="p-2">
               <div className="flex items-end gap-2">
@@ -477,7 +477,7 @@ function EmptyAsk({
       <PaperH1 className="mt-5 text-4xl">Ask your knowledge base</PaperH1>
       <p className="mt-2 max-w-md font-kalam text-[15px] text-ink-muted">
         Get source-grounded answers with citations, drawn directly from your
-        documents, notes and lectures.
+        documents, notes and lectures.askai
       </p>
 
       <div className="mt-8 grid w-full max-w-xl gap-2 sm:grid-cols-2">
