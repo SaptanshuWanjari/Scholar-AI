@@ -209,7 +209,7 @@ function Builder({
 
   return (
     <>
-      <PaperPanel className="p-5">
+      <PaperPanel className="p-5 z-10">
         <div className="flex items-center gap-2">
           <Settings2 className="size-4 text-ink-muted" />
           <h3 className="font-architect  text-ink">Quiz builder</h3>
