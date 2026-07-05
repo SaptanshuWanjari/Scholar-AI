@@ -1,18 +1,51 @@
 # Scholar AI
 
-A comprehensive, **local-first AI study assistant** that runs entirely on your machine.
-It ingests your PDFs and Markdown notes into a local knowledge base (RAG) and provides a full suite of AI-powered study tools via a React frontend and FastAPI backend.
+A **local-first AI study assistant** that runs on your machine and ingests PDFs, Markdown notes, and more into a local RAG knowledge base. Use local LLMs via Ollama (recommended) or connect cloud providers — your data stays with you.
 
 ## Features
 
-- **Knowledge Library (RAG)**: Ingest documents with automatic chunking, LLM metadata extraction, and Hybrid Search (BM25 + Vector similarity) using LanceDB.
-- **Ask AI**: Chat with your documents. Get grounded answers with exact source citations and view the internal RAG execution trace.
-- **Generative Study Tools**: Automatically generate Flashcards, Quizzes, Mindmaps, Diagrams (Mermaid), and Revision Notes from your uploaded courses. Includes draft auto-saving.
-- **Exam Mode & PYQ Analysis**: Upload Previous Year Questions (PYQs) to extract and analyze topic frequencies and question patterns. The system generates mock exams mimicking historical trends and provides LLM-based grading for subjective answers.
-- **Teach Mode**: Generates complete "Learning Packages" (bundled notes, quizzes, mindmaps) for a specific topic.
-- **Reading Mode**: Read documents natively, save highlights and bookmarks.
-- **Concept Graph**: Extracts and visualizes semantic relationships between key concepts.
-- **Consistency Checker**: Cross-checks user-generated notes against source documents to flag contradictions.
+### 📚 Knowledge Base
+- **Document Ingestion**: PDF (including scanned/OCR), Markdown, CSV, XLSX. Automatic recursive chunking, LLM-based metadata extraction, table extraction, and diagram description generation.
+- **Hybrid Search**: BM25 + vector similarity via LanceDB. Reranking, CRAG verification loops, and query rewriting for retrieval quality.
+
+### 💬 Ask AI
+- **RAG Chat**: Ask grounded questions across your courses, with exact source citations and a full LangGraph execution trace viewer.
+
+### 🧠 Generative Study Tools
+- **Flashcards**: SM-2 spaced repetition, auto-generated from your materials.
+- **Quizzes**: Auto-generated with answer validation and scoring.
+- **Mindmaps**: AI-extracted concept maps from documents.
+- **Diagrams**: Mermaid-based auto-generated diagrams.
+- **Revision Notes**: Condensed study notes from course content.
+- **Comparisons**: AI-generated difference tables across topics.
+
+### 🎓 Exam Mode
+- **PYQ Analysis**: Upload previous year question papers. Extracts topic frequencies, question patterns, and generates mock exams mimicking historical trends.
+- **Timed Sessions**: Built-in exam timer with auto-submit. LLM-based grading for subjective answers.
+
+### 📖 Reading Mode
+- **Native Reader**: In-browser document reader. Highlights, bookmarks, sticky notes, and progress tracking synced across sessions.
+
+### 🧩 Teach Mode
+- **Learning Packages**: Human-in-the-loop LangGraph workflow. Draft → review → approve → generate bundled artifacts (notes, quizzes, flash cards, mindmaps, diagrams).
+
+### 🕸️ Concept Graph
+- **Knowledge Graph**: Extracts semantic relationships between concepts from your documents.
+- **Dependency Graph**: Prerequisite-based dependency engine for learning roadmaps.
+
+### ✅ Consistency Checker
+- **Cross-Artifact Validation**: Flags contradictions between user-generated notes and source documents. Also checks consistency across flashcards, quizzes, and revision notes.
+
+### 🔌 Plugin System
+Extend ScholarAI with optional plugins — install/uninstall from the UI:
+- **Excalidraw Whiteboards**: Collaborative-style whiteboarding with mermaid-to-excalidraw import.
+- **PlantUML Diagrams**: Render PlantUML diagrams (requires system `plantuml` binary).
+- **Reading Annotations**: Sticky notes and region annotations on documents.
+- **Cloud Model Providers**: Connect OpenAI-compatible, Gemini, Groq, or OpenRouter. Per-task routing, automatic fallback, and monthly spend budgets.
+
+### 🔍 Search & Prompt Library
+- **Cross-Artifact Search**: Full-text search across documents, notes, flashcards, quizzes, and diagrams.
+- **Custom Prompts**: Per-category RAG prompt management and prompt enhancement coaching.
 
 ## Quick Install
 
@@ -33,7 +66,7 @@ cd ScholarAI-*
 .\setup.ps1
 ```
 
-**Prerequisite**: [Ollama](https://ollama.ai) must be installed and running with the required models:
+**Recommended**: [Ollama](https://ollama.ai) with the following models for full local operation:
 
 ```bash
 ollama pull qwen3:8b
@@ -41,7 +74,17 @@ ollama pull gemma4:12b
 ollama pull nomic-embed-text
 ```
 
+You can also connect cloud providers (OpenAI-compatible, Gemini, Groq, OpenRouter) from the Settings page — no local GPU required.
+
 Then open `http://localhost:8000` in your browser.
+
+## Privacy
+
+ScholarAI **does not collect telemetry or user data**. Everything runs locally on your machine:
+
+- **Local-only**: Documents, embeddings, vector index, chat history, and study artifacts all live in `.data/` — never sent to an external server.
+- **Cloud providers**: If you connect a cloud LLM provider (OpenAI, Gemini, etc.), only prompt text is sent to that provider's API. No document contents or metadata are shared beyond what the LLM call requires.
+- **No accounts, no tracking**: No sign-up, no analytics, no telemetry. Your study data is yours.
 
 ## Tech Stack
 
@@ -51,9 +94,11 @@ Then open `http://localhost:8000` in your browser.
 - FastAPI
 - LangGraph & LangChain
 - LanceDB (embedded vector + BM25 search)
-- SQLite + SQLAlchemy (metadata & durable artifact persistence)
+- SQLite + SQLAlchemy (metadata & artifact persistence)
 - Ollama
-  **Frontend**
+
+
+**Frontend**
 
 - React + Vite
 - TypeScript
@@ -63,14 +108,18 @@ Then open `http://localhost:8000` in your browser.
 
 ## Development Setup
 
-### 1. Ollama (LLM Engine)
+### 1. LLM Engine
+
+ScholarAI defaults to **Ollama** for local inference. Pull the recommended models:
 
 ```bash
-ollama serve            # Run in a separate terminal
+ollama serve
 ollama pull qwen3:8b
 ollama pull gemma4:12b
 ollama pull nomic-embed-text
 ```
+
+If you don't have a GPU, skip this step and connect a cloud provider from the Settings UI after startup.
 
 ### 2. Backend
 
