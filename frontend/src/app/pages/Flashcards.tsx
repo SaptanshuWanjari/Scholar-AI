@@ -197,7 +197,7 @@ export function Flashcards() {
   return (
     <Page className="space-y-6">
       {/* Generate flashcards */}
-      <PaperPanel data-tour="flashcards-generate" className="p-5">
+      <PaperPanel data-tour="flashcards-generate" className="p-5 z-10">
         <div className="flex items-center gap-2 font-architect text-[15px] text-ink">
           <Sparkles className="size-4" /> Generate flashcards
         </div>

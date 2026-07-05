@@ -246,7 +246,7 @@ function InputPhase() {
           </p>
         </div>
 
-        <PaperCard className="mt-8 p-5">
+        <PaperCard className="mt-8 p-5 z-10">
           <PaperInput
             data-tour="teach-input"
             value={topic}
