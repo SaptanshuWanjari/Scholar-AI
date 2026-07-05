@@ -4,14 +4,14 @@ A **local-first AI study assistant** that runs on your machine and ingests PDFs,
 
 ## Features
 
-### 📚 Knowledge Base
+###  Knowledge Base
 - **Document Ingestion**: PDF (including scanned/OCR), Markdown, CSV, XLSX. Automatic recursive chunking, LLM-based metadata extraction, table extraction, and diagram description generation.
 - **Hybrid Search**: BM25 + vector similarity via LanceDB. Reranking, CRAG verification loops, and query rewriting for retrieval quality.
 
-### 💬 Ask AI
+###  Ask AI
 - **RAG Chat**: Ask grounded questions across your courses, with exact source citations and a full LangGraph execution trace viewer.
 
-### 🧠 Generative Study Tools
+###  Generative Study Tools
 - **Flashcards**: SM-2 spaced repetition, auto-generated from your materials.
 - **Quizzes**: Auto-generated with answer validation and scoring.
 - **Mindmaps**: AI-extracted concept maps from documents.
@@ -19,31 +19,31 @@ A **local-first AI study assistant** that runs on your machine and ingests PDFs,
 - **Revision Notes**: Condensed study notes from course content.
 - **Comparisons**: AI-generated difference tables across topics.
 
-### 🎓 Exam Mode
+###  Exam Mode
 - **PYQ Analysis**: Upload previous year question papers. Extracts topic frequencies, question patterns, and generates mock exams mimicking historical trends.
 - **Timed Sessions**: Built-in exam timer with auto-submit. LLM-based grading for subjective answers.
 
-### 📖 Reading Mode
+###  Reading Mode
 - **Native Reader**: In-browser document reader. Highlights, bookmarks, sticky notes, and progress tracking synced across sessions.
 
-### 🧩 Teach Mode
+###  Teach Mode
 - **Learning Packages**: Human-in-the-loop LangGraph workflow. Draft → review → approve → generate bundled artifacts (notes, quizzes, flash cards, mindmaps, diagrams).
 
-### 🕸️ Concept Graph
+###  Concept Graph
 - **Knowledge Graph**: Extracts semantic relationships between concepts from your documents.
 - **Dependency Graph**: Prerequisite-based dependency engine for learning roadmaps.
 
-### ✅ Consistency Checker
+###  Consistency Checker
 - **Cross-Artifact Validation**: Flags contradictions between user-generated notes and source documents. Also checks consistency across flashcards, quizzes, and revision notes.
 
-### 🔌 Plugin System
+###  Plugin System
 Extend ScholarAI with optional plugins — install/uninstall from the UI:
 - **Excalidraw Whiteboards**: Collaborative-style whiteboarding with mermaid-to-excalidraw import.
 - **PlantUML Diagrams**: Render PlantUML diagrams (requires system `plantuml` binary).
 - **Reading Annotations**: Sticky notes and region annotations on documents.
 - **Cloud Model Providers**: Connect OpenAI-compatible, Gemini, Groq, or OpenRouter. Per-task routing, automatic fallback, and monthly spend budgets.
 
-### 🔍 Search & Prompt Library
+###  Search & Prompt Library
 - **Cross-Artifact Search**: Full-text search across documents, notes, flashcards, quizzes, and diagrams.
 - **Custom Prompts**: Per-category RAG prompt management and prompt enhancement coaching.
 
@@ -55,15 +55,16 @@ Download the latest archive for your platform from [GitHub Releases](https://git
 # Linux / macOS
 tar xzf ScholarAI-*-Linux.tar.gz   # or *-macOS.tar.gz
 cd ScholarAI-*
-./setup.sh
-
+./setup.sh          # first run: install dependencies
+./start.sh          # subsequent runs: just launch
 ```
 
 ```bash
 # Windows (PowerShell)
 Expand-Archive ScholarAI-*-windows.zip
 cd ScholarAI-*
-.\setup.ps1
+.\setup.ps1         # first run: install dependencies
+.\start.ps1         # subsequent runs: just launch
 ```
 
 **Recommended**: [Ollama](https://ollama.ai) with the following models for full local operation:
@@ -74,7 +75,21 @@ ollama pull gemma4:12b
 ollama pull nomic-embed-text
 ```
 
-You can also connect cloud providers (OpenAI-compatible, Gemini, Groq, OpenRouter) from the Settings page — no local GPU required.
+You can also connect cloud providers (OpenAI-compatible, Gemini, Groq, OpenRouter) during onboarding or from the Settings page.
+
+### Updating
+
+```bash
+# Linux / macOS — downloads latest release & re-runs setup
+./update.sh
+```
+
+```powershell
+# Windows
+.\update.ps1
+```
+
+Your data in `.data/` is preserved across updates.
 
 Then open `http://localhost:8000` in your browser.
 
@@ -97,11 +112,11 @@ ScholarAI **does not collect telemetry or user data**. Everything runs locally o
 - SQLite + SQLAlchemy (metadata & artifact persistence)
 - Ollama
 
-
 **Frontend**
 
 - React + Vite
 - TypeScript
+- Paper-UI
 - Tailwind CSS
 - Zustand
 - React Router
@@ -137,17 +152,3 @@ npm run dev
 # Opens at http://localhost:5173
 ```
 
-## CLI Usage
-
-You can still use the CLI for batch ingestion and fast terminal queries:
-
-```bash
-# Ingest documents
-uv run scholar ingest path/to/notes.pdf --course "Operating Systems"
-
-# Ask a grounded question
-uv run scholar ask "Explain TCP congestion control." --course "Operating Systems"
-
-# List ingested courses
-uv run scholar courses
-```
