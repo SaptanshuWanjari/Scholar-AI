@@ -71,6 +71,7 @@ Download the latest archive for your platform from [GitHub Releases](https://git
 # Linux / macOS
 tar xzf ScholarAI-*-Linux.tar.gz   # or *-macOS.tar.gz
 cd ScholarAI-*
+chmod +x setup.sh start.sh update.sh   # one-time: make scripts executable
 ./setup.sh          # first run: install dependencies
 ./start.sh          # subsequent runs: just launch
 ```
@@ -79,6 +80,7 @@ cd ScholarAI-*
 # Windows (PowerShell)
 Expand-Archive ScholarAI-*-windows.zip
 cd ScholarAI-*
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass   # bypass signing requirement for this session
 .\setup.ps1         # first run: install dependencies
 .\start.ps1         # subsequent runs: just launch
 ```
