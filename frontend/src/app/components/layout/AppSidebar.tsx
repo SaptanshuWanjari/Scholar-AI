@@ -1,14 +1,11 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { GraduationCap, Sparkles } from "lucide-react";
 import { navItems } from "../../lib/nav";
 import { useUIStore } from "../../stores/useUIStore";
 import { KNOWN_PLUGINS } from "../../plugins/registry";
 import { usePluginStore } from "../../plugins/usePluginStore";
 import { PaperSidebar } from "@paper-ui/components/navigation";
 import type { PaperNavGroup } from "@paper-ui/components/navigation";
-import { SketchBorder } from "@paper-ui/core";
-import { ShortcutKey } from "@paper-ui/components/inputs";
 
 const groupLabels: Record<string, string> = {
   main: "Library",
@@ -57,23 +54,23 @@ export function AppSidebar() {
       header={
         <div className="flex items-center gap-3">
           <div
-            className="relative flex h-10 w-10 -rotate-3 items-center justify-center shrink-0"
+            className="relative flex h-12 w-12 -rotate-3 items-center justify-center shrink-0"
             style={{ color: "#fbf8f2" }}
           >
-            <SketchBorder
-              fill="#262320"
-              stroke="#262320"
-              strokeWidth={1.5}
-              radius={6}
-              shadow={2}
-              roughness={0.9}
-              bleed={5}
-            />
-            <span className="relative z-[1]">
-              <GraduationCap size={22} />
+            {/* <SketchBorder */}
+            {/*   fill="#262320" */}
+            {/*   stroke="#262320" */}
+            {/*   strokeWidth={1.5} */}
+            {/*   radius={6} */}
+            {/*   shadow={2} */}
+            {/*   roughness={0.9} */}
+            {/*   bleed={5} */}
+            {/* /> */}
+            <span className="relative z-[1] flex items-center justify-center w-full h-full">
+              <img src="/output.png" alt="ScholarAI" className="w-full h-full object-contain scale-[1.2]" />
             </span>
           </div>
-          <div className="leading-tight min-w-0">
+          <div className={`leading-tight min-w-0 ${collapsed ? "hidden" : "block"}`}>
             <div className="truncate font-caveat text-2xl font-bold text-ink">
               ScholarAI
             </div>

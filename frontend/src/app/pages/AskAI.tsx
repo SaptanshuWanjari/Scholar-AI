@@ -481,20 +481,25 @@ function EmptyAsk({
       </p>
 
       <div className="mt-8 grid w-full max-w-xl gap-2 sm:grid-cols-2">
-        {suggestions.map((s, i) => (
-          <motion.div
-            key={s}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + i * 0.06 }}
-          >
-            <button onClick={() => onPick(s)} className="w-full text-left">
-              <PaperCard lift shadow="sm" className="p-3.5 cursor-pointer">
-                <p className="font-architect text-sm text-ink">{s}</p>
-              </PaperCard>
-            </button>
-          </motion.div>
-        ))}
+        {suggestions.map((s, i) => {
+          const colors = ["#f5f3ff", "#f0f9ff", "#fffbeb", "#f0fdf4"];
+          const surface = colors[i % colors.length];
+          return (
+            <motion.div
+              key={s}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + i * 0.06 }}
+              className="h-full"
+            >
+              <button onClick={() => onPick(s)} className="w-full text-left h-full">
+                <PaperCard lift shadow="sm" surface={surface} className="p-3.5 cursor-pointer h-full">
+                  <p className="font-architect text-sm text-ink">{s}</p>
+                </PaperCard>
+              </button>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

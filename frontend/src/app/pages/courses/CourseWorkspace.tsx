@@ -166,12 +166,12 @@ export function CourseWorkspace({
   return (
     <div className="flex flex-col h-full overflow-hidden bg-paper">
       {/* Header */}
-      <div className="px-8 pt-8 pb-6 shrink-0">
-        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+      <div className="px-6 pt-5 pb-3 shrink-0">
+        <div className="flex lg:flex-row lg:items-start justify-between gap-4">
           <div className="flex items-start sm:items-center gap-4 min-w-0">
             <span
               className="relative inline-flex shrink-0 items-center justify-center"
-              style={{ width: 48, height: 48, color: course.color }}
+              style={{ width: 48, height: 40, color: course.color }}
             >
               <div
                 className="absolute inset-0 rounded-2xl"
@@ -226,12 +226,12 @@ export function CourseWorkspace({
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {!isRenaming && (
-              <GhostButton size="md" onClick={onRenameStart}>
-                <Pencil className="size-3.5" /> Rename
-              </GhostButton>
-            )}
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {/* {!isRenaming && ( */}
+            {/*   <GhostButton size="md" onClick={onRenameStart}> */}
+            {/*     <Pencil className="size-3.5" /> Rename */}
+            {/*   </GhostButton> */}
+            {/* )} */}
             <PaperButton
               size="md"
               tone="paper"
@@ -250,7 +250,7 @@ export function CourseWorkspace({
               disabled={generatingPackage}
             >
               <Package
-                className={cn("size-3.5", generatingPackage && "animate-pulse")}
+                className={cn("size-4", generatingPackage && "animate-pulse")}
               />
               {generatingPackage ? "Generating\u2026" : "Generate Package"}
             </PaperButton>
@@ -262,26 +262,42 @@ export function CourseWorkspace({
 
         {/* Stats row */}
         {stats && (
-          <div className=" py-5">
+          <div className="py-3">
             <Divider
               orientation="horizontal"
               className="mb-2"
               color="#e4e0d6"
             />
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-y-5 gap-x-6 lg:gap-x-8">
-              {STAT_CARDS.map((sc) => (
-                <div
-                  key={sc.label}
-                  className="flex flex-col items-center gap-1.5 min-w-22.5"
-                >
-                  <span className="font-architect text-[11px] uppercase tracking-wider text-ink-muted font-medium">
-                    {sc.label}
-                  </span>
-                  <span className="font-caveat text-[28px] leading-none text-ink">
-                    {sc.value}
-                  </span>
-                </div>
-              ))}
+            <div className="flex flex-wrap items-center justify-start gap-y-3 gap-x-4 lg:gap-x-6">
+              {STAT_CARDS.map((sc, i) => {
+                const colors = [
+                  { bg: "#eff6ff", text: "#3b82f6" },
+                  { bg: "#f0fdf4", text: "#22c55e" },
+                  { bg: "#faf5ff", text: "#a855f7" },
+                  { bg: "#fff7ed", text: "#f97316" },
+                  { bg: "#fdf2f8", text: "#ec4899" },
+                  { bg: "#f0fdfa", text: "#14b8a6" },
+                  { bg: "#fef2f2", text: "#ef4444" },
+                  { bg: "#eef2ff", text: "#6366f1" },
+                ];
+                const c = colors[i % colors.length];
+                return (
+                  <div
+                    key={sc.label}
+                    className="flex flex-col items-center gap-1 min-w-[5rem] shrink-0"
+                  >
+                    <div className="flex items-center justify-center size-8 rounded-full mb-1" style={{ backgroundColor: c.bg, color: c.text }}>
+                      <sc.icon className="size-4" />
+                    </div>
+                    <span className="font-architect text-[10px] uppercase tracking-wider text-ink-muted font-medium">
+                      {sc.label}
+                    </span>
+                    <span className="font-caveat text-[24px] leading-none" style={{ color: c.text }}>
+                      {sc.value}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
             <Divider
               orientation="horizontal"
@@ -296,7 +312,7 @@ export function CourseWorkspace({
 
         {/* Tabs */}
         <Tabs
-          className="mt-5"
+          className="mt-3"
           items={["overview", "documents", "artifacts", "settings"].map(
             (t) => ({ key: t, label: t.charAt(0).toUpperCase() + t.slice(1) }),
           )}
@@ -307,7 +323,7 @@ export function CourseWorkspace({
       </div>
 
       {/* Tab content */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-6 py-4">
         {activeTab === "overview" && (
           <OverviewTab
             course={course}

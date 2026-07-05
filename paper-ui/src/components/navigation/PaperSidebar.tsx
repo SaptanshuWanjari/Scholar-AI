@@ -184,12 +184,7 @@ export function PaperSidebar({
             collapsed ? "flex justify-center px-3 py-4" : "px-4 py-4",
           )}
         >
-          <div
-            className={cn(
-              "transition-opacity duration-200",
-              collapsed ? "opacity-0 pointer-events-none" : "opacity-100",
-            )}
-          >
+          <div className="transition-opacity duration-200">
             {header}
           </div>
         </div>
@@ -218,7 +213,7 @@ export function PaperSidebar({
                   collapsed ? "opacity-0" : "opacity-100",
                 )}
               >
-                <span className="font-architect text-[10px] uppercase tracking-[0.14em] text-ink-muted/50">
+                <span className="font-architect text-[13px] uppercase tracking-[0.14em] text-ink-muted">
                   {group.label}
                 </span>
               </div>

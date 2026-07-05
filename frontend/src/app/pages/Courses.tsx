@@ -92,7 +92,7 @@ export function Courses() {
   return (
     <div className="flex h-full overflow-hidden bg-paper">
       {/* Sidebar */}
-      <div className="w-72 shrink-0 border-r border-[#e4e0d6] flex flex-col bg-paper-card overflow-hidden">
+      <div className="w-56 shrink-0 border-r border-[#e4e0d6] flex flex-col bg-paper-card overflow-hidden">
         <div className="px-3 pt-4 pb-2 space-y-2 shrink-0">
           <input
             placeholder="Search courses"

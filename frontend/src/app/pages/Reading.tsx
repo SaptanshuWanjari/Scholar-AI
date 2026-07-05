@@ -6,6 +6,7 @@ import {
   BookOpen, Clock, X, FileText, Loader2,
   ZoomIn, ZoomOut, BookMarked, PencilRuler,
   Columns, StickyNote as StickyNoteIcon, PenLine, PuzzleIcon, LayoutPanelLeft, PencilLine, Trash2, BookPlus,
+  Maximize2, Minimize2,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
@@ -87,6 +88,8 @@ export function Reading() {
   const [notebooks, setNotebooks] = useState<NotebookMeta[]>([]);
   const [savingToNotebook, setSavingToNotebook] = useState(false);
   const [annotSubMode, setAnnotSubMode] = useState<SubMode>("notes");
+  const [focusMode, setFocusMode] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -132,6 +135,14 @@ export function Reading() {
     api.getNotes(docId).then((ns) => { if (!cancelled) setNotes(docId, ns); }).catch(() => { });
     return () => { cancelled = true; };
   }, [docId, readingAnnotEnabled, setNotes, clearNotes]);
+
+  useEffect(() => {
+    if (focusMode) {
+      setLeftCollapsed(true);
+      setRightCollapsed(true);
+      setDrawerOpen(false);
+    }
+  }, [focusMode]);
 
   useEffect(() => {
     const pageParam = searchParams.get("page");
@@ -275,52 +286,64 @@ export function Reading() {
 
   return (
     <AppShell fullscreen={false} className="h-full">
-      <div className="flex h-full flex-col overflow-hidden">
-        {/* Top bar */}
-        <header className="relative z-20 flex shrink-0 items-center justify-between px-3 py-2">
-          <SketchBorder
-            fill="var(--color-paper-card, #fffdf9)"
-            stroke="var(--color-border, #e4e0d6)"
-            strokeWidth={1.5} roughness={1.2} radius={8} shadow={2} bleed={3}
-          />
-          <div className="relative z-[1] flex w-full items-center justify-between">
-            <div className="flex items-center gap-1">
+      <div className="relative flex h-full flex-col overflow-hidden">
+        {/* Floating top toolbar */}
+        <header
+          className="absolute  inset-x-0 top-0 z-30 flex items-center justify-between gap-2 px-3 py-1.5 "
+        >
+          <div className="flex items-center gap-1 bg-white/80 size-7 rounded-full">
+            {focusMode ? (
+              <IconButton label="Exit focus mode" onClick={() => setFocusMode(false)}>
+                <Minimize2 size={17} />
+              </IconButton>
+            ) : (
               <IconButton label={leftCollapsed ? "Expand sidebar" : "Collapse sidebar"} onClick={() => setLeftCollapsed(!leftCollapsed)}>
                 {leftCollapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
               </IconButton>
-            </div>
+            )}
+          </div>
 
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5">
+            <PaperSelect
+              value={viewMode}
+              onChange={(v) => setViewMode(v as any)}
+              options={[
+                { value: "pdf", label: "PDF", icon: <BookOpen size={14} /> },
+                { value: "text", label: "Annotate", icon: <PencilLine size={14} /> },
+                { value: "split", label: "Split", icon: <Columns size={14} /> },
+                { value: "compare", label: "Compare", icon: <LayoutPanelLeft size={14} /> },
+              ]}
+              className="!px-2 !py-1 !text-xs !font-architect min-w-[100px]"
+            />
+            {(viewMode === "split" || viewMode === "text") && readingAnnotEnabled && !focusMode && (
               <PaperSelect
-                value={viewMode}
-                onChange={(v) => setViewMode(v as any)}
+                value={annotSubMode}
+                onChange={(v) => setAnnotSubMode(v as SubMode)}
                 options={[
-                  { value: "pdf", label: "PDF", icon: <BookOpen size={14} /> },
-                  { value: "text", label: "Annotate", icon: <PencilLine size={14} /> },
-                  { value: "split", label: "Split", icon: <Columns size={14} /> },
-                  { value: "compare", label: "Compare", icon: <LayoutPanelLeft size={14} /> },
+                  { value: "notes", label: "Notes", icon: <StickyNoteIcon size={14} /> },
+                  { value: "draw", label: "Draw", icon: <PencilRuler size={14} /> },
+                  { value: "both", label: "Both", icon: <Columns size={14} /> },
                 ]}
-                className="!px-2 !py-1 !text-xs !font-architect min-w-[100px]"
+                className="!px-2 !py-1 !text-xs !font-architect min-w-[80px]"
               />
-              {(viewMode === "split" || viewMode === "text") && readingAnnotEnabled && (
-                <PaperSelect
-                  value={annotSubMode}
-                  onChange={(v) => setAnnotSubMode(v as SubMode)}
-                  options={[
-                    { value: "notes", label: "Notes", icon: <StickyNoteIcon size={14} /> },
-                    { value: "draw", label: "Draw", icon: <PencilRuler size={14} /> },
-                    { value: "both", label: "Both", icon: <Columns size={14} /> },
-                  ]}
-                  className="!px-2 !py-1 !text-xs !font-architect min-w-[80px]"
-                />
-              )}
-            </div>
+            )}
+          </div>
 
-            <div className="flex items-center gap-1">
-              <IconButton label={rightCollapsed ? "Expand context" : "Collapse context"} onClick={() => setRightCollapsed(!rightCollapsed)}>
-                {rightCollapsed ? <PanelRightOpen size={17} /> : <PanelRightClose size={17} />}
+          <div className="flex items-center gap-1">
+            {focusMode ? (
+              <IconButton label={drawerOpen ? "Close workspace" : "Open workspace"} onClick={() => setDrawerOpen(!drawerOpen)}>
+                <StickyNoteIcon size={17} />
               </IconButton>
-            </div>
+            ) : (
+              <>
+                <IconButton label={rightCollapsed ? "Expand context" : "Collapse context"} onClick={() => setRightCollapsed(!rightCollapsed)}>
+                  {rightCollapsed ? <PanelRightOpen size={17} /> : <PanelRightClose size={17} />}
+                </IconButton>
+                <IconButton label="Focus mode" onClick={() => setFocusMode(true)}>
+                  <Maximize2 size={17} />
+                </IconButton>
+              </>
+            )}
           </div>
         </header>
 
@@ -335,7 +358,7 @@ export function Reading() {
               leftCollapsed && "overflow-hidden border-r-0"
             )}
           >
-            <div className={cn("flex min-w-[260px] flex-1 flex-col overflow-hidden", leftCollapsed && "invisible")}>
+            <div className={cn("flex min-w-[260px] flex-1 flex-col overflow-hidden pt-11", leftCollapsed && "invisible")}>
               <div className="flex items-center justify-between px-4 py-3 border-b border-[#c8c0b0]/50">
                 <SectionLabel>Content</SectionLabel>
                 <IconButton label="Collapse sidebar" onClick={() => setLeftCollapsed(true)}>
@@ -455,7 +478,7 @@ export function Reading() {
           </motion.aside>
 
           {/* Center — Reader */}
-          <div className="relative min-w-0 flex-1">
+          <div className="relative min-w-0 flex-1 overflow-hidden">
             <main data-tour="reading-reader" className="h-full overflow-y-auto paper-scrollbar" ref={scrollRef}>
               <SelectionToolbar containerRef={readerRef} actions={actions} />
 
@@ -557,7 +580,7 @@ export function Reading() {
             </main>
 
             {viewMode !== "text" && (
-              <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1">
+              <div className="absolute bottom-4 right-4 z-30 flex items-center gap-1">
                 <PaperCard shadow="sm" className="!px-2 !py-1 flex items-center gap-1">
                   <IconButton label="Zoom out" onClick={() => setScale((s) => Math.max(0.25, +(s - 0.25).toFixed(2)))}>
                     <ZoomOut size={14} />
@@ -571,6 +594,60 @@ export function Reading() {
                 </PaperCard>
               </div>
             )}
+
+            {/* Focus mode workspace drawer */}
+            <AnimatePresence>
+              {focusMode && drawerOpen && (
+                <motion.div
+                  className="absolute right-0 top-11 bottom-0 z-20 w-[340px] border-l border-[#c8c0b0] bg-sidebar flex flex-col"
+                  initial={{ x: 340 }}
+                  animate={{ x: 0 }}
+                  exit={{ x: 340 }}
+                  transition={{ type: "spring", stiffness: 340, damping: 36 }}
+                >
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-[#c8c0b0]/50">
+                    <SectionLabel>Workspace</SectionLabel>
+                    <div className="flex items-center gap-1.5">
+                      {readingAnnotEnabled && (
+                        <PaperSelect
+                          value={annotSubMode}
+                          onChange={(v) => setAnnotSubMode(v as SubMode)}
+                          options={[
+                            { value: "notes", label: "Notes", icon: <StickyNoteIcon size={14} /> },
+                            { value: "draw", label: "Draw", icon: <PencilRuler size={14} /> },
+                            { value: "both", label: "Both", icon: <Columns size={14} /> },
+                          ]}
+                          className="!px-2 !py-1 !text-xs !font-architect min-w-[80px]"
+                        />
+                      )}
+                      <IconButton label="Close pane" onClick={() => setDrawerOpen(false)}>
+                        <X size={14} />
+                      </IconButton>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    {readingAnnotEnabled && docId ? (
+                      <ReadingWorkspace
+                        docId={docId}
+                        course={documents.find((d) => d.id === docId)?.course ?? null}
+                        excalidrawEnabled={excalidrawEnabled}
+                        notebooks={notebooks}
+                        subMode={annotSubMode}
+                        onScrollToRegion={(page, bbox) => pdfRef.current?.scrollToRegion(page, bbox)}
+                      />
+                    ) : (
+                      <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+                        <PaperCard shadow="sm" className="p-4"><PuzzleIcon className="size-6 text-ink-muted" /></PaperCard>
+                        <p className="font-caveat text-xl font-bold text-ink">Plugin not enabled</p>
+                        <p className="font-kalam text-sm text-ink-muted max-w-xs leading-relaxed">
+                          Enable the <span className="font-medium text-ink">Reading Annotations</span> plugin to use sticky notes and region annotations here.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Right sidebar — Academic Lens context */}
@@ -583,7 +660,7 @@ export function Reading() {
               rightCollapsed && "overflow-hidden border-l-0"
             )}
           >
-            <div className={cn("flex min-w-[320px] flex-1 flex-col overflow-hidden", rightCollapsed && "invisible")}>
+            <div className={cn("flex min-w-[320px] flex-1 flex-col overflow-hidden pt-11", rightCollapsed && "invisible")}>
               <div className="flex items-center justify-between px-4 py-3 border-b border-[#c8c0b0]/50">
                 <IconButton label="Collapse context" onClick={() => setRightCollapsed(true)}>
                   <PanelRightClose size={15} />
@@ -673,7 +750,7 @@ export function Reading() {
         </div>
 
         {/* Bottom bar — reading progress */}
-        <div className="relative z-10 flex shrink-0 items-center gap-6 px-6 py-2.5 text-xs text-ink-muted border-t border-[#c8c0b0]/50 bg-sidebar">
+        {!focusMode && <div className="relative z-10 flex shrink-0 items-center gap-6 px-6 py-2.5 text-xs text-ink-muted border-t border-[#c8c0b0]/50 bg-sidebar">
           <span className="flex items-center gap-1.5 font-architect">
             <BookOpen size={14} /> Page {doc ? currentPage : 1} of {Math.max(1, pages)}
           </span>
@@ -690,7 +767,7 @@ export function Reading() {
             <span className="font-architect font-medium text-ink">{progress}%</span>
             <ReadingProgress value={progress} height={6} label={false} className="flex-1" color="#7fa37b" />
           </div>
-        </div>
+        </div>}
       </div>
     </AppShell>
   );
