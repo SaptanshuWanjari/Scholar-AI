@@ -33,7 +33,6 @@ export function Sidebar({
   renamingId,
   renameValue,
   collections,
-  tags,
   recentNotes,
   onSelectNotebook,
   onStartRename,
@@ -51,7 +50,6 @@ export function Sidebar({
   renamingId: string | null;
   renameValue: string;
   collections: Collection[];
-  tags: string[];
   recentNotes: { id: string; title: string; notebook: string }[];
   onSelectNotebook: (id: string) => void;
   onStartRename: (id: string, name: string) => void;
@@ -84,12 +82,15 @@ export function Sidebar({
 
   if (collapsed) {
     return (
-      <aside className="hidden shrink-0 w-0 border-r-0 overflow-hidden transition-all duration-300 lg:flex" />
+      <aside className="flex shrink-0 w-0 border-r-0 overflow-hidden transition-all duration-300" />
     );
   }
 
   return (
-    <PaperSidebar className="hidden w-[280px] lg:flex">
+    <PaperSidebar className={cn(
+      "flex w-[280px]",
+      "absolute left-0 top-0 z-50 h-full bg-[#f8f7f3] shadow-2xl lg:relative lg:shadow-none lg:bg-transparent"
+    )}>
       <div className="flex items-center justify-between border-b border-ink-muted/15 px-5 py-4">
         <SidebarHeader title="Notes" />
 
@@ -241,26 +242,6 @@ export function Sidebar({
         )}
       </SidebarGroup>
 
-      <SidebarDivider />
-
-      <SidebarGroup label="Tags">
-        {tags.length === 0 ? (
-          <div className="px-4 py-1.5 font-kalam text-xs text-ink-muted">
-            No tags
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-1.5 px-3">
-            {tags.map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-ink-muted/20 bg-ink/3 px-2 py-0.5 font-architect text-[11px] text-ink-muted"
-              >
-                #{t}
-              </span>
-            ))}
-          </div>
-        )}
-      </SidebarGroup>
 
       <SidebarDivider />
 

@@ -23,6 +23,10 @@ import {
 import { applyMarkdown, type MarkdownAction } from "../../lib/markdown-format";
 import { MarkdownRenderer } from "../MarkdownRenderer";
 import { cn } from "@/paper-ui/utils";
+import { PaperTextarea } from "@/paper-ui/components/inputs";
+import { IconButton, PaperButton } from "@/paper-ui/components/buttons";
+import { PaperDropdown } from "@/paper-ui/components/dialogs";
+import { PaperCard } from "@/paper-ui/core";
 
 type Mode = "edit" | "split" | "preview";
 
@@ -64,7 +68,6 @@ interface MarkdownEditorProps {
 
 export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
   const [mode, setMode] = useState<Mode>("split");
-  const [templateOpen, setTemplateOpen] = useState(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
 
   const format = (action: MarkdownAction) => {
@@ -84,131 +87,117 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
         onChange(value + "\n" + content);
       }
     }
-    setTemplateOpen(false);
   };
 
   const showEdit = mode === "edit" || mode === "split";
   const showPreview = mode === "preview" || mode === "split";
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 rounded-lg border border-border bg-card/60 p-1">
-        {FORMAT_BUTTONS.map(([action, Icon, label]) => (
-          <button
-            key={action}
-            type="button"
-            title={label}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => format(action)}
-            className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-          >
-            <Icon className="size-3.5" />
-          </button>
-        ))}
-
-        {/* Separator */}
-        <div className="mx-1 h-4 w-px bg-border" />
-
-        {/* Math button */}
-        <button
-          type="button"
-          title="Math block (KaTeX)"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => format("math")}
-          className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-        >
-          <Sigma className="size-3.5" />
-        </button>
-
-        {/* Templates dropdown */}
-        <div className="relative">
-          <button
-            type="button"
-            title="Insert template"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setTemplateOpen((o) => !o)}
-            className="flex items-center gap-1 rounded px-1.5 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-          >
-            <FileText className="size-3.5" />
-            <span>Template</span>
-            <ChevronDown className="size-3" />
-          </button>
-          {templateOpen && (
-            <div className="absolute left-0 top-full z-20 mt-1 min-w-[150px] rounded-lg border border-border bg-popover shadow-md">
-              {TEMPLATES.map((t) => (
-                <button
-                  key={t.label}
-                  type="button"
-                  onClick={() => applyTemplate(t.content)}
-                  className="w-full px-3 py-2 text-left text-xs text-foreground hover:bg-accent transition-colors first:rounded-t-lg last:rounded-b-lg"
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Mode toggle — pushed to right */}
-        <div className="ml-auto flex gap-0.5">
-          {(
-            [
-              ["edit", PenLine, "Edit only"],
-              ["split", Columns2, "Split view"],
-              ["preview", Eye, "Preview only"],
-            ] as [Mode, React.ElementType, string][]
-          ).map(([m, Icon, label]) => (
-            <button
-              key={m}
-              type="button"
-              title={label}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => setMode(m)}
-              className={cn(
-                "rounded p-1.5 transition-colors",
-                mode === m
-                  ? "bg-violet-soft text-violet"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
-              )}
+      <PaperCard shadow="sm" surface="#f8f7f3" border={{ strokeWidth: 1, roughness: 1 }} className="p-2">
+        <div className="flex flex-wrap w-full items-center gap-1.5 pb-1">
+          {FORMAT_BUTTONS.map(([action, Icon, label]) => (
+            <IconButton
+              key={action}
+              label={label}
+              onClick={(e) => { e.preventDefault(); format(action); }}
             >
-              <Icon className="size-3.5" />
-            </button>
+              <Icon className="size-4 shrink-0" />
+            </IconButton>
           ))}
+
+          {/* Separator */}
+          <div className="mx-2 h-5 w-[2px] shrink-0 bg-ink-muted/20" />
+
+          {/* Math button */}
+          <IconButton
+            label="Math block (KaTeX)"
+            onClick={(e) => { e.preventDefault(); format("math"); }}
+          >
+            <Sigma className="size-4 shrink-0" />
+          </IconButton>
+
+          {/* Templates dropdown */}
+          <div className="shrink-0">
+            <PaperDropdown
+              trigger={
+                <button
+                  title="Insert template"
+                  className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 font-architect text-sm text-ink-muted hover:bg-ink/5 hover:text-ink transition-colors"
+                >
+                  <FileText className="size-4 shrink-0" />
+                  <span>Template</span>
+                  <ChevronDown className="size-3 shrink-0" />
+                </button>
+              }
+              items={TEMPLATES.map((t) => ({
+                key: t.label,
+                label: t.label,
+                onClick: () => applyTemplate(t.content)
+              }))}
+            />
+          </div>
+
+          {/* Mode toggle */}
+          <div className="ml-auto flex shrink-0 gap-1 pl-4">
+            {(
+              [
+                ["edit", PenLine, "Edit only"],
+                ["split", Columns2, "Split view"],
+                ["preview", Eye, "Preview only"],
+              ] as [Mode, React.ElementType, string][]
+            ).map(([m, Icon, label]) => (
+              <button
+                key={m}
+                title={label}
+                onClick={(e) => { e.preventDefault(); setMode(m); }}
+                className={cn(
+                  "rounded-lg p-2 transition-colors",
+                  mode === m
+                    ? "bg-violet-soft text-violet"
+                    : "text-ink-muted hover:bg-ink/5 hover:text-ink",
+                )}
+              >
+                <Icon className="size-4 shrink-0" />
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      </PaperCard>
 
       {/* Content area */}
-      <div className={cn("flex gap-2", mode === "split" && "min-h-[160px]")}>
+      <div className={cn("flex gap-4", mode === "split" && "min-h-[160px]")}>
         {showEdit && (
-          <textarea
-            ref={textRef}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="Write markdown…"
-            autoFocus
-            rows={mode === "split" ? 8 : 5}
-            className={cn(
-              "resize-y rounded-lg border border-border bg-input-background p-3 font-reading text-base leading-relaxed outline-none focus:border-violet",
-              mode === "split" ? "w-1/2" : "w-full",
-            )}
-          />
+          <div className={cn("flex-1", mode === "split" ? "w-1/2" : "w-full")}>
+            <PaperTextarea
+              ref={textRef}
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="Write markdown…"
+              autoFocus
+              rows={mode === "split" ? 10 : 8}
+            />
+          </div>
         )}
         {showPreview && (
-          <div
+          <PaperCard 
+            shadow="none" 
+            surface="#fffdf9" 
+            border={{ strokeWidth: 1, roughness: 1 }}
             className={cn(
-              "overflow-y-auto rounded-lg border border-border bg-card/40 p-3",
-              mode === "split" ? "w-1/2" : "w-full",
+              "overflow-y-auto p-4",
+              mode === "split" ? "w-1/2" : "w-full flex-1",
               mode === "split" && "min-h-[160px]",
               mode === "preview" && "min-h-[120px]",
             )}
           >
             {value.trim() ? (
-              <MarkdownRenderer content={value} className="text-base leading-relaxed" />
+              <MarkdownRenderer content={value} className="font-kalam text-[17px] leading-relaxed" />
             ) : (
-              <p className="text-xs text-muted-foreground italic">Preview will appear here…</p>
+              <p className="font-architect text-sm text-ink-muted italic">Preview will appear here…</p>
             )}
-          </div>
+          </PaperCard>
         )}
       </div>
     </div>

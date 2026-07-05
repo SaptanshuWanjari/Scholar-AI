@@ -197,7 +197,7 @@ export function Diagrams() {
               </div>
             )}
             {items.length === 0 && !generating && (
-              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+              <div className="px-3 py-8 text-center font-kalam text-sm text-ink-muted">
                 No diagrams yet. Generate one to get started.
               </div>
             )}
@@ -239,7 +239,7 @@ export function Diagrams() {
       {/* Preview */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Generate control */}
-        <div className="relative flex flex-wrap items-center gap-2 bg-card/40 px-6 py-3">
+        <div className="relative flex flex-nowrap items-center gap-2 bg-card/40 px-6 py-3">
           <SketchDivider variant="wavy" className="absolute bottom-0 left-0 opacity-30" />
           <PaperInput
             id="diagram-topic-input"
@@ -248,8 +248,8 @@ export function Diagrams() {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !generating) generate();
             }}
-            placeholder="Topic, e.g. TCP handshake"
-            className="max-w-xs flex-1"
+            placeholder="Topic..."
+            className="min-w-[120px] max-w-[180px] flex-1"
           />
           <PaperSelect
             value={course}
@@ -259,7 +259,7 @@ export function Diagrams() {
               ...courses.map((c) => ({ value: c.name, label: c.name })),
             ]}
             placeholder="No course"
-            wrapperClassName="w-44"
+            wrapperClassName="w-28 shrink-0"
           />
           <PaperSelect
             value={docId ?? "all"}
@@ -269,21 +269,21 @@ export function Diagrams() {
               ...documents.filter(d => course !== "none" ? d.course === course : true).map((d) => ({ value: d.id, label: d.title })),
             ]}
             placeholder="All documents"
-            wrapperClassName="w-44"
+            wrapperClassName="w-32 shrink-0"
           />
           <PaperSelect
             value={type}
             onChange={setType}
             options={DIAGRAM_TYPES.map(dt => ({ value: dt.value, label: dt.label }))}
-            wrapperClassName="w-44"
+            wrapperClassName="w-28 shrink-0"
           />
-          <PaperButton size="sm" className="gap-1.5" onClick={generate} disabled={generating}>
+          <PaperButton className="gap-1.5 shrink-0" onClick={generate} disabled={generating}>
             {generating ? (
               <Loader2 className="size-3.5 animate-spin" />
             ) : (
               <Sparkles className="size-3.5" />
             )}
-            {generating ? "Generating..." : "Generate diagram"}
+            {generating ? "Generating..." : "Generate"}
           </PaperButton>
         </div>
         <GenerationSteps
@@ -351,14 +351,14 @@ export function Diagrams() {
             </div>
           </>
         ) : (
-          <div className="flex h-[60vh] flex-col items-center justify-center gap-3 text-center text-muted-foreground">
-            <div className="flex size-12 items-center justify-center rounded-xl bg-violet-soft text-primary">
+          <div className="flex h-[60vh] flex-col items-center justify-center gap-4 text-center">
+            <PaperIconCircle tone="lavender" size={48}>
               <Workflow className="size-6" />
-            </div>
-            <div className="text-sm font-semibold text-foreground">
+            </PaperIconCircle>
+            <div className="font-kalam text-[18px] font-bold text-ink">
               {items.length === 0 ? "No diagrams yet" : "No diagram selected"}
             </div>
-            <div className="text-sm">
+            <div className="font-architect text-[13px] text-ink-muted">
               {items.length === 0 
                 ? "Generate one to get started visualizing concepts." 
                 : "Select a diagram from the sidebar or generate a new one."}

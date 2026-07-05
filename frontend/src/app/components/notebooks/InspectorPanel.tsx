@@ -53,14 +53,15 @@ export function InspectorPanel({
 }) {
   if (panelCollapsed) {
     return (
-      <aside className="hidden shrink-0 w-0 border-l-0 overflow-hidden transition-all duration-300 xl:flex" />
+      <aside className="flex shrink-0 w-0 border-l-0 overflow-hidden transition-all duration-300" />
     );
   }
 
   return (
     <aside
       className={cn(
-        "hidden shrink-0 flex-col overflow-y-auto py-6 paper-scrollbar transition-all duration-300 xl:flex w-[300px]",
+        "flex shrink-0 flex-col overflow-y-auto py-6 paper-scrollbar transition-all duration-300 w-[300px]",
+        "absolute right-0 top-0 z-50 h-full bg-[#f8f7f3] shadow-2xl xl:relative xl:shadow-none xl:bg-transparent"
       )}
       style={{ borderLeft: "1.5px solid #c8c0b0" }}
     >

@@ -246,11 +246,11 @@ export function BlockInner({
             </span>
           )}
           {hasCitations(block.text) ? (
-            <div className="font-kalam text-[18px] leading-relaxed [&>p]:mb-4">
+            <div className="font-kalam text-[21px] leading-relaxed [&>p]:mb-4">
               {renderCiteText(block.text)}
             </div>
           ) : (
-            <MarkdownRenderer content={block.text} className="font-kalam text-[18px] leading-relaxed" />
+            <MarkdownRenderer content={block.text} className="font-kalam text-[21px] leading-relaxed" />
           )}
         </>
       );
@@ -261,7 +261,7 @@ export function BlockInner({
         <PaperCard shadow="sm" surface="#fffdf9" border={{ strokeWidth: 1.3, roughness: 1 }}>
           <div className={cn("flex gap-4 p-5", m.cls.replace(/border-border|bg-muted\/50|bg-violet-soft|bg-warning-soft/g, ""))}>
             <m.icon className={cn("mt-0.5 size-6 shrink-0", m.iconCls)} />
-            <div className="font-kalam text-[18px] leading-relaxed">{block.text}</div>
+            <div className="font-kalam text-[21px] leading-relaxed">{block.text}</div>
           </div>
         </PaperCard>
       );
@@ -311,17 +311,17 @@ export function BlockInner({
               </span>
             </div>
             <div className="px-5 pb-4 pt-4">
-              <div className="mb-3 font-caveat text-[22px] leading-snug italic text-ink">
+              <div className="mb-3 font-caveat text-[24px] leading-snug italic text-ink">
                 {block.question}
               </div>
-              <MarkdownRenderer content={block.answer} className="font-kalam text-[18px] leading-relaxed" />
+              <MarkdownRenderer content={block.answer} className="font-kalam text-[21px] leading-relaxed" />
             </div>
           </div>
         </PaperCard>
       );
     case "mermaid":
       return (
-        <div>
+        <div className="w-full">
           <div className="mb-2 flex items-center gap-2 font-architect text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted">
             <Workflow className="size-3.5" /> Diagram
           </div>
@@ -344,10 +344,10 @@ export function BlockInner({
               {block.cards.map((c, i) => (
                 <PaperCard key={i} shadow="none" surface="#fffdf9" border={{ strokeWidth: 0.9, roughness: 0.8 }}>
                   <div className="p-4">
-                    <div className="font-caveat text-[18px] leading-snug font-semibold text-ink">
+                    <div className="font-caveat text-[21px] leading-snug font-semibold text-ink">
                       {c.front}
                     </div>
-                    <div className="mt-2.5 border-t border-ink-muted/15 pt-2 font-kalam text-xs text-ink-muted">
+                    <div className="mt-2.5 border-t border-ink-muted/15 pt-2 font-kalam text-sm text-ink-muted">
                       {c.back}
                     </div>
                   </div>

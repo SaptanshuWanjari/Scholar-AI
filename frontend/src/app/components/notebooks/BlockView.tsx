@@ -72,7 +72,7 @@ export function BlockView({
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={onDragEnter}
       className={cn(
-        "group/block relative -mx-3 rounded-lg px-3 py-1 transition-colors hover:bg-accent/20",
+        "group/block relative -mx-3 mb-4 rounded-xl bg-ink/[0.02] px-4 py-3 transition-colors hover:bg-ink/[0.04]",
         dragging && "opacity-40",
         dropTarget &&
           "before:absolute before:-top-1 before:left-3 before:right-3 before:h-0.5 before:rounded-full before:bg-violet",

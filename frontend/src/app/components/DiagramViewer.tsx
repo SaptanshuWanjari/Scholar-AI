@@ -83,7 +83,16 @@ export function DiagramViewer({ code, flush, title = "diagram", kind }: { code: 
 
         // Validate syntax first so it throws instead of rendering an error SVG
         await mermaid.parse(cleanCode);
-        const { svg } = await mermaid.render(id, cleanCode);
+        let { svg } = await mermaid.render(id, cleanCode);
+
+        // Force the SVG to take up the full container size by modifying attributes
+        svg = svg.replace(/<svg([^>]*)>/, (match, attrs) => {
+          let newAttrs = attrs
+            .replace(/\bwidth="[^"]*"/g, '')
+            .replace(/\bheight="[^"]*"/g, '')
+            .replace(/\bstyle="[^"]*"/g, '');
+          return `<svg${newAttrs} width="100%" height="100%" style="max-width: none; max-height: none; width: 100%; height: 100%;">`;
+        });
 
         if (isMounted && ref.current) {
           ref.current.innerHTML = svg;
@@ -157,11 +166,11 @@ export function DiagramViewer({ code, flush, title = "diagram", kind }: { code: 
                 </button>
               </div>
               <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div 
-                  ref={ref} 
-                  className="flex h-full w-full items-center justify-center transition-opacity duration-300 [&_svg]:max-w-full [&_svg]:h-auto"
-                  style={{ opacity: loading ? 0 : 1 }}
-                />
+                  <div 
+                    ref={ref} 
+                    className="flex h-full w-full items-center justify-center transition-opacity duration-300 [&_svg]:!w-full [&_svg]:!h-full [&_svg]:!max-w-none [&_svg]:!max-h-none"
+                    style={{ opacity: loading ? 0 : 1 }}
+                  />
               </TransformComponent>
             </>
           )}
