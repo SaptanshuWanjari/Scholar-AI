@@ -1,11 +1,13 @@
-import React, { useEffect } from "react";
-import { CheckCircle, XCircle, Loader2, Wifi, WifiOff, TestTube2, AlertTriangle } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { CheckCircle, XCircle, Loader2, Search, Wifi, WifiOff, TestTube2, AlertTriangle } from "lucide-react";
 import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 import { PaperInput } from "@paper-ui/components/inputs";
 import { PaperBadge } from "@paper-ui/components/badges";
-import { PaperCard } from "@paper-ui/core";
+import { SuccessBanner, ErrorCard } from "@paper-ui/components/feedback";
+import { PaperCard, SketchBorder } from "@paper-ui/core";
 import { useProvidersStore } from "../../stores/useProvidersStore";
-import type { ProviderStatus, TestResponse } from "../../lib/api/providers";
+import type { ProviderModel, ProviderStatus, TestResponse } from "../../lib/api/providers";
 
 const PROVIDER_LABELS: Record<string, string> = {
   ollama: "Ollama (Local)",
@@ -59,16 +61,88 @@ function TestResultBanner({ result }: { result: TestResponse }) {
   if (result.success) {
     const streamingStatus = result.streaming ? "✓" : "✗";
     return (
-      <div className="mt-2 rounded-md bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm text-emerald-700 flex items-center gap-2">
-        <CheckCircle size={14} className="shrink-0" />
-        <span>{result.latency_ms}ms · {result.model_count} models · streaming {streamingStatus}</span>
-      </div>
+      <SuccessBanner
+        className="mt-2"
+        title="Connection successful"
+        message={`${result.latency_ms}ms · ${result.model_count} models · streaming ${streamingStatus}`}
+      />
     );
   }
   return (
-    <div className="mt-2 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700 flex items-center gap-2">
-      <XCircle size={14} className="shrink-0" />
-      <span>{result.error ?? "Test failed"}</span>
+    <ErrorCard
+      className="mt-2"
+      title="Connection failed"
+      message={result.error ?? "Test failed"}
+    />
+  );
+}
+
+function ModelSearchDropdown({ models, providerId }: { models: ProviderModel[]; providerId: string }) {
+  const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const filtered = search
+    ? models.filter((m) => m.label.toLowerCase().includes(search.toLowerCase()))
+    : models;
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const open = () => {
+    if (wrapperRef.current) {
+      const r = wrapperRef.current.getBoundingClientRect();
+      setMenuStyle({
+        position: "fixed",
+        top: `${r.bottom + 4}px`,
+        left: `${r.left}px`,
+        width: `${r.width}px`,
+        zIndex: 9999,
+      });
+    }
+    setIsOpen(true);
+  };
+
+  return (
+    <div ref={wrapperRef} className="mt-2">
+      <PaperInput
+        placeholder="Search models…"
+        icon={<Search size={14} />}
+        value={search}
+        onChange={(e) => { setSearch(e.target.value); open(); }}
+        onFocus={open}
+        wrapperClassName=""
+      />
+      {isOpen && createPortal(
+        <div
+          style={menuStyle}
+          className="rounded-lg border border-[#d4cfc2] bg-[#faf6ee] shadow-[0_4px_16px_rgba(0,0,0,0.12)] max-h-60 overflow-y-auto py-1"
+        >
+          {filtered.length === 0 ? (
+            <div className="px-3 py-2 text-sm font-kalam text-ink-muted">No models match</div>
+          ) : (
+            filtered.map((m) => (
+              <div
+                key={m.id}
+                className="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-black/[0.04] font-mono"
+                onMouseDown={() => { setSearch(m.label); setIsOpen(false); }}
+              >
+                {m.is_recommended && <span className="text-amber-500 text-xs shrink-0">★</span>}
+                {m.label}
+              </div>
+            ))
+          )}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
@@ -270,22 +344,7 @@ function CloudProviderCard({ provider }: { provider: ProviderStatus }) {
           <div className="text-xs font-architect text-ink-muted mb-1">
             Available models ({providerModels.length})
           </div>
-          <div className="flex flex-wrap gap-1">
-            {providerModels.slice(0, 8).map((m) => (
-              <span
-                key={m.id}
-                className="rounded px-2 py-0.5 text-xs font-mono bg-ink/5 text-ink"
-              >
-                {m.is_recommended ? "★ " : ""}
-                {m.label}
-              </span>
-            ))}
-            {providerModels.length > 8 && (
-              <span className="text-xs text-ink-muted self-center">
-                +{providerModels.length - 8} more
-              </span>
-            )}
-          </div>
+          <ModelSearchDropdown models={providerModels} providerId={provider.provider_id} />
         </div>
       )}
 
@@ -421,16 +480,7 @@ function OpenAICompatCard({ provider }: { provider: ProviderStatus }) {
           <div className="text-xs font-architect text-ink-muted mb-1">
             Available models ({providerModels.length})
           </div>
-          <div className="flex flex-wrap gap-1">
-            {providerModels.slice(0, 8).map((m) => (
-              <span key={m.id} className="rounded px-2 py-0.5 text-xs font-mono bg-ink/5 text-ink">
-                {m.label}
-              </span>
-            ))}
-            {providerModels.length > 8 && (
-              <span className="text-xs text-ink-muted self-center">+{providerModels.length - 8} more</span>
-            )}
-          </div>
+          <ModelSearchDropdown models={providerModels} providerId={provider.provider_id} />
         </div>
       )}
 

@@ -31,18 +31,23 @@ const LOADER = (
  * ScratchpadExcalidraw
  *
  * Root cause of DOMException "Canvas exceeds max size":
- *   Excalidraw's App.componentDidMount calls updateDOMRect() which calls
- *   excalidrawContainerRef.current.getBoundingClientRect(). If width/height
- *   are 0 (because the browser hasn't resolved flex layout for this subtree
- *   at the React-scheduler microtask moment), appState.width = 0.
- *   StaticCanvas then sets canvas.width = 0 * devicePixelRatio = 0, and
- *   ctx.setTransform(dpr, 0, 0, dpr, 0, 0) throws on a zero-size canvas.
+ *   Excalidraw's App constructor sets appState.width = window.innerWidth and
+ *   appState.height = window.innerHeight. StaticCanvas's useEffect (which runs
+ *   from the first committed render) calls canvas.width = appState.width * dpr.
+ *   If the container has 0 dimensions at that moment (flex layout not yet
+ *   resolved, or element not yet in the positioned tree), appState gets set to
+ *   0 by updateDOMRect, and the next StaticCanvas effect call sets canvas.width
+ *   = 0, causing setTransform to throw "Canvas exceeds max size".
  *
- * Fix: measure our outer container with a ResizeObserver to get real pixel
- * dimensions, then render the Excalidraw wrapper with explicit pixel
- * width/height. This guarantees getBoundingClientRect() inside Excalidraw
- * always returns non-zero values, regardless of when React's scheduler
- * decides to run componentDidMount.
+ * Fix strategy:
+ *   1. Measure our outer container with useLayoutEffect + ResizeObserver.
+ *      Only render Excalidraw once we have confirmed non-zero pixel dimensions.
+ *   2. Pass those dimensions as explicit inline styles on the immediate parent
+ *      div so that .excalidraw's height:100% always resolves to a positive value.
+ *   3. After the Excalidraw API is available, call api.refresh() to force a
+ *      correct updateDOMRect measurement, overriding any stale initial state.
+ *   4. The ExcalidrawErrorBoundary (in ScratchpadDrawer) auto-retries on error
+ *      as a final safety net.
  */
 export function ScratchpadExcalidraw() {
   const apiRef = useRef<any>(null)
@@ -72,6 +77,18 @@ export function ScratchpadExcalidraw() {
     const ro = new ResizeObserver(measure)
     ro.observe(el)
     return () => ro.disconnect()
+  }, [])
+
+  // After the Excalidraw API becomes available, call refresh() to force
+  // Excalidraw to re-measure its container. This corrects any stale
+  // appState.width/height that was set from window.innerWidth/innerHeight
+  // in the App constructor before updateDOMRect ran.
+  const handleExcalidrawAPI = useCallback((api: any) => {
+    apiRef.current = api
+    // Small delay so the DOM is fully committed before refresh reads dimensions.
+    setTimeout(() => {
+      api?.refresh?.()
+    }, 0)
   }, [])
 
   const handleChange = useCallback(
@@ -105,8 +122,8 @@ export function ScratchpadExcalidraw() {
         {dims ? (
           /*
             This inner div has explicit pixel width/height.
-            Excalidraw's .excalidraw-container is width:100% height:100% in its
-            own CSS, so it resolves to these exact pixel values immediately —
+            Excalidraw's .excalidraw has height:100%;width:100% in its CSS,
+            so it resolves to these exact pixel values immediately —
             no flex cascade needed during getBoundingClientRect() calls.
           */
           <div
@@ -127,9 +144,7 @@ export function ScratchpadExcalidraw() {
                       }
                     : undefined
                 }
-                excalidrawAPI={(api: any) => {
-                  apiRef.current = api
-                }}
+                excalidrawAPI={handleExcalidrawAPI}
                 onChange={handleChange}
                 UIOptions={{
                   canvasActions: {

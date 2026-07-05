@@ -107,7 +107,7 @@ export function PaperSelect({
             roughness={1.1}
             shadow={0}
           />
-          <span className={cn("relative z-[1] flex-1 truncate", !selected && "text-ink-muted/60")}>
+          <span className={cn("relative z-100 flex-1 truncate", !selected && "text-ink-muted/60")}>
             {selected ? selected.label : placeholder}
           </span>
           <ChevronDown
@@ -133,7 +133,7 @@ export function PaperSelect({
               />
               <div
                 role="listbox"
-                className="relative z-[1] max-h-52 overflow-y-auto py-1.5"
+                className="relative z-[1] max-h-52 overflow-y-auto py-1.5 bg-[#fffdf9]"
                 style={{ scrollbarWidth: "thin", scrollbarColor: "#d4cfc2 transparent" }}
               >
                 {options.length === 0 ? (

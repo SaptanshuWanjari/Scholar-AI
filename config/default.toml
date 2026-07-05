@@ -52,5 +52,10 @@ top_k = 5
 # LanceDB returns _distance (lower = closer). Gate keeps best <= max_distance.
 max_distance = 0.55
 
+[features]
+# Set to true once cloud provider integration is stable.
+# Also set VITE_CLOUD_PROVIDERS=true in frontend/.env to enable the UI.
+cloud_providers_enabled = false
+
 [paths]
 data_dir = "data"

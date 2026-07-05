@@ -115,7 +115,7 @@ export default function OnboardingWidget() {
                 </div>
 
                 {/* Loading state */}
-                {(status === "uploading" || status === "analyzing") && (
+                {(status === "uploading" || status === "analyzing") && !errorMsg && (
                   <div className="flex h-[40vh] flex-col items-center justify-center text-center">
                     <LoadingPaper variant="dots" size="lg" />
                     <PaperH3 className="mt-6">

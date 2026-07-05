@@ -7,6 +7,7 @@ import { LoadingPaper } from "@paper-ui/components/feedback";
 import { PaperCard } from "@paper-ui/core";
 import { PaperH2, PaperH3, PaperIconCircle } from "@paper-ui/core";
 import { api, type HealthStatus } from "../../lib/api";
+import { CLOUD_PROVIDERS_ENABLED } from "../../lib/featureFlags";
 
 export function OnboardingSetup() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export function OnboardingSetup() {
 
       // If everything is good, proceed to next step
       if (res.ollama_reachable && res.embed_available) {
-        setTimeout(() => navigate("/onboarding/provider"), 500);
+        setTimeout(() => navigate(CLOUD_PROVIDERS_ENABLED ? "/onboarding/provider" : "/onboarding/import"), 500);
       }
     } catch (e) {
       setError(true);
@@ -140,9 +141,11 @@ export function OnboardingSetup() {
 
               {(!status?.ollama_reachable || !status?.embed_available) && (
                 <div className="pt-4 flex justify-between items-center border-t border-[#e8e3d8] mt-2">
-                  <GhostButton size="sm" onClick={() => navigate("/onboarding/provider")}>
-                    Skip to Cloud Providers →
-                  </GhostButton>
+                  {CLOUD_PROVIDERS_ENABLED && (
+                    <GhostButton size="sm" onClick={() => navigate("/onboarding/provider")}>
+                      Skip to Cloud Providers →
+                    </GhostButton>
+                  )}
                   <PaperButton tone="dark" onClick={checkHealth}>
                     <RefreshCcw size={14} /> Check Again
                   </PaperButton>

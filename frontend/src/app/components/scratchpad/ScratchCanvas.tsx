@@ -308,7 +308,7 @@ export function ScratchCanvas({ stageRef }: { stageRef: React.RefObject<any> }) 
       onMouseUp={onMouseUp}
       style={{ cursor: TOOL_CURSORS[activeTool] ?? 'crosshair', outline: 'none' }}
     >
-      {size.w > 0 && (
+      {size.w > 0 && size.h > 0 && (
         <Stage
           ref={stageRef}
           width={size.w}

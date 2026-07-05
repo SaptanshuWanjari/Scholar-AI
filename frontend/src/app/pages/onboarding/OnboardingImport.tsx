@@ -26,6 +26,7 @@ import { useOnboarding, type ImportFileStatus } from "../../context/OnboardingCo
 import { api, type ModelsList } from "../../lib/api";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { useProvidersStore } from "../../stores/useProvidersStore";
+import { CLOUD_PROVIDERS_ENABLED } from "../../lib/featureFlags";
 
 const ACCEPTED = ".pdf,.docx,.md,.markdown,.txt,.text";
 
@@ -71,7 +72,9 @@ export function OnboardingImport() {
   const s = useSettingsStore();
   const { providers } = useProvidersStore();
 
-  const connectedCloud = providers.filter((p) => !p.is_local && p.connected);
+  const connectedCloud = CLOUD_PROVIDERS_ENABLED
+    ? providers.filter((p) => !p.is_local && p.connected)
+    : [];
 
   useEffect(() => {
     s.hydrate();

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle, Terminal, Paintbrush, Save, Cloud, Route, Sliders, BarChart2 } from "lucide-react";
+import { CLOUD_PROVIDERS_ENABLED } from "../lib/featureFlags";
 import { ModelProvidersTab } from "./settings/ModelProvidersTab";
 import { ModelRoutingTab } from "./settings/ModelRoutingTab";
 import { ModelDefaultsTab } from "./settings/ModelDefaultsTab";
@@ -193,7 +194,7 @@ export function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "models" && isEnabled("cloud-model-providers") && (
+          {activeTab === "models" && CLOUD_PROVIDERS_ENABLED && isEnabled("cloud-model-providers") && (
             <div className="border-b border-[#e8e3d8] mb-2">
               <div className="flex flex-wrap gap-1 p-2">
                 {([
@@ -216,19 +217,19 @@ export function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "models" && isEnabled("cloud-model-providers") && modelsSubTab === "providers" && (
+          {activeTab === "models" && CLOUD_PROVIDERS_ENABLED && isEnabled("cloud-model-providers") && modelsSubTab === "providers" && (
             <ModelProvidersTab />
           )}
-          {activeTab === "models" && isEnabled("cloud-model-providers") && modelsSubTab === "routing" && (
+          {activeTab === "models" && CLOUD_PROVIDERS_ENABLED && isEnabled("cloud-model-providers") && modelsSubTab === "routing" && (
             <ModelRoutingTab />
           )}
-          {activeTab === "models" && isEnabled("cloud-model-providers") && modelsSubTab === "usage" && (
+          {activeTab === "models" && CLOUD_PROVIDERS_ENABLED && isEnabled("cloud-model-providers") && modelsSubTab === "usage" && (
             <ModelUsageTab />
           )}
 
-          {activeTab === "models" && (!isEnabled("cloud-model-providers") || modelsSubTab === "defaults") && (
+          {activeTab === "models" && (!CLOUD_PROVIDERS_ENABLED || !isEnabled("cloud-model-providers") || modelsSubTab === "defaults") && (
             <div className=''>
-              {isEnabled("cloud-model-providers") && <ModelDefaultsTab />}
+              {CLOUD_PROVIDERS_ENABLED && isEnabled("cloud-model-providers") && <ModelDefaultsTab />}
               <Row
                 title="AI Mode"
                 desc={

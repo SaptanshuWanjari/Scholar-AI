@@ -288,22 +288,30 @@ export function Reading() {
     <AppShell fullscreen={false} className="h-full">
       <div className="relative flex h-full flex-col overflow-hidden">
         {/* Floating top toolbar */}
-        <header
-          className="absolute  inset-x-0 top-0 z-30 flex items-center justify-between gap-2 px-3 py-1.5 "
-        >
-          <div className="flex items-center gap-1 bg-white/80 size-7 rounded-full">
+        <header className="absolute inset-x-0 top-3 z-30 flex justify-between items-start px-4 pointer-events-none">
+          {/* Left Controls */}
+          <div className="pointer-events-auto flex items-center gap-1 bg-white/80 rounded-full shadow-sm px-1 py-1">
             {focusMode ? (
-              <IconButton label="Exit focus mode" onClick={() => setFocusMode(false)}>
-                <Minimize2 size={17} />
-              </IconButton>
+              <button
+                title="Exit focus mode"
+                onClick={() => setFocusMode(false)}
+                className="p-1 rounded-full text-ink-muted hover:text-ink hover:bg-black/5 transition-colors flex items-center justify-center"
+              >
+                <Minimize2 size={16} />
+              </button>
             ) : (
-              <IconButton label={leftCollapsed ? "Expand sidebar" : "Collapse sidebar"} onClick={() => setLeftCollapsed(!leftCollapsed)}>
-                {leftCollapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
-              </IconButton>
+              <button
+                title={leftCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                onClick={() => setLeftCollapsed(!leftCollapsed)}
+                className="p-1 rounded-full text-ink-muted hover:text-ink hover:bg-black/5 transition-colors flex items-center justify-center"
+              >
+                {leftCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+              </button>
             )}
           </div>
 
-          <div className="flex items-center gap-1.5">
+          {/* Center Controls */}
+          <div className="pointer-events-auto flex items-center gap-2">
             <PaperSelect
               value={viewMode}
               onChange={(v) => setViewMode(v as any)}
@@ -313,7 +321,7 @@ export function Reading() {
                 { value: "split", label: "Split", icon: <Columns size={14} /> },
                 { value: "compare", label: "Compare", icon: <LayoutPanelLeft size={14} /> },
               ]}
-              className="!px-2 !py-1 !text-xs !font-architect min-w-[100px]"
+              className="!px-3 !py-1.5 !text-sm !font-architect min-w-[110px]"
             />
             {(viewMode === "split" || viewMode === "text") && readingAnnotEnabled && !focusMode && (
               <PaperSelect
@@ -324,24 +332,37 @@ export function Reading() {
                   { value: "draw", label: "Draw", icon: <PencilRuler size={14} /> },
                   { value: "both", label: "Both", icon: <Columns size={14} /> },
                 ]}
-                className="!px-2 !py-1 !text-xs !font-architect min-w-[80px]"
+                className="!px-3 !py-1.5 !text-sm !font-architect min-w-[90px]"
               />
             )}
           </div>
 
-          <div className="flex items-center gap-1">
+          {/* Right Controls */}
+          <div className="pointer-events-auto flex items-center gap-1 bg-white/80 rounded-full shadow-sm px-1 py-1">
             {focusMode ? (
-              <IconButton label={drawerOpen ? "Close workspace" : "Open workspace"} onClick={() => setDrawerOpen(!drawerOpen)}>
-                <StickyNoteIcon size={17} />
-              </IconButton>
+              <button
+                title={drawerOpen ? "Close workspace" : "Open workspace"}
+                onClick={() => setDrawerOpen(!drawerOpen)}
+                className="p-1 rounded-full text-ink-muted hover:text-ink hover:bg-black/5 transition-colors flex items-center justify-center"
+              >
+                <StickyNoteIcon size={16} />
+              </button>
             ) : (
               <>
-                <IconButton label={rightCollapsed ? "Expand context" : "Collapse context"} onClick={() => setRightCollapsed(!rightCollapsed)}>
-                  {rightCollapsed ? <PanelRightOpen size={17} /> : <PanelRightClose size={17} />}
-                </IconButton>
-                <IconButton label="Focus mode" onClick={() => setFocusMode(true)}>
-                  <Maximize2 size={17} />
-                </IconButton>
+                <button
+                  title={rightCollapsed ? "Expand context" : "Collapse context"}
+                  onClick={() => setRightCollapsed(!rightCollapsed)}
+                  className="p-1 rounded-full text-ink-muted hover:text-ink hover:bg-black/5 transition-colors flex items-center justify-center"
+                >
+                  {rightCollapsed ? <PanelRightOpen size={16} /> : <PanelRightClose size={16} />}
+                </button>
+                <button
+                  title="Focus mode"
+                  onClick={() => setFocusMode(true)}
+                  className="p-1 rounded-full text-ink-muted hover:text-ink hover:bg-black/5 transition-colors flex items-center justify-center"
+                >
+                  <Maximize2 size={16} />
+                </button>
               </>
             )}
           </div>
@@ -361,9 +382,6 @@ export function Reading() {
             <div className={cn("flex min-w-[260px] flex-1 flex-col overflow-hidden pt-11", leftCollapsed && "invisible")}>
               <div className="flex items-center justify-between px-4 py-3 border-b border-[#c8c0b0]/50">
                 <SectionLabel>Content</SectionLabel>
-                <IconButton label="Collapse sidebar" onClick={() => setLeftCollapsed(true)}>
-                  <PanelLeftClose size={15} />
-                </IconButton>
               </div>
 
               <ScrollArea className="flex-1">
@@ -599,10 +617,10 @@ export function Reading() {
             <AnimatePresence>
               {focusMode && drawerOpen && (
                 <motion.div
-                  className="absolute right-0 top-11 bottom-0 z-20 w-[340px] border-l border-[#c8c0b0] bg-sidebar flex flex-col"
-                  initial={{ x: 340 }}
+                  className="absolute right-0 top-16 bottom-0 z-40 w-[480px] border-l border-t border-[#c8c0b0] bg-sidebar flex flex-col rounded-tl-2xl shadow-2xl"
+                  initial={{ x: 480 }}
                   animate={{ x: 0 }}
-                  exit={{ x: 340 }}
+                  exit={{ x: 480 }}
                   transition={{ type: "spring", stiffness: 340, damping: 36 }}
                 >
                   <div className="flex items-center justify-between px-4 py-3 border-b border-[#c8c0b0]/50">

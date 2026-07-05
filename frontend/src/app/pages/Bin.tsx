@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Trash2, RotateCcw, Archive, Loader2 } from "lucide-react";
 import { useBinStore } from "../stores/useBinStore";
+import { Page } from "../components/Page";
 import type { TrashItem } from "../lib/api/trash";
 import { toast } from "@/app/lib/toast";
 import { PaperButton, IconButton } from "@/paper-ui/components/buttons";
@@ -129,7 +130,7 @@ export default function Bin() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 w-full">
+    <Page className="max-w-5xl">
       <div className="flex items-center justify-between mb-8">
         <div>
           <PaperH1>Global Bin</PaperH1>
@@ -242,6 +243,6 @@ export default function Bin() {
         confirmLabel="Delete"
         destructive
       />
-    </div>
+    </Page>
   );
 }

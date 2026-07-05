@@ -69,9 +69,9 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 
 const VARIANT_CONFIG: Record<ToastVariant, { fill: string; stroke: string; icon: React.ReactNode }> = {
   default: { fill: "#fffdf9", stroke: "#3a3733", icon: null as unknown as React.ReactNode },
-  success: { fill: "#edf5ea", stroke: "#3f7a4e", icon: createElement(CheckCircle2, { size: 32, color: "#3f7a4e" }) },
-  error: { fill: "#fdf0ef", stroke: "#9f3a36", icon: createElement(XCircle, { size: 32, color: "#9f3a36" }) },
-  warning: { fill: "#fefce8", stroke: "#8a6d00", icon: createElement(AlertTriangle, { size: 32, color: "#8a6d00" }) },
+  success: { fill: "#edf5ea", stroke: "#3f7a4e", icon: createElement(CheckCircle2, { size: 24, color: "#3f7a4e" }) },
+  error: { fill: "#fdf0ef", stroke: "#9f3a36", icon: createElement(XCircle, { size: 24, color: "#9f3a36" }) },
+  warning: { fill: "#fefce8", stroke: "#8a6d00", icon: createElement(AlertTriangle, { size: 24, color: "#8a6d00" }) },
 };
 
 /**
@@ -274,7 +274,7 @@ function ToastViewport({
 
   const viewport = createElement("div", {
     className: cn(
-      "flex flex-col gap-6 pointer-events-auto w-[480px] max-w-[calc(100vw-2rem)]",
+      "flex flex-col gap-4 pointer-events-auto w-[360px] max-w-[calc(100vw-2rem)]",
       POSITION_CLASSES[position],
       className,
     ),
@@ -322,7 +322,7 @@ function ToastUnit({ toast, onClose, className }: ToastUnitProps) {
     ToastContext.Provider,
     { value: ctx },
     createElement("div", {
-      className: cn("relative flex items-center gap-3 px-4 py-3.5", className),
+      className: cn("relative flex items-center gap-3 px-3 py-2.5", className),
       children: [
         createElement(SketchBorder, {
           key: "border",
@@ -371,7 +371,7 @@ function ToastTitle({
   const { toast } = useSingleToast();
   if (!toast.title) return null;
   return createElement("div", {
-    className: cn("font-caveat font-bold text-[var(--paper-ink)] text-[30px]", className),
+    className: cn("font-caveat font-bold text-[var(--paper-ink)] text-2xl", className),
     ...rest,
     children: children ?? toast.title,
   });
@@ -394,7 +394,7 @@ function ToastDescription({
   if (!toast.description) return null;
   return createElement("div", {
     className: cn(
-      "font-architect text-lg text-[var(--paper-ink-muted)] leading-snug",
+      "font-architect text-sm text-[var(--paper-ink-muted)] leading-snug",
       toast.title && "mt-0.5",
       className,
     ),
@@ -458,7 +458,7 @@ function ToastClose({
       className,
     ),
     ...rest,
-    children: children ?? createElement(X, { size: 28 }),
+    children: children ?? createElement(X, { size: 20 }),
   });
 }
 ToastClose.displayName = "ToastProvider.ToastClose";
