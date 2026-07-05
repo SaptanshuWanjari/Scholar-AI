@@ -40,8 +40,8 @@ jobs:
           cp -r frontend/dist/* dist/ScholarAI-${{ github.ref_name }}/frontend/dist/
           cp -r config dist/ScholarAI-${{ github.ref_name }}/
           cp requirements.txt pyproject.toml dist/ScholarAI-${{ github.ref_name }}/
-          cp setup.sh dist/ScholarAI-${{ github.ref_name }}/ 2>/dev/null || true
-          cp setup.ps1 dist/ScholarAI-${{ github.ref_name }}/ 2>/dev/null || true
+          cp setup.sh start.sh update.sh dist/ScholarAI-${{ github.ref_name }}/ 2>/dev/null || true
+          cp setup.ps1 start.ps1 update.ps1 dist/ScholarAI-${{ github.ref_name }}/ 2>/dev/null || true
         shell: bash
 
       - name: Archive (Unix)
