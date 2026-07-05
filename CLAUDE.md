@@ -58,12 +58,10 @@ npm install
 npm run dev                               # Starts on http://localhost:5173
 ```
 
-**CLI** (batch operations):
+**CLI** (start API server):
 
 ```bash
-uv run scholar ingest path/to/file.pdf --course "Course Name"
-uv run scholar ask "Question" --course "Course Name"
-uv run scholar courses                     # List all courses
+uv run scholar serve
 ```
 
 ## Development Guidelines
@@ -121,10 +119,8 @@ Model assignments in `config/default.toml` control which model handles which tas
 
 ### Ingesting Documents
 
-```bash
-uv run scholar ingest docs/notes.pdf --course "Operating Systems"
-# Internally: text extraction → chunking → embedding → vector DB storage
-```
+Documents are ingested via the web UI ("Documents" page), which calls the `/api/documents/upload` endpoint.
+Internally: text extraction → chunking → embedding → vector DB storage.
 
 ### Debugging RAG Pipeline
 
