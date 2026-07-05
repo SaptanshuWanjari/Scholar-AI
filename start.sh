@@ -2,4 +2,4 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 source .venv/bin/activate
-uvicorn scholarai.api.app:app --host 0.0.0.0 --port 8000
+uvicorn scholarai.api.app:app --host 127.0.0.1 --port 8000
