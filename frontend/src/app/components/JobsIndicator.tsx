@@ -139,7 +139,7 @@ export function JobsIndicator() {
       <MenubarMenu>
         <MenubarTrigger asChild>
           <IconButton label="Notifications" className="relative overflow-hidden" onClick={() => markRead()}>
-            <Bell className="size-5" />
+            <Bell className="size-20" />
             {(activeCount > 0 || unread) && (
               <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary font-architect text-[9px] font-bold leading-none text-primary-foreground animate-pulse">
                 {activeCount > 0 ? activeCount : notifications.length}
@@ -169,7 +169,7 @@ export function JobsIndicator() {
 
           {isEmpty ? (
             <div className="flex flex-col items-center gap-2 px-4 py-8 text-center font-architect text-sm text-ink-muted">
-              <Bell className="size-6 opacity-40" />
+              <Bell className="size-9 opacity-40" />
               No notifications
             </div>
           ) : (

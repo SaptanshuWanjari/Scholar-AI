@@ -13,17 +13,19 @@ import {
   Settings2,
   ChevronDown,
   Activity,
+  Cloud,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 import { PaperBadge, Pill } from "@paper-ui/components/badges";
 import { PaperCard, PaperPanel, PaperH2, PaperH3, PaperH5, PaperIconCircle } from "@paper-ui/core";
-import { PaperSelect, PaperRadio } from "@paper-ui/components/inputs";
+import { PaperSelect, PaperRadio, PaperSwitch } from "@paper-ui/components/inputs";
 import { LoadingPaper } from "@paper-ui/components/feedback";
 import { ArrowDoodle } from "@paper-ui/components/doodles";
 import { useOnboarding, type ImportFileStatus } from "../../context/OnboardingContext";
 import { api, type ModelsList } from "../../lib/api";
 import { useSettingsStore } from "../../stores/useSettingsStore";
+import { useProvidersStore } from "../../stores/useProvidersStore";
 
 const ACCEPTED = ".pdf,.docx,.md,.markdown,.txt,.text";
 
@@ -61,11 +63,15 @@ export function OnboardingImport() {
   const fileInput = useRef<HTMLInputElement>(null);
   const { files, addFiles, removeFile, startImport } = useOnboarding();
   const [setupMode, setSetupMode] = useState<"guided" | "explore">("guided");
+  const [generateLearningPath, setGenerateLearningPath] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [health, setHealth] = useState<{ reasoning: string, vision: string, embedding: string, ocr: string } | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [models, setModels] = useState<ModelsList | null>(null);
   const s = useSettingsStore();
+  const { providers } = useProvidersStore();
+
+  const connectedCloud = providers.filter((p) => !p.is_local && p.connected);
 
   useEffect(() => {
     s.hydrate();
@@ -74,7 +80,8 @@ export function OnboardingImport() {
   }, []);
 
   const importing = files.some((f) => f.status === "processing");
-  const canStart = files.length > 0 && !importing && files.some((f) => f.status === "queued");
+  // Explore mode: always enabled. Guided mode: requires at least one queued file.
+  const canStart = setupMode === "explore" || (files.length > 0 && !importing && files.some((f) => f.status === "queued"));
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -101,6 +108,20 @@ export function OnboardingImport() {
 
   const handleStart = async () => {
     localStorage.setItem("scholar_onboarding_done", "1");
+
+    if (setupMode === "explore") {
+      // Explore Freely: skip import, go straight to dashboard
+      if (files.length > 0) {
+        navigate("/");
+        await startImport();
+      } else {
+        navigate("/");
+      }
+      return;
+    }
+
+    // Guided Learning
+    localStorage.setItem("scholar_generate_lp", generateLearningPath ? "1" : "0");
     navigate("/");
     await startImport();
   };
@@ -108,6 +129,13 @@ export function OnboardingImport() {
   // Build model options arrays for PaperSelect
   const toOptions = (items: string[] | undefined) =>
     [{ value: "auto", label: "Auto" }, ...(items ?? []).map((m) => ({ value: m, label: m }))];
+
+  const PROVIDER_LABELS: Record<string, string> = {
+    gemini: "Google Gemini",
+    groq: "Groq",
+    openrouter: "OpenRouter",
+    openai_compat: "OpenAI-Compatible",
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#f5f0e8] px-6 py-16">
@@ -246,14 +274,42 @@ export function OnboardingImport() {
                     onChange={(v) => setSetupMode(v as "guided" | "explore")}
                     name="setupMode"
                   />
-                  <div>
-                    <p className="font-architect  text-ink flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-architect text-ink flex items-center gap-2">
                       Guided Learning
                       <PaperBadge tone="lavender">Recommended</PaperBadge>
                     </p>
                     <p className="font-kalam text-[15px] text-ink-muted mt-1">
-                      Organize library, Detect subjects, Build roadmap. Let AI do the heavy lifting.
+                      Organize library, detect subjects. Let AI do the heavy lifting.
                     </p>
+
+                    {/* Learning path toggle — only visible when this mode is selected */}
+                    <AnimatePresence>
+                      {setupMode === "guided" && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div
+                            className="mt-3 pt-3 border-t border-[#e8e3d8] flex items-center justify-between gap-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div>
+                              <p className="font-architect text-[17px] text-ink">Generate learning path</p>
+                              <p className="font-kalam text-[14px] text-ink-muted">
+                                Build a personalised study roadmap from your documents
+                              </p>
+                            </div>
+                            <PaperSwitch
+                              checked={generateLearningPath}
+                              onChange={setGenerateLearningPath}
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               </PaperCard>
@@ -275,7 +331,7 @@ export function OnboardingImport() {
                   <div>
                     <p className="font-architect text-ink">Explore Freely</p>
                     <p className="font-kalam text-[15px] text-ink-muted mt-1">
-                      Import only. Manually organize your knowledge base later.
+                      Go straight to the dashboard. Import and organise documents at your own pace.
                     </p>
                   </div>
                 </div>
@@ -291,7 +347,7 @@ export function OnboardingImport() {
               onClick={() => setShowSettings(!showSettings)}
               className="flex w-full items-center justify-between p-4"
             >
-              <span className="font-architect  font-bold text-ink flex items-center gap-2">
+              <span className="font-architect font-bold text-ink flex items-center gap-2">
                 <Settings2 size={15} className="text-ink-muted" />
                 Advanced AI Settings
               </span>
@@ -308,33 +364,63 @@ export function OnboardingImport() {
                   exit={{ height: 0 }}
                   className="overflow-hidden border-t border-[#e8e3d8]"
                 >
-                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <PaperSelect
-                      label="Reasoning Model"
-                      value={s.reasoningModel}
-                      onChange={(v) => s.set("reasoningModel", v)}
-                      options={toOptions(models?.reasoningModels)}
-                    />
-                    <PaperSelect
-                      label="Vision Model"
-                      value={s.visionModel}
-                      onChange={(v) => s.set("visionModel", v)}
-                      options={toOptions(models?.visionModels)}
-                    />
-                    <PaperSelect
-                      label="Embedding Model"
-                      value={s.embeddingModel}
-                      onChange={(v) => s.set("embeddingModel", v)}
-                      options={toOptions(models?.embeddingModels)}
-                    />
-                    <PaperSelect
-                      label="OCR Engine"
-                      value="auto"
-                      onChange={() => {}}
-                      options={[{ value: "auto", label: "Auto" }]}
-                    />
+                  <div className="p-4 flex flex-col gap-4">
+                    {/* Cloud provider banner */}
+                    {connectedCloud.length > 0 && (
+                      <div className="flex items-start gap-3 rounded-md bg-[#f0f7f4] border border-[#c5ddd3] px-3 py-2.5">
+                        <Cloud size={15} className="text-[#3a7a5c] mt-0.5 shrink-0" />
+                        <div className="min-w-0">
+                          <p className="font-architect text-[13px] text-[#2d6349]">
+                            Cloud providers connected
+                          </p>
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {connectedCloud.map((p) => (
+                              <PaperBadge key={p.provider_id} tone="sage">
+                                {PROVIDER_LABELS[p.provider_id] ?? p.name}
+                              </PaperBadge>
+                            ))}
+                          </div>
+                          <p className="font-kalam text-[12px] text-[#3a7a5c] mt-1">
+                            Task routing is configured via{" "}
+                            <span className="font-architect">Settings → Models → Routing</span>
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
-                    <div className="col-span-1 sm:col-span-2 flex items-center justify-between mt-2 pt-4 border-t border-[#e8e3d8]/50">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Show full Ollama model selects only when no cloud provider is connected */}
+                      {connectedCloud.length === 0 && (
+                        <>
+                          <PaperSelect
+                            label="Reasoning Model"
+                            value={s.reasoningModel}
+                            onChange={(v) => s.set("reasoningModel", v)}
+                            options={toOptions(models?.reasoningModels)}
+                          />
+                          <PaperSelect
+                            label="Vision Model"
+                            value={s.visionModel}
+                            onChange={(v) => s.set("visionModel", v)}
+                            options={toOptions(models?.visionModels)}
+                          />
+                        </>
+                      )}
+                      <PaperSelect
+                        label="Embedding Model"
+                        value={s.embeddingModel}
+                        onChange={(v) => s.set("embeddingModel", v)}
+                        options={toOptions(models?.embeddingModels)}
+                      />
+                      <PaperSelect
+                        label="OCR Engine"
+                        value="auto"
+                        onChange={() => {}}
+                        options={[{ value: "auto", label: "Auto" }]}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-[#e8e3d8]/50">
                       <div className="flex flex-wrap items-center gap-2">
                         {health && (
                           <>
@@ -368,15 +454,22 @@ export function OnboardingImport() {
 
         {/* Actions */}
         <div className="mt-8 flex justify-end border-t border-[#d4cfc2] pt-6">
-          <PaperButton
-            disabled={!canStart}
-            tone="dark"
-            size="lg"
-            onClick={handleStart}
-          >
-            Start Setup
-            <ArrowDoodle size={18} color="#fbf8f2" />
-          </PaperButton>
+          {setupMode === "explore" ? (
+            <PaperButton tone="dark" size="lg" onClick={handleStart}>
+              Go to Dashboard
+              <ArrowDoodle size={18} color="#fbf8f2" />
+            </PaperButton>
+          ) : (
+            <PaperButton
+              disabled={!canStart}
+              tone="dark"
+              size="lg"
+              onClick={handleStart}
+            >
+              Start Setup
+              <ArrowDoodle size={18} color="#fbf8f2" />
+            </PaperButton>
+          )}
         </div>
       </motion.div>
     </div>

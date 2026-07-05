@@ -1,12 +1,63 @@
 import { useNavigate } from "react-router";
-import { GraduationCap, Cpu, Lock, WifiOff, BookMarked } from "lucide-react";
+import {
+  Cpu,
+  Lock,
+  WifiOff,
+  BookMarked,
+  FolderPlus,
+  Lightbulb,
+  ClipboardList,
+  ShieldCheck,
+  FileText,
+  FileType,
+  File,
+  FileCode,
+  AlignLeft,
+} from "lucide-react";
 import { motion } from "motion/react";
-import { PaperButton, StickyButton } from "@paper-ui/components/buttons";
+import { StickyButton } from "@paper-ui/components/buttons";
 import { PaperBadge } from "@paper-ui/components/badges";
-import { PaperH1, PaperH2, PaperIconCircle } from "@paper-ui/core";
-import { ArrowDoodle } from "@paper-ui/components/doodles";
+import { PaperH1, PaperIconCircle } from "@paper-ui/core";
+import {
+  ArrowDoodle,
+  StarDoodle,
+  PaperPlaneDoodle,
+} from "@paper-ui/components/doodles";
 
-const formats = ["PDF", "DOCX", "PPTX", "Markdown", "Text"];
+const formats = [
+  { label: "PDF", icon: FileText, color: "#e05a4b" },
+  { label: "DOCX", icon: FileType, color: "#2e7dcc" },
+  { label: "PPTX", icon: File, color: "#e8722a" },
+  { label: "Markdown", icon: FileCode, color: "#3a3733" },
+  { label: "Text", icon: AlignLeft, color: "#3a3733" },
+];
+
+const features = [
+  {
+    icon: FolderPlus,
+    label: "Import",
+    sublabel: "anything",
+    tone: "lavender" as const,
+  },
+  {
+    icon: Lightbulb,
+    label: "Learn",
+    sublabel: "smarter",
+    tone: "ochre" as const,
+  },
+  {
+    icon: ClipboardList,
+    label: "Stay",
+    sublabel: "organized",
+    tone: "sage" as const,
+  },
+  {
+    icon: ShieldCheck,
+    label: "100% private",
+    sublabel: "& local",
+    tone: "ink" as const,
+  },
+];
 
 const traits = [
   { icon: Cpu, label: "Powered by local AI" },
@@ -19,67 +70,128 @@ export function OnboardingHero() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex h-screen items-center justify-center bg-[#f5f0e8] px-6">
+    <div className="relative flex max-h-screen items-center justify-center overflow-hidden bg-[#f5f0e8] px-6 py-10">
+      {/* Left doodle — star with dashed curved trail */}
+      <div className="pointer-events-none absolute left-[5%] top-[22%]">
+        <svg width="130" height="130" fill="none" aria-hidden>
+          <path
+            d="M110 15 Q70 40 45 80 Q30 98 18 115"
+            stroke="#3a3733"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeDasharray="4 5.5"
+          />
+        </svg>
+        <div className="absolute left-[68%] top-[2%]">
+          <StarDoodle size={26} color="#d4a843" />
+        </div>
+      </div>
+
+      {/* Right doodle — paper plane with dashed curved trail + plus sign */}
+      <div className="pointer-events-none absolute right-[5%] top-[20%]">
+        <svg width="130" height="130" fill="none" aria-hidden>
+          <path
+            d="M20 15 Q60 40 85 80 Q100 98 112 115"
+            stroke="#3a3733"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeDasharray="4 5.5"
+          />
+        </svg>
+        <div className="absolute left-[8%] top-[1%]">
+          <PaperPlaneDoodle size={28} color="#3a3733" />
+        </div>
+        <div className="absolute bottom-[10%] right-[8%] font-architect text-[22px] font-light leading-none text-[#9b95e5]">
+          +
+        </div>
+      </div>
+
+      {/* Main content */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex w-full max-w-4xl flex-col items-center text-center mt-8"
+        className="flex w-full max-w-3xl flex-col items-center text-center"
       >
-        {/* Logo */}
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+        {/* Logo icon */}
+        <motion.img
+          initial={{ scale: 0.85, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
-        >
-          <PaperIconCircle tone="lavender" size={80}>
-            <GraduationCap size={40} />
-          </PaperIconCircle>
-        </motion.div>
+          src="/icon-name.png"
+          alt="ScholarAI logo"
+          className="h-[340px] -pb-4"
+        />
 
-        {/* Brand */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-          className="mt-6"
-        >
-          <PaperH1 marker markerColor="rgba(111,99,163,0.25)">ScholarAI</PaperH1>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
+        {/* Tagline */}
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.4 }}
-          className="mt-4"
+          className=" font-architect text-[1.32rem] text-ink/90 tracking-wide"
         >
-          <PaperH2 className="text-[22px] text-ink/90 max-w-2xl">
-            Turn your study materials into a personalized AI learning workspace.
-          </PaperH2>
-        </motion.div>
+          Your AI-powered study workspace.
+        </motion.p>
 
         {/* Description */}
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.4 }}
-          className="mt-4 max-w-2xl leading-relaxed font-kalam text-[15px] text-ink-muted text-balance"
+          transition={{ delay: 0.38, duration: 0.4 }}
+          className="mt-3 max-w-xl font-kalam leading-relaxed text-ink/65 text-balance"
         >
-          Import textbooks, lecture notes, research papers and documentation.
-          ScholarAI organizes everything using local AI and helps you study
-          through learning paths, flashcards, AI tutoring, revision tools and
-          semantic search.
-          <br />
-          <br />
-          Everything stays on your machine.
+          Import your study materials, organize everything in one place, and
+          learn smarter with AI — all{" "}
+          <span className="underline underline-offset-2 decoration-[#c9a96e]">
+            private
+          </span>
+          ,{" "}
+          <span className="underline underline-offset-2 decoration-[#c9a96e]">
+            local
+          </span>
+          , and{" "}
+          <span className="underline underline-offset-2 decoration-[#c9a96e]">
+            offline-first
+          </span>
+          .
         </motion.p>
+
+        {/* Feature row */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.46, duration: 0.4 }}
+          className="mt-8 flex flex-wrap items-center justify-center"
+        >
+          {features.map(({ icon: Icon, label, sublabel, tone }, i) => (
+            <div key={label} className="flex items-center">
+              <div className="flex items-center gap-3 px-5 py-1">
+                <PaperIconCircle tone={tone} size={40}>
+                  <Icon size={18} />
+                </PaperIconCircle>
+                <div className="text-left">
+                  <p className="font-kalam text-[15px] leading-tight text-ink">
+                    {label}
+                  </p>
+                  <p className="font-kalam text-[15px] leading-tight text-ink">
+                    {sublabel}
+                  </p>
+                </div>
+              </div>
+              {i < features.length - 1 && (
+                <div className="h-10 w-px shrink-0 border-l border-dashed border-[#c5bfb0]" />
+              )}
+            </div>
+          ))}
+        </motion.div>
 
         {/* CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.4 }}
-          className="mt-8 flex flex-col items-center w-full"
+          transition={{ delay: 0.54, duration: 0.4 }}
+          className="mt-10"
         >
           <StickyButton
             tone="dark"
@@ -90,36 +202,47 @@ export function OnboardingHero() {
           </StickyButton>
         </motion.div>
 
-        {/* Supported formats */}
+        {/* Format badges */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.4 }}
+          transition={{ delay: 0.62, duration: 0.4 }}
           className="mt-8 flex flex-wrap justify-center gap-2"
         >
-          {formats.map((fmt) => (
-            <PaperBadge key={fmt} tone="ink">
-              {fmt}
+          {formats.map(({ label, icon: Icon, color }) => (
+            <PaperBadge key={label} tone="ink">
+              <Icon size={11} style={{ color }} className="shrink-0" />
+              {label}
             </PaperBadge>
           ))}
         </motion.div>
 
-        {/* Traits */}
+        {/* Traits footer */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.4 }}
-          className="mt-6 flex flex-wrap justify-center gap-6"
+          className="mt-6 flex flex-wrap items-center justify-center gap-y-2"
         >
-          {traits.map(({ icon: Icon, label }) => (
+          {traits.flatMap(({ icon: Icon, label }, i) => [
+            ...(i > 0
+              ? [
+                <span
+                  key={`sep-${i}`}
+                  className="mx-3 select-none text-[#c5bfb0]"
+                >
+                  |
+                </span>,
+              ]
+              : []),
             <div
               key={label}
-              className="flex items-center gap-2 font-architect text-[13px] text-ink-muted"
+              className="flex items-center gap-1.5 font-architect text-[12px] text-ink-muted"
             >
-              <Icon size={14} />
+              <Icon size={13} />
               <span>{label}</span>
-            </div>
-          ))}
+            </div>,
+          ])}
         </motion.div>
       </motion.div>
     </div>

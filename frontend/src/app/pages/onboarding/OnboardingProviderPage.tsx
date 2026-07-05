@@ -55,7 +55,7 @@ export function OnboardingProviderPage() {
   const navigate = useNavigate();
 
   const { install, isEnabled, getInstallState } = usePluginStore();
-  const { providers, connect, fetchProviders, models, connectingId } =
+  const { providers, connect, disconnect, fetchProviders, models, connectingId } =
     useProvidersStore();
 
   const [ollamaHealth, setOllamaHealth] = useState<HealthStatus | null>(null);
@@ -290,18 +290,26 @@ export function OnboardingProviderPage() {
                               transition={{ duration: 0.2 }}
                               className="flex items-center gap-3 flex-wrap"
                             >
-                              <PaperIconCircle tone="sage" size={32}>
+                              <PaperIconCircle
+                                tone={modelCount > 0 ? "sage" : "ochre"}
+                                size={32}
+                              >
                                 <CheckCircle2 size={20} />
                               </PaperIconCircle>
                               <span className="font-architect text-[15px] text-ink flex-1 min-w-0">
                                 {name}
                               </span>
-                              <PaperBadge tone="sage">Connected</PaperBadge>
-                              {modelCount > 0 && (
-                                <PaperBadge tone="sky">
-                                  {modelCount} models
-                                </PaperBadge>
+                              {modelCount > 0 ? (
+                                <>
+                                  <PaperBadge tone="sage">Connected</PaperBadge>
+                                  <PaperBadge tone="sky">{modelCount} models</PaperBadge>
+                                </>
+                              ) : (
+                                <PaperBadge tone="ochre">No models found</PaperBadge>
                               )}
+                              <GhostButton size="sm" onClick={() => disconnect(id)}>
+                                Disconnect
+                              </GhostButton>
                             </motion.div>
                           ) : (
                             <motion.div

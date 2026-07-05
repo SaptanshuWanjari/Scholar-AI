@@ -88,7 +88,7 @@ export function Topbar() {
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           {current && <current.icon className="size-5 text-ink-muted" />}
-          <h2 className="truncate font-architect text-[15px] text-ink">
+          <h2 className="truncate font-architect text-[18px] text-ink">
             {meta.title}
           </h2>
         </div>

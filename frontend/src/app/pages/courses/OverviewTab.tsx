@@ -79,8 +79,8 @@ export function OverviewTab({
               <TableRow key={d.id} index={i}>
                 <PaperTd>
                   <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-lg bg-paper-panel flex items-center justify-center shrink-0">
-                      <FileText className="size-4 text-ink-muted" />
+                    <div className="size-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "#eff6ff", color: "#3b82f6" }}>
+                      <FileText className="size-4" />
                     </div>
                     <span className="truncate max-w-xs font-kalam text-[14px] text-ink">
                       {d.title}
@@ -119,8 +119,8 @@ export function OverviewTab({
                 <TableRow key={`${a.type}-${a.id}`} index={i}>
                   <PaperTd>
                     <div className="flex items-center gap-3">
-                      <div className="size-8 rounded-lg bg-paper-panel flex items-center justify-center shrink-0">
-                        <Icon className="size-4 text-ink-muted" />
+                      <div className="size-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "#faf5ff", color: "#a855f7" }}>
+                        <Icon className="size-4" />
                       </div>
                       <span className="truncate max-w-xs font-kalam text-[14px] text-ink">
                         {a.title}

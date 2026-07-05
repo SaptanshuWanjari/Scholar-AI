@@ -32,7 +32,7 @@ import type { SelectOption } from "@paper-ui/components/inputs";
 import { PaperBadge } from "@paper-ui/components/badges";
 import { LearningProgress } from "@paper-ui/components/progress";
 import { PaperModal } from "@paper-ui/components/dialogs";
-import { PaperCard, SectionHeader, SectionLabel } from "@paper-ui/core";
+import { PaperCard, SectionHeader, SectionLabel, PaperIconCircle } from "@paper-ui/core";
 import { cn } from "@paper-ui/utils";
 import { Page } from "../components/Page";
 import { MarkdownRenderer } from "../components/MarkdownRenderer";
@@ -321,13 +321,13 @@ function InputPhase() {
   return (
     <div className="mx-auto max-w-2xl py-8">
       <div className="flex flex-col items-center text-center">
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-violet-soft text-primary">
+        <PaperIconCircle tone="lavender" size={56}>
           <Milestone className="size-6" />
-        </div>
+        </PaperIconCircle>
         <h1 className="mt-4 font-caveat text-[38px] font-bold text-ink">
           Learning Path
         </h1>
-        <p className="mt-1 max-w-lg font-kalam text-[14px] text-ink-muted">
+        <p className="mt-1 max-w-lg font-kalam text-sm text-ink-muted">
           Turn your material into a dependency-ordered roadmap — concepts
           arranged so you learn the foundations before the advanced topics that
           build on them.
@@ -408,8 +408,11 @@ function InputPhase() {
         <div className="mt-8">
           <SectionHeader title="Saved paths" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {saved.map((p) => (
-              <PaperCard key={p.id} className="group p-4">
+            {saved.map((p, i) => {
+              const colors = ["#f5f3ff", "#f0f9ff", "#fffbeb", "#f0fdf4", "#fdf2f8"];
+              const surface = colors[i % colors.length];
+              return (
+              <PaperCard key={p.id} className="group p-4" surface={surface}>
                 <div className="flex w-full items-center justify-between gap-3">
                   <button
                     onClick={() => loadPath(p.id)}
@@ -431,7 +434,8 @@ function InputPhase() {
                   </button>
                 </div>
               </PaperCard>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
