@@ -23,7 +23,6 @@ import { usePluginStore } from "../plugins/usePluginStore";
 import { SidebarItem } from "@paper-ui/components/navigation";
 import { Divider } from "@paper-ui/components/utility";
 import { PluginRow } from "@paper-ui/components/rows";
-import { useTheme } from "next-themes";
 import { useAppearanceStore } from "../stores/useAppearanceStore";
 
 function toOptions(models: string[], current: string): SelectOption[] {
@@ -64,7 +63,6 @@ const TABS = [
 
 export function SettingsPage() {
   const s = useSettingsStore();
-  const { theme, setTheme } = useTheme();
   const appearance = useAppearanceStore();
   const navigate = useNavigate();
   const { install, uninstall, enable, disable, isInstalled, isEnabled, getInstallState, restartRequired, dismissRestart } = usePluginStore();
@@ -169,18 +167,6 @@ export function SettingsPage() {
         <div className="flex-1 w-full min-w-0 p-6 md:p-8 space-y-8">
           {activeTab === "appearance" && (
             <div>
-              <Row title="Theme" desc="Application color theme">
-                <PaperSelect
-                  value={theme || "system"}
-                  onChange={(v) => setTheme(v)}
-                  options={[
-                    { value: "light", label: "Light" },
-                    { value: "dark", label: "Dark" },
-                    { value: "system", label: "System" },
-                  ]}
-                  className="w-56"
-                />
-              </Row>
               <Row title="Font Size" desc={`Base font size: ${appearance.fontSize}px`}>
                 <PaperSlider
                   className="w-56"
@@ -203,39 +189,6 @@ export function SettingsPage() {
                   ]}
                   className="w-56"
                 />
-              </Row>
-              <Row title="High Contrast" desc="Increase border visibility and text contrast">
-                <PaperSwitch
-                  checked={appearance.highContrast}
-                  onChange={(v) => appearance.set("highContrast", v)}
-                />
-              </Row>
-              <Row title="Reduce Animations" desc="Disable UI transitions and animations">
-                <PaperSwitch
-                  checked={appearance.reduceAnimations}
-                  onChange={(v) => appearance.set("reduceAnimations", v)}
-                />
-              </Row>
-              <Row title="Reduce Transparency" desc="Disable blurs and translucent backgrounds">
-                <PaperSwitch
-                  checked={appearance.reduceTransparency}
-                  onChange={(v) => appearance.set("reduceTransparency", v)}
-                />
-              </Row>
-              <Row title="Custom Accent Color" desc="Hex color code (e.g. #4f4d7a)">
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="color" 
-                    value={appearance.accentColor} 
-                    onChange={(e) => appearance.set("accentColor", e.target.value)} 
-                    className="h-8 w-8 cursor-pointer rounded border border-border bg-transparent p-0"
-                  />
-                  <PaperInput
-                    className="w-44"
-                    value={appearance.accentColor}
-                    onChange={(e) => appearance.set("accentColor", e.target.value)}
-                  />
-                </div>
               </Row>
             </div>
           )}

@@ -17,11 +17,13 @@ import {
   Workflow,
   StickyNote,
   Image as ImageIcon,
+  Code,
 } from "lucide-react";
 import { toast } from "@/app/lib/toast";
-import { PaperDropdown, type DropdownItem } from "@/paper-ui/components/dialogs";
-import { PaperButton, IconButton } from "@/paper-ui/components/buttons";
-import { PaperH1 } from "@/paper-ui/core";
+import { PaperButton, IconButton, FloatingActionButton } from "@/paper-ui/components/buttons";
+
+import { PaperH1, SketchBorder } from "@/paper-ui/core";
+import { cn } from "@/paper-ui/utils";
 import { LoadingPaper } from "@/paper-ui/components/feedback";
 import { IllustratedEmptyState } from "@/paper-ui/components/feedback";
 import { SelectionToolbar } from "../components/SelectionToolbar";
@@ -35,8 +37,6 @@ import { InspectorPanel } from "../components/notebooks/InspectorPanel";
 import { BlockView } from "../components/notebooks/BlockView";
 import { CreateNotebookDialog } from "../components/notebooks/CreateNotebookDialog";
 import { parseNotes, getBlockText, getBlockSource } from "../components/notebooks/utils";
-
-import { Code } from "lucide-react";
 export function Notebooks() {
   const [list, setList] = useState<NotebookMeta[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -57,7 +57,6 @@ export function Notebooks() {
   const [overIndex, setOverIndex] = useState<number | null>(null);
 
   const [collections, setCollections] = useState<any[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
 
   const [courses, setCourses] = useState<any[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
@@ -70,6 +69,10 @@ export function Notebooks() {
 
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
+  const [positionMode, setPositionMode] = useState<"top" | "bottom" | "cursor">("bottom");
+  const [firstVisibleIndex, setFirstVisibleIndex] = useState(0);
+  const [fabOpen, setFabOpen] = useState(false);
+  const fabRef = useRef<HTMLDivElement>(null);
   const toggleCollapse = useCallback((i: number) => {
     setCollapsed((prev) => {
       const next = new Set(prev);
@@ -118,10 +121,6 @@ export function Notebooks() {
       .listNotebookCollections()
       .then(setCollections)
       .catch(() => setCollections([]));
-    api
-      .listNotebookTags()
-      .then(setTags)
-      .catch(() => setTags([]));
   }
 
   useEffect(() => {
@@ -173,6 +172,22 @@ export function Notebooks() {
     window.addEventListener("beforeunload", flushSave);
     return () => window.removeEventListener("beforeunload", flushSave);
   }, [flushSave]);
+
+  useEffect(() => {
+    if (!fabOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (fabRef.current && !fabRef.current.contains(e.target as Node)) setFabOpen(false);
+    };
+    const escapeHandler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFabOpen(false);
+    };
+    setTimeout(() => document.addEventListener("mousedown", handler), 0);
+    window.addEventListener("keydown", escapeHandler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      window.removeEventListener("keydown", escapeHandler);
+    };
+  }, [fabOpen]);
 
   async function dismissDraftBanner() {
     flushSave();
@@ -241,7 +256,7 @@ export function Notebooks() {
           width,
           height,
           alt: file.name,
-        });
+        }, positionMode);
       };
       img.src = event.target?.result as string;
     };
@@ -249,14 +264,19 @@ export function Notebooks() {
     e.target.value = "";
   }
 
-  function addBlock(block: NotebookBlock) {
-    const next = [...blocks, block];
+  function addBlock(block: NotebookBlock, position?: "top" | "bottom" | "cursor") {
+    const pos = position ?? "bottom";
+    const idx = pos === "top" ? 0
+      : pos === "cursor" ? Math.min(editingIndex !== null ? editingIndex + 1 : firstVisibleIndex, blocks.length)
+      : blocks.length;
+    const next = [...blocks];
+    next.splice(idx, 0, block);
     persistBlocks(next);
-    setEditingIndex(next.length - 1);
+    setEditingIndex(idx);
     const newText =
       (block as any).text || (block as any).answer || (block as any).code;
     if (newText && block.type === "ai-answer") {
-      checkDeduplication(newText, next.length - 1);
+      checkDeduplication(newText, idx);
     }
   }
 
@@ -504,7 +524,7 @@ export function Notebooks() {
         confidence: 1,
         sources: 0,
       };
-      persistBlocks([...blocks, block]);
+      addBlock(block);
       toast.success("AI block added", { id: toastId });
     } catch (e: any) {
       toast.error(`AI assist failed: ${e.message}`, { id: toastId });
@@ -593,89 +613,40 @@ export function Notebooks() {
     };
   }, [active, activeMeta, blocks]);
 
-  const addBlockItems: DropdownItem[] = [
-    {
-      key: "note",
-      label: "Sticky Note",
-      icon: <StickyNote className="size-4" />,
-      onClick: () =>
-        addBlock({
-          type: "text",
-          text: "[ General] New note...",
-          source: { type: "reading", id: "new" },
-        }),
-    },
-    {
-      key: "text",
-      label: "Text",
-      icon: <FileText className="size-4" />,
-      onClick: () =>
-        addBlock({
-          type: "text",
-          text: "New text block. Edit me!",
-        }),
-    },
-    {
-      key: "heading",
-      label: "Heading",
-      icon: <Hash className="size-4" />,
-      onClick: () =>
-        addBlock({
-          type: "heading",
-          level: 2,
-          text: "New Heading",
-        }),
-    },
-    {
-      key: "callout",
-      label: "Callout",
-      icon: <Info className="size-4" />,
-      onClick: () =>
-        addBlock({
-          type: "callout",
-          tone: "note",
-          text: "New note callout.",
-        }),
-    },
-    {
-      key: "code",
-      label: "Code",
-      icon: <Code className="size-4" />,
-      onClick: () =>
-        addBlock({
-          type: "code",
-          lang: "python",
-          code: "print('Hello world')",
-        }),
-    },
-    {
-      key: "diagram",
-      label: "Diagram",
-      icon: <Workflow className="size-4" />,
-      onClick: () =>
-        addBlock({
-          type: "mermaid",
-          code: "graph TD\n  A[Start] --> B[End]",
-        }),
-    },
-    {
-      key: "table",
-      label: "Table",
-      icon: <Layers className="size-4" />,
-      onClick: () =>
-        addBlock({
-          type: "table",
-          headers: ["Column A", "Column B"],
-          rows: [["", ""]],
-        }),
-    },
-    {
-      key: "image",
-      label: "Image",
-      icon: <ImageIcon className="size-4" />,
-      onClick: () => fileInputRef.current?.click(),
-    },
+  const blockTypeActions: { key: string; icon: React.ReactNode; label: string; block: NotebookBlock | null }[] = [
+    { key: "text", icon: <FileText className="size-3.5" />, label: "Text", block: { type: "text", text: "New text block. Edit me!" } as NotebookBlock },
+    { key: "note", icon: <StickyNote className="size-3.5" />, label: "Note", block: { type: "text", text: "[ General] New note...", source: { type: "reading", id: "new" } } as NotebookBlock },
+    { key: "heading", icon: <Hash className="size-3.5" />, label: "Heading", block: { type: "heading", level: 2, text: "New Heading" } as NotebookBlock },
+    { key: "callout", icon: <Info className="size-3.5" />, label: "Callout", block: { type: "callout", tone: "note", text: "New note callout." } as NotebookBlock },
+    { key: "code", icon: <Code className="size-3.5" />, label: "Code", block: { type: "code", lang: "python", code: "print('Hello world')" } as NotebookBlock },
+    { key: "diagram", icon: <Workflow className="size-3.5" />, label: "Diagram", block: { type: "mermaid", code: "graph TD\n  A[Start] --> B[End]" } as NotebookBlock },
+    { key: "table", icon: <Layers className="size-3.5" />, label: "Table", block: { type: "table", headers: ["Column A", "Column B"], rows: [["", ""]] } as NotebookBlock },
+    { key: "image", icon: <ImageIcon className="size-3.5" />, label: "Image", block: null },
   ];
+
+  function renderBlockTypeButtons() {
+    return (
+      <div className="grid grid-cols-2 gap-1.5">
+        {blockTypeActions.map((item) => (
+          <PaperButton
+            key={item.key}
+            size="sm"
+            tone="paper"
+            onClick={() => {
+              if (item.key === "image") {
+                fileInputRef.current?.click();
+              } else if (item.block) {
+                addBlock(item.block);
+              }
+            }}
+          >
+            {item.icon}
+            {item.label}
+          </PaperButton>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -687,7 +658,6 @@ export function Notebooks() {
         renamingId={renamingId}
         renameValue={renameValue}
         collections={collections}
-        tags={tags}
         recentNotes={recentNotes}
         onSelectNotebook={setActiveId}
         onStartRename={(id, name) => {
@@ -794,17 +764,17 @@ export function Notebooks() {
                     </button>
                   </div>
                 )}
-
                 {blocks.length === 0 && (
                   <div className="rounded-xl border border-dashed border-ink-muted/30 px-6 py-10 text-center font-kalam text-sm text-ink-muted">
-                    This notebook is empty. Add a block below, or select text
-                    elsewhere and use AI assist.
+                    This notebook is empty. Use the + button to add a block, or
+                    select text elsewhere and use AI assist.
                   </div>
                 )}
 
                 {scrollParent && blocks.length > 0 && (
                   <Virtuoso
                     ref={virtuosoRef}
+                    rangeChanged={(range) => setFirstVisibleIndex(range.startIndex)}
                     useWindowScroll
                     customScrollParent={scrollParent}
                     data={blocks}
@@ -869,14 +839,6 @@ export function Notebooks() {
                   />
                 )}
 
-                <PaperDropdown
-                  trigger={
-                    <button className="group flex w-full items-center gap-2.5 rounded-xl border border-dashed border-ink-muted/30 px-5 py-4 font-architect text-[16px] text-ink-muted transition-colors hover:border-violet/50 hover:text-violet">
-                      <Plus className="size-5" /> Add block
-                    </button>
-                  }
-                  items={addBlockItems}
-                />
                 <input
                   type="file"
                   accept="image/*"
@@ -886,8 +848,39 @@ export function Notebooks() {
                 />
               </div>
             </>
-          )}
+            )}
         </div>
+        {active && (
+          <div ref={fabRef} className="fixed bottom-6 right-6 z-50">
+            {fabOpen && (
+              <div className="absolute bottom-full right-0 mb-3 min-w-[240px]">
+                <div className="relative">
+                  <SketchBorder fill="#fffdf9" stroke="#3a3733" strokeWidth={1.6} shadow={5} radius={8} bleed={6} />
+                  <div className="relative z-[1] p-3 space-y-3">
+                    <div className="flex gap-1">
+                      {(["top", "cursor", "bottom"] as const).map((pos) => (
+                        <PaperButton
+                          key={pos}
+                          size="sm"
+                          tone={positionMode === pos ? "dark" : "paper"}
+                          onClick={() => setPositionMode(pos)}
+                        >
+                          {pos === "top" ? "Top" : pos === "cursor" ? "Here" : "Bottom"}
+                        </PaperButton>
+                      ))}
+                    </div>
+                    <div className="border-t border-ink-muted/20 pt-3">
+                      {renderBlockTypeButtons()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <FloatingActionButton label="Add block" size="lg" onClick={() => setFabOpen((o) => !o)}>
+              <Plus className="size-6" />
+            </FloatingActionButton>
+          </div>
+        )}
       </main>
 
       <InspectorPanel
@@ -905,6 +898,8 @@ export function Notebooks() {
         courses={courses}
         onCreated={handleCreated}
       />
+
+
     </div>
   );
 }

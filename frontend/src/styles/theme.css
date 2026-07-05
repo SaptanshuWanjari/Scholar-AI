@@ -302,45 +302,4 @@ button {
   @apply cursor-pointer;
 }
 
-/* Accessibility & Personalization Overrides */
-.high-contrast {
-  --background: #ffffff;
-  --foreground: #000000;
-  --card: #ffffff;
-  --card-foreground: #000000;
-  --primary: #000000;
-  --primary-foreground: #ffffff;
-  --secondary: #e0e0e0;
-  --secondary-foreground: #000000;
-  --muted: #e0e0e0;
-  --muted-foreground: #333333;
-  --border: #000000;
-  --input: #000000;
-  --ring: #000000;
-}
 
-.dark.high-contrast {
-  --background: #000000;
-  --foreground: #ffffff;
-  --card: #000000;
-  --card-foreground: #ffffff;
-  --primary: #ffffff;
-  --primary-foreground: #000000;
-  --secondary: #333333;
-  --secondary-foreground: #ffffff;
-  --muted: #333333;
-  --muted-foreground: #cccccc;
-  --border: #ffffff;
-  --input: #ffffff;
-  --ring: #ffffff;
-}
-
-.reduce-animations * {
-  animation: none !important;
-  transition: none !important;
-}
-
-.reduce-transparency * {
-  backdrop-filter: none !important;
-  background-color: var(--background) !important;
-}

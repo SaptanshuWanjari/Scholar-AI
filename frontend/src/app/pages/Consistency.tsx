@@ -96,7 +96,7 @@ export function Consistency() {
           </div>
         </PaperCard>
 
-        <PaperCard shadow="sm" className="p-5">
+        <PaperCard shadow="sm" className="p-5 z-10">
           <SectionHeader title="Analysis inputs" />
           <div className="grid gap-4 lg:grid-cols-[minmax(0,18rem)_minmax(0,18rem)_auto] lg:items-end">
             <PaperSelect
