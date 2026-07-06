@@ -16,6 +16,7 @@ export const excalidrawPlugin: PluginDefinition = {
   description:
     "Free-form visual canvas for sketching, problem solving, and spatial learning. Integrates with AI to generate, explain, and expand diagrams.",
   version: "1.0.0",
+  minAppVersion: "0.1.0",
   icon: PencilRuler,
   npmPackages: ["@excalidraw/excalidraw", "@excalidraw/mermaid-to-excalidraw"],
   navItems: [

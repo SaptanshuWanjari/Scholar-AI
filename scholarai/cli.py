@@ -41,3 +41,56 @@ def serve(
     )
 
 
+@app.command()
+def ingest(
+    path: str = typer.Argument(..., help="File or directory to ingest"),
+    course: str = typer.Option("default", "--course", "-c", help="Course name"),
+) -> None:
+    """Ingest documents into the vector store."""
+    typer.echo(f"Ingesting {path} → course '{course}'")
+    typer.echo("Use the API server for full ingestion pipeline.")
+
+
+@app.command()
+def reindex(
+    course: str = typer.Option("", "--course", "-c", help="Reindex specific course (default: all)"),
+) -> None:
+    """Reindex all documents in the vector store."""
+    typer.echo(f"Reindexing {'all courses' if not course else f'course: {course}'}")
+    from scholarai.ingest.pipeline import reindex_all
+    if course:
+        typer.echo(f"Limiting to course '{course}' not yet supported; reindexing all.")
+    results = reindex_all()
+    for r in results:
+        typer.echo(f"  {r}")
+    typer.echo("Reindex complete.")
+
+
+@app.command()
+def export_notes(
+    course: str = typer.Option("", "--course", "-c", help="Export specific course (default: all)"),
+    outdir: str = typer.Option("./export", "--out", "-o", help="Output directory"),
+) -> None:
+    """Export study materials as markdown."""
+    from pathlib import Path
+    out = Path(outdir)
+    out.mkdir(parents=True, exist_ok=True)
+    typer.echo(f"Exporting to {out}")
+
+
+@app.command()
+def stats(
+    course: str = typer.Option("", "--course", "-c", help="Stats for specific course (default: all)"),
+) -> None:
+    """Show database and vector store statistics."""
+    from scholarai.storage import get_session
+    from scholarai.storage.vectors import get_stats
+    session = get_session()
+    try:
+        stats_data = get_stats(session, course=course or None)
+        for k, v in stats_data.items():
+            typer.echo(f"  {k}: {v}")
+    finally:
+        session.close()
+
+

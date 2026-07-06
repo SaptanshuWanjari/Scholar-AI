@@ -244,7 +244,7 @@ class Diagram(Base, TrashMixin):
     title: Mapped[str] = mapped_column(String(256), nullable=False)
     course: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     kind: Mapped[str] = mapped_column(String(64), nullable=False, default="Flowchart")
-    mermaid: Mapped[str] = mapped_column(Text, nullable=False)
+    syntax: Mapped[str] = mapped_column(Text, nullable=False)
     quality_score: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -767,6 +767,12 @@ def get_cached_embedding(session: Session, query: str) -> list[float] | None:
     return None
 
 
+# ponytail: evict in batches of 100 instead of every insert; O(n) scan  
+# is fine because last_accessed has an index and the batch buffer means  
+# we only pay it ~1% of the time.
+_BATCH_BUFFER = 100
+
+
 def set_cached_embedding(session: Session, query: str, vector: list[float], max_size: int = 5000) -> None:
     cache = session.get(EmbeddingCache, query)
     if cache:
@@ -778,7 +784,7 @@ def set_cached_embedding(session: Session, query: str, vector: list[float], max_
     session.commit()
 
     count = session.query(EmbeddingCache).count()
-    if count > max_size:
+    if count > max_size + _BATCH_BUFFER:
         oldest = session.query(EmbeddingCache).order_by(EmbeddingCache.last_accessed.asc()).limit(count - max_size).all()
         for o in oldest:
             session.delete(o)

@@ -50,7 +50,7 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
     try {
       const ragMode = (await import("./useSettingsStore")).useSettingsStore.getState().ragMode;
       const result = await api.generateDiagram(finalTopic, course === "none" ? null : course, document, type, ragMode);
-      if (!result.grounded || !result.mermaid?.trim()) {
+      if (!result.grounded || !result.syntax?.trim()) {
         const errMsg = !result.grounded ? "Couldn't ground a diagram for that topic" : "The generated diagram was empty";
         toast.error(errMsg);
         useNotificationStore.getState().add({ title: "Diagram generation failed", status: "error", message: errMsg });
@@ -61,7 +61,7 @@ export const useDiagramGenStore = create<DiagramGenState>((set, get) => ({
         title: result.title,
         course: result.course,
         kind: result.kind,
-        mermaid: result.mermaid,
+        syntax: result.syntax,
         quality: result.quality,
       };
       set({ generated: diagram, activeId: diagram.id });

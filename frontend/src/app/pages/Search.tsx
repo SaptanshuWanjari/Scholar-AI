@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import useSWR from "swr";
 import { Search as SearchIcon, FileText, Layers, ListChecks, Workflow, Sparkles, Loader2, BookOpen, Tag } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "@/app/lib/toast";
@@ -12,7 +13,6 @@ import { SearchResultRow } from "@/paper-ui/components/rows/SearchResultRow";
 import { EmptyState } from "@/paper-ui/components/feedback/EmptyState";
 import { cn } from "@/paper-ui/utils";
 import { api, type SearchResult } from "../lib/api";
-import { type Course } from "../lib/types";
 
 const groupIcon: Record<string, typeof FileText> = {
   Documents: FileText,
@@ -60,47 +60,34 @@ export function SearchPage() {
   const [filter, setFilter] = useState("all");
   const [courseFilter, setCourseFilter] = useState("all");
   const [topicFilter, setTopicFilter] = useState("all");
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [courses, setCourses] = useState<Course[]>([]);
-
-  const requestId = useRef(0);
 
   const trimmed = query.trim();
   const tooShort = trimmed.length > 0 && trimmed.length < MIN_QUERY_LEN;
 
+  const { data: courses = [], error: coursesError } = useSWR("courses", () => api.listCourses());
   useEffect(() => {
-    api.listCourses().then(setCourses).catch(console.error);
-  }, []);
+    if (coursesError) toast.error("Failed to load courses");
+  }, [coursesError]);
 
+  const [debounceTick, setDebounceTick] = useState(0);
   useEffect(() => {
-    if (trimmed.length < MIN_QUERY_LEN) {
-      setResults([]);
-      setLoading(false);
-      return;
-    }
-
-    const id = ++requestId.current;
-    setLoading(true);
-    const handle = window.setTimeout(() => {
-      api
-        .search(trimmed, filter, courseFilter, topicFilter)
-        .then((data) => {
-          if (id !== requestId.current) return;
-          setResults(data);
-        })
-        .catch((err) => {
-          if (id !== requestId.current) return;
-          setResults([]);
-          toast.error(err instanceof Error ? err.message : "Search failed");
-        })
-        .finally(() => {
-          if (id === requestId.current) setLoading(false);
-        });
-    }, 300);
-
-    return () => window.clearTimeout(handle);
+    if (trimmed.length < MIN_QUERY_LEN) return;
+    const timer = setTimeout(() => setDebounceTick((t) => t + 1), 300);
+    return () => clearTimeout(timer);
   }, [trimmed, filter, courseFilter, topicFilter]);
+
+  const hasQuery = trimmed.length >= MIN_QUERY_LEN;
+  const searchKey = hasQuery
+    ? ["search", trimmed, filter, courseFilter, topicFilter, debounceTick]
+    : null;
+
+  const { data: results = [], isLoading: loading, error: searchError } = useSWR(
+    searchKey,
+    () => api.search(trimmed, filter, courseFilter, topicFilter),
+  );
+  useEffect(() => {
+    if (searchError) toast.error(searchError instanceof Error ? searchError.message : "Search failed");
+  }, [searchError]);
 
   const grouped = useMemo(() => {
     const map: Record<string, SearchResult[]> = {};
@@ -109,8 +96,6 @@ export function SearchPage() {
     });
     return map;
   }, [results]);
-
-  const hasQuery = trimmed.length >= MIN_QUERY_LEN;
 
   return (
     <Page className="space-y-5">

@@ -77,8 +77,10 @@ class RetrievalConfig(BaseModel):
     # LLM relevance rerank pass that reorders the retrieved top_k before
     # generation (Ollama-only; not a torch cross-encoder).
     rerank_enabled: bool = True
-    pq_enabled: bool = True
+    pq_enabled: bool = False
     pq_training_threshold: int = 500
+    max_concurrent_llm: int = 5
+    max_concurrent_llm: int = 5
 
 
 class MultiHopConfig(BaseModel):

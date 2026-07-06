@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import {
   ReactFlow,
   Background,
@@ -57,10 +56,6 @@ export function MindMapViewer() {
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
-  const onInit = useCallback(() => {
-    console.log("ReactFlow initialized");
-  }, []);
-
   return (
     <div className="h-full w-full">
       <ReactFlow
@@ -68,7 +63,6 @@ export function MindMapViewer() {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onInit={onInit}
         fitView
         proOptions={{ hideAttribution: true }}
         className="bg-background"

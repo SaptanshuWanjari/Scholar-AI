@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import useSWR from "swr";
 import { Network, Sparkles, Loader2, Trash2, ImageDown, FileDown } from "lucide-react";
 import { exportNodeToPng, exportNodeToPdf } from "../lib/export";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { api, type GeneratedMindmap } from "../lib/api";
-import type { Course, DocumentItem } from "../lib/types";
 import { useMindmapStore, ALL_COURSES } from "../stores/useMindmapStore";
 import { toast } from "@/app/lib/toast";
 import { MindMapTree, parseMindmapText, countNodes } from "../components/MindMapTree";
@@ -18,10 +18,7 @@ import { SketchDivider } from "@/paper-ui/components/decorations";
 import { PaperCard, PaperIconCircle } from "@/paper-ui/core";
 
 export function MindMaps() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [items, setItems] = useState<GeneratedMindmap[]>([]);
   const [active, setActive] = useState<GeneratedMindmap | null>(null);
-  const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
   const { topic, course, document, loading, mindmap, setField, generate } = useMindmapStore();
   const setCourse = (v: string) => setField("course", v);
@@ -29,35 +26,26 @@ export function MindMaps() {
   const setTopic = (v: string) => setField("topic", v);
 
   // Absorb a newly generated mindmap into the sidebar list and select it.
-  useEffect(() => {
-    if (!mindmap) return;
-    setItems((prev) => (prev.some((m) => m.id === mindmap.id) ? prev : [mindmap, ...prev]));
-    setActive(mindmap);
-  }, [mindmap]);
+
+  const { data: courses = [] } = useSWR("courses", () => api.listCourses());
+  const { data: documents = [] } = useSWR("documents", () => api.listDocuments());
+  const { data: items = [], mutate: mutateItems } = useSWR("mindmaps", () => api.listMindmaps());
 
   useEffect(() => {
-    let cancelled = false;
-    api
-      .listCourses()
-      .then((cs) => { if (!cancelled) setCourses(cs); })
-      .catch(() => {});
-    api.listDocuments().then((ds) => { if (!cancelled) setDocuments(ds); }).catch(() => {});
-    api
-      .listMindmaps()
-      .then((ms) => {
-        if (cancelled) return;
-        setItems(ms);
-        setActive((cur) => cur ?? ms[0] ?? null);
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
+    setActive((cur) => cur ?? items[0] ?? null);
+  }, [items]);
+
+  useEffect(() => {
+    if (!mindmap) return;
+    mutateItems((prev) => (prev?.some((m) => m.id === mindmap.id) ? prev : [mindmap, ...(prev ?? [])]), false);
+    setActive(mindmap);
+  }, [mindmap, mutateItems]);
 
   const remove = async (id: string) => {
     try {
       await api.deleteMindmap(id);
       const next = items.filter((m) => m.id !== id);
-      setItems(next);
+      mutateItems(next, false);
       if (active?.id === id) setActive(next[0] ?? null);
       toast.success("Mind map deleted");
     } catch (err) {

@@ -224,7 +224,7 @@ export function Notebooks() {
         });
       }
     } catch (e) {
-      console.error("Deduplication check failed", e);
+      toast.error("Failed to check for duplicate notebooks");
     }
   }
 

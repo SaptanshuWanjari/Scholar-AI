@@ -118,7 +118,7 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
         session = get_session()
         try:
             row = Diagram(
-                title=topic, course=course_name, kind=kind_label, mermaid=syntax,
+                title=topic, course=course_name, kind=kind_label, syntax=syntax,
                 quality_score=quality.model_dump(),
             )
             session.add(row)
@@ -134,7 +134,7 @@ async def generate_diagram(req: GenerateDiagramRequest) -> DiagramOut:
         title=topic,
         course=course_name,
         kind=kind_label,
-        mermaid=syntax,
+        syntax=syntax,
         grounded=result["grounded"],
         quality=quality,
     )

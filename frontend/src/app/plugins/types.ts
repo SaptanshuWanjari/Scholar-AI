@@ -18,6 +18,7 @@ export interface PluginDefinition {
   name: string;
   description: string;
   version: string;
+  minAppVersion?: string;
   icon: LucideIcon;
   npmPackages?: string[];
   navItems?: NavItem[];

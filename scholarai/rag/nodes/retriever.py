@@ -11,7 +11,7 @@ import logging
 from scholarai.config import get_settings
 import scholarai.llm
 from scholarai.rag.state import GraphState
-from scholarai.storage.vectors import hybrid_search, search
+from scholarai.storage.vectors import hybrid_search, search, search_notebook_chunks
 from scholarai.storage import get_session
 from scholarai.storage.models import get_cached_embedding, set_cached_embedding
 
@@ -19,15 +19,12 @@ logger = logging.getLogger(__name__)
 
 
 def _swap_table_payload(results: list[dict]) -> None:
-    """MVR payload swap: table chunks were embedded using their LLM summary,
-    but the generation LLM should receive the raw Markdown table instead."""
     for r in results:
         if r.get("source_type") == "table" and r.get("original_payload"):
             r["text"] = r["original_payload"]
 
 
 def _execute_retrieval(query: str, state: GraphState, emb, s) -> list[dict]:
-    """Run a single retrieval for *query* and return chunk dicts."""
     course = state.get("course")
 
     session = get_session()
@@ -51,6 +48,24 @@ def _execute_retrieval(query: str, state: GraphState, emb, s) -> list[dict]:
         results = search(query_vector, top_k=s.retrieval.top_k, course=course, document_id=state.get("document_id"))
 
     _swap_table_payload(results)
+
+    nb_results = search_notebook_chunks(query_vector, top_k=s.retrieval.top_k, course=course)
+    seen_ids = {r.get("id") for r in results}
+    for nb in nb_results:
+        nb_id = nb.get("id", "")
+        if nb_id and nb_id not in seen_ids:
+            seen_ids.add(nb_id)
+            results.append({
+                "id": nb_id,
+                "title": nb.get("title", "Notebook"),
+                "page": 0,
+                "course": nb.get("course", ""),
+                "source_type": "text",
+                "text": nb.get("text", ""),
+                "_distance": nb.get("_distance"),
+                "document_id": None,
+            })
+
     return results
 
 

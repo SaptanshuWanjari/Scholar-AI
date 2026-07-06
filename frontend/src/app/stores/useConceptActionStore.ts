@@ -79,7 +79,7 @@ export const useConceptActionStore = create<ConceptActionState>((set, get) => ({
         }
       } else if (label === "Generate Diagram") {
         const r = await api.generateDiagram(name);
-        if (!r.grounded || !r.mermaid.trim()) {
+        if (!r.grounded || !r.syntax.trim()) {
           toast.error("Couldn't generate a diagram");
           useNotificationStore.getState().add({ title: "Diagram generation failed", status: "error" });
         } else {

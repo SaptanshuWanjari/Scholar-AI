@@ -9,6 +9,7 @@ export const cloudModelProvidersPlugin: PluginDefinition = {
   description:
     "Connect external AI providers (Gemini, Groq, OpenRouter) to use cloud models alongside your local models.",
   version: "1.0.0",
+  minAppVersion: "0.1.0",
   icon: Cloud,
   npmPackages: [],
   navItems: [],

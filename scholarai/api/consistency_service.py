@@ -205,7 +205,7 @@ def artifact_to_text(key: str, payload) -> str:
         return str(data.get("text", "")).strip()
 
     if key == "diagram":
-        return str(data.get("mermaid", "")).strip()
+        return str(data.get("syntax", "")).strip()
 
     if key == "flashcards":
         cards = data.get("cards", []) or []
@@ -467,7 +467,7 @@ def _load_applyable(session, course: str, artifact_type: str):
             .order_by(Diagram.created_at.desc())
             .first()
         )
-        return row, (row.mermaid if row else "")
+        return row, (row.syntax if row else "")
     # difference
     row = (
         session.query(DifferenceTable)
@@ -485,7 +485,7 @@ def _write_applyable(row, artifact_type: str, revised: str) -> None:
     elif artifact_type == "mindmap":
         row.text = revised
     elif artifact_type == "diagram":
-        row.mermaid = revised
+        row.syntax = revised
     else:  # difference
         row.content = revised
 
@@ -588,8 +588,8 @@ def _gather_saved_artifacts(session, course: str) -> dict:
         .order_by(Diagram.created_at.desc())
         .first()
     )
-    if dg is not None and (dg.mermaid or "").strip():
-        artifacts["diagram"] = {"mermaid": dg.mermaid}
+    if dg is not None and (dg.syntax or "").strip():
+        artifacts["diagram"] = {"syntax": dg.syntax}
 
     # Difference table — most-recent.
     dt = (

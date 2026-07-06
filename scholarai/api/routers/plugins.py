@@ -103,7 +103,7 @@ def save_plantuml_diagram(payload: PlantUMLSaveRequest) -> PlantUMLSaveResponse:
             title=payload.title.strip() or "PlantUML Diagram",
             course=payload.course or "",
             kind="PlantUML",
-            mermaid=payload.plantuml_syntax,
+            syntax=payload.plantuml_syntax,
         )
         session.add(row)
         session.commit()

@@ -380,7 +380,7 @@ def inspector(concept_id: int) -> dict | None:
         notes_count = session.query(func.count(Notebook.id)).filter(cast(Notebook.blocks, String).ilike(f"%{c.name}%")).scalar() or 0
         flashcards_count = session.query(func.count(Card.id)).filter((Card.front.ilike(f"%{c.name}%")) | (Card.back.ilike(f"%{c.name}%"))).scalar() or 0
         quizzes_count = session.query(func.count(SavedQuiz.id)).filter(SavedQuiz.title.ilike(f"%{c.name}%")).scalar() or 0
-        diagrams_count = session.query(func.count(Diagram.id)).filter((Diagram.title.ilike(f"%{c.name}%")) | (Diagram.mermaid.ilike(f"%{c.name}%"))).scalar() or 0
+        diagrams_count = session.query(func.count(Diagram.id)).filter((Diagram.title.ilike(f"%{c.name}%")) | (Diagram.syntax.ilike(f"%{c.name}%"))).scalar() or 0
 
         import scholarai.llm
         emb = scholarai.llm.get_embeddings()

@@ -11,6 +11,7 @@ export const readingAnnotationsPlugin: PluginDefinition = {
   description:
     "Categorized sticky notes and region annotations inside Reading mode. Notes work standalone; freehand drawing uses the Excalidraw plugin.",
   version: "1.0.0",
+  minAppVersion: "0.1.0",
   icon: NotebookPen,
   npmPackages: [],
   settingsTab: {

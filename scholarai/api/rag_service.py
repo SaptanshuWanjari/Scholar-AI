@@ -8,6 +8,7 @@ memory so the frontend's Trace panel can inspect it.
 
 from __future__ import annotations
 
+import threading
 from typing import Any, Iterator
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
@@ -28,7 +29,12 @@ from scholarai.rag.state import GraphState
 _PALETTE = ["#4f4d7a", "#3f6b6f", "#3f7a4e", "#a3771f", "#6b3f6f", "#3f5a7a"]
 
 # Most recent retrieval, surfaced by GET /api/trace/last.
+# ponytail: global trace, per-request ContextVar if multi-user accuracy matters
 _last_trace: dict[str, Any] = {}
+_last_trace_lock = threading.Lock()
+
+# ponytail: global semaphore, per-request fair queue if throughput matters
+_llm_semaphore = threading.BoundedSemaphore(5)
 
 
 def course_code(name: str) -> str:
@@ -96,27 +102,29 @@ def _record_trace(query: str, route: str | None, retrieved: list[dict], grounded
         }
         for i, ch in enumerate(retrieved)
     ]
-    _last_trace.clear()
-    _last_trace.update(
-        {
-            "query": query,
-            "route": route,
-            "grounded": grounded,
-            "embeddingModel": s.models.embedding,
-            "vectorStore": "LanceDB",
-            "topK": s.retrieval.top_k,
-            "documents": len({ch.get("document_id") for ch in retrieved}),
-            "retrievedChunks": len(retrieved),
-            "avgSimilarity": round(sum(sims) / len(sims), 4) if sims else 0.0,
-            "chunks": chunks,
-        }
-    )
-    if traces:
-        _last_trace["multiHop"] = traces
+    with _last_trace_lock:
+        _last_trace.clear()
+        _last_trace.update(
+            {
+                "query": query,
+                "route": route,
+                "grounded": grounded,
+                "embeddingModel": s.models.embedding,
+                "vectorStore": "LanceDB",
+                "topK": s.retrieval.top_k,
+                "documents": len({ch.get("document_id") for ch in retrieved}),
+                "retrievedChunks": len(retrieved),
+                "avgSimilarity": round(sum(sims) / len(sims), 4) if sims else 0.0,
+                "chunks": chunks,
+            }
+        )
+        if traces:
+            _last_trace["multiHop"] = traces
 
 
 def get_last_trace() -> dict[str, Any]:
-    return dict(_last_trace)
+    with _last_trace_lock:
+        return dict(_last_trace)
 
 
 _STRICT_NOT_FOUND = (
@@ -191,7 +199,8 @@ def run_ask(
             SystemMessage(content=FALLBACK_SYSTEM),
             HumanMessage(content=question),
         ]
-        response = llm.invoke(fallback_msgs)
+        with _llm_semaphore:
+            response = llm.invoke(fallback_msgs)
         content = response.content if hasattr(response, "content") else str(response)
 
     return {
@@ -415,10 +424,11 @@ def stream_ask(
             SystemMessage(content=FALLBACK_SYSTEM),
             HumanMessage(content=question),
         ]
-        for chunk in llm.stream(fallback_msgs):
-            piece = getattr(chunk, "content", "") or ""
-            if piece:
-                yield {"type": "token", "value": piece}
+        with _llm_semaphore:
+            for chunk in llm.stream(fallback_msgs):
+                piece = getattr(chunk, "content", "") or ""
+                if piece:
+                    yield {"type": "token", "value": piece}
         yield {
             "type": "done",
             "sources": [],
@@ -431,10 +441,11 @@ def stream_ask(
 
     messages = _build_generation_prompt(state, socratic=socratic)
     llm = get_llm(used_route or "quick_qa")
-    for chunk in llm.stream(messages):
-        piece = getattr(chunk, "content", "") or ""
-        if piece:
-            yield {"type": "token", "value": piece}
+    with _llm_semaphore:
+        for chunk in llm.stream(messages):
+            piece = getattr(chunk, "content", "") or ""
+            if piece:
+                yield {"type": "token", "value": piece}
 
     yield {
         "type": "done",

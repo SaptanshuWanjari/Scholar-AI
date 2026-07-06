@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { toast } from "@/app/lib/toast";
 import { useNavigate } from "react-router";
 import {
   Upload,
@@ -78,7 +79,7 @@ export function OnboardingImport() {
 
   useEffect(() => {
     s.hydrate();
-    api.listModels().then(setModels).catch(console.error);
+    api.listModels().then(setModels).catch(() => toast.error("Failed to load models"));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -103,7 +104,7 @@ export function OnboardingImport() {
       const res = await api.checkSystemHealth();
       setHealth(res);
     } catch (e) {
-      console.error(e);
+      toast.error("System health check failed");
     } finally {
       setVerifying(false);
     }

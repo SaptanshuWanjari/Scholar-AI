@@ -41,8 +41,8 @@ export const whiteboardsApi = {
   restoreWhiteboardRevision(id: string, revisionNumber: number): Promise<WhiteboardFull> {
     return request<WhiteboardFull>(`/api/whiteboards/${id}/restore/${revisionNumber}`, { method: "POST" });
   },
-  generateWhiteboard(opts: { topic: string; course?: string | null; document?: string | null; type?: string; ragMode?: string }): Promise<{ title: string; mermaid: string; grounded: boolean }> {
-    return request<{ title: string; mermaid: string; grounded: boolean }>("/api/whiteboards/generate", json({
+  generateWhiteboard(opts: { topic: string; course?: string | null; document?: string | null; type?: string; ragMode?: string }): Promise<{ title: string; syntax: string; grounded: boolean }> {
+    return request<{ title: string; syntax: string; grounded: boolean }>("/api/whiteboards/generate", json({
       topic: opts.topic,
       course: opts.course ?? null,
       document: opts.document ?? null,
@@ -50,7 +50,7 @@ export const whiteboardsApi = {
       rag_mode: opts.ragMode ?? "fallback",
     }));
   },
-  assistWhiteboard(action: "explain" | "expand", text: string, course?: string | null, document?: string | null): Promise<{ text: string; mermaid: string }> {
-    return request<{ text: string; mermaid: string }>("/api/whiteboards/assist", json({ action, text, course: course ?? null, document: document ?? null }));
+  assistWhiteboard(action: "explain" | "expand", text: string, course?: string | null, document?: string | null): Promise<{ text: string; syntax: string }> {
+    return request<{ text: string; syntax: string }>("/api/whiteboards/assist", json({ action, text, course: course ?? null, document: document ?? null }));
   },
 };

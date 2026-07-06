@@ -56,9 +56,9 @@ export function serializeQuizQuestions(questions: QuizQuestionLike[], title?: st
 
 // ---- Diagrams ----
 
-export function serializeDiagram(mermaid: string, title?: string): string {
+export function serializeDiagram(syntax: string, title?: string): string {
   const heading = title ? `## ${title}\n\n` : "";
-  return `${heading}\`\`\`mermaid\n${mermaid.trim()}\n\`\`\``;
+  return `${heading}\`\`\`mermaid\n${syntax.trim()}\n\`\`\``;
 }
 
 // ---- Mind maps ----
@@ -119,8 +119,8 @@ export function serializeArtifact(artifactType: string, content: unknown): strin
       return serializeQuizQuestion(content as QuizQuestionLike);
     }
     case ARTIFACT_TYPES.diagram: {
-      const c = content as { title?: string; mermaid: string };
-      return serializeDiagram(c.mermaid, c.title);
+      const c = content as { title?: string; syntax: string };
+      return serializeDiagram(c.syntax, c.title);
     }
     case ARTIFACT_TYPES.mindmap: {
       const c = content as { title?: string; text: string };
