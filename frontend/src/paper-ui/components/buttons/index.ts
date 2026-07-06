@@ -16,3 +16,6 @@ export type {
   ChipButtonProps,
   ToggleButtonProps,
 } from "./Buttons";
+
+export { PaperSheetButton } from "./PaperSheetButton";
+export type { PaperSheetButtonProps } from "./PaperSheetButton";

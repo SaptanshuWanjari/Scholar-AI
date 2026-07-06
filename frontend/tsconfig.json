@@ -17,14 +17,13 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@paper-ui/tokens": ["../paper-ui/src/tokens"],
-      "@paper-ui/utils": ["../paper-ui/src/utils"],
-      "@paper-ui/core": ["../paper-ui/src/core"],
-      "@paper-ui/components": ["../paper-ui/src/components"],
-      "@paper-ui/components/*": ["../paper-ui/src/components/*"]
+      "@paper-ui/utils": ["./src/paper-ui/utils"],
+      "@paper-ui/core": ["./src/paper-ui/core"],
+      "@paper-ui/components": ["./src/paper-ui/components"],
+      "@paper-ui/components/*": ["./src/paper-ui/components/*"]
     }
   },
-  "include": ["src", "../paper-ui/src"],
+  "include": ["src"],
   "exclude": ["src/stories"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

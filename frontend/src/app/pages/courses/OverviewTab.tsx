@@ -7,11 +7,9 @@ import { Divider } from "@/paper-ui/components/utility";
 import { fmtDate, ARTIFACT_ICON, ARTIFACT_LABEL } from "./helpers";
 import {
   PaperTable,
-  PaperTd,
-  PaperTh,
   TableHeader,
   TableRow,
-} from "@paper-ui/components";
+} from "@/paper-ui/components/tables";
 
 interface OverviewTabProps {
   course: Course;
@@ -70,14 +68,14 @@ export function OverviewTab({
         <PaperTable>
           <TableHeader>
             <tr>
-              <PaperTh>Document</PaperTh>
-              <PaperTh className="w-20">Indexed</PaperTh>
+              <th className="px-4 py-3 font-kalam text-[14px] border-b border-[#e8e3d8] text-left">Document</th>
+              <th className="px-4 py-3 font-kalam text-[14px] border-b border-[#e8e3d8] text-left w-20">Indexed</th>
             </tr>
           </TableHeader>
           <tbody className="divide-y divide-[#e8e3d8]">
             {recentDocs.map((d, i) => (
               <TableRow key={d.id} index={i}>
-                <PaperTd>
+                <td className="px-4 py-3 font-kalam text-[14px] border-b border-[#e8e3d8]">
                   <div className="flex items-center gap-3">
                     <div className="size-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "#eff6ff", color: "#3b82f6" }}>
                       <FileText className="size-4" />
@@ -86,10 +84,10 @@ export function OverviewTab({
                       {d.title}
                     </span>
                   </div>
-                </PaperTd>
-                <PaperTd className="font-architect text-[13px] text-ink-muted">
+                </td>
+                <td className="px-4 py-3 border-b border-[#e8e3d8] font-architect text-[13px] text-ink-muted">
                   {fmtDate(d.addedAt)}
-                </PaperTd>
+                </td>
               </TableRow>
             ))}
           </tbody>
@@ -108,8 +106,8 @@ export function OverviewTab({
         <PaperTable>
           <TableHeader>
             <tr>
-              <PaperTh>Artifact</PaperTh>
-              <PaperTh className="w-24">Type</PaperTh>
+              <th className="px-4 py-3 font-kalam text-[14px] border-b border-[#e8e3d8] text-left">Artifact</th>
+              <th className="px-4 py-3 font-kalam text-[14px] border-b border-[#e8e3d8] text-left w-24">Type</th>
             </tr>
           </TableHeader>
           <tbody className="divide-y divide-[#e8e3d8]">
@@ -117,7 +115,7 @@ export function OverviewTab({
               const Icon = ARTIFACT_ICON[a.type] ?? FileText;
               return (
                 <TableRow key={`${a.type}-${a.id}`} index={i}>
-                  <PaperTd>
+                  <td className="px-4 py-3 font-kalam text-[14px] border-b border-[#e8e3d8]">
                     <div className="flex items-center gap-3">
                       <div className="size-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "#faf5ff", color: "#a855f7" }}>
                         <Icon className="size-4" />
@@ -126,10 +124,10 @@ export function OverviewTab({
                         {a.title}
                       </span>
                     </div>
-                  </PaperTd>
-                  <PaperTd className="font-architect text-[13px] text-ink-muted">
+                  </td>
+                  <td className="px-4 py-3 border-b border-[#e8e3d8] font-architect text-[13px] text-ink-muted">
                     {ARTIFACT_LABEL[a.type] ?? a.type}
-                  </PaperTd>
+                  </td>
                 </TableRow>
               );
             })}
