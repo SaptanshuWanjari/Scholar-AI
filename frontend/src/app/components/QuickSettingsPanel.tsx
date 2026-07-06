@@ -4,7 +4,7 @@ import { Settings2, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { api } from "../lib/api";
-import { PaperSheetBorder } from "@paper-ui/core";
+import { SketchBorder, PaperSheetBorder } from "@paper-ui/core";
 import { PaperSwitch, PaperRadioGroup, PaperSelect } from "@paper-ui/components/inputs";
 import { cn } from "@/paper-ui/utils";
 
@@ -213,14 +213,16 @@ export function QuickSettingsPanel() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Quick settings"
         aria-expanded={open}
-        className={cn(
-          "relative flex items-center justify-center w-5 h-14 rounded-l-md transition-colors flex-shrink-0 pointer-events-auto",
-          open
-            ? "bg-ink text-[#fffdf9]"
-            : "bg-background border border-r-0 border-border text-ink-muted hover:text-ink hover:bg-black/[0.04]"
-        )}
+        className="relative flex items-center justify-center w-7 h-14 flex-shrink-0 pointer-events-auto"
       >
-        <Settings2 className="size-3.5" />
+        {open ? (
+          <SketchBorder fill="#211f1b" radius={6} strokeWidth={1.5} />
+        ) : (
+          <SketchBorder fill="#fffdf9" stroke="#c0b9ae" radius={6} strokeWidth={1.5} shadow={2} />
+        )}
+        <div className="relative z-[1] flex items-center justify-center w-full h-full">
+          <Settings2 className={cn("size-3.5 transition-colors", open ? "text-[#fffdf9]" : "text-ink-muted hover:text-ink")} />
+        </div>
       </button>
     </div>,
     document.body

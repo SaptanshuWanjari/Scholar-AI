@@ -403,7 +403,7 @@ export default function ComponentsShowcase() {
               className="mt-8"
             />
             <div className="mt-6 flex flex-col gap-4">
-              <PaperH1 marker>Knowledge Explorer</PaperH1>
+              <PaperH1 marker >Knowledge Explorer</PaperH1>
               <PaperH2 marker markerColor="#c8e6c9">
                 Classical Probability
               </PaperH2>
