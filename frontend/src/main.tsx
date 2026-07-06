@@ -17,7 +17,7 @@ createRoot(document.getElementById("root")!).render(
     provider: () => new Map(), // No persistent cache
     keepPreviousData: false
   }}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light" disableTransitionOnChange>
       <App />
     </ThemeProvider>
   </SWRConfig>

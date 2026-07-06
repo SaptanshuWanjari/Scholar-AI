@@ -10,12 +10,15 @@ import {
   GraduationCap,
   ShieldCheck,
   PanelRight,
+  MoreVertical,
+  Check,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useChatStore } from "../stores/useChatStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { SourcePanel } from "../components/SourcePanel";
 import { AnswerViewer } from "../components/AnswerViewer";
+import { Menu } from "@paper-ui/components/menus";
 import {
   PaperButton,
   GhostButton,
@@ -23,6 +26,7 @@ import {
   ToggleButton,
 } from "@paper-ui/components/buttons";
 import { PaperBadge } from "@paper-ui/components/badges";
+import { PaperDrawer } from "@paper-ui/components/dialogs";
 import { PaperSelect } from "@paper-ui/components/inputs";
 import { ScrollArea } from "@paper-ui/components/layout";
 import { PaperSheetBorder } from "@paper-ui/core";
@@ -64,7 +68,7 @@ export function AskAI() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [sessionsPanelOpen, setSessionsPanelOpen] = useState(true);
-  const [sourcesPanelOpen, setSourcesPanelOpen] = useState(true);
+  const [sourcesPanelOpen, setSourcesPanelOpen] = useState(false);
   const [hoveredSessionId, setHoveredSessionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -239,7 +243,7 @@ export function AskAI() {
         </IconButton>
         <IconButton
           label="Toggle sources"
-          className="absolute right-3 top-2 z-20 hidden lg:inline-flex bg-background/80 backdrop-blur-md"
+          className="absolute right-3 top-2 z-20 inline-flex bg-background/80 backdrop-blur-md"
           onClick={() => setSourcesPanelOpen((v) => !v)}
           title={sourcesPanelOpen ? "Hide sources" : "Show sources"}
         >
@@ -247,81 +251,32 @@ export function AskAI() {
         </IconButton>
 
         {/* Top bar */}
-        <div className="flex flex-wrap items-center justify-between border-b border-border pl-12 pr-4 lg:pr-12 py-2 min-h-[48px] gap-3 shrink-0 z-10 bg-background">
+        <div className="flex items-center border-b border-border pl-12 pr-4 lg:pr-12 py-2 min-h-[48px] gap-3 shrink-0 z-10 bg-background overflow-x-auto no-scrollbar relative">
           {/* Left: Filters + Toggles in the same line */}
-          <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center gap-2 min-w-max">
             <PaperSelect
               value={course ?? "all"}
               onChange={(v) => setCourse(v === "all" ? null : v)}
               options={courseOptions}
               placeholder="All courses"
-              className="flex-1 sm:w-36 md:w-44 min-w-[120px]"
-              wrapperClassName="flex-1 sm:flex-none"
+              className="w-40 shrink-0"
+              wrapperClassName="shrink-0"
             />
             <PaperSelect
               value={document ?? "all"}
               onChange={(v) => setDocument(v === "all" ? null : v)}
               options={documentOptions}
               placeholder="All documents"
-              className="flex-1 sm:w-64 md:w-80 min-w-[120px]"
-              wrapperClassName="flex-1 sm:flex-none min-w-0"
+              className="w-56 shrink-0"
+              wrapperClassName="shrink-0"
             />
 
-            {/* RAG Mode toggle */}
-            <ToggleButton
-              size="sm"
-              pressed={ragMode === "strict"}
-              onPressedChange={(v) =>
-                setSettingsField("ragMode", v ? "strict" : "fallback")
-              }
-              title={
-                ragMode === "strict"
-                  ? "Strict RAG — click to switch to AI Fallback"
-                  : "AI Fallback — click to switch to Strict RAG"
-              }
-              className="gap-1 text-[11px] shrink-0"
-            >
-              <ShieldCheck className="size-3" />
-              <span>{ragMode === "strict" ? "Strict" : "Fallback"}</span>
-            </ToggleButton>
-
-            {/* Highlights Only toggle */}
-            {document && document !== "all" && (
-              <ToggleButton
-                size="sm"
-                pressed={!!highlightsOnly}
-                onPressedChange={(v) => setHighlightsOnly(v)}
-                title={
-                  highlightsOnly
-                    ? "Highlights Only ON — answers derived exclusively from your highlights"
-                    : "Enable Highlights Only"
-                }
-                className="gap-1 text-[11px] shrink-0"
-              >
-                <BookOpen className="size-3" />
-                <span>Highlights</span>
-              </ToggleButton>
-            )}
-
-            {/* Socratic Mode toggle */}
-            <ToggleButton
-              size="sm"
-              pressed={!!socratic}
-              onPressedChange={(v) => setSocratic(v)}
-              title={
-                socratic
-                  ? "Socratic Mode ON — AI guides, does not answer"
-                  : "Enable Socratic Mode"
-              }
-              className="gap-1 text-[11px] shrink-0"
-            >
-              <GraduationCap className="size-3" />
-              <span>Socratic</span>
-            </ToggleButton>
           </div>
 
-          {/* Right: Confidence + Clear button */}
-          <div className="flex items-center gap-2 ml-auto shrink-0">
+          <div className="flex-1 min-w-2" />
+
+          {/* Right: Confidence + Overflow Menu */}
+          <div className="flex items-center gap-1.5 shrink-0 sticky right-0 bg-background pl-2 ">
             {confidence !== undefined && !isStreaming && (
               <PaperBadge tone="sage" className="gap-1 px-2 py-0.5">
                 <Gauge className="size-3" />
@@ -332,16 +287,51 @@ export function AskAI() {
               </PaperBadge>
             )}
 
-            {messages.length > 0 && (
-              <GhostButton
-                size="sm"
-                className="h-8 px-2.5 gap-1.5"
-                onClick={reset}
-              >
-                <Trash2 className="size-3.5" />
-                <span className="hidden xs:inline">Clear</span>
-              </GhostButton>
-            )}
+            <Menu.Root>
+              <Menu.Trigger className="!p-1.5 !rounded-md !h-8 !w-8 justify-center hover:bg-black/5 text-ink-muted hover:text-ink">
+                <MoreVertical className="size-4.5" />
+              </Menu.Trigger>
+              <Menu.Content>
+                <button
+                  type="button"
+                  onClick={() => setSettingsField("ragMode", ragMode === "strict" ? "fallback" : "strict")}
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-left font-architect text-[14px] transition-colors select-none outline-none rounded-sm text-ink hover:bg-black/[0.04]"
+                >
+                  <ShieldCheck className="size-4 text-ink-muted shrink-0" />
+                  <span className="flex-1 min-w-0">Strict RAG</span>
+                  {ragMode === "strict" && <Check className="size-4 text-ink shrink-0" />}
+                </button>
+                {document && document !== "all" && (
+                  <button
+                    type="button"
+                    onClick={() => setHighlightsOnly(!highlightsOnly)}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 text-left font-architect text-[14px] transition-colors select-none outline-none rounded-sm text-ink hover:bg-black/[0.04]"
+                  >
+                    <BookOpen className="size-4 text-ink-muted shrink-0" />
+                    <span className="flex-1 min-w-0">Highlights Only</span>
+                    {!!highlightsOnly && <Check className="size-4 text-ink shrink-0" />}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setSocratic(!socratic)}
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-left font-architect text-[14px] transition-colors select-none outline-none rounded-sm text-ink hover:bg-black/[0.04]"
+                >
+                  <GraduationCap className="size-4 text-ink-muted shrink-0" />
+                  <span className="flex-1 min-w-0">Socratic</span>
+                  {!!socratic && <Check className="size-4 text-ink shrink-0" />}
+                </button>
+                
+                {messages.length > 0 && (
+                  <>
+                    <Menu.Separator />
+                    <Menu.Item danger onSelect={reset} icon={<Trash2 className="size-4" />}>
+                      Clear Chat
+                    </Menu.Item>
+                  </>
+                )}
+              </Menu.Content>
+            </Menu.Root>
           </div>
         </div>
 
@@ -417,29 +407,20 @@ export function AskAI() {
       </div>
 
       {/* ── Right: Sources panel ── */}
-      <div
-        className={`hidden lg:flex flex-col overflow-hidden transition-all duration-200 ${sourcesPanelOpen ? "w-[25%] min-w-[260px] max-w-[360px]" : "w-0"
-          }`}
+      <PaperDrawer
+        open={sourcesPanelOpen}
+        onClose={() => setSourcesPanelOpen(false)}
+        side="right"
+        width={380}
       >
-        <div className="relative flex min-h-0 flex-1 flex-col">
-          <PaperSheetBorder
-            fill="#fdfcf8"
-            stroke="#c0b9ae"
-            strokeWidth={1.2}
-            shadow={0}
+        <div data-tour="ask-sources" className="flex min-h-0 flex-1 flex-col  h-full">
+          <SourcePanel
+            sources={sources}
+            activeId={activeSource}
+            onSelect={setActiveSource}
           />
-          <div
-            data-tour="ask-sources"
-            className="relative z-[1] flex min-h-0 flex-1 flex-col px-1 py-1"
-          >
-            <SourcePanel
-              sources={sources}
-              activeId={activeSource}
-              onSelect={setActiveSource}
-            />
-          </div>
         </div>
-      </div>
+      </PaperDrawer>
     </div>
   );
 }

@@ -185,17 +185,17 @@ export function CourseWorkspace({
               {isRenaming ? (
                 <div className="flex items-center gap-2">
                   <input
-                     value={editName}
-                     onChange={(e) => setEditName(e.target.value)}
-                     onKeyDown={(e) => {
-                       if (e.key === "Enter") onRenameSubmit();
-                       if (e.key === "Escape") onRenameCancel();
-                     }}
-                     onBlur={onRenameSubmit}
-                     autoFocus
-                     spellCheck={false}
-                     className="font-caveat text-[34px] font-bold leading-[1.1] tracking-[-0.01em] text-ink bg-transparent border-0 border-b-2 border-ink/30 focus:border-ink focus:ring-0 outline-none px-0 py-0 min-w-50 transition-colors"
-                     style={{ width: `${Math.max(editName.length, 5)}ch` }}
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") onRenameSubmit();
+                      if (e.key === "Escape") onRenameCancel();
+                    }}
+                    onBlur={onRenameSubmit}
+                    autoFocus
+                    spellCheck={false}
+                    className="font-caveat text-[34px] font-bold leading-[1.1] tracking-[-0.01em] text-ink bg-transparent border-0 border-b-2 border-ink/30 focus:border-ink focus:ring-0 outline-none px-0 py-0 min-w-50 transition-colors"
+                    style={{ width: `${Math.max(editName.length, 5)}ch` }}
                   />
                 </div>
               ) : (
@@ -206,13 +206,9 @@ export function CourseWorkspace({
               <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-ink-muted text-sm font-kalam">
                 {stats && (
                   <>
-                    <span>
-                      {stats.documents} Documents
-                    </span>
+                    <span>{stats.documents} Documents</span>
                     <span className="text-ink-muted/50">&middot;</span>
-                    <span>
-                      {stats.total_artifacts} Artifacts
-                    </span>
+                    <span>{stats.total_artifacts} Artifacts</span>
                     {stats.last_updated && (
                       <>
                         <span className="text-ink-muted/50">&middot;</span>
@@ -233,7 +229,7 @@ export function CourseWorkspace({
             {/*   </GhostButton> */}
             {/* )} */}
             <PaperButton
-              size="md"
+              size="sm"
               tone="paper"
               onClick={handleReindex}
               disabled={reindexing}
@@ -244,7 +240,7 @@ export function CourseWorkspace({
               {reindexing ? "Queuing\u2026" : "Rebuild Index"}
             </PaperButton>
             <PaperButton
-              size="md"
+              size="sm"
               tone="paper"
               onClick={handleGeneratePackage}
               disabled={generatingPackage}
@@ -252,63 +248,69 @@ export function CourseWorkspace({
               <Package
                 className={cn("size-4", generatingPackage && "animate-pulse")}
               />
-              {generatingPackage ? "Generating\u2026" : "Generate Package"}
+              {generatingPackage ? "Generating\u2026" : "Create Package"}
             </PaperButton>
-            <PaperButton tone="red" size="md" onClick={onDelete}>
-              <Trash2 className="size-4.5" /> Delete
+            <PaperButton tone="red" size="sm" onClick={onDelete}>
+              <Trash2 className="size-4.5" /> 
             </PaperButton>
           </div>
         </div>
 
         {/* Stats row */}
-        {stats && (
-          <div className="py-3">
-            <Divider
-              orientation="horizontal"
-              className="mb-2"
-              color="#e4e0d6"
-            />
-            <div className="flex flex-wrap items-center justify-start gap-y-3 gap-x-4 lg:gap-x-6">
-              {STAT_CARDS.map((sc, i) => {
-                const colors = [
-                  { bg: "#eff6ff", text: "#3b82f6" },
-                  { bg: "#f0fdf4", text: "#22c55e" },
-                  { bg: "#faf5ff", text: "#a855f7" },
-                  { bg: "#fff7ed", text: "#f97316" },
-                  { bg: "#fdf2f8", text: "#ec4899" },
-                  { bg: "#f0fdfa", text: "#14b8a6" },
-                  { bg: "#fef2f2", text: "#ef4444" },
-                  { bg: "#eef2ff", text: "#6366f1" },
-                ];
-                const c = colors[i % colors.length];
-                return (
-                  <div
-                    key={sc.label}
-                    className="flex flex-col items-center gap-1 min-w-[5rem] shrink-0"
-                  >
-                    <div className="flex items-center justify-center size-8 rounded-full mb-1" style={{ backgroundColor: c.bg, color: c.text }}>
-                      <sc.icon className="size-4" />
-                    </div>
-                    <span className="font-architect text-[10px] uppercase tracking-wider text-ink-muted font-medium">
-                      {sc.label}
-                    </span>
-                    <span className="font-caveat text-[24px] leading-none" style={{ color: c.text }}>
-                      {sc.value}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <Divider
-              orientation="horizontal"
-              className="mt-2"
-              color="#e4e0d6"
-            />
-          </div>
-        )}
-        {loadingStats && !stats && (
-          <div className="mt-6 h-20 rounded-xl bg-paper-panel animate-pulse" />
-        )}
+        {/* {stats && ( */}
+        {/*   <div className="py-3"> */}
+        {/*     <Divider */}
+        {/*       orientation="horizontal" */}
+        {/*       className="mb-2" */}
+        {/*       color="#e4e0d6" */}
+        {/*     /> */}
+        {/*     <div className="flex flex-wrap items-center justify-start gap-y-3 gap-x-4 lg:gap-x-6"> */}
+        {/*       {STAT_CARDS.map((sc, i) => { */}
+        {/*         const colors = [ */}
+        {/*           { bg: "#eff6ff", text: "#3b82f6" }, */}
+        {/*           { bg: "#f0fdf4", text: "#22c55e" }, */}
+        {/*           { bg: "#faf5ff", text: "#a855f7" }, */}
+        {/*           { bg: "#fff7ed", text: "#f97316" }, */}
+        {/*           { bg: "#fdf2f8", text: "#ec4899" }, */}
+        {/*           { bg: "#f0fdfa", text: "#14b8a6" }, */}
+        {/*           { bg: "#fef2f2", text: "#ef4444" }, */}
+        {/*           { bg: "#eef2ff", text: "#6366f1" }, */}
+        {/*         ]; */}
+        {/*         const c = colors[i % colors.length]; */}
+        {/*         return ( */}
+        {/*           <div */}
+        {/*             key={sc.label} */}
+        {/*             className="flex flex-col items-center gap-1 min-w-[5rem] shrink-0" */}
+        {/*           > */}
+        {/*             <div */}
+        {/*               className="flex items-center justify-center size-8 rounded-full mb-1" */}
+        {/*               style={{ backgroundColor: c.bg, color: c.text }} */}
+        {/*             > */}
+        {/*               <sc.icon className="size-4" /> */}
+        {/*             </div> */}
+        {/*             <span className="font-architect text-[10px] uppercase tracking-wider text-ink-muted font-medium"> */}
+        {/*               {sc.label} */}
+        {/*             </span> */}
+        {/*             <span */}
+        {/*               className="font-caveat text-[24px] leading-none" */}
+        {/*               style={{ color: c.text }} */}
+        {/*             > */}
+        {/*               {sc.value} */}
+        {/*             </span> */}
+        {/*           </div> */}
+        {/*         ); */}
+        {/*       })} */}
+        {/*     </div> */}
+        {/*     <Divider */}
+        {/*       orientation="horizontal" */}
+        {/*       className="mt-2" */}
+        {/*       color="#e4e0d6" */}
+        {/*     /> */}
+        {/*   </div> */}
+        {/* )} */}
+        {/* {loadingStats && !stats && ( */}
+        {/*   <div className="mt-6 h-20 rounded-xl bg-paper-panel animate-pulse" /> */}
+        {/* )} */}
 
         {/* Tabs */}
         <Tabs

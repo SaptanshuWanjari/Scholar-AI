@@ -84,6 +84,11 @@ NOT_GROUNDED = (
     "Try uploading relevant documents or rephrasing your question."
 )
 
+FALLBACK_SYSTEM = """\
+You are a knowledgeable study assistant. Answer the student's question using
+your own knowledge — the topic was not found in their uploaded documents.
+If you don't know the answer, simply say so. Be concise and accurate."""
+
 FLASHCARDS_SYSTEM = """\
 You are a flashcard generator for students. Given context from study materials,
 generate flashcards as Q&A pairs. Rules:

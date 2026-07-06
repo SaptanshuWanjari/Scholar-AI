@@ -105,7 +105,7 @@ export function PaperDrawer({
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto px-6 py-5 font-kalam text-[14px] text-ink">
+          <div className="flex-1 overflow-y-auto px-3 py-5 font-kalam text-[14px] text-ink">
             {children}
           </div>
 
