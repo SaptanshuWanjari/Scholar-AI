@@ -1,17 +1,45 @@
 import { Clock, Pencil, Hand } from "lucide-react";
 import { cn } from "../../components/ui/utils";
 import { useWhiteboardPrefs, type AutosaveMode } from "./useWhiteboardPrefs";
+import { useScratchpadStore } from "../../components/scratchpad/useScratchpadStore";
 import { PaperCard } from "@paper-ui/core";
+import { PaperSwitch } from "@paper-ui/components/inputs";
 
-const OPTIONS: { value: AutosaveMode; label: string; desc: string; icon: typeof Clock }[] = [
-  { value: "timed",     label: "Time-based",    desc: "Save automatically every few seconds", icon: Clock  },
-  { value: "each-edit", label: "After each edit",desc: "Save shortly after every change",      icon: Pencil },
-  { value: "manual",    label: "Manual",         desc: "Only save when you click Save",         icon: Hand   },
-];
+const OPTIONS: {
+  value: AutosaveMode;
+  label: string;
+  desc: string;
+  icon: typeof Clock;
+}[] = [
+    {
+      value: "timed",
+      label: "Time-based",
+      desc: "Save every few seconds",
+      icon: Clock,
+    },
+    {
+      value: "each-edit",
+      label: "After each edit",
+      desc: "Save shortly after every change",
+      icon: Pencil,
+    },
+    {
+      value: "manual",
+      label: "Manual",
+      desc: "Only save when you click Save",
+      icon: Hand,
+    },
+  ];
 
 export function WhiteboardSettings() {
-  const mode    = useWhiteboardPrefs((s) => s.autosaveMode);
+  const mode = useWhiteboardPrefs((s) => s.autosaveMode);
   const setMode = useWhiteboardPrefs((s) => s.setAutosaveMode);
+  const useExcalidrawScratchpad = useScratchpadStore(
+    (s) => s.useExcalidrawScratchpad,
+  );
+  const setUseExcalidrawScratchpad = useScratchpadStore(
+    (s) => s.setUseExcalidrawScratchpad,
+  );
 
   return (
     <div className="space-y-3 px-1 py-2">
@@ -36,14 +64,31 @@ export function WhiteboardSettings() {
                 surface={active ? "#f3f1fb" : "#fffdf9"}
               >
                 <span className="flex items-center gap-2 font-kalam text-[14px] font-bold text-ink">
-                  <opt.icon className={cn("size-4 shrink-0", active ? "text-violet" : "text-ink-muted")} />
+                  <opt.icon
+                    className={cn(
+                      "size-4 shrink-0",
+                      active ? "text-violet" : "text-ink-muted",
+                    )}
+                  />
                   {opt.label}
                 </span>
-                <span className="font-kalam text-xs text-ink-muted">{opt.desc}</span>
+                <span className="font-kalam text-xs text-ink-muted">
+                  {opt.desc}
+                </span>
               </PaperCard>
             </button>
           );
         })}
+      </div>
+
+      <div className="border-t border-[#e5ddd3] pt-3  flex items-center justify-between gap-3">
+        <div className="font-architect text-xs font-semibold uppercase tracking-widest text-ink-muted/60">
+          Use Excalidraw for scratchpad?
+        </div>
+        <PaperSwitch
+          checked={useExcalidrawScratchpad}
+          onChange={setUseExcalidrawScratchpad}
+        />
       </div>
     </div>
   );

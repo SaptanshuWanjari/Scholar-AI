@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { SceneObject, ToolType, Viewport, ScratchpadPayload } from './types'
 
 const STORAGE_KEY = 'scholar_scratchpad'
+const SCRATCHPAD_PREF_KEY = 'scholar_scratchpad_excalidraw'
 const DEBOUNCE_MS = 300
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null
@@ -27,6 +28,15 @@ function saveToStorage(payload: ScratchpadPayload, setState: (s: Partial<Scratch
   }, DEBOUNCE_MS)
 }
 
+function loadPref(): boolean {
+  try {
+    const v = localStorage.getItem(SCRATCHPAD_PREF_KEY)
+    return v === null ? true : v === 'true'
+  } catch {
+    return true
+  }
+}
+
 const saved = loadFromStorage()
 
 interface ScratchpadState {
@@ -47,6 +57,10 @@ interface ScratchpadState {
   // Status
   isDirty: boolean
   lastSaved: number
+
+  // Scratchpad engine
+  useExcalidrawScratchpad: boolean
+  setUseExcalidrawScratchpad: (v: boolean) => void
 
   // Color
   activeColor: string
@@ -73,6 +87,7 @@ interface ScratchpadState {
 export const useScratchpadStore = create<ScratchpadState>((set, get) => ({
   drawerState: 'collapsed',
   drawerHeight: saved.drawerHeight ?? Math.round(window.innerHeight * 0.4),
+  useExcalidrawScratchpad: loadPref(),
   activeTool: 'pen',
   viewport: saved.viewport ?? { x: 0, y: 0, scale: 1 },
   objects: saved.objects ?? [],
@@ -90,6 +105,11 @@ export const useScratchpadStore = create<ScratchpadState>((set, get) => ({
     set({ drawerHeight })
     const s = get()
     saveToStorage({ objects: s.objects, viewport: s.viewport, drawerHeight }, set)
+  },
+
+  setUseExcalidrawScratchpad: (useExcalidrawScratchpad) => {
+    try { localStorage.setItem(SCRATCHPAD_PREF_KEY, String(useExcalidrawScratchpad)) } catch {}
+    set({ useExcalidrawScratchpad })
   },
 
   toggleDrawer: () => {

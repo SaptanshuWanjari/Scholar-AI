@@ -23,8 +23,9 @@ const SPINNER = (
 )
 
 export function ScratchpadDrawer() {
-  const { drawerState, drawerHeight, setDrawerHeight, setDrawerState } = useScratchpadStore()
+  const { drawerState, drawerHeight, setDrawerHeight, setDrawerState, useExcalidrawScratchpad } = useScratchpadStore()
   const isExcalidrawInstalled = usePluginStore((s) => s.isInstalled("excalidraw"))
+  const showExcalidraw = isExcalidrawInstalled && useExcalidrawScratchpad
   const stageRef = useRef<any>(null)
   const dragStartY = useRef<number | null>(null)
   const dragStartH = useRef<number>(0)
@@ -73,7 +74,7 @@ export function ScratchpadDrawer() {
         <DrawerHandle />
       </div>
 
-      {isExcalidrawInstalled ? (
+      {showExcalidraw ? (
         isOpen ? (
           <div
             className="pointer-events-auto relative flex flex-col overflow-hidden"
