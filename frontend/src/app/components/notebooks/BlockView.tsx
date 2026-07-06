@@ -78,6 +78,9 @@ export function BlockView({
           "before:absolute before:-top-1 before:left-3 before:right-3 before:h-0.5 before:rounded-full before:bg-violet",
       )}
     >
+      {/* Expanded hover hit area to prevent losing hover when moving mouse to buttons */}
+      <div className="absolute -inset-x-10 top-0 bottom-0 -z-10" />
+
       {!editing && (
         <div className="absolute -left-3 top-2 flex items-center opacity-0 transition-opacity group-hover/block:opacity-100">
           <span
@@ -93,7 +96,7 @@ export function BlockView({
       )}
 
       {!editing && (
-        <div className="absolute -top-1 right-1 z-10 flex items-center gap-0.5 opacity-0 transition-opacity group-hover/block:opacity-100">
+        <div className="absolute top-2 right-2 z-10 flex items-center gap-0.5 opacity-0 transition-opacity group-hover/block:opacity-100">
           <IconButton
             label={collapsed ? "Expand" : "Collapse"}
             onClick={onToggleCollapse}
