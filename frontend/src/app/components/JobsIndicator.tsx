@@ -35,6 +35,7 @@ const STATUS_TONES: Record<string, "ochre" | "sky" | "sage" | "brick"> = {
   done: "sage",
   failed: "brick",
   success: "sage",
+  error: "brick",
 };
 
 const STATUS_ICONS: Record<string, typeof Clock> = {
@@ -43,6 +44,7 @@ const STATUS_ICONS: Record<string, typeof Clock> = {
   done: CheckCircle2,
   failed: XCircle,
   success: CheckCircle2,
+  error: XCircle,
 };
 
 function StatusChip({ status }: { status: JobItem["status"] }) {

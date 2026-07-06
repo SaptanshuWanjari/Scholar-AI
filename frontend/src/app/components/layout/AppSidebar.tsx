@@ -52,9 +52,9 @@ export function AppSidebar() {
       collapsed={collapsed}
       onCollapse={() => toggle()}
       header={
-        <div className="flex items-center gap-3">
+        <div className={`flex items-center ${collapsed ? "justify-center w-full" : "gap-3"}`}>
           <div
-            className="relative flex h-12 w-12 -rotate-3 items-center justify-center shrink-0"
+            className={`relative flex ${collapsed ? "h-10 w-10" : "h-12 w-12"} -rotate-3 items-center justify-center shrink-0`}
             style={{ color: "#fbf8f2" }}
           >
             {/* <SketchBorder */}
@@ -67,7 +67,11 @@ export function AppSidebar() {
             {/*   bleed={5} */}
             {/* /> */}
             <span className="relative z-[1] flex items-center justify-center w-full h-full">
-              <img src="/output.png" alt="ScholarAI" className="w-full h-full object-contain scale-[1.2]" />
+              <img
+                src="/output.png"
+                alt="ScholarAI"
+                className={`w-full h-full object-contain ${collapsed ? "scale-[1.1]" : "scale-[1.2]"}`}
+              />
             </span>
           </div>
           <div className={`leading-tight min-w-0 ${collapsed ? "hidden" : "block"}`}>

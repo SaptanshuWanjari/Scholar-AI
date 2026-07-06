@@ -25,7 +25,7 @@ import {
   TableRow,
   TableCell,
 } from "@paper-ui/components/tables";
-import { DocumentRow, StatRow } from "@paper-ui/components/rows";
+import { StatRow } from "@paper-ui/components/rows";
 import { SunDoodle, ArrowDoodle } from "@paper-ui/components/doodles";
 import { api, type DashboardData, type LearningPathMeta, type LearningPath } from "../lib/api";
 import { useSettingsStore } from "../stores/useSettingsStore";

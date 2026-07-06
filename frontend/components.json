@@ -1,6 +1,6 @@
 {
-  "sourceRoot": "../paper-ui",
-  "registryDir": "../paper-ui/registry",
+  "sourceRoot": "./src/paper-ui",
+  "registryDir": "./src/paper-ui/registry",
   "componentsPath": "src/paper-ui/components",
   "utilsPath": "src/paper-ui/utils",
   "corePath": "src/paper-ui/core",

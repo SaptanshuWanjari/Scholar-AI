@@ -16,33 +16,18 @@ function figmaAssetResolver() {
   }
 }
 
-function paperUiPeerResolver() {
-  const nm = path.resolve(__dirname, 'node_modules')
-  return {
-    name: 'paper-ui-peer-resolver',
-    async resolveId(id, importer) {
-      if (!importer || !importer.includes('paper-ui/src')) return
-      if (id.startsWith('.') || id.startsWith('/') || id.startsWith('@paper-ui')) return
-      const fakeImporter = path.join(nm, 'resolve-trigger.js')
-      return this.resolve(id, fakeImporter, { skipSelf: true })
-    },
-  }
-}
-
 export default defineConfig({
   plugins: [
     figmaAssetResolver(),
-    paperUiPeerResolver(),
     react(),
     tailwindcss(),
   ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@paper-ui/tokens':     path.resolve(__dirname, '../paper-ui/src/tokens'),
-      '@paper-ui/utils':      path.resolve(__dirname, '../paper-ui/src/utils'),
-      '@paper-ui/core':       path.resolve(__dirname, '../paper-ui/src/core'),
-      '@paper-ui/components': path.resolve(__dirname, '../paper-ui/src/components'),
+      '@paper-ui/utils':      path.resolve(__dirname, './src/paper-ui/utils'),
+      '@paper-ui/core':       path.resolve(__dirname, './src/paper-ui/core'),
+      '@paper-ui/components': path.resolve(__dirname, './src/paper-ui/components'),
     },
   },
 
