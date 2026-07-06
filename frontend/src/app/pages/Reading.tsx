@@ -62,7 +62,7 @@ export function Reading() {
   const addNoteToStore = useReadingNotesStore((s) => s.addNote);
   const clearNotes = useReadingNotesStore((s) => s.clear);
 
-  const [viewMode, setViewMode] = useState<"pdf" | "text" | "split" | "compare">("split");
+  const [viewMode, setViewMode] = useState<"pdf" | "text" | "split" | "compare">("pdf");
   const [compareDocId, setCompareDocId] = useState<string | null>(null);
 
   const searchInputId = "reading-search-input";

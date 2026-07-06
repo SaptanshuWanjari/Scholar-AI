@@ -80,14 +80,14 @@ export function QuickSettingsPanel() {
   return createPortal(
     <div
       ref={containerRef}
-      className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex items-center"
+      className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex items-center pointer-events-none"
     >
       {/* Panel */}
       <div
         className={cn(
-          "relative transition-all duration-200 ease-out origin-right",
+          "relative transition-all duration-200 ease-out origin-right pointer-events-auto",
           open
-            ? "opacity-100 translate-x-0 pointer-events-auto"
+            ? "opacity-100 translate-x-0"
             : "opacity-0 translate-x-3 pointer-events-none"
         )}
         style={{ width: 256 }}
@@ -214,7 +214,7 @@ export function QuickSettingsPanel() {
         aria-label="Quick settings"
         aria-expanded={open}
         className={cn(
-          "relative flex items-center justify-center w-5 h-14 rounded-l-md transition-colors flex-shrink-0",
+          "relative flex items-center justify-center w-5 h-14 rounded-l-md transition-colors flex-shrink-0 pointer-events-auto",
           open
             ? "bg-ink text-[#fffdf9]"
             : "bg-background border border-r-0 border-border text-ink-muted hover:text-ink hover:bg-black/[0.04]"

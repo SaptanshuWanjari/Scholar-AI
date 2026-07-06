@@ -206,6 +206,7 @@ import {
   TapeWorn,
   TapeZag,
 } from "@/app/components/paper";
+import { ScratchpadExcalidraw } from '@/app/components/scratchpad/ScratchpadExcalidraw';
 
 const AVATARS = [
   { name: "Alice Chen", tone: "sky" as const },
@@ -292,6 +293,19 @@ export default function ComponentsShowcase() {
             marker
           />
 
+          <div
+            style={{
+              position: "fixed",
+              left: 20,
+              top: 20,
+              width: 800,
+              height: 600,
+              background: "white",
+              zIndex: 99999,
+            }}
+          >
+            <ScratchpadExcalidraw />
+          </div>
           {/* ── Foundation ── */}
           <div className="mt-12">
             <SectionHeader title="Foundation" marker markerColor="#d4cfc2" />
