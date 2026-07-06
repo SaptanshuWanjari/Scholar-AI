@@ -40,9 +40,18 @@ export const usePluginStore = create<PluginStoreState>()(
           const res = await fetch("/api/plugins");
           if (!res.ok) return;
           const list: PluginRecord[] = await res.json();
-          const plugins: Record<string, PluginRecord> = {};
-          for (const p of list) plugins[p.id] = p;
-          set({ plugins });
+          set((state) => {
+            const plugins = { ...state.plugins };
+            for (const p of list) {
+              const local = plugins[p.id];
+              if (local?.installed && !p.installed) {
+                plugins[p.id] = { ...p, installed: local.installed, enabled: local.enabled };
+              } else {
+                plugins[p.id] = p;
+              }
+            }
+            return { plugins };
+          });
         } catch {
           // backend may not be running yet; keep cached state
         }
