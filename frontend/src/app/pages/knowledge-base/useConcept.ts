@@ -5,6 +5,7 @@ import { api, type ConceptInspector } from "../../lib/api";
 export function useConcept(conceptId: string) {
   const [concept, setConcept] = useState<ConceptInspector | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -17,6 +18,7 @@ export function useConcept(conceptId: string) {
       })
       .catch((err) => {
         if (!cancelled) {
+          setError(err instanceof Error ? err : new Error(String(err)));
           toast.error(err instanceof Error ? err.message : "Failed to load concept");
         }
       })
@@ -28,5 +30,5 @@ export function useConcept(conceptId: string) {
     };
   }, [conceptId]);
 
-  return { concept, loading };
+  return { concept, loading, error };
 }

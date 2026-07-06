@@ -4,7 +4,7 @@ import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 import { PaperBadge, Pill } from "@paper-ui/components/badges";
 import { PaperInput } from "@paper-ui/components/inputs";
 import { ScrollArea } from "@paper-ui/components/layout";
-import { SectionLabel } from "@paper-ui/core";
+import { SectionLabel, PaperCard } from "@paper-ui/core";
 import { api } from "../../lib/api";
 import { useNavigate } from "react-router";
 import { useConcept } from "./useConcept";
@@ -12,6 +12,7 @@ import { DrawerBlock } from "./shared";
 import {
   X,
   Gauge,
+  AlertTriangle,
   Sparkles,
   Quote,
   ExternalLink,
@@ -36,7 +37,7 @@ export function ConceptDrawerContent({
   onClose: () => void;
   onRefresh?: () => void;
 }) {
-  const { concept, loading } = useConcept(conceptId);
+  const { concept, loading, error } = useConcept(conceptId);
   const navigate = useNavigate();
   const [adding, setAdding] = useState(false);
 
@@ -100,6 +101,15 @@ export function ConceptDrawerContent({
     }
   };
 
+  if (error) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-danger px-6 text-center">
+        <AlertTriangle className="size-6 text-danger" />
+        <span className="font-kalam text-sm">{error.message}</span>
+      </div>
+    );
+  }
+
   if (loading || !concept) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 text-ink-muted">
@@ -152,13 +162,13 @@ export function ConceptDrawerContent({
 
           {/* AI Summary */}
           <DrawerBlock title="AI Summary">
-            <div className="rounded border border-[#d4c9f0] bg-[#f0eefa] p-4">
+            <PaperCard surface="#f0eefa" border={{ stroke: "#d4c9f0", strokeWidth: 1.2 }} shadow="none" className="p-4">
               <div className="mb-2 flex items-center gap-1.5">
                 <Sparkles className="size-3 text-[#6f63a3]" />
                 <SectionLabel className="text-[10px] text-[#6f63a3]">ScholarAI</SectionLabel>
               </div>
               <p className="font-kalam text-[15px] leading-relaxed text-ink/90">{concept.aiSummary}</p>
-            </div>
+            </PaperCard>
           </DrawerBlock>
 
           {/* Source references */}
@@ -166,14 +176,14 @@ export function ConceptDrawerContent({
             <DrawerBlock title="Source References">
               <div className="space-y-2">
                 {concept.citations.map((c, i) => (
-                  <div key={i} className="flex items-start gap-3 rounded border border-[#e8e3d8] bg-[#f9f6f0] px-4 py-3">
+                  <PaperCard key={i} surface="#f9f6f0" border={{ stroke: "#e8e3d8", strokeWidth: 1.2 }} shadow="none" className="flex items-start gap-3 px-4 py-3">
                     <Quote className="mt-0.5 size-4 shrink-0 text-ink-muted" />
                     <div>
                       <div className="font-architect text-sm text-ink">{c.source}</div>
                       <div className="mt-0.5 font-kalam text-xs text-ink-muted">{c.detail}</div>
                     </div>
                     <ExternalLink className="ml-auto size-3.5 shrink-0 text-ink-muted" />
-                  </div>
+                  </PaperCard>
                 ))}
               </div>
             </DrawerBlock>
@@ -194,13 +204,13 @@ export function ConceptDrawerContent({
           <DrawerBlock title="Referenced In">
             <div className="grid grid-cols-2 gap-2">
               {refInRows.map((r) => (
-                <div key={r.label} className="flex items-center gap-3 rounded border border-[#e8e3d8] bg-[#f9f6f0] px-3 py-2.5">
+                <PaperCard key={r.label} surface="#f9f6f0" border={{ stroke: "#e8e3d8", strokeWidth: 1.2 }} shadow="none" className="flex items-center gap-3 px-3 py-2.5">
                   <r.icon className="size-4 shrink-0 text-ink-muted" />
                   <div className="min-w-0">
                     <div className="font-architect text-lg leading-none text-ink">{r.count}</div>
                     <div className="font-kalam text-[10px] text-ink-muted">{r.label}</div>
                   </div>
-                </div>
+                </PaperCard>
               ))}
             </div>
           </DrawerBlock>

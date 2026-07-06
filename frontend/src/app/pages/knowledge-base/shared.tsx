@@ -24,7 +24,7 @@ export function InspectorBlock({ title, children }: { title: string; children: R
 export function DrawerBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <SectionLabel className="mb-3 block text-[10px]">{title}</SectionLabel>
+      <SectionLabel className="mb-3 block text-sm">{title}</SectionLabel>
       {children}
     </div>
   );

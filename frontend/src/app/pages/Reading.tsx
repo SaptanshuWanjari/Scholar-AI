@@ -14,6 +14,7 @@ import { toast } from "@/app/lib/toast";
 import { cn } from "@/paper-ui/utils";
 import { AppShell, ScrollArea } from "@/paper-ui/components/layout";
 import { PaperButton, ChipButton, IconButton } from "@/paper-ui/components/buttons";
+import { PaperDrawer } from "@/paper-ui/components/dialogs";
 import { PaperSelect, SketchSearch } from "@/paper-ui/components/inputs";
 import { SectionLabel, MarkerHighlight, SketchBorder, PaperCard } from "@/paper-ui/core";
 import { SketchDivider } from "@/paper-ui/components/decorations";
@@ -669,17 +670,13 @@ export function Reading() {
           </div>
 
           {/* Right sidebar — Academic Lens context */}
-          <motion.aside
-            animate={{ width: rightCollapsed ? 0 : 320 }}
-            transition={{ type: "spring", stiffness: 340, damping: 36 }}
-            className={cn(
-              "relative z-10 flex h-full shrink-0 flex-col overflow-hidden",
-              "border-l border-[#c8c0b0] bg-sidebar",
-              rightCollapsed && "overflow-hidden border-l-0"
-            )}
+          <PaperDrawer
+            open={!rightCollapsed}
+            onClose={() => setRightCollapsed(true)}
+            side="right"
           >
-            <div className={cn("flex min-w-[320px] flex-1 flex-col overflow-hidden pt-11", rightCollapsed && "invisible")}>
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[#c8c0b0]/50">
+            <div className="flex h-full w-[320px] flex-col overflow-hidden bg-sidebar">
+              <div className="flex items-center justify-between  border-b border-[#c8c0b0]/50">
                 <IconButton label="Collapse context" onClick={() => setRightCollapsed(true)}>
                   <PanelRightClose size={15} />
                 </IconButton>
@@ -692,14 +689,14 @@ export function Reading() {
               </div>
 
               <ScrollArea className="flex-1">
-                <div data-tour="reading-lens" className="p-4 border-b border-[#c8c0b0]/50">
+                <div data-tour="reading-lens" className="p-2 border-b border-[#c8c0b0]/50">
                   <div className="mb-3 flex items-center gap-1.5">
                     <GraduationCap size={14} className="text-ink-muted" />
-                    <SectionLabel className="!text-[11px]">Academic Lens</SectionLabel>
+                    <SectionLabel className="!text-[13px]">Academic Lens</SectionLabel>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex flex-wrap gap-1.5 justify-center">
                     {(["Beginner", "Intermediate", "Expert"] as Lens[]).map((l) => (
-                      <ChipButton key={l} selected={lens === l} onClick={() => pickLens(l)} className="!text-xs flex-1">
+                      <ChipButton key={l} selected={lens === l} onClick={() => pickLens(l)} className="!text-xs flex-auto justify-center min-w-[80px]">
                         {l}
                       </ChipButton>
                     ))}
@@ -764,7 +761,7 @@ export function Reading() {
                 </div>
               </ScrollArea>
             </div>
-          </motion.aside>
+          </PaperDrawer>
         </div>
 
         {/* Bottom bar — reading progress */}
