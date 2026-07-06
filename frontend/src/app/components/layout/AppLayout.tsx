@@ -6,6 +6,7 @@ import { CommandMenu } from "../CommandMenu";
 import { TourAutoStart } from "../../guidance/components/TourAutoStart";
 import { ScratchpadDrawer } from "../scratchpad/ScratchpadDrawer";
 import { useScratchpadStore } from "../scratchpad/useScratchpadStore";
+import { QuickSettingsPanel } from "../QuickSettingsPanel";
 import { navItems } from "../../lib/nav";
 import { useAppearanceStore } from "../../stores/useAppearanceStore";
 import { useUIStore } from "../../stores/useUIStore";
@@ -60,6 +61,7 @@ export function AppLayout() {
       <CommandMenu />
       <TourAutoStart />
       <ScratchpadDrawer />
+      <QuickSettingsPanel />
     </div>
   );
 }
