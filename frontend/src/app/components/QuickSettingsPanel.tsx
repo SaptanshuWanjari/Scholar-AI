@@ -3,9 +3,9 @@ import { createPortal } from "react-dom";
 import { Settings2, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useSettingsStore } from "../stores/useSettingsStore";
+import { api } from "../lib/api";
 import { PaperSheetBorder } from "@paper-ui/core";
-import { PaperSwitch } from "@paper-ui/components/inputs";
-import { PaperRadioGroup } from "@paper-ui/components/inputs";
+import { PaperSwitch, PaperRadioGroup, PaperSelect } from "@paper-ui/components/inputs";
 import { cn } from "@/paper-ui/utils";
 
 const RETRIEVAL_OPTIONS = [
@@ -34,6 +34,7 @@ function resolveCreativityLabel(temp: number): string {
 
 export function QuickSettingsPanel() {
   const [open, setOpen] = useState(false);
+  const [modelOptions, setModelOptions] = useState<{ value: string; label: string }[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -41,7 +42,17 @@ export function QuickSettingsPanel() {
   const usePromptEnhancer = useSettingsStore((s) => s.usePromptEnhancer);
   const topK = useSettingsStore((s) => s.topK);
   const temperature = useSettingsStore((s) => s.temperature);
+  const fastModel = useSettingsStore((s) => s.fastModel);
   const set = useSettingsStore((s) => s.set);
+
+  // Fetch available models lazily on first open
+  useEffect(() => {
+    if (!open || modelOptions.length > 0) return;
+    api.listModels().then((list) => {
+      const all = [...new Set([...list.fastModels, ...list.reasoningModels])];
+      setModelOptions(all.map((m) => ({ value: m, label: m })));
+    }).catch(() => {});
+  }, [open, modelOptions.length]);
 
   useEffect(() => {
     if (!open) return;
@@ -88,6 +99,23 @@ export function QuickSettingsPanel() {
           shadow={8}
         />
         <div className="relative z-[1] px-4 py-4 space-y-4">
+                    {/* Model */}
+          <div>
+            <p className="font-architect text-[10px] uppercase tracking-widest text-ink-muted mb-2">
+              Model
+            </p>
+            <PaperSelect
+              value={fastModel}
+              onChange={(v) => set("fastModel", v)}
+              options={
+                modelOptions.length > 0
+                  ? modelOptions
+                  : [{ value: fastModel, label: fastModel }]
+              }
+              placeholder="Select model…"
+            />
+          </div>
+
           {/* Knowledge Source */}
           <div>
             <p className="font-architect text-[10px] uppercase tracking-widest text-ink-muted mb-2.5">
@@ -161,6 +189,7 @@ export function QuickSettingsPanel() {
               ))}
             </div>
           </div>
+
 
           {/* Footer */}
           <button

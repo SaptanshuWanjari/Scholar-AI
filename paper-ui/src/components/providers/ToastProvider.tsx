@@ -274,11 +274,11 @@ function ToastViewport({
 
   const viewport = createElement("div", {
     className: cn(
-      "flex flex-col gap-4 pointer-events-auto w-[360px] max-w-[calc(100vw-2rem)]",
+      "flex flex-col gap-4 pointer-events-auto",
       POSITION_CLASSES[position],
       className,
     ),
-    style: { zIndex: 99999 },
+    style: { zIndex: 99999, width: 360, maxWidth: "calc(100vw - 2rem)" },
     children: toasts.map((toast) =>
       createElement(ToastUnit, {
         key: toast.id,
@@ -371,7 +371,7 @@ function ToastTitle({
   const { toast } = useSingleToast();
   if (!toast.title) return null;
   return createElement("div", {
-    className: cn("font-caveat font-bold text-[var(--paper-ink)] text-2xl", className),
+    className: cn("font-caveat font-bold text-[var(--paper-ink)] text-2xl break-words", className),
     ...rest,
     children: children ?? toast.title,
   });
@@ -394,7 +394,7 @@ function ToastDescription({
   if (!toast.description) return null;
   return createElement("div", {
     className: cn(
-      "font-architect text-sm text-[var(--paper-ink-muted)] leading-snug",
+      "font-architect text-sm text-[var(--paper-ink-muted)] leading-snug break-words",
       toast.title && "mt-0.5",
       className,
     ),

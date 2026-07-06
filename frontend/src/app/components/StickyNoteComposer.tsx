@@ -115,7 +115,7 @@ export function StickyNoteComposer({
         )}
         
         {!hideActions && (
-          <div className={cn("flex items-center gap-2 mt-2", extraControls ? "w-full justify-end" : "ml-auto")}>
+          <div className={cn("flex items-center gap-2 mt-2 relative z-10 pointer-events-auto", extraControls ? "w-full justify-end" : "ml-auto")}>
             {onCancel && (
               <button 
                 type="button"
