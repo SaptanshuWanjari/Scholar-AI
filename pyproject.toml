@@ -38,6 +38,12 @@ scholar = "scholarai.cli:app"
 [dependency-groups]
 dev = [
     "pytest>=8",
+    "tenacity>=9",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "ollama: tests that require a running Ollama server",
 ]
 
 [build-system]

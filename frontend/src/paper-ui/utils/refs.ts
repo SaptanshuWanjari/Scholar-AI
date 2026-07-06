@@ -14,7 +14,7 @@ export function assignRef<T = any>(
     try {
       ;(ref as React.MutableRefObject<T | null>).current = value
     } catch (error) {
-      throw new Error(`Cannot assign value '${value}' to ref '${ref}'`, { cause: error })
+      throw Object.assign(new Error(`Cannot assign value '${value}' to ref '${ref}'`), { cause: error })
     }
   }
 }

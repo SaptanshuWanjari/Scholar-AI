@@ -1348,6 +1348,7 @@ ocr = [
 [package.dev-dependencies]
 dev = [
     { name = "pytest" },
+    { name = "tenacity" },
 ]
 
 [package.metadata]
@@ -1377,7 +1378,10 @@ requires-dist = [
 provides-extras = ["ocr", "cloud"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=8" }]
+dev = [
+    { name = "pytest", specifier = ">=8" },
+    { name = "tenacity", specifier = ">=9" },
+]
 
 [[package]]
 name = "shellingham"

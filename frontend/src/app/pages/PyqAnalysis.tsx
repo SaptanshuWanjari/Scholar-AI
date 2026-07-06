@@ -251,7 +251,7 @@ function SummaryCards({ a }: { a: NonNullable<ReturnType<typeof usePyqStore.getS
   return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {cards.map((c) => (
-        <PaperMetricCard key={c.label} label={c.label} value={c.value} icon={c.icon} />
+        <PaperMetricCard key={c.label} label={c.label} value={c.value} icon={<c.icon className="size-5" />} />
       ))}
     </div>
   );

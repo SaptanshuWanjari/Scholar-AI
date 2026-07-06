@@ -24,8 +24,16 @@ export function FlashcardCard({
 }) {
   const [flipped, setFlipped] = useState(false);
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => setFlipped((f) => !f)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setFlipped((f) => !f);
+        }
+      }}
       className="group relative h-44 w-full cursor-pointer text-left [perspective:1000px]"
     >
       <motion.div
@@ -127,7 +135,7 @@ export function FlashcardCard({
           </p>
         </div>
       </motion.div>
-    </button>
+    </div>
   );
 }
 
