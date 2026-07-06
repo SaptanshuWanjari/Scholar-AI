@@ -527,7 +527,7 @@ function QuizReview({ questions }: { questions: QuizQuestion[] }) {
                 <div className="mt-4 pl-[36px]">
                   {show ? (
                     q.explanation && (
-                      <PaperPanel tone="sage" className="p-4 text-sm mt-2">
+                      <PaperPanel className="p-4 text-sm mt-2 bg-sage-soft">
                         <p className="text-ink/80 leading-relaxed">{q.explanation}</p>
                       </PaperPanel>
                     )

@@ -29,7 +29,7 @@ import {
 } from "@paper-ui/components/buttons";
 import { PaperInput, PaperSelect } from "@paper-ui/components/inputs";
 import type { SelectOption } from "@paper-ui/components/inputs";
-import { PaperBadge } from "@paper-ui/components/badges";
+import { PaperBadge } from "@/paper-ui/components/badges";
 import { LearningProgress } from "@paper-ui/components/progress";
 import { PaperModal } from "@paper-ui/components/dialogs";
 import { PaperCard, SectionHeader, SectionLabel, PaperIconCircle } from "@paper-ui/core";

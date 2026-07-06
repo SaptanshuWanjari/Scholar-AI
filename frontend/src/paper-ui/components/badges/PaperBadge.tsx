@@ -15,13 +15,15 @@ export interface PaperBadgeProps {
   children: React.ReactNode;
   tone?: IconTone;
   className?: string;
+  title?: string;
 }
 
 /** Small handwritten tag/pill. */
-export function PaperBadge({ children, tone = "ink", className }: PaperBadgeProps) {
+export function PaperBadge({ children, tone = "ink", className, title }: PaperBadgeProps) {
   const t = TONES[tone];
   return (
     <span
+      title={title}
       className={cn(
         "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-architect text-xs",
         className,

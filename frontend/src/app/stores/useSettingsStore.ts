@@ -50,7 +50,7 @@ const PERSISTED: (keyof BackendSettings)[] = [
   "maxConcurrent",
 ];
 
-export const useSettingsStore = create<SettingsState>((set) => ({
+export const useSettingsStore = create<SettingsState>((set, get) => ({
   name: "",
   fastModel: "qwen3:8b",
   reasoningModel: "gemma4:12b",
@@ -73,10 +73,15 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   maxConcurrent: 3,
   hydrated: false,
   set: (key, value) => {
+    const previous = get()[key];
     set({ [key]: value } as Partial<SettingsState>);
-    // Persist the single changed field to the backend (fire-and-forget).
+    // Persist the single changed field to the backend.
     if (PERSISTED.includes(key as keyof BackendSettings)) {
-      api.updateSettings({ [key]: value } as Partial<BackendSettings>).catch(() => {});
+      api
+        .updateSettings({ [key]: value } as Partial<BackendSettings>)
+        .catch(() => {
+          set({ [key]: previous } as Partial<SettingsState>);
+        });
     }
   },
   hydrate: async () => {
