@@ -5,6 +5,8 @@ Uses the ``settings.db_path`` (``data/scholar.db``) by default.
 
 from __future__ import annotations
 
+from typing import Generator
+
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -27,6 +29,14 @@ def get_session() -> Session:
     if _session_factory is None:
         _session_factory = sessionmaker(bind=get_engine())
     return _session_factory()
+
+
+def get_db() -> Generator[Session, None, None]:
+    session = get_session()
+    try:
+        yield session
+    finally:
+        session.close()
 
 
 def reset_engine() -> None:
@@ -176,7 +186,13 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
 
 
 def _ensure_columns() -> None:
-    """Add any newly-introduced columns to existing tables (idempotent)."""
+    """Add any newly-introduced columns to existing tables (idempotent).
+
+    All ALTER TABLE statements run inside a single transaction via
+    ``engine.begin()`` — SQLite supports transactional DDL, so any
+    failure rolls back every ALTER in the loop, keeping the schema
+    consistent.
+    """
     from sqlalchemy import inspect, text
 
     engine = get_engine()
@@ -189,4 +205,11 @@ def _ensure_columns() -> None:
             present = {c["name"] for c in inspector.get_columns(table)}
             for name, ddl in cols:
                 if name not in present:
-                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}"))
+                    try:
+                        conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}"))
+                    except Exception:
+                        import logging
+                        logging.getLogger(__name__).exception(
+                            "ALTER TABLE %s ADD COLUMN %s failed", table, name
+                        )
+                        raise

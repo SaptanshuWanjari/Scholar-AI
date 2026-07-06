@@ -350,7 +350,7 @@ async def generate_whiteboard(req: WhiteboardGenerateRequest) -> WhiteboardGener
     record_activity("whiteboard", f"Generated whiteboard: {topic}", req.course or "")
     return WhiteboardGenerateResponse(
         title=topic,
-        mermaid=mermaid,
+        syntax=mermaid,
         grounded=grounded,
     )
 
@@ -375,4 +375,4 @@ async def assist_whiteboard(req: WhiteboardAssistRequest) -> WhiteboardAssistRes
         run_ask, instruction, req.course, req.document, "mermaid", text
     )
     mermaid = parsers.strip_mermaid_fences(result["content"])
-    return WhiteboardAssistResponse(mermaid=mermaid)
+    return WhiteboardAssistResponse(syntax=mermaid)

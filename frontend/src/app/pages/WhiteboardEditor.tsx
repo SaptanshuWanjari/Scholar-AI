@@ -216,11 +216,11 @@ export function WhiteboardEditor() {
     setGenOpen(false);
     try {
       const res = await api.generateWhiteboard({ topic: t, course: wb?.course || null });
-      if (!res.mermaid?.trim()) {
+      if (!res.syntax?.trim()) {
         toast.error("Could not generate a diagram for this topic");
         return;
       }
-      const scene = await mermaidToScene(res.mermaid);
+      const scene = await mermaidToScene(res.syntax);
       applyScene(scene);
       toast.success("Diagram generated — edit freely");
     } catch (err) {
@@ -269,13 +269,13 @@ export function WhiteboardEditor() {
     setBusy("expand");
     try {
       const res = await api.assistWhiteboard("expand", label, wb?.course || null);
-      if (!res.mermaid?.trim()) {
+      if (!res.syntax?.trim()) {
         toast.error("Nothing to add");
         return;
       }
       const merged = await mergeMermaidIntoScene(
         { elements: els, files: sceneRef.current.files ?? {} },
-        res.mermaid,
+        res.syntax,
       );
       applyScene(merged);
       toast.success(`Expanded "${label}"`);

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Page } from "../components/Page";
+import PageLoading from "@/app/components/ui/PageLoading";
 import { PaperButton } from "@paper-ui/components/buttons";
 import {
   NotebookSpiralCard,
@@ -62,11 +63,14 @@ export function Dashboard() {
   const [activePathDetails, setActivePathDetails] = useState<LearningPath | null>(null);
   const [pathsLoaded, setPathsLoaded] = useState(false);
   const [starred, setStarred] = useState<Record<string, boolean>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.listCourses().then(setCourses).catch(() => { });
-    api.listDocuments().then(setDocuments).catch(() => { });
-    api.getDashboard().then(setDashboard).catch(() => { });
+    let done = 0;
+    const maybeDone = () => { done++; if (done >= 4) setLoading(false); };
+    api.listCourses().then(setCourses).catch(() => { }).finally(maybeDone);
+    api.listDocuments().then(setDocuments).catch(() => { }).finally(maybeDone);
+    api.getDashboard().then(setDashboard).catch(() => { }).finally(maybeDone);
     api.listLearningPaths().then((res) => {
       setPaths(res);
       const active = res.find(p => !p.archived);
@@ -74,7 +78,7 @@ export function Dashboard() {
         api.getLearningPath(active.id).then(setActivePathDetails).catch(() => {});
       }
       setPathsLoaded(true);
-    }).catch(() => setPathsLoaded(true));
+    }).catch(() => setPathsLoaded(true)).finally(maybeDone);
   }, []);
 
   const metrics = dashboard?.metrics;
@@ -133,6 +137,8 @@ export function Dashboard() {
       duration: s.duration,
       ago: s.date,
     })) ?? [];
+
+  if (loading) return <PageLoading />;
 
   return (
     <Page className="space-y-6">

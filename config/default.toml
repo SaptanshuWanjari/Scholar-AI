@@ -51,6 +51,10 @@ top_k = 5
 # cosine distance from LanceDB; below this the chunk counts as relevant.
 # LanceDB returns _distance (lower = closer). Gate keeps best <= max_distance.
 max_distance = 0.55
+hybrid_search = true
+rerank_enabled = true
+pq_enabled = false
+max_concurrent_llm = 5
 
 [features]
 # Set to true once cloud provider integration is stable.

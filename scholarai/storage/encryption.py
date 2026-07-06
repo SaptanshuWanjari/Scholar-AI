@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -11,7 +12,10 @@ from scholarai.config import get_settings
 
 
 def _key_path() -> Path:
-    return Path(get_settings().db_path).parent / "scholar.key"
+    # ponytail: key lives outside .data/ so compromise of the DB directory
+    # doesn't also leak the key.  shadow DB backups still need the key in
+    # a separate grab.
+    return Path(get_settings().db_path).parent.parent / "scholar.key"
 
 
 @lru_cache(maxsize=1)
@@ -19,7 +23,9 @@ def _get_fernet() -> Fernet:
     path = _key_path()
     if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(Fernet.generate_key())
+        key = Fernet.generate_key()
+        path.write_bytes(key)
+        os.chmod(path, 0o600)
     return Fernet(path.read_bytes())
 
 

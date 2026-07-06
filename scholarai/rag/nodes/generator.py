@@ -16,12 +16,10 @@ from scholarai.rag.prompts import (
     LEARNING_PATH_SYSTEM,
     MERMAID_SYSTEM,
     MINDMAP_SYSTEM,
-    NOT_GROUNDED,
     PLANTUML_SYSTEM,
     QA_PROMPT_TEMPLATE,
     QUIZ_SYSTEM,
     STUDY_NOTES_SYSTEM,
-    DATA_QA_SYSTEM,
 )
 from scholarai.rag.state import GraphState
 
@@ -36,21 +34,12 @@ _ROUTE_PROMPTS: dict[str, str] = {
     "study_notes": STUDY_NOTES_SYSTEM,
     "differences": DIFFERENCES_SYSTEM,
     "learning_path": LEARNING_PATH_SYSTEM,
-    "data_qa": DATA_QA_SYSTEM,
     "plantuml": PLANTUML_SYSTEM,
 }
 
 
 def generate(state: GraphState) -> GraphState:
-    if not state.get("grounded"):
-        state["answer"] = NOT_GROUNDED
-        return state
-
     route = state.get("route", "quick_qa")
-    
-    if route == "data_qa":
-        from scholarai.rag.nodes.data_analyzer import analyze_data
-        return analyze_data(state)
 
     llm = get_llm(route)
     chunks = state["retrieved"]

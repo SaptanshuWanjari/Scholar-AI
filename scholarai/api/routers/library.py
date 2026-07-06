@@ -407,7 +407,7 @@ def list_diagrams() -> list[DiagramOut]:
                 title=d.title,
                 course=d.course,
                 kind=d.kind,
-                mermaid=d.mermaid,
+                syntax=d.syntax,
                 grounded=True,
                 quality=_quality(d.quality_score),
             )

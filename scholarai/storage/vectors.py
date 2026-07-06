@@ -30,6 +30,12 @@ from scholarai.config import get_settings
 logger = logging.getLogger(__name__)
 
 TABLE_NAME = "chunks"
+
+
+def _quote(value: str) -> str:
+    """Wrap value in single quotes, escaping internal single quotes per SQL convention."""
+    return f"'{value.replace("'", "''")}'"
+
 NOTEB_TABLE_NAME = "notebook_chunks"
 
 # Columns that an up-to-date chunks table must carry. A pre-multimodal table
@@ -58,7 +64,7 @@ def has_document_chunks(document_id: int) -> bool:
         return False
     tbl = _open_table()
     try:
-        count = tbl.count_rows(f"document_id = {document_id}")
+        count = tbl.count_rows(f"document_id = {str(document_id)}")
     except Exception:
         return False
     return count > 0
@@ -70,7 +76,7 @@ def count_source_type(source_type: str) -> int:
         return 0
     tbl = _open_table()
     try:
-        return tbl.count_rows(f"source_type = '{source_type}'")
+        return tbl.count_rows(f"source_type = {_quote(source_type)}")
     except Exception:
         return 0
 
@@ -98,9 +104,8 @@ def add_chunks(rows: list[dict], rebuild_fts: bool = True) -> None:
     Required keys: id, document_id, course, title, page, heading,
     chunk_index, text, source_type, image_url, vector.
 
-    A pre-multimodal table (missing ``source_type``/``image_url``) is dropped
-    and recreated from this batch — LanceDB schemas are fixed at creation, so
-    re-indexing is the migration path (see ``pipeline.reindex_all``).
+    If an existing table lacks required columns, raises RuntimeError
+    instructing the user to run reindex_all().
     """
     if not rows:
         return
@@ -108,12 +113,10 @@ def add_chunks(rows: list[dict], rebuild_fts: bool = True) -> None:
     if _has_table():
         tbl = db.open_table(TABLE_NAME)
         if not _schema_is_current(tbl):
-            logger.warning(
-                "chunks table predates multimodal columns — recreating it; "
-                "run reindex_all() (or re-upload) to restore all documents."
+            raise RuntimeError(
+                "chunks table predates multimodal columns. "
+                "Run reindex_all() to migrate, then retry."
             )
-            db.drop_table(TABLE_NAME)
-            tbl = db.create_table(TABLE_NAME, data=rows)
         else:
             tbl.add(rows)
     else:
@@ -162,7 +165,7 @@ def search(query_vector: list[float], top_k: int = 5, offset: int = 0, course: s
     
     filters = []
     if course:
-        filters.append(f"course = '{course}'")
+        filters.append(f"course = {_quote(course)}")
     if document_id is not None:
         filters.append(f"document_id = {document_id}")
         
@@ -213,7 +216,7 @@ def all_chunks(course: str | None = None, limit: int = 5000, offset: int = 0, re
             q = q.offset(offset)
         where_clause = None
         if course:
-            where_clause = f"course = '{course}'"
+            where_clause = f"course = {_quote(course)}"
             q = q.where(where_clause)
         results = q.to_list()
         if return_count:
@@ -257,7 +260,7 @@ def hybrid_search(
     tbl = _open_table()
     filters = []
     if course:
-        filters.append(f"course = '{course}'")
+        filters.append(f"course = {_quote(course)}")
     if document_id is not None:
         filters.append(f"document_id = {document_id}")
     where_clause = " AND ".join(filters) if filters else None
@@ -409,7 +412,7 @@ def delete_notebook_chunks(notebook_id: int) -> None:
     tbl = _noteb_table()
     if tbl is not None:
         try:
-            tbl.delete(f"notebook_id = {notebook_id}")
+            tbl.delete(f"notebook_id = {str(notebook_id)}")
         except Exception:
             pass
 
@@ -426,7 +429,7 @@ def search_notebook_chunks(
         return []
     q = tbl.search(query_vector, vector_column_name="vector").metric("cosine")
     if course:
-        q = q.where(f"course = '{course}'", prefilter=True)
+        q = q.where(f"course = {_quote(course)}", prefilter=True)
     return q.limit(offset + top_k).to_list()[offset:]
 
 
@@ -457,7 +460,7 @@ def detect_overlapping_document(
     for vec in embeddings:
         q = tbl.search(vec, vector_column_name="vector").metric("cosine").limit(1)
         if course:
-            q = q.where(f"course = '{course}'", prefilter=True)
+            q = q.where(f"course = {_quote(course)}", prefilter=True)
         try:
             results = q.to_list()
         except Exception:
@@ -476,3 +479,35 @@ def detect_overlapping_document(
     if overlap_pct >= threshold:
         return top_doc
     return None
+
+
+def get_stats(session, course: str | None = None) -> dict:
+    """Return basic DB and vector store statistics."""
+    from scholarai.storage.models import Course, Document
+
+    q_course = session.query(Course)
+    q_doc = session.query(Document)
+    if course:
+        q_course = q_course.filter(Course.name == course)
+        course_obj = q_course.first()
+        if course_obj:
+            q_doc = q_doc.filter(Document.course_id == course_obj.id)
+        else:
+            q_doc = q_doc.filter(False)
+
+    total_courses = q_course.count() if not course else (1 if q_course.first() else 0)
+    total_docs = q_doc.count()
+    total_chunks = 0
+    if _has_table():
+        tbl = _open_table()
+        if course:
+            total_chunks = tbl.count_rows(f"course = {_quote(course)}")
+        else:
+            total_chunks = tbl.count_rows()
+
+    return {
+        "courses": total_courses,
+        "documents": total_docs,
+        "chunks": total_chunks,
+        "lancedb_path": str(_db().uri),
+    }

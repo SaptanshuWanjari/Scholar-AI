@@ -346,7 +346,7 @@ class DiagramOut(BaseModel):
     title: str
     course: str
     kind: str
-    mermaid: str
+    syntax: str
     grounded: bool = True
     quality: QualityScore | None = None
 
@@ -624,7 +624,7 @@ class WhiteboardGenerateRequest(BaseModel):
 
 class WhiteboardGenerateResponse(BaseModel):
     title: str
-    mermaid: str
+    syntax: str
     grounded: bool = True
 
 
@@ -637,7 +637,7 @@ class WhiteboardAssistRequest(BaseModel):
 
 class WhiteboardAssistResponse(BaseModel):
     text: str = ""       # for "explain"
-    mermaid: str = ""    # for "expand" (a sub-graph to merge)
+    syntax: str = ""    # for "expand" (a sub-graph to merge)
 
 
 # ---------------------------------------------------------------------------

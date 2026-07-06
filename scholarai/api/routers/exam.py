@@ -326,9 +326,9 @@ async def submit_exam(session_id: str, payload: ExamSubmitRequest) -> ExamResult
         score = round(100 * correct / total) if total else 0
 
         record_activity(
-            "exam",
-            f"Exam: {exam.topic} — {score}%",
-            exam.course or "",
+            kind="exam",
+            text=f"Exam: {exam.topic} — {score}%",
+            course=exam.course or "",
             minutes=elapsed_seconds // 60 or None,
         )
 

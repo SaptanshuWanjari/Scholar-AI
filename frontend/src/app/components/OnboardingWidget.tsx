@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "@/app/lib/toast";
 import { useNavigate } from "react-router";
 import {
   CheckCircle2,
@@ -59,7 +60,7 @@ export default function OnboardingWidget() {
           setIsOpen(true);
         })
         .catch((e) => {
-          console.error(e);
+          toast.error(e instanceof Error ? e.message : "Analysis failed");
           setErrorMsg(e instanceof Error ? e.message : "Analysis failed");
         });
     }

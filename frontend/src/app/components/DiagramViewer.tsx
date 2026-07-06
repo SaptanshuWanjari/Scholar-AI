@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { toast } from "@/app/lib/toast";
 import mermaid from "mermaid";
 import { Loader2, AlertCircle, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
@@ -99,7 +100,7 @@ export function DiagramViewer({ code, flush, title = "diagram", kind }: { code: 
           setLoading(false);
         }
       } catch (err) {
-        console.error("Mermaid render error:", err);
+        toast.error(err instanceof Error ? err.message : "Failed to render diagram");
         if (isMounted) {
           setError(err instanceof Error ? err.message : "Failed to render diagram");
           setLoading(false);

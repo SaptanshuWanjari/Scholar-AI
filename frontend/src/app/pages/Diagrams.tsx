@@ -1,4 +1,5 @@
 import { Component, useEffect, useState, type ReactNode } from "react";
+import useSWR from "swr";
 import { Workflow, Copy, Check, Download, FileImage, FileDown, Code2, Sparkles, Loader2, AlertCircle, Trash2, ChevronDown } from "lucide-react";
 import { GenerationSteps } from "../components/GenerationSteps";
 import { toast } from "@/app/lib/toast";
@@ -7,7 +8,7 @@ import QualityBadge from "../components/QualityBadge";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
 import { api } from "../lib/api";
 import { exportNodeToPdf } from "../lib/export";
-import type { Course, DiagramItem, DocumentItem } from "../lib/types";
+import type { DiagramItem } from "../lib/types";
 import { useDiagramGenStore } from "../stores/useDiagramGenStore";
 import { PaperButton, GhostButton } from "@/paper-ui/components/buttons";
 import { PaperBadge } from "@/paper-ui/components/badges";
@@ -26,12 +27,9 @@ const DIAGRAM_TYPES = [
 ] as const;
 
 export function Diagrams() {
-  const [items, setItems] = useState<DiagramItem[]>([]);
   const [active, setActiveState] = useState<DiagramItem | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCode, setShowCode] = useState(false);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
   // Generation state lives in a global store so an in-flight generation keeps
   // running (and shows a pending item) when navigating away and back.
@@ -50,46 +48,27 @@ export function Diagrams() {
 
   // Absorb the latest generated diagram into the list + select it. Runs on
   // mount too, so a diagram generated while the page was unmounted shows up.
-  useEffect(() => {
-    if (!generated) return;
-    setItems((prev) => (prev.some((d) => d.id === generated.id) ? prev : [generated, ...prev]));
-    setActive(generated);
-    setShowCode(false);
-  }, [generated]);
+  const { data: courses = [] } = useSWR("courses", () => api.listCourses());
+  const { data: documents = [] } = useSWR("documents", () => api.listDocuments());
+  const { data: items = [], mutate: mutateItems } = useSWR("diagrams", () => api.listDiagrams());
 
   useEffect(() => {
-    let cancelled = false;
-    api
-      .listCourses()
-      .then((cs) => {
-        if (!cancelled) setCourses(cs);
-      })
-      .catch(() => {
-        /* leave course selector with just "No course" */
-      });
-    api.listDocuments().then((ds) => { if (!cancelled) setDocuments(ds); }).catch(() => {});
-    api
-      .listDiagrams()
-      .then((ds) => {
-        if (cancelled) return;
-        setItems(ds);
-        // Restore the previously-open diagram by id; fall back to the first.
-        const storedId = useDiagramGenStore.getState().activeId;
-        setActiveState((cur) => cur ?? ds.find((d) => d.id === storedId) ?? ds[0] ?? null);
-      })
-      .catch(() => {
-        /* empty library */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    const storedId = useDiagramGenStore.getState().activeId;
+    setActiveState((cur) => cur ?? items.find((d) => d.id === storedId) ?? items[0] ?? null);
+  }, [items]);
+
+  useEffect(() => {
+    if (!generated) return;
+    mutateItems((prev) => (prev?.some((d) => d.id === generated.id) ? prev : [generated, ...(prev ?? [])]), false);
+    setActive(generated);
+    setShowCode(false);
+  }, [generated, mutateItems]);
 
   const remove = async (id: string) => {
     try {
       await api.deleteDiagram(id);
       const next = items.filter((d) => d.id !== id);
-      setItems(next);
+      mutateItems(next, false);
       if (active?.id === id) setActive(next[0] ?? null);
       toast.success("Diagram deleted");
     } catch (err) {
@@ -99,7 +78,7 @@ export function Diagrams() {
 
   const copy = () => {
     if (!active) return;
-    navigator.clipboard.writeText(active.mermaid);
+    navigator.clipboard.writeText(active.syntax);
     setCopied(true);
     toast.success("Mermaid copied to clipboard");
     setTimeout(() => setCopied(false), 1500);
@@ -314,7 +293,7 @@ export function Diagrams() {
                 </PaperButton>
                 <AddToNotebookMenu
                   artifactType="diagram"
-                  content={{ title: active.title, mermaid: active.mermaid }}
+                  content={{ title: active.title, syntax: active.syntax }}
                   sourceId={active.id}
                   course={active.course}
                 />
@@ -337,14 +316,14 @@ export function Diagrams() {
 
             <div className="relative flex min-h-0 flex-1 flex-col" id="diagram-container">
               <div className="min-h-0 flex-1 relative">
-                <DiagramErrorBoundary key={active.id} code={active.mermaid} kind={active.kind}>
-                  <DiagramViewer code={active.mermaid} flush title={active.title || "diagram"} kind={active.kind} />
+                <DiagramErrorBoundary key={active.id} code={active.syntax} kind={active.kind}>
+                  <DiagramViewer code={active.syntax} flush title={active.title || "diagram"} kind={active.kind} />
                 </DiagramErrorBoundary>
               </div>
               {showCode && (
                 <div className="absolute bottom-4 left-4 z-20">
                   <pre className="max-h-64 max-w-2xl overflow-auto rounded-lg border border-border bg-secondary/95 p-4 font-mono text-[13px] text-foreground/80 shadow-lg backdrop-blur">
-                    {active.mermaid}
+                    {active.syntax}
                   </pre>
                 </div>
               )}

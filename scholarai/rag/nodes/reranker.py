@@ -23,7 +23,7 @@ _PREVIEW_CHARS = 500
 
 
 def _parse_scores(text: str, n: int) -> dict[int, float]:
-    match = re.search(r"\{.*\}", text, re.DOTALL)
+    match = re.search(r"\{[^{}]*\}", text)
     if not match:
         return {}
     try:

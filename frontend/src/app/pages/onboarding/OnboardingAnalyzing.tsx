@@ -12,6 +12,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { toast } from "../../lib/toast";
 import { api } from "../../lib/api";
 import { useOnboarding, type OnboardingAnalysis } from "../../context/OnboardingContext";
 import { PaperCard } from "@paper-ui/core";
@@ -120,7 +121,7 @@ export function OnboardingAnalyzing() {
         setTimeout(() => navigate(`/onboarding/ready?pathId=${path.id}`), 1500);
       } catch (e) {
         clearInterval(simTimer);
-        console.error(e);
+        toast.error(e instanceof Error ? e.message : "Failed to analyze library");
         setErrorMsg(e instanceof Error ? e.message : "Failed to analyze library. The AI might be unavailable.");
         setStepStates(PIPELINE_STEPS.map((s, i) => (i <= 4 ? "done" : "pending")));
       }

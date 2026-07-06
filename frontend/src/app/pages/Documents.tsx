@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/app/lib/toast";
 import { Page } from "../components/Page";
+import PageLoading from "@/app/components/ui/PageLoading";
 import { UploadZone } from "../components/UploadZone";
 import { IconButton } from "@paper-ui/components/buttons";
 import {
@@ -51,6 +52,7 @@ export function Documents() {
   const [course, setCourse] = useState("all");
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const refresh = () => {
     api
@@ -63,7 +65,12 @@ export function Documents() {
       .catch(() => { });
   };
 
-  useEffect(refresh, []);
+  useEffect(() => {
+    let done = 0;
+    const maybeDone = () => { done++; if (done >= 2) setLoading(false); };
+    api.listDocuments().then(setDocuments).catch(() => {}).finally(maybeDone);
+    api.listCourses().then(setCourses).catch(() => {}).finally(maybeDone);
+  }, []);
 
   const filtered = documents.filter(
     (d) =>
@@ -125,6 +132,8 @@ export function Documents() {
       });
     }
   };
+
+  if (loading) return <PageLoading />;
 
   return (
     <Page className="space-y-5">

@@ -111,7 +111,7 @@ export const diagrams: DiagramItem[] = [
     title: "Neural Network Training Loop",
     course: "Machine Learning",
     kind: "Flowchart",
-    mermaid: `graph TD
+    syntax: `graph TD
   A[Input Batch] --> B[Forward Pass]
   B --> C[Compute Loss]
   C --> D[Backward Pass]
@@ -125,7 +125,7 @@ export const diagrams: DiagramItem[] = [
     title: "SN1 vs SN2 Decision",
     course: "Organic Chemistry",
     kind: "Decision Tree",
-    mermaid: `graph TD
+    syntax: `graph TD
   A[Substrate] --> B{Degree?}
   B -- Primary --> C[SN2 favored]
   B -- Tertiary --> D[SN1 favored]
@@ -138,7 +138,7 @@ export const diagrams: DiagramItem[] = [
     title: "IS-LM Equilibrium",
     course: "Macroeconomics",
     kind: "Concept Map",
-    mermaid: `graph LR
+    syntax: `graph LR
   A[Interest Rate] --> B[Investment]
   B --> C[Output]
   C --> D[Money Demand]

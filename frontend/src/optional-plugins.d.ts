@@ -1,6 +1,9 @@
-// Type stubs for optional plugin packages.
-// These allow TypeScript to compile when the packages are not installed.
+// Type stubs for optional plugin packages that may not be installed.
+// These allow TypeScript to compile when the packages are missing.
 // When a package IS installed, its own types take precedence.
+// ponytail: @excalidraw/excalidraw is in package.json dependencies (v0.18.1),
+// so its stubs below are redundant — package ships its own types.
+// Keep them until we verify the package types cover all exports used in the codebase.
 
 declare module "@excalidraw/excalidraw" {
   export const Excalidraw: any;

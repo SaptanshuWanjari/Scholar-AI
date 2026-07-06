@@ -3,12 +3,13 @@
 import pytest
 
 from scholarai.rag.nodes.generator import generate
-from scholarai.rag.prompts import NOT_GROUNDED
 from scholarai.rag.state import GraphState
 from tests.factories import make_chunk
 
 
-def test_ungrounded_returns_not_grounded_template():
+@pytest.mark.ollama
+@pytest.mark.usefixtures("required_llm_skip_if_missing")
+def test_ungrounded_still_produces_answer():
     state: GraphState = {
         "query": "What is dark matter?",
         "retrieved": [],
@@ -16,7 +17,8 @@ def test_ungrounded_returns_not_grounded_template():
         "route": "quick_qa",
     }
     result = generate(state)
-    assert result["answer"] == NOT_GROUNDED
+    assert result["answer"]
+    assert isinstance(result["answer"], str)
 
 
 @pytest.mark.ollama

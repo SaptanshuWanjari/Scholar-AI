@@ -650,7 +650,7 @@ function ArtifactBody({ view }: { view: ArtifactKey }) {
             );
           }
           case "diagram":
-            return <DiagramViewer code={(slot.data as GeneratedDiagram).mermaid} flush />;
+            return <DiagramViewer code={(slot.data as GeneratedDiagram).syntax} flush />;
           case "mindmap": {
             const text = (slot.data as GeneratedMindmap).text;
             if (!text?.trim()) return <ViewState icon={Network} message="No mind map was generated." />;

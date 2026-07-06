@@ -15,9 +15,14 @@ from scholarai.rag.nodes.verifier import verify
 from scholarai.rag.nodes.rewriter import rewrite
 from scholarai.rag.state import GraphState
 
+# Routes that produce creative/generative output without needing document retrieval.
+_SKIP_RETRIEVAL_ROUTES = {"mermaid", "mindmap", "plantuml"}
+
 
 def _should_retrieve(state: GraphState) -> str:
-    """After routing: only proceed to retrieval if the route is wired."""
+    route = state.get("route", "")
+    if route in _SKIP_RETRIEVAL_ROUTES:
+        return "generate"
     return "retrieve"
 
 

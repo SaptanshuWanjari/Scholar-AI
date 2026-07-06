@@ -147,6 +147,12 @@ export default function App() {
     fetchPlugins();
   }, [fetchPlugins]);
 
+  useEffect(() => {
+    fetch("/api/health")
+      .then((r) => { if (!r.ok) console.warn("[health] Backend health check failed:", r.status); })
+      .catch(() => console.warn("[health] Backend unreachable"));
+  }, []);
+
   return (
     <BrowserRouter>
       <AppearanceSync />
@@ -216,7 +222,7 @@ export default function App() {
               )}
             </Route>
 
-            <Route path="/components" element={<ComponentsShowcase />} />
+            {import.meta.env.DEV && <Route path="/components" element={<ComponentsShowcase />} />}
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

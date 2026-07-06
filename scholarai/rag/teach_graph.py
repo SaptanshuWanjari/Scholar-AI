@@ -161,7 +161,7 @@ def _generate_one(key: str, topic: str, approved_notes: str, depth: str, retriev
             title=topic,
             course="",
             kind="flowchart",
-            mermaid=mermaid,
+            syntax=mermaid,
             grounded=grounded,
             quality=quality,
         ).model_dump()

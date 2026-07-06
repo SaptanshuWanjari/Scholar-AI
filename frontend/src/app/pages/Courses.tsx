@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import { FolderOpen, Plus, X } from "lucide-react";
 import { toast } from "@/app/lib/toast";
+import PageLoading from "@/app/components/ui/PageLoading";
 import { api } from "../lib/api";
 import type { Course } from "../lib/types";
 import { useCourseWorkspaceStore } from "../stores/useCourseWorkspaceStore";
@@ -24,11 +25,14 @@ export function Courses() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const loadCourses = useCallback(() =>
     api.listCourses().then(setCourses).catch(() => {}), []);
 
-  useEffect(() => { loadCourses(); }, [loadCourses]);
+  useEffect(() => {
+    loadCourses().finally(() => setLoading(false));
+  }, [loadCourses]);
 
   useEffect(() => {
     const id = searchParams.get("id");
@@ -88,6 +92,8 @@ export function Courses() {
     } catch (e) { toast.error(String(e)); }
     setDeletingId(null);
   };
+
+  if (loading) return <PageLoading />;
 
   return (
     <div className="flex h-full overflow-hidden bg-paper">

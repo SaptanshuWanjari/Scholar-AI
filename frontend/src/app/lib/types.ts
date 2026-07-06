@@ -194,7 +194,7 @@ export interface DiagramItem {
   title: string;
   course: string;
   kind: string;
-  mermaid: string;
+  syntax: string;
   quality?: QualityScore;
 }
 
