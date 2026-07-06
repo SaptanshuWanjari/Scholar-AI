@@ -122,7 +122,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
       <h3 className="font-kalam text-[18px] font-bold text-ink mb-2 mt-4 first:mt-0">{children}</h3>
     ),
     p: ({ children }) => (
-      <p className="font-kalam text-[14.5px] leading-relaxed text-ink mb-4">
+      <p className="font-kalam text-[16px] leading-relaxed text-ink mb-4">
         {withMathAndCitations(children, onCitationClick)}
       </p>
     ),
@@ -137,7 +137,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
     li: ({ children, className }) => {
       if (className && className.includes("task-list-item")) {
         return (
-          <li className={cn("relative flex items-center gap-3 pl-1 mb-2 font-kalam text-[14.5px] text-ink", className)}>
+          <li className={cn("relative flex items-center gap-3 pl-1 mb-2 font-kalam text-[16px] text-ink", className)}>
             <span className="flex-1 flex items-center">
               {withMathAndCitations(children, onCitationClick)}
             </span>
@@ -145,7 +145,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
         );
       }
       return (
-        <li className="relative flex gap-3 pl-1 mb-2 font-kalam text-[14.5px] text-ink">
+        <li className="relative flex gap-3 pl-1 mb-2 font-kalam text-[16px] text-ink">
           <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-[#3a3733]" />
           <span className="flex-1">
             {withMathAndCitations(children, onCitationClick)}
@@ -292,7 +292,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
       </th>
     ),
     td: ({ children }) => (
-      <td className="px-4 py-3 font-kalam text-[14.5px] leading-relaxed text-ink border-b border-[#e8e3d8]">
+      <td className="px-4 py-3 font-kalam text-[16px] leading-relaxed text-ink border-b border-[#e8e3d8]">
         {withMathAndCitations(children, onCitationClick)}
       </td>
     ),

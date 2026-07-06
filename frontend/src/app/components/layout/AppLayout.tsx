@@ -8,6 +8,7 @@ import { ScratchpadDrawer } from "../scratchpad/ScratchpadDrawer";
 import { useScratchpadStore } from "../scratchpad/useScratchpadStore";
 import { navItems } from "../../lib/nav";
 import { useAppearanceStore } from "../../stores/useAppearanceStore";
+import { useUIStore } from "../../stores/useUIStore";
 
 export function AppLayout() {
   const navigate = useNavigate();
@@ -26,6 +27,14 @@ export function AppLayout() {
       const tag = (e.target as HTMLElement)?.tagName;
       const editable = (e.target as HTMLElement)?.isContentEditable;
       if (tag === "INPUT" || tag === "TEXTAREA" || editable) return;
+
+      // Ctrl+B toggles sidebar
+      if (e.ctrlKey && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        useUIStore.getState().toggleSidebar();
+        return;
+      }
+
       if (e.ctrlKey || e.metaKey || e.altKey) return;
 
       const pressed = e.key.toLowerCase();

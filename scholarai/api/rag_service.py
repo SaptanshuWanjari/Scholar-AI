@@ -21,7 +21,7 @@ from scholarai.rag.nodes.reranker import rerank
 from scholarai.rag.nodes.retriever import retrieve
 from scholarai.rag.nodes.router import route_query
 from scholarai.rag.nodes.verifier import verify
-from scholarai.rag.prompts import GENERATOR_SYSTEM, NOT_GROUNDED, QA_PROMPT_TEMPLATE
+from scholarai.rag.prompts import FALLBACK_SYSTEM, GENERATOR_SYSTEM, NOT_GROUNDED, QA_PROMPT_TEMPLATE
 from scholarai.rag.state import GraphState
 
 # A small, stable palette so each course gets a consistent accent colour.
@@ -181,8 +181,21 @@ def run_ask(
             "route": used_route,
         }
 
+    content = result.get("answer", "(no answer)")
+
+    # Fallback mode: generator returns NOT_GROUNDED when grounded=False.
+    # Call the LLM directly so it can answer from its own knowledge.
+    if rag_mode == "fallback" and not grounded:
+        llm = get_llm(used_route or "quick_qa")
+        fallback_msgs = [
+            SystemMessage(content=FALLBACK_SYSTEM),
+            HumanMessage(content=question),
+        ]
+        response = llm.invoke(fallback_msgs)
+        content = response.content if hasattr(response, "content") else str(response)
+
     return {
-        "content": result.get("answer", "(no answer)"),
+        "content": content,
         "sources": serialize_chunks(retrieved),
         "retrieved": retrieved,  # raw chunks (text/_distance/document_id) for quality scoring
         "confidence": _confidence(retrieved, grounded),
@@ -385,9 +398,27 @@ def stream_ask(
     trace_service.log_weak_generation(question, retrieved, grounded, confidence)
 
     if not grounded:
-        # Strict mode: refuse to answer from AI knowledge.
-        not_found_msg = _STRICT_NOT_FOUND if rag_mode == "strict" else NOT_GROUNDED
-        yield {"type": "token", "value": not_found_msg}
+        if rag_mode == "strict":
+            yield {"type": "token", "value": _STRICT_NOT_FOUND}
+            yield {
+                "type": "done",
+                "sources": [],
+                "retrieved": retrieved,
+                "confidence": None,
+                "grounded": False,
+                "route": used_route,
+            }
+            return
+        # Fallback mode: answer from the model's own knowledge.
+        llm = get_llm(used_route or "quick_qa")
+        fallback_msgs = [
+            SystemMessage(content=FALLBACK_SYSTEM),
+            HumanMessage(content=question),
+        ]
+        for chunk in llm.stream(fallback_msgs):
+            piece = getattr(chunk, "content", "") or ""
+            if piece:
+                yield {"type": "token", "value": piece}
         yield {
             "type": "done",
             "sources": [],

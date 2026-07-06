@@ -49,7 +49,7 @@ export function SourcePanel({ sources, activeId, onSelect }: SourcePanelProps) {
         </span>
       </div>
       <ScrollArea className="flex-1">
-        <div className="space-y-2 p-4">
+        <div className="space-y-2 ">
           {sources.length === 0 && (
             <p className="px-2 py-8 text-center font-kalam text-sm text-ink-muted/70">
               Retrieved sources will appear here once you ask a question.

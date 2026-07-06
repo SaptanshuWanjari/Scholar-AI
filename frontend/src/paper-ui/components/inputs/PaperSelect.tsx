@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/paper-ui/utils";
 import { SketchBorder } from "@/paper-ui/core";
@@ -45,16 +46,32 @@ export function PaperSelect({
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const generatedId = React.useId();
 
   const selected = options.find((o) => o.value === current);
 
+  const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
+
+  const updatePos = useCallback(() => {
+    if (wrapRef.current) {
+      const rect = wrapRef.current.getBoundingClientRect();
+      setPos({ top: rect.bottom + 6, left: rect.left, width: rect.width });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    updatePos();
+  }, [open, updatePos]);
+
+  // Close on outside click, but exclude the portal dropdown itself
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      const t = e.target as Node;
+      if (wrapRef.current?.contains(t) || dropdownRef.current?.contains(t)) return;
+      setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -68,6 +85,17 @@ export function PaperSelect({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [open]);
+
+  // Reposition on scroll or resize so the dropdown tracks the trigger
+  useEffect(() => {
+    if (!open) return;
+    window.addEventListener("scroll", updatePos, true);
+    window.addEventListener("resize", updatePos);
+    return () => {
+      window.removeEventListener("scroll", updatePos, true);
+      window.removeEventListener("resize", updatePos);
+    };
+  }, [open, updatePos]);
 
   const pick = (val: string) => {
     if (!isControlled) setInternal(val);
@@ -122,10 +150,15 @@ export function PaperSelect({
           />
         </button>
 
-        {/* Dropdown */}
-        {open && (
-          <div className="absolute left-0 right-0 top-full z-50 mt-1.5">
-            <div className="relative">
+        {/* Dropdown — rendered in a portal so no parent overflow/stacking can clip it */}
+        {open && createPortal(
+          <div
+            ref={dropdownRef}
+            className="fixed z-[9999]"
+            style={{ top: pos.top, left: pos.left, width: pos.width }}
+          >
+            {/* Solid CSS background prevents rough.js hatch gaps from showing content underneath */}
+            <div className="relative" style={{ backgroundColor: "#fffdf9" }}>
               <SketchBorder
                 fill="#fffdf9"
                 stroke="#3a3733"
@@ -174,7 +207,8 @@ export function PaperSelect({
                 )}
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
 
