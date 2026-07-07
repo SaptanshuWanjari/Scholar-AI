@@ -58,6 +58,12 @@ def init_db() -> None:
 
 # Columns added after the initial schema. SQLite supports ADD COLUMN, so we
 # patch older databases in place rather than requiring a migration framework.
+# Column renames (old_name -> new_name) when a column was renamed in the model.
+_RENAMED_COLUMNS: dict[str, dict[str, str]] = {
+    "diagrams": {"mermaid": "syntax"},
+}
+
+
 _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
     "courses": [
         ("system_prompt", "TEXT"),
@@ -199,6 +205,13 @@ def _ensure_columns() -> None:
     inspector = inspect(engine)
     existing_tables = set(inspector.get_table_names())
     with engine.begin() as conn:
+        for table, renames in _RENAMED_COLUMNS.items():
+            if table not in existing_tables:
+                continue
+            present = {c["name"] for c in inspector.get_columns(table)}
+            for old_name, new_name in renames.items():
+                if old_name in present and new_name not in present:
+                    conn.execute(text(f"ALTER TABLE {table} RENAME COLUMN {old_name} TO {new_name}"))
         for table, cols in _ADDED_COLUMNS.items():
             if table not in existing_tables:
                 continue
