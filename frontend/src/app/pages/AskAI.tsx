@@ -157,7 +157,7 @@ export function AskAI() {
     <div className="flex h-full">
       {/* ── Left: Sessions panel ── */}
       <div
-        className={`hidden lg:flex flex-col overflow-hidden transition-all duration-200 ${sessionsPanelOpen ? "w-[220px]" : "w-0"
+        className={`hidden lg:flex flex-col overflow-hidden transition-all duration-200 ${sessionsPanelOpen ? "w-[250px]" : "w-0"
           }`}
       >
         <div className="relative flex min-h-0 flex-1 flex-col">
@@ -169,7 +169,7 @@ export function AskAI() {
           />
           <div className="relative z-[1] flex flex-1 flex-col">
             {/* Header */}
-            <div className="flex h-12 shrink-0 items-center justify-between px-4">
+            <div className="flex h-12 shrink-0 items-center justify-between pl-4 pr-5">
               <SectionLabel>History</SectionLabel>
               <GhostButton
                 size="sm"

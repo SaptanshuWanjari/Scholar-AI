@@ -181,7 +181,7 @@ export function ModelUsageTab() {
 
       {/* Usage log — scrollable table */}
       <div>
-        <div className="font-architect text-[13px] text-ink-muted mb-2">Usage Log</div>
+        <div className="font-architect text-sm text-ink-muted mb-2">Usage Log</div>
         {loading ? (
           <div className="flex justify-center py-6 text-ink-muted">
             <Loader2 size={18} className="animate-spin" />

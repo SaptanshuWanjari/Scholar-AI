@@ -29,7 +29,7 @@ export function HelpMenu() {
     <Menubar className="h-auto border-0 bg-transparent p-0 [&>div]:hidden">
       <MenubarMenu>
         <MenubarTrigger asChild>
-          <IconButton label="Help and guidance" className="overflow-hidden">
+          <IconButton label="Help and guidance" className="size-10 overflow-hidden">
             <HelpCircle className="size-5" />
           </IconButton>
         </MenubarTrigger>

@@ -1345,6 +1345,8 @@ dependencies = [
     { name = "langchain" },
     { name = "langchain-community" },
     { name = "langchain-core" },
+    { name = "langchain-google-genai" },
+    { name = "langchain-groq" },
     { name = "langchain-ollama" },
     { name = "langgraph" },
     { name = "pandas" },
@@ -1361,8 +1363,6 @@ dependencies = [
 
 [package.optional-dependencies]
 cloud = [
-    { name = "langchain-google-genai" },
-    { name = "langchain-groq" },
     { name = "langchain-openai" },
 ]
 ocr = [
@@ -1383,8 +1383,8 @@ requires-dist = [
     { name = "langchain", specifier = ">=0.3" },
     { name = "langchain-community", specifier = ">=0.3" },
     { name = "langchain-core", specifier = ">=0.3" },
-    { name = "langchain-google-genai", marker = "extra == 'cloud'", specifier = ">=2.0" },
-    { name = "langchain-groq", marker = "extra == 'cloud'", specifier = ">=0.2" },
+    { name = "langchain-google-genai", specifier = ">=2.0" },
+    { name = "langchain-groq", specifier = ">=0.2" },
     { name = "langchain-ollama", specifier = ">=0.2" },
     { name = "langchain-openai", marker = "extra == 'cloud'", specifier = ">=0.2" },
     { name = "langgraph", specifier = ">=0.2" },

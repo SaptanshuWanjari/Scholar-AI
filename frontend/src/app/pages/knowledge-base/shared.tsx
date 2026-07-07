@@ -5,7 +5,7 @@ export function SideSection({ label, icon: Icon, children }: { label: string; ic
     <div className="border-b border-[#e8e3d8] px-3 py-3">
       <div className="mb-1.5 flex items-center gap-1.5 px-1">
         <Icon className="size-3 text-ink-muted" />
-        <SectionLabel className="text-[10px]">{label}</SectionLabel>
+        <SectionLabel className="text-sm">{label}</SectionLabel>
       </div>
       {children}
     </div>

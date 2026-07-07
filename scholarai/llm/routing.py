@@ -70,10 +70,10 @@ def update_routing_config(patch: dict) -> dict:
 # ---------------------------------------------------------------------------
 
 # HTTP status codes that indicate permanent config problems — don't retry these.
-_PERMANENT_STATUS_CODES: frozenset[int] = frozenset({401, 403})
+_PERMANENT_STATUS_CODES: frozenset[int] = frozenset({401, 403, 429})
 
 # Status codes that are transient — fall back to the next provider.
-_TRANSIENT_STATUS_CODES: frozenset[int] = frozenset({429, 500, 502, 503, 504})
+_TRANSIENT_STATUS_CODES: frozenset[int] = frozenset({500, 502, 503, 504})
 
 
 def _status_code(exc: Exception) -> int | None:
@@ -175,8 +175,10 @@ class UsageTrackingWrapper(BaseChatModel):
                     logger.warning("Fallback %s also failed: %s", fb.provider_id, _user_message(fb_exc, fb.provider_id))
                     last_exc = fb_exc
             raise RuntimeError(
-                f"All providers failed for task '{self.task}'. Last error: {_user_message(last_exc, self.fallback_models[-1].provider_id)}"
-            ) from last_exc
+                f"All providers failed for task '{self.task}'. "
+                f"Primary ({self.provider_id}): {_user_message(primary_exc, self.provider_id)}. "
+                f"Last fallback ({self.fallback_models[-1].provider_id}): {_user_message(last_exc, self.fallback_models[-1].provider_id)}"
+            ) from primary_exc
 
     def _stream(
         self,
@@ -211,8 +213,10 @@ class UsageTrackingWrapper(BaseChatModel):
                 return
             except Exception as fb_exc:
                 logger.warning("Streaming fallback %s failed: %s", fb.provider_id, fb_exc)
+                last_exc = fb_exc
         raise RuntimeError(
-            f"All providers failed for streaming task '{self.task}'."
+            f"All providers failed for streaming task '{self.task}'. "
+            f"Primary ({self.provider_id}): {_user_message(primary_exc, self.provider_id)}."
         ) from primary_exc
 
     def _record_usage(self, result: ChatResult) -> None:
@@ -313,6 +317,9 @@ class RoutingEngine:
             for pid in config.get("fallback_chain", ["ollama"]):
                 if pid == provider_id:
                     continue
+                # ponytail: cloud provider selected → skip ollama fallback
+                if provider_id != "ollama" and pid == "ollama":
+                    continue
                 fp = registry.get(pid)
                 if fp is None:
                     continue
@@ -375,12 +382,26 @@ class RoutingEngine:
         try:
             registry = ProviderRegistry(db)
             provider = registry.get(provider_id)
-            if provider is None:
-                logger.warning(
-                    "Embedding provider %s not available, falling back to Ollama", provider_id
-                )
-                return registry.get_ollama().get_embeddings(None)
-            return provider.get_embeddings(model_id)  # type: ignore[call-arg]
+            if provider is not None:
+                try:
+                    return provider.get_embeddings(model_id)
+                except Exception as exc:
+                    logger.warning("Embedding provider %s failed: %s — trying others", provider_id, exc)
+            else:
+                logger.warning("Embedding provider %s not available, trying others", provider_id)
+
+            # ponytail: try any connected provider — user may not run ollama
+            for pid in ("gemini", "groq", "openrouter", "ollama"):
+                if pid == provider_id:
+                    continue
+                p = registry.get(pid)
+                if p is None:
+                    continue
+                try:
+                    return p.get_embeddings(None)
+                except Exception:
+                    continue
+            raise RuntimeError("No embedding provider available. Connect at least one provider.")
         finally:
             db.close()
 

@@ -151,10 +151,9 @@ def create_app() -> FastAPI:
     for module in _core_modules:
         app.include_router(module.router)
 
-    if get_settings().features.cloud_providers_enabled:
-        from scholarai.api.routers import providers, routing, usage
-        for module in (providers, routing, usage):
-            app.include_router(module.router)
+    from scholarai.api.routers import providers, routing, usage
+    for module in (providers, routing, usage):
+        app.include_router(module.router)
 
     @app.exception_handler(Exception)
     async def unhandled_error_handler(request: Request, exc: Exception):

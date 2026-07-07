@@ -37,7 +37,7 @@ export function LoadingPaper({
               key={i}
               className={cn(
                 "rounded-full bg-[#3a3733] animate-bounce",
-                dotSizeMap[size]
+                dotSizeMap[size],
               )}
               style={{ animationDelay: `${delay}ms` }}
             />
@@ -50,7 +50,10 @@ export function LoadingPaper({
           {lineWidths.map((width, i) => (
             <div
               key={i}
-              className={cn("h-1.5 rounded-full bg-[#d4cfc2] animate-pulse", width)}
+              className={cn(
+                "h-1.5 rounded-full bg-[#d4cfc2] animate-pulse",
+                width,
+              )}
             />
           ))}
         </div>
@@ -59,14 +62,16 @@ export function LoadingPaper({
       {variant === "spinner" && (
         <div
           className={cn(
-            "border-2 border-[#3a3733] rounded-full border-t-transparent animate-spin",
-            spinnerSizeMap[size]
+            "border-2 border-current border-t-transparent rounded-full animate-spin",
+            spinnerSizeMap[size],
           )}
         />
       )}
 
       {label && (
-        <span className="font-kalam text-[13px] text-ink-muted mt-2">{label}</span>
+        <span className="font-kalam text-[13px] text-ink-muted mt-2">
+          {label}
+        </span>
       )}
     </div>
   );

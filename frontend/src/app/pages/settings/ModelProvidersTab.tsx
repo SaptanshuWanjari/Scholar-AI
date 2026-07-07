@@ -1,13 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { CheckCircle, XCircle, Loader2, Search, Wifi, WifiOff, TestTube2, AlertTriangle } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Loader2, Wifi, WifiOff, TestTube2, AlertTriangle } from "lucide-react";
 import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 import { PaperInput } from "@paper-ui/components/inputs";
 import { PaperBadge } from "@paper-ui/components/badges";
 import { SuccessBanner, ErrorCard } from "@paper-ui/components/feedback";
-import { PaperCard, SketchBorder } from "@paper-ui/core";
+import { PaperCard } from "@paper-ui/core";
 import { useProvidersStore } from "../../stores/useProvidersStore";
-import type { ProviderModel, ProviderStatus, TestResponse } from "../../lib/api/providers";
+import type { ProviderStatus, TestResponse } from "../../lib/api/providers";
+import { routingApi } from "../../lib/api/routing";
+import { ModelCombobox } from "../../components/ModelCombobox";
+
+const ALL_TASKS = [
+  "quick_qa", "flashcards", "quiz", "mermaid", "mindmap",
+  "study_notes", "deep_analysis", "differences", "learning_path", "data_qa", "plantuml",
+];
 
 const PROVIDER_LABELS: Record<string, string> = {
   ollama: "Ollama (Local)",
@@ -77,72 +83,48 @@ function TestResultBanner({ result }: { result: TestResponse }) {
   );
 }
 
-function ModelSearchDropdown({ models, providerId }: { models: ProviderModel[]; providerId: string }) {
-  const [search, setSearch] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
-  const wrapperRef = useRef<HTMLDivElement>(null);
+function ProviderModelSelector({ providerId }: { providerId: string }) {
+  const { models } = useProvidersStore();
+  const providerModels = models[providerId] ?? [];
+  const [selectedModel, setSelectedModel] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const filtered = search
-    ? models.filter((m) => m.label.toLowerCase().includes(search.toLowerCase()))
-    : models;
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const open = () => {
-    if (wrapperRef.current) {
-      const r = wrapperRef.current.getBoundingClientRect();
-      setMenuStyle({
-        position: "fixed",
-        top: `${r.bottom + 4}px`,
-        left: `${r.left}px`,
-        width: `${r.width}px`,
-        zIndex: 9999,
+  const handleChange = async (modelId: string) => {
+    setSelectedModel(modelId);
+    setSaving(true);
+    try {
+      const current = await routingApi.get().catch(() => ({
+        mode: "manual" as const,
+        per_task: {},
+        fallback_chain: ["ollama"],
+        budget: { monthly_usd: 0, warn_at_pct: 80 },
+        embedding_provider: "ollama",
+        embedding_model: null,
+      }));
+      const per_task = { ...current.per_task };
+      ALL_TASKS.forEach((task) => {
+        per_task[task] = { provider: providerId, model: modelId || null };
       });
+      await routingApi.update({ ...current, mode: "manual", per_task });
+    } catch {
+      // Non-fatal
+    } finally {
+      setSaving(false);
     }
-    setIsOpen(true);
   };
 
   return (
-    <div ref={wrapperRef} className="mt-2">
-      <PaperInput
-        placeholder="Search models…"
-        icon={<Search size={14} />}
-        value={search}
-        onChange={(e) => { setSearch(e.target.value); open(); }}
-        onFocus={open}
-        wrapperClassName=""
+    <div className="mt-2">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-xs font-architect text-ink-muted">Default model for all tasks</span>
+        {saving && <Loader2 size={11} className="animate-spin text-ink-muted" />}
+      </div>
+      <ModelCombobox
+        models={providerModels}
+        value={selectedModel}
+        onChange={handleChange}
+        placeholder="Search or type a model ID…"
       />
-      {isOpen && createPortal(
-        <div
-          style={menuStyle}
-          className="rounded-lg border border-[#d4cfc2] bg-[#faf6ee] shadow-[0_4px_16px_rgba(0,0,0,0.12)] max-h-60 overflow-y-auto py-1"
-        >
-          {filtered.length === 0 ? (
-            <div className="px-3 py-2 text-sm font-kalam text-ink-muted">No models match</div>
-          ) : (
-            filtered.map((m) => (
-              <div
-                key={m.id}
-                className="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-black/[0.04] font-mono"
-                onMouseDown={() => { setSearch(m.label); setIsOpen(false); }}
-              >
-                {m.is_recommended && <span className="text-amber-500 text-xs shrink-0">★</span>}
-                {m.label}
-              </div>
-            ))
-          )}
-        </div>,
-        document.body
-      )}
     </div>
   );
 }
@@ -184,11 +166,11 @@ function OllamaCard({
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-architect text-[16px] text-ink">{PROVIDER_LABELS.ollama}</span>
+            <span className="font-architect text-[19px] text-ink">{PROVIDER_LABELS.ollama}</span>
             <StatusBadge connected={!isOffline} isLocal={true} />
             {health && <HealthDot status={health.status as "online" | "slow" | "offline"} />}
           </div>
-          <p className="font-kalam text-[13px] text-ink-muted mt-0.5">{PROVIDER_DESCRIPTIONS.ollama}</p>
+          <p className="font-kalam text-[15px] text-ink-muted mt-0.5">{PROVIDER_DESCRIPTIONS.ollama}</p>
         </div>
         <PaperButton
           tone="paper"
@@ -236,12 +218,11 @@ function OllamaCard({
 }
 
 function CloudProviderCard({ provider }: { provider: ProviderStatus }) {
-  const { connect, disconnect, connectingId, fetchModels, models, testProvider, testResults, health, fetchHealth } =
+  const { connect, disconnect, connectingId, fetchModels, testProvider, testResults, health, fetchHealth } =
     useProvidersStore();
   const [apiKey, setApiKey] = React.useState("");
   const [showKey, setShowKey] = React.useState(false);
   const isConnecting = connectingId === provider.provider_id;
-  const providerModels = models[provider.provider_id] ?? [];
   const testResult = testResults[provider.provider_id];
   const providerHealth = health[provider.provider_id];
 
@@ -264,7 +245,7 @@ function CloudProviderCard({ provider }: { provider: ProviderStatus }) {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-architect text-[16px] text-ink">
+            <span className="font-architect text-[19px] text-ink">
               {PROVIDER_LABELS[provider.provider_id] ?? provider.name}
             </span>
             <StatusBadge connected={provider.connected} isLocal={false} />
@@ -272,7 +253,7 @@ function CloudProviderCard({ provider }: { provider: ProviderStatus }) {
               <HealthDot status={providerHealth.status as "online" | "slow" | "offline"} />
             )}
           </div>
-          <p className="font-kalam text-[13px] text-ink-muted mt-0.5">
+          <p className="font-kalam text-[15px] text-ink-muted mt-0.5">
             {PROVIDER_DESCRIPTIONS[provider.provider_id] ?? provider.description}
           </p>
         </div>
@@ -338,14 +319,9 @@ function CloudProviderCard({ provider }: { provider: ProviderStatus }) {
         </div>
       )}
 
-      {/* Connected: show available models */}
-      {provider.connected && providerModels.length > 0 && (
-        <div className="mt-3">
-          <div className="text-xs font-architect text-ink-muted mb-1">
-            Available models ({providerModels.length})
-          </div>
-          <ModelSearchDropdown models={providerModels} providerId={provider.provider_id} />
-        </div>
+      {/* Connected: model selector */}
+      {provider.connected && (
+        <ProviderModelSelector providerId={provider.provider_id} />
       )}
 
       {testResult && <TestResultBanner result={testResult} />}
@@ -354,13 +330,12 @@ function CloudProviderCard({ provider }: { provider: ProviderStatus }) {
 }
 
 function OpenAICompatCard({ provider }: { provider: ProviderStatus }) {
-  const { connect, disconnect, connectingId, fetchModels, models, testProvider, testResults, health, fetchHealth } =
+  const { connect, disconnect, connectingId, fetchModels, testProvider, testResults, health, fetchHealth } =
     useProvidersStore();
   const [apiKey, setApiKey] = React.useState("");
   const [baseUrl, setBaseUrl] = React.useState(provider.base_url ?? "http://localhost:1234/v1");
   const [showKey, setShowKey] = React.useState(false);
   const isConnecting = connectingId === provider.provider_id;
-  const providerModels = models[provider.provider_id] ?? [];
   const testResult = testResults[provider.provider_id];
   const providerHealth = health[provider.provider_id];
 
@@ -475,13 +450,8 @@ function OpenAICompatCard({ provider }: { provider: ProviderStatus }) {
         </div>
       )}
 
-      {provider.connected && providerModels.length > 0 && (
-        <div className="mt-3">
-          <div className="text-xs font-architect text-ink-muted mb-1">
-            Available models ({providerModels.length})
-          </div>
-          <ModelSearchDropdown models={providerModels} providerId={provider.provider_id} />
-        </div>
+      {provider.connected && (
+        <ProviderModelSelector providerId={provider.provider_id} />
       )}
 
       {testResult && <TestResultBanner result={testResult} />}

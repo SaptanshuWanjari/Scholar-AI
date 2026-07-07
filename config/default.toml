@@ -59,7 +59,7 @@ max_concurrent_llm = 5
 [features]
 # Set to true once cloud provider integration is stable.
 # Also set VITE_CLOUD_PROVIDERS=true in frontend/.env to enable the UI.
-cloud_providers_enabled = false
+cloud_providers_enabled = true
 
 [paths]
 data_dir = "data"

@@ -114,7 +114,10 @@ def _active_vision_model() -> str:
     return ui.get("visionModel") or get_settings().models.vision
 
 
-def get_vision_llm(*, temperature: float = 0.0) -> ChatOllama:
-    """Return a ``ChatOllama`` bound to the vision-capable model (not cached)."""
+def get_vision_llm(*, temperature: float = 0.0) -> BaseChatModel:
+    """Return a vision-capable chat model via routing or Ollama."""
+    if _cloud_plugin_enabled():
+        from scholarai.llm.routing import RoutingEngine
+        return RoutingEngine().resolve("image_qa", temperature)
     s = get_settings()
     return ChatOllama(model=_active_vision_model(), temperature=temperature, base_url=s.ollama.base_url, num_ctx=8192)

@@ -278,7 +278,7 @@ function ToastViewport({
       POSITION_CLASSES[position],
       className,
     ),
-    style: { zIndex: 99999, width: 360, maxWidth: "calc(100vw - 2rem)" },
+    style: { zIndex: 99999, width: 480, maxWidth: "calc(100vw - 2rem)" },
     children: toasts.map((toast) =>
       createElement(ToastUnit, {
         key: toast.id,
@@ -371,7 +371,7 @@ function ToastTitle({
   const { toast } = useSingleToast();
   if (!toast.title) return null;
   return createElement("div", {
-    className: cn("font-caveat font-bold text-[var(--paper-ink)] text-2xl break-words", className),
+    className: cn("font-caveat font-bold text-[var(--paper-ink)] text-xl break-words", className),
     ...rest,
     children: children ?? toast.title,
   });

@@ -70,7 +70,7 @@ export function OnboardingHero() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative flex max-h-screen items-center justify-center overflow-hidden bg-[#f5f0e8] px-6 py-10">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f0e8] px-6 py-10">
       {/* Left doodle — star with dashed curved trail */}
       <div className="pointer-events-none absolute left-[5%] top-[22%]">
         <svg width="130" height="130" fill="none" aria-hidden>

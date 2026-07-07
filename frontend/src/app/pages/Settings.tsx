@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle, Terminal, Paintbrush, Save, Cloud, Route, Sliders, BarChart2 } from "lucide-react";
-import { CLOUD_PROVIDERS_ENABLED } from "../lib/featureFlags";
+import { Cpu, Filter, Keyboard, User, ShieldCheck, Database, TriangleAlert, Trash2, LifeBuoy, RotateCcw, BookOpen, Compass, Puzzle, Terminal, Paintbrush, Save, Cloud, Route, Sliders, BarChart2, Loader2, RefreshCw } from "lucide-react";
 import { ModelProvidersTab } from "./settings/ModelProvidersTab";
 import { ModelRoutingTab } from "./settings/ModelRoutingTab";
 import { ModelDefaultsTab } from "./settings/ModelDefaultsTab";
@@ -24,6 +23,7 @@ import { usePluginStore } from "../plugins/usePluginStore";
 import { SidebarItem } from "@paper-ui/components/navigation";
 import { Divider } from "@paper-ui/components/utility";
 import { PluginRow } from "@paper-ui/components/rows";
+import { cn } from "@paper-ui/utils";
 import { useAppearanceStore } from "../stores/useAppearanceStore";
 
 function toOptions(models: string[], current: string): SelectOption[] {
@@ -87,6 +87,18 @@ export function SettingsPage() {
   const [backingUp, setBackingUp] = useState(false);
   const [backups, setBackups] = useState<Array<{ path: string; stamp: string; size_mb: number }>>([]);
   const [backupMsg, setBackupMsg] = useState("");
+  const [reindexingAll, setReindexingAll] = useState(false);
+
+  const handleReindexAll = async () => {
+    setReindexingAll(true);
+    try {
+      const job = await api.reindexAll();
+      setBackupMsg(`Rebuilding all documents: job queued (${job.id.slice(0, 8)}…).`);
+    } catch (e: any) {
+      setBackupMsg(`Reindex failed: ${e.message}`);
+    }
+    setReindexingAll(false);
+  };
 
   const handleBackup = async () => {
     setBackingUp(true);
@@ -173,8 +185,8 @@ export function SettingsPage() {
                   className="w-56"
                   value={appearance.fontSize}
                   onChange={(v) => appearance.set("fontSize", v)}
-                  min={12}
-                  max={24}
+                  min={16}
+                  max={34}
                   step={1}
                 />
               </Row>
@@ -194,7 +206,32 @@ export function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "models" && CLOUD_PROVIDERS_ENABLED && isEnabled("cloud-model-providers") && (
+          {activeTab === "models" && !isEnabled("cloud-model-providers") && (
+            <div className="p-4">
+              <PaperCard className="p-5 flex flex-col items-center text-center gap-3">
+                <Cloud size={28} className="text-ink-muted" />
+                <div>
+                  <div className="font-architect text-[16px] text-ink">Enable Cloud Providers</div>
+                  <p className="font-kalam text-[13px] text-ink-muted mt-1 max-w-xs">
+                    Install the plugin to connect Gemini, Groq, OpenRouter, or any OpenAI-compatible endpoint and configure model routing.
+                  </p>
+                </div>
+                <PaperButton
+                  tone="dark"
+                  onClick={() => install("cloud-model-providers")}
+                  disabled={getInstallState("cloud-model-providers") === "installing"}
+                >
+                  {getInstallState("cloud-model-providers") === "installing" ? (
+                    <><Loader2 size={13} className="animate-spin" /> Installing…</>
+                  ) : (
+                    "Install Plugin"
+                  )}
+                </PaperButton>
+              </PaperCard>
+            </div>
+          )}
+
+          {activeTab === "models" && isEnabled("cloud-model-providers") && (
             <div className="border-b border-[#e8e3d8] mb-2">
               <div className="flex flex-wrap gap-1 p-2">
                 {([
@@ -217,19 +254,19 @@ export function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "models" && CLOUD_PROVIDERS_ENABLED && isEnabled("cloud-model-providers") && modelsSubTab === "providers" && (
+          {activeTab === "models" && isEnabled("cloud-model-providers") && modelsSubTab === "providers" && (
             <ModelProvidersTab />
           )}
-          {activeTab === "models" && CLOUD_PROVIDERS_ENABLED && isEnabled("cloud-model-providers") && modelsSubTab === "routing" && (
+          {activeTab === "models" && isEnabled("cloud-model-providers") && modelsSubTab === "routing" && (
             <ModelRoutingTab />
           )}
-          {activeTab === "models" && CLOUD_PROVIDERS_ENABLED && isEnabled("cloud-model-providers") && modelsSubTab === "usage" && (
+          {activeTab === "models" && isEnabled("cloud-model-providers") && modelsSubTab === "usage" && (
             <ModelUsageTab />
           )}
 
-          {activeTab === "models" && (!CLOUD_PROVIDERS_ENABLED || !isEnabled("cloud-model-providers") || modelsSubTab === "defaults") && (
+          {activeTab === "models" && isEnabled("cloud-model-providers") && modelsSubTab === "defaults" && (
             <div className=''>
-              {CLOUD_PROVIDERS_ENABLED && isEnabled("cloud-model-providers") && <ModelDefaultsTab />}
+              <ModelDefaultsTab />
               <Row
                 title="AI Mode"
                 desc={
@@ -677,6 +714,19 @@ export function SettingsPage() {
                 {backupMsg && (
                   <div className="pb-4 font-kalam text-xs text-ink-muted/75">{backupMsg}</div>
                 )}
+                <Row
+                  title="Reindex All"
+                  desc="Re-embed every document from scratch. Use after changing embedding models or if the vector index is stale."
+                >
+                  <PaperButton
+                    className="gap-2"
+                    onClick={handleReindexAll}
+                    disabled={reindexingAll}
+                  >
+                    <RefreshCw className={cn("size-4", reindexingAll && "animate-spin")} />
+                    {reindexingAll ? "Queuing…" : "Reindex All"}
+                  </PaperButton>
+                </Row>
                 {backups.length > 0 && (
                   <div className="pb-4 space-y-1">
                     <div className="font-architect text-xs text-ink-muted">Recent backups</div>
