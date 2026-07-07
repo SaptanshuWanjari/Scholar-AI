@@ -113,10 +113,14 @@ def add_chunks(rows: list[dict], rebuild_fts: bool = True) -> None:
     if _has_table():
         tbl = db.open_table(TABLE_NAME)
         if not _schema_is_current(tbl):
-            raise RuntimeError(
-                "chunks table predates multimodal columns. "
-                "Run reindex_all() to migrate, then retry."
+            # Schema predates multimodal columns — drop and recreate.
+            # All documents will be re-embedded by reindex_all(); dropping here
+            # lets the first new batch establish the correct schema.
+            logger.warning(
+                "chunks table schema is stale (missing multimodal columns); dropping for rebuild"
             )
+            db.drop_table(TABLE_NAME)
+            tbl = db.create_table(TABLE_NAME, data=rows)
         else:
             tbl.add(rows)
     else:

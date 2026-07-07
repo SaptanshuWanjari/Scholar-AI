@@ -91,18 +91,8 @@ _PROVIDER_META = {
         "is_local": False,
         "capabilities": ["chat", "streaming", "json", "tools"],
     },
-    "openrouter": {
-        "name": "OpenRouter",
-        "description": "Unified API for 100+ cloud models from Anthropic, Google, Meta, and more — plus embeddings.",
-        "is_local": False,
-        "capabilities": ["chat", "streaming", "vision", "json", "tools", "embeddings"],
-    },
-    "openai_compat": {
-        "name": "OpenAI-Compatible API",
-        "description": "Any server that speaks the OpenAI REST spec: LM Studio, vLLM, Together AI, Fireworks, Anyscale, Perplexity, and more.",
-        "is_local": False,
-        "capabilities": ["chat", "streaming", "json", "tools"],
-    },
+    # "openrouter": disabled until stabilized
+    # "openai_compat": disabled until stabilized
 }
 
 
@@ -151,11 +141,8 @@ def list_providers() -> list[ProviderStatus]:
 def connect_provider(provider_id: str, payload: ConnectRequest) -> dict:
     """Store an API key and mark provider as connected after validating it."""
     _require_plugin()
-    if provider_id not in ("gemini", "groq", "openrouter", "openai_compat"):
+    if provider_id not in ("gemini", "groq"):
         raise HTTPException(status_code=404, detail=f"Unknown cloud provider: {provider_id}")
-
-    if provider_id == "openai_compat" and not payload.base_url:
-        raise HTTPException(status_code=400, detail="base_url is required for openai_compat provider")
 
     # Validate key by instantiating provider and listing models
     try:
@@ -185,7 +172,7 @@ def connect_provider(provider_id: str, payload: ConnectRequest) -> dict:
 def disconnect_provider(provider_id: str) -> dict:
     """Remove the API key and mark provider as disconnected."""
     _require_plugin()
-    if provider_id not in ("gemini", "groq", "openrouter", "openai_compat"):
+    if provider_id not in ("gemini", "groq"):
         raise HTTPException(status_code=404, detail=f"Unknown cloud provider: {provider_id}")
 
     db = get_session()
@@ -214,6 +201,8 @@ def list_provider_models(provider_id: str) -> list[ProviderModelOut]:
         provider = _get_connected_provider(provider_id)
         models = provider.list_models()
 
+    # Exclude embedding-only models — chat UIs don't need to show them
+    chat_models = [m for m in models if "chat" in [c.value for c in m.capabilities]]
     return [
         ProviderModelOut(
             id=m.id,
@@ -225,7 +214,7 @@ def list_provider_models(provider_id: str) -> list[ProviderModelOut]:
             is_recommended=m.is_recommended,
             tags=m.tags,
         )
-        for m in models
+        for m in chat_models
     ]
 
 

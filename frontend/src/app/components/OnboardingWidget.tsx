@@ -86,7 +86,7 @@ export default function OnboardingWidget() {
               onClick={() => setIsOpen(true)}
             >
               {status === "uploading" || status === "analyzing" ? (
-                <LoadingPaper variant="spinner" size="sm" />
+                <LoadingPaper variant="spinner" size="sm" className="text-white" />
               ) : status === "ready" ? (
                 <CheckCircle2 size={22} />
               ) : errorMsg ? (

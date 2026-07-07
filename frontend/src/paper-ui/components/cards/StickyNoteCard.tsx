@@ -52,7 +52,7 @@ export function StickyNoteCard({
       }}
     >
       {pin === "push-pin" && (
-        <div className="absolute -top-4 left-1/2 z-30 -translate-x-1/2">
+        <div className="absolute top-1 left-1/2 z-30 -translate-x-1/2">
           <PushPin size={24} />
         </div>
       )}

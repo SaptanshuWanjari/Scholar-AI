@@ -247,8 +247,8 @@ export function KnowledgeBase() {
           {/* Sidebar header */}
           <div className="flex items-center justify-between border-b border-[#e8e3d8] px-4 py-3">
             <div className="flex items-center gap-2">
-              <Compass className="size-3.5 text-ink-muted" />
-              <SectionLabel className="text-[10px]">Knowledge Explorer</SectionLabel>
+              <Compass className="size-4.5 text-ink-muted" />
+              <SectionLabel className="text-sm">Explorer</SectionLabel>
             </div>
             <IconButton
               label="Collapse sidebar"
@@ -399,7 +399,7 @@ export function KnowledgeBase() {
             </SideSection>
 
             {/* Recent concepts */}
-            <SideSection label="Recent Concepts" icon={History}>
+            <SideSection label="Recent " icon={History}>
               {sidebar.recentConcepts.length === 0 ? (
                 <p className="px-1 font-kalam text-xs text-ink-muted">
                   No concepts extracted yet.

@@ -146,7 +146,7 @@ export function Dashboard() {
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-wrap items-end justify-between gap-4 border-b border-ink/15 pb-6"
+        className="flex  flex-wrap items-end justify-between gap-4 border-b border-ink/15 pb-6"
       >
         <div className="flex items-center gap-3">
           <SunDoodle size={46} className="-mt-1 text-ink" />

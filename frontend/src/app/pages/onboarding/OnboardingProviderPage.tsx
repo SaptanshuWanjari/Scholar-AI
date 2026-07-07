@@ -1,5 +1,4 @@
-import { type CSSProperties, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -8,16 +7,13 @@ import {
   Cloud,
   Sparkles,
   Zap,
-  Globe,
-  Cpu,
   Eye,
   EyeOff,
   Loader2,
-  Search,
 } from "lucide-react";
 import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 import { PaperInput } from "@paper-ui/components/inputs";
-import type { ProviderModel } from "../../lib/api/providers";
+import { ModelCombobox } from "../../components/ModelCombobox";
 import { PaperCard, PaperH2, PaperH3, PaperIconCircle } from "@paper-ui/core";
 import { PaperBadge } from "@paper-ui/components/badges";
 import { LoadingPaper } from "@paper-ui/components/feedback";
@@ -43,99 +39,11 @@ const DEFAULT_ROUTING: RoutingConfig = {
 };
 
 const CLOUD_PROVIDERS = [
-  { id: "gemini",       name: "Google Gemini",       desc: "Vision, reasoning, long context. Best for deep analysis.", Icon: Sparkles },
-  { id: "groq",         name: "Groq",                desc: "Extremely fast inference. Best for quick Q&A and flashcards.", Icon: Zap },
-  { id: "openrouter",   name: "OpenRouter",          desc: "Access 100+ models from a single API key.", Icon: Globe },
-  { id: "openai_compat",name: "OpenAI-Compatible",   desc: "LM Studio, vLLM, Together AI, Fireworks, and more.", Icon: Cpu },
+  { id: "gemini", name: "Google Gemini", desc: "Vision, reasoning, long context. Best for deep analysis.", Icon: Sparkles },
+  { id: "groq",   name: "Groq",          desc: "Extremely fast inference. Best for quick Q&A and flashcards.", Icon: Zap },
 ] as const;
 
-function ModelSearchSelect({
-  models,
-  value,
-  onChange,
-}: {
-  models: ProviderModel[];
-  value: string;
-  onChange: (id: string) => void;
-}) {
-  const [search, setSearch] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
-  const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const selectedLabel = value ? (models.find((m) => m.id === value)?.label ?? value) : undefined;
-  const filtered = search
-    ? models.filter((m) => m.label.toLowerCase().includes(search.toLowerCase()))
-    : models;
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-        setSearch("");
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const openDropdown = () => {
-    if (wrapperRef.current) {
-      const r = wrapperRef.current.getBoundingClientRect();
-      setMenuStyle({
-        position: "fixed",
-        top: `${r.bottom + 4}px`,
-        left: `${r.left}px`,
-        width: `${r.width}px`,
-        zIndex: 9999,
-      });
-    }
-    setIsOpen(true);
-  };
-
-  return (
-    <div ref={wrapperRef}>
-      <PaperInput
-        placeholder={selectedLabel ?? "Search models…"}
-        icon={<Search size={14} />}
-        value={search}
-        onChange={(e) => { setSearch(e.target.value); openDropdown(); }}
-        onFocus={openDropdown}
-        wrapperClassName=""
-      />
-      {isOpen && createPortal(
-        <div
-          style={menuStyle}
-          className="rounded-lg border border-[#d4cfc2] bg-[#faf6ee] shadow-[0_4px_16px_rgba(0,0,0,0.12)] max-h-60 overflow-y-auto py-1"
-        >
-          {!search && (
-            <div
-              className={`px-3 py-2 text-sm cursor-pointer font-kalam ${!value ? "bg-black/[0.06]" : "hover:bg-black/[0.04]"}`}
-              onMouseDown={() => { onChange(""); setSearch(""); setIsOpen(false); }}
-            >
-              Provider default
-            </div>
-          )}
-          {filtered.length === 0 ? (
-            <div className="px-3 py-2 text-sm font-kalam text-ink-muted">No models match</div>
-          ) : (
-            filtered.map((m) => (
-              <div
-                key={m.id}
-                className={`flex items-center gap-2 px-3 py-2 text-sm cursor-pointer font-mono ${m.id === value ? "bg-black/[0.06]" : "hover:bg-black/[0.04]"}`}
-                onMouseDown={() => { onChange(m.id); setSearch(""); setIsOpen(false); }}
-              >
-                {m.is_recommended && <span className="text-amber-500 text-xs shrink-0">★</span>}
-                {m.label}
-              </div>
-            ))
-          )}
-        </div>,
-        document.body
-      )}
-    </div>
-  );
-}
 
 export function OnboardingProviderPage() {
   const navigate = useNavigate();
@@ -415,19 +323,17 @@ export function OnboardingProviderPage() {
                                 </GhostButton>
                               </div>
 
-                              {/* Model selector — shown when models are available */}
-                              {modelCount > 0 && (
-                                <div>
-                                  <label className="text-xs font-architect text-ink-muted mb-1 block">Default model</label>
-                                  <ModelSearchSelect
-                                    models={providerModels}
-                                    value={selectedModels[id] ?? ""}
-                                    onChange={(v) =>
-                                      setSelectedModels((s) => ({ ...s, [id]: v }))
-                                    }
-                                  />
-                                </div>
-                              )}
+                              {/* Model selector */}
+                              <div>
+                                <label className="text-xs font-architect text-ink-muted mb-1 block">
+                                  Model {modelCount === 0 && <span className="font-kalam">(type a model ID manually)</span>}
+                                </label>
+                                <ModelCombobox
+                                  models={providerModels}
+                                  value={selectedModels[id] ?? ""}
+                                  onChange={(v) => setSelectedModels((s) => ({ ...s, [id]: v }))}
+                                />
+                              </div>
                             </motion.div>
                           ) : (
                             <motion.div

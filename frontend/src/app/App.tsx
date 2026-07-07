@@ -15,7 +15,6 @@ import { OnboardingProvider } from "./context/OnboardingContext";
 import { api } from "./lib/api";
 import { KNOWN_PLUGINS } from "./plugins/registry";
 import { usePluginStore } from "./plugins/usePluginStore";
-import { CLOUD_PROVIDERS_ENABLED } from "./lib/featureFlags";
 
 const Dashboard = lazy(() =>
   import("./pages/Dashboard").then((m) => ({ default: m.Dashboard })),
@@ -162,10 +161,7 @@ export default function App() {
             {/* Onboarding flow — full-page, no sidebar */}
             <Route path="/onboarding" element={<OnboardingHero />} />
             <Route path="/onboarding/setup" element={<OnboardingSetup />} />
-            <Route
-              path="/onboarding/provider"
-              element={CLOUD_PROVIDERS_ENABLED ? <OnboardingProviderPage /> : <Navigate to="/onboarding/import" replace />}
-            />
+            <Route path="/onboarding/provider" element={<OnboardingProviderPage />} />
             <Route path="/onboarding/import" element={<OnboardingImport />} />
             <Route
               path="/onboarding/analyzing"

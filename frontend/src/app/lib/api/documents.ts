@@ -41,6 +41,9 @@ export const documentsApi = {
     if (course && course !== "all") p.set("course", course);
     return request<PaginatedSourcesOut>(`/api/sources/search?${p.toString()}`);
   },
+  reindexAll(): Promise<{ id: string; kind: string; status: string; label: string; error?: string }> {
+    return request("/api/documents/reindex-all", { method: "POST" });
+  },
   search(q: string, type = "all", course = "all", topic = "all"): Promise<SearchResult[]> {
     const p = new URLSearchParams({ q, type, course, topic });
     return request<SearchResult[]>(`/api/search?${p.toString()}`);

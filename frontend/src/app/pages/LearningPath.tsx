@@ -45,13 +45,6 @@ import { useLearningPathStore } from "../stores/useLearningPathStore";
 import { useConceptActionStore } from "../stores/useConceptActionStore";
 import { useTeachStore } from "../stores/useTeachStore";
 
-const SUGGESTIONS = [
-  "Operating Systems",
-  "Computer Networks",
-  "DBMS",
-  "Data Structures",
-  "Machine Learning",
-];
 
 const STATUS_OPTIONS: SelectOption[] = [
   { value: "not_started", label: "Not Started" },
@@ -346,13 +339,6 @@ function InputPhase() {
           autoFocus
         />
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {SUGGESTIONS.map((ex) => (
-            <ChipButton key={ex} onClick={() => setField("topic", ex)}>
-              {ex}
-            </ChipButton>
-          ))}
-        </div>
 
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <div className="flex-1">

@@ -6,16 +6,16 @@ from uuid import uuid4
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, UploadFile
 
 import scholarai.llm
 from scholarai.api import job_service
 from scholarai.api.activity_service import record_activity
 from scholarai.api.rag_service import serialize_chunks
-from scholarai.api.schemas import DocumentOut, DocumentPatch, DocumentUploadOut, SourceOut, PaginatedSourcesOut
+from scholarai.api.schemas import DocumentOut, DocumentPatch, DocumentUploadOut, JobOut, SourceOut, PaginatedSourcesOut
 from scholarai.api.worker_pool import get_pool
 from scholarai.config import get_settings
-from scholarai.ingest.pipeline import ingest_file
+from scholarai.ingest.pipeline import ingest_file, reindex_all
 from scholarai.storage import get_session
 from scholarai.storage.models import Course, Document, TrashIndex
 from scholarai.storage.vectors import delete_document, hybrid_search, search
@@ -132,6 +132,33 @@ async def upload_document(
     )
     get_pool().submit(_ingest_bg, dest, course_name, doc_id, job_id)
     return DocumentUploadOut(**stub_out.model_dump(), jobId=job_id)
+
+
+@router.post("/documents/reindex-all", response_model=JobOut, status_code=202)
+def reindex_all_endpoint(background_tasks: BackgroundTasks) -> JobOut:
+    session = get_session()
+    try:
+        total = session.query(Document).filter(Document.is_deleted == False).count()
+    finally:
+        session.close()
+
+    job_id = job_service.create_job(
+        "reindex",
+        label=f"Re-embedding all {total} documents",
+        payload={"documentCount": total},
+    )
+    background_tasks.add_task(_reindex_all_bg, job_id)
+    raw = job_service.get_job(job_id)
+    return JobOut(**raw)
+
+
+def _reindex_all_bg(job_id: str) -> None:
+    job_service.mark_running(job_id)
+    try:
+        results = reindex_all()
+        job_service.mark_done(job_id, {"results": results})
+    except Exception as exc:
+        job_service.mark_failed(job_id, str(exc)[:500])
 
 
 def _ingest_bg(path: Path, course_name: str, doc_id: int, job_id: str) -> None:

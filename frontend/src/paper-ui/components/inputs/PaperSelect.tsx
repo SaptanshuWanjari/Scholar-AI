@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/paper-ui/utils";
 import { SketchBorder } from "@/paper-ui/core";
 
@@ -23,6 +23,9 @@ export interface PaperSelectProps {
   className?: string;
   wrapperClassName?: string;
   icon?: React.ReactNode;
+  searchable?: boolean;
+  /** When true, shows a "Use '…' as custom value" entry when search text doesn't match any option */
+  allowCustom?: boolean;
 }
 
 export function PaperSelect({
@@ -38,6 +41,8 @@ export function PaperSelect({
   className,
   wrapperClassName,
   icon,
+  searchable = false,
+  allowCustom = false,
 }: PaperSelectProps) {
   const isControlled = value !== undefined;
   const [internal, setInternal] = useState(defaultValue ?? "");
@@ -45,23 +50,57 @@ export function PaperSelect({
 
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const wrapRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const generatedId = React.useId();
 
   const selected = options.find((o) => o.value === current);
+  // For custom values not in the options list, display the raw value
+  const displayLabel = selected?.label ?? (current || null);
 
   const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
 
   const updatePos = useCallback(() => {
     if (wrapRef.current) {
       const rect = wrapRef.current.getBoundingClientRect();
-      setPos({ top: rect.bottom + 6, left: rect.left, width: rect.width });
+      const dropdownEl = dropdownRef.current;
+      const dropdownHeight = dropdownEl ? dropdownEl.getBoundingClientRect().height : 220;
+
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      let top = rect.bottom + 6;
+      if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+        top = rect.top - dropdownHeight - 6;
+      }
+
+      setPos({ top, left: rect.left, width: rect.width });
+    }
+  }, []);
+
+  const setDropdownRef = useCallback((node: HTMLDivElement | null) => {
+    dropdownRef.current = node;
+    if (node) {
+      const rect = wrapRef.current?.getBoundingClientRect();
+      if (rect) {
+        const dropdownHeight = node.getBoundingClientRect().height;
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        let top = rect.bottom + 6;
+        if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+          top = rect.top - dropdownHeight - 6;
+        }
+        setPos({ top, left: rect.left, width: rect.width });
+      }
     }
   }, []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setSearchQuery("");
+      return;
+    }
     updatePos();
   }, [open, updatePos]);
 
@@ -103,6 +142,23 @@ export function PaperSelect({
     setOpen(false);
   };
 
+  const filteredOptions = searchQuery
+    ? options.filter(
+        (opt) =>
+          opt.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          opt.value.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : options;
+
+  const showCustomEntry =
+    allowCustom &&
+    searchQuery.trim().length > 0 &&
+    !options.some(
+      (o) =>
+        o.value === searchQuery.trim() ||
+        o.label.toLowerCase() === searchQuery.trim().toLowerCase(),
+    );
+
   return (
     <div className={cn("flex flex-col gap-1.5", wrapperClassName)}>
       {label && (
@@ -138,8 +194,8 @@ export function PaperSelect({
             shadow={0}
           />
           {icon && <span className="relative z-[1] shrink-0">{icon}</span>}
-          <span className={cn("relative z-[1] flex-1", !selected && "text-ink-muted/60")}>
-            {selected ? selected.label : placeholder}
+          <span className={cn("relative z-[1] flex-1 truncate", !displayLabel && "text-ink-muted/60")}>
+            {displayLabel ?? placeholder}
           </span>
           <ChevronDown
             size={16}
@@ -153,12 +209,12 @@ export function PaperSelect({
         {/* Dropdown — rendered in a portal so no parent overflow/stacking can clip it */}
         {open && createPortal(
           <div
-            ref={dropdownRef}
+            ref={setDropdownRef}
             className="fixed z-[9999]"
             style={{ top: pos.top, left: pos.left, width: pos.width }}
           >
             {/* Solid CSS background prevents rough.js hatch gaps from showing content underneath */}
-            <div className="relative" style={{ backgroundColor: "#fffdf9" }}>
+            <div className="relative animate-in fade-in zoom-in-95 duration-100" style={{ backgroundColor: "#fffdf9" }}>
               <SketchBorder
                 fill="#fffdf9"
                 stroke="#3a3733"
@@ -167,17 +223,30 @@ export function PaperSelect({
                 shadow={4}
                 shadowColor="rgba(0,0,0,0.18)"
               />
-              <div
-                role="listbox"
-                className="relative z-[1] max-h-52 overflow-y-auto py-1.5"
-                style={{ scrollbarWidth: "thin", scrollbarColor: "#d4cfc2 transparent" }}
-              >
-                {options.length === 0 ? (
-                  <p className="px-4 py-3 font-kalam text-[13px] text-ink-muted/60">
-                    No options
-                  </p>
-                ) : (
-                  options.map((opt) => {
+              <div className="relative z-[1] flex flex-col max-h-52">
+                {searchable && (
+                  <div className="px-2 py-2 border-b border-[#e8e3d8] flex items-center gap-1.5 bg-[#faf6ee]">
+                    <Search size={13} className="text-ink-muted shrink-0" />
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-transparent font-architect text-[13px] text-ink outline-none"
+                    />
+                  </div>
+                )}
+                <div
+                  role="listbox"
+                  className="flex-1 overflow-y-auto py-1.5"
+                  style={{ scrollbarWidth: "thin", scrollbarColor: "#d4cfc2 transparent" }}
+                >
+                  {filteredOptions.length === 0 && !showCustomEntry && (
+                    <p className="px-4 py-3 font-kalam text-[13px] text-ink-muted/60">
+                      No options
+                    </p>
+                  )}
+                  {filteredOptions.map((opt) => {
                     const isSelected = opt.value === current;
                     return (
                       <button
@@ -187,7 +256,7 @@ export function PaperSelect({
                         aria-selected={isSelected}
                         onClick={() => pick(opt.value)}
                         className={cn(
-                          "flex w-full items-center gap-2 px-3 py-2.5 text-left",
+                          "flex w-full items-center gap-2 px-3 py-2 text-left",
                           "font-architect text-[14px] text-ink transition-colors",
                           isSelected
                             ? "bg-black/[0.05]"
@@ -197,14 +266,26 @@ export function PaperSelect({
                         {opt.icon && (
                           <span className="shrink-0 text-ink-muted/80">{opt.icon}</span>
                         )}
-                        <span className="flex-1">{opt.label}</span>
+                        <span className="flex-1 truncate">{opt.label}</span>
                         {isSelected && (
                           <Check size={13} className="shrink-0 text-ink-muted" />
                         )}
                       </button>
                     );
-                  })
-                )}
+                  })}
+                  {showCustomEntry && (
+                    <button
+                      type="button"
+                      role="option"
+                      onClick={() => pick(searchQuery.trim())}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left font-kalam text-[13px] text-ink-muted hover:bg-black/[0.03] transition-colors"
+                    >
+                      Use{" "}
+                      <span className="font-mono text-ink">"{searchQuery.trim()}"</span>
+                      {" "}as custom model ID
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>,
@@ -219,3 +300,4 @@ export function PaperSelect({
     </div>
   );
 }
+

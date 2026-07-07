@@ -122,7 +122,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
       <h3 className="font-kalam text-[18px] font-bold text-ink mb-2 mt-4 first:mt-0">{children}</h3>
     ),
     p: ({ children }) => (
-      <p className="font-kalam text-[16px] leading-relaxed text-ink mb-4">
+      <p className="font-kalam text-[19px] leading-relaxed text-ink mb-4">
         {withMathAndCitations(children, onCitationClick)}
       </p>
     ),

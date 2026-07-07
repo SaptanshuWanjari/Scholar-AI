@@ -32,35 +32,38 @@ const MODEL_PLACEHOLDER: Record<string, string> = {
   openai_compat: "e.g. llama-3.1-8b-instruct",
 };
 
-// Controlled text input that saves on blur or Enter; empty string → null (provider default)
-function ModelInput({
+// Model dropdown selector wrapper
+function ModelSelectInput({
   value,
   providerId,
   onSave,
   className,
+  models,
 }: {
   value: string | null;
   providerId: string;
   onSave: (v: string | null) => void;
   className?: string;
+  models: Record<string, any[]>;
 }) {
-  const [local, setLocal] = useState(value ?? "");
-
-  useEffect(() => {
-    setLocal(value ?? "");
-  }, [value]);
-
-  const save = () => onSave(local.trim() || null);
+  const providerModels = models[providerId] ?? [];
+  const options = [
+    { value: "", label: "Provider default" },
+    ...providerModels.map((m) => ({
+      value: m.id,
+      label: m.label,
+      icon: m.is_recommended ? <span className="text-amber-500 text-xs shrink-0">★</span> : undefined,
+    })),
+  ];
 
   return (
-    <PaperInput
-      value={local}
-      placeholder={MODEL_PLACEHOLDER[providerId] ?? "Provider default"}
-      onChange={(e) => setLocal(e.target.value)}
-      onBlur={save}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") save();
-      }}
+    <PaperSelect
+      value={value ?? ""}
+      onChange={(v) => onSave(v || null)}
+      options={options}
+      placeholder="Select model…"
+      searchable
+      allowCustom
       className={className}
     />
   );
@@ -69,11 +72,16 @@ function ModelInput({
 export function ModelRoutingTab() {
   const { config, loading, fetchConfig, setMode, setTaskOverride, setFallbackChain, setEmbeddingProvider } =
     useRoutingStore();
-  const { providers, fetchProviders } = useProvidersStore();
+  const { providers, fetchProviders, fetchModels, models } = useProvidersStore();
 
   useEffect(() => {
     fetchConfig();
-    fetchProviders();
+    fetchProviders().then(() => {
+      const state = useProvidersStore.getState();
+      state.providers
+        .filter((p) => p.connected || p.is_local)
+        .forEach((p) => state.fetchModels(p.provider_id));
+    });
   }, [fetchConfig, fetchProviders]);
 
   if (loading || !config) {
@@ -144,11 +152,12 @@ export function ModelRoutingTab() {
                       options={providerOptions}
                       className="w-36 shrink-0"
                     />
-                    <ModelInput
+                    <ModelSelectInput
                       value={override.model}
                       providerId={override.provider}
                       onSave={(v) => setTaskOverride(task, { provider: override.provider, model: v })}
                       className="flex-1 min-w-0"
+                      models={models}
                     />
                   </div>
                 );
@@ -156,7 +165,7 @@ export function ModelRoutingTab() {
             </div>
           </div>
           <p className="mt-1.5 text-xs font-kalam text-ink-muted">
-            Leave model blank to use the provider's default. Press Enter or click away to save.
+            Leave model blank to use the provider's default. Click away to save.
           </p>
         </div>
       )}
@@ -231,10 +240,11 @@ export function ModelRoutingTab() {
           </div>
           <div className="flex-1">
             <label className="text-xs font-architect text-ink-muted mb-1 block">Model ID</label>
-            <ModelInput
+            <ModelSelectInput
               value={config.embedding_model}
               providerId={config.embedding_provider ?? "ollama"}
               onSave={(v) => setEmbeddingProvider(config.embedding_provider ?? "ollama", v)}
+              models={models}
             />
           </div>
         </div>

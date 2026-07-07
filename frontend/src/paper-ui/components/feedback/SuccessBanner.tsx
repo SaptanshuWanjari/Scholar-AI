@@ -18,8 +18,8 @@ export function SuccessBanner({ title, message, onDismiss, action, className }: 
       <div className="relative z-[1] flex w-full flex-row gap-3">
         <CheckCircle2 size={16} color="#3f7a4e" className="mt-0.5 shrink-0" />
         <div className="flex-1">
-          {title && <p className="font-architect text-[14px] text-[#3f7a4e]">{title}</p>}
-          {message && <p className="font-kalam text-[13px] text-ink-muted mt-0.5">{message}</p>}
+          {title && <p className="font-architect text-[19px] text-[#3f7a4e]">{title}</p>}
+          {message && <p className="font-kalam text-[15px] text-ink-muted mt-0.5">{message}</p>}
           {action}
         </div>
         {onDismiss && (

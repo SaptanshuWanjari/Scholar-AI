@@ -211,7 +211,7 @@ export function Guide() {
                       <MarkdownRenderer
                         content={a.body}
                         className="
-                          font-architect text-[15px] leading-relaxed text-ink-muted
+                          font-architect text-[20px] leading-relaxed text-ink-muted
                           prose-p:mb-5 last:prose-p:mb-0
                           prose-strong:font-semibold prose-strong:text-ink
                           prose-a:text-violet prose-a:font-medium hover:prose-a:underline

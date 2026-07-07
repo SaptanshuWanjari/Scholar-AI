@@ -140,8 +140,8 @@ export function JobsIndicator() {
     <Menubar className="h-auto border-0 bg-transparent p-0 [&>div]:hidden">
       <MenubarMenu>
         <MenubarTrigger asChild>
-          <IconButton label="Notifications" className="relative overflow-hidden" onClick={() => markRead()}>
-            <Bell className="size-20" />
+          <IconButton label="Notifications" className="size-10 relative overflow-hidden" onClick={() => markRead()}>
+            <Bell className="size-26" />
             {(activeCount > 0 || unread) && (
               <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary font-architect text-[9px] font-bold leading-none text-primary-foreground animate-pulse">
                 {activeCount > 0 ? activeCount : notifications.length}
@@ -162,7 +162,7 @@ export function JobsIndicator() {
             {notifications.length > 0 && (
               <button
                 onClick={clearAll}
-                className="font-architect text-[11px] text-ink-muted hover:text-ink transition-colors"
+                className="font-architect text-[16px] text-ink-muted hover:text-ink transition-colors"
               >
                 Clear all
               </button>
