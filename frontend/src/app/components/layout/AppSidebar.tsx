@@ -57,15 +57,6 @@ export function AppSidebar() {
             className={`relative flex ${collapsed ? "h-10 w-10" : "h-12 w-12"} -rotate-3 items-center justify-center shrink-0`}
             style={{ color: "#fbf8f2" }}
           >
-            {/* <SketchBorder */}
-            {/*   fill="#262320" */}
-            {/*   stroke="#262320" */}
-            {/*   strokeWidth={1.5} */}
-            {/*   radius={6} */}
-            {/*   shadow={2} */}
-            {/*   roughness={0.9} */}
-            {/*   bleed={5} */}
-            {/* /> */}
             <span className="relative z-[1] flex items-center justify-center w-full h-full">
               <img
                 src="/output.png"
@@ -84,16 +75,6 @@ export function AppSidebar() {
           </div>
         </div>
       }
-    // footer={
-    //   <div className="rounded-lg bg-black/[0.03] p-3">
-    //     <div className="flex items-center gap-2 font-architect text-sm text-ink">
-    //       <Sparkles className="size-3.5 text-ink-muted" /> Quick tip
-    //     </div>
-    //     <p className="mt-1 font-kalam text-xs leading-relaxed text-ink-muted">
-    //       Press <ShortcutKey>⌘K</ShortcutKey> to search anything instantly.
-    //     </p>
-    //   </div>
-    // }
     />
   );
 }

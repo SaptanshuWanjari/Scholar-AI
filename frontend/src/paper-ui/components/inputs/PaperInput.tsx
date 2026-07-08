@@ -27,11 +27,11 @@ export const PaperInput = React.forwardRef<HTMLInputElement, PaperInputProps>(
     return (
       <div className={cn("flex flex-col gap-1.5", wrapperClassName)}>
         {label && (
-          <label htmlFor={inputId} className="font-architect text-ink-muted">
+          <label htmlFor={inputId} className="font-architect text-[15px] text-ink-muted">
             {label}
           </label>
         )}
-        <div className={cn("relative flex items-center gap-2 px-3 py-2", className)}>
+        <div className={cn("relative flex items-center gap-2 px-3 py-1", className)}>
           <SketchBorder
             fill={t.surface}
             stroke={error ? t.danger : focused ? t.ink : t.strokeSm}
@@ -87,7 +87,7 @@ export const PaperTextarea = React.forwardRef<HTMLTextAreaElement, PaperTextarea
     return (
       <div className={cn("flex flex-col gap-1.5", wrapperClassName)}>
         {label && (
-          <label htmlFor={inputId} className="font-architect text-[0.87rem] text-ink-muted">
+          <label htmlFor={inputId} className="font-architect text-[15px] text-ink-muted">
             {label}
           </label>
         )}

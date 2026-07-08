@@ -308,7 +308,7 @@ export function KnowledgeBase() {
             {/* Source type filter */}
             {sidebar.sourceFilters.length > 0 && (
               <SideSection label="Source Type" icon={SlidersHorizontal}>
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   {sidebar.sourceFilters.map((f) => (
                     <PaperCheckbox
                       key={f}

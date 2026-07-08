@@ -11,6 +11,7 @@ import {
   X,
   Check,
   Dot,
+  BookPlus,
 } from "lucide-react";
 import { toast } from "@/app/lib/toast";
 import { PaperButton, GhostButton } from "@/paper-ui/components/buttons";
@@ -19,6 +20,7 @@ import { PaperModal } from "@/paper-ui/components/dialogs";
 import { PaperInput } from "@/paper-ui/components/inputs";
 import { ExcalidrawCanvas } from "../components/whiteboard/ExcalidrawCanvas";
 import { AddToNotebookMenu } from "../components/AddToNotebookMenu";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
 import { api } from "../lib/api";
 import type { WhiteboardFull, WhiteboardRevision, WhiteboardScene } from "../lib/types";
 import { mermaidToScene, mergeMermaidIntoScene, sceneThumbnail } from "../lib/whiteboard";
@@ -348,15 +350,15 @@ export function WhiteboardEditor() {
         <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
           {saving ? (
             <>
-              <Loader2 className="size-3 animate-spin" /> Saving…
+              <Loader2 className="size-3 font-kalam animate-spin" /> Saving…
             </>
           ) : dirty ? (
             <>
-              <Dot className="size-4 text-amber-500" /> Unsaved
+              <Dot className="size-3 font-kalam text-amber-500" /> Unsaved
             </>
           ) : (
             <>
-              <Check className="size-3 text-emerald-500" /> Saved
+              <Check className="size-3 font-kalam  text-emerald-500" /> Saved
             </>
           )}
         </span>
@@ -500,11 +502,35 @@ export function WhiteboardEditor() {
       <PaperModal
         open={explainOpen}
         onClose={() => setExplainOpen(false)}
-        title="Diagram explanation"
-        className="max-w-lg"
+        title={
+          <>
+            <span>Diagram explanation</span>
+            <AddToNotebookMenu
+              artifactType="text"
+              label=""
+              tone="paper"
+              size="sm"
+              course={wb?.course || null}
+              customBlocks={() => [{
+                type: "text",
+                text: explainText,
+              }]}
+              trigger={
+                <GhostButton
+                  size="sm"
+                  className="mr-3 gap-1.5"
+                >
+                  <BookPlus className="size-3.5" />
+                  Add to Notebook
+                </GhostButton>
+              }
+            />
+          </>
+        }
+        className="min-w-4xl"
       >
-        <div className={cn("max-h-[60vh] overflow-y-auto whitespace-pre-wrap text-sm")}>
-          {explainText}
+        <div className="max-h-[50vh] overflow-y-auto">
+          <MarkdownRenderer content={explainText} />
         </div>
       </PaperModal>
     </div>

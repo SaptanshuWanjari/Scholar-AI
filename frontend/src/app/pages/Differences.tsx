@@ -21,8 +21,18 @@ import { PaperButton, GhostButton, ChipButton } from "@/paper-ui/components/butt
 import { PaperInput, PaperSelect } from "@/paper-ui/components/inputs";
 import { PaperBadge } from "@/paper-ui/components/badges";
 import { EmptyState } from "@/paper-ui/components/feedback";
-import { PaperCard, PaperPanel, SectionHeader, PaperH1 } from "@/paper-ui/core";
+import { PaperCard, PaperPanel, SectionHeader, PaperH1, PaperIconCircle } from "@/paper-ui/core";
 import { ArtifactRow } from "@/paper-ui/components/rows";
+import { Tape } from "@/paper-ui/components/decorations/Tape";
+
+
+const SUGGESTION_COLORS = [
+  { softBg: "var(--color-sky-soft)", deepBg: "var(--color-sky)", fg: "#4a6f91", selectedFg: "#fffdf9" },
+  { softBg: "var(--color-sage-soft)", deepBg: "var(--color-sage)", fg: "#3f7a4e", selectedFg: "#fffdf9" },
+  { softBg: "var(--color-lavender-soft)", deepBg: "var(--color-lavender)", fg: "#6f63a3", selectedFg: "#fffdf9" },
+  { softBg: "var(--color-ochre-soft)", deepBg: "var(--color-ochre)", fg: "#b07a2e", selectedFg: "#fffdf9" },
+  { softBg: "var(--color-brick-soft)", deepBg: "var(--color-brick)", fg: "#a3544a", selectedFg: "#fffdf9" },
+];
 
 export function Differences() {
   const topic = useDifferencesStore((s) => s.topic);
@@ -110,14 +120,16 @@ export function Differences() {
   return (
     <Page>
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-1">
-          <Columns2 className="size-6 text-ink-muted" />
-          <PaperH1>Difference Tables</PaperH1>
+      <div className="mb-6 flex items-center gap-3">
+        <PaperIconCircle tone="brick" size={44}>
+          <Columns2 className="size-5" />
+        </PaperIconCircle>
+        <div>
+          <PaperH1 className="!text-2xl">Difference Tables</PaperH1>
+          <p className="font-kalam text-sm text-ink-muted">
+            Compare concepts, architectures, algorithms and systems.
+          </p>
         </div>
-        <p className="font-kalam text-sm text-ink-muted">
-          Compare concepts, architectures, algorithms and systems.
-        </p>
       </div>
 
       {/* Search + generate */}
@@ -166,16 +178,21 @@ export function Differences() {
       {/* Suggestions */}
       {suggestions.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
-          {suggestions.map((s) => (
-            <ChipButton
-              key={s}
-              selected={topic === s}
-              onClick={() => setTopic(s)}
-              className="px-4 py-1.5 h-auto text-[14px] leading-relaxed"
-            >
-              {s}
-            </ChipButton>
-          ))}
+          {suggestions.map((s, i) => {
+            const color = SUGGESTION_COLORS[i % SUGGESTION_COLORS.length];
+            return (
+              <ChipButton
+                key={s}
+                selected={topic === s}
+                onClick={() => setTopic(s)}
+                border={{ fill: topic === s ? color.deepBg : color.softBg }}
+                style={{ color: topic === s ? color.selectedFg : color.fg }}
+                className="px-4 py-1.5 h-auto text-[14px] leading-relaxed border-none"
+              >
+                {s}
+              </ChipButton>
+            );
+          })}
         </div>
       )}
 
@@ -216,10 +233,19 @@ export function Differences() {
           </div>
           <PaperCard
             className={cn(
-              "p-5 font-architect text-ink",
+              "relative overflow-visible p-5 pt-8 font-architect text-ink",
               showRaw && "font-mono text-xs",
             )}
           >
+            <Tape
+              corner="top-center"
+              width={80}
+              color={
+                suggestions.indexOf(output.title) >= 0
+                  ? SUGGESTION_COLORS[suggestions.indexOf(output.title) % SUGGESTION_COLORS.length].softBg
+                  : "var(--color-sky-soft)"
+              }
+            />
             {showRaw ? (
               <pre className="whitespace-pre-wrap text-ink">{output.content}</pre>
             ) : (
@@ -240,28 +266,6 @@ export function Differences() {
           icon={<Columns2 className="size-8 text-ink-muted" />}
           title="No difference tables yet"
           description="Generate one to compare concepts. Try an example below:"
-          action={
-            <div className="flex flex-col items-center gap-4">
-              <div className="flex gap-2 flex-wrap justify-center">
-                {["Process vs Thread", "REST vs gRPC", "Monolith vs Microservices"].map((ex) => (
-                  <ChipButton
-                    key={ex}
-                    selected={topic === ex}
-                    onClick={() => setTopic(ex)}
-                    className="px-4 py-1.5 h-auto text-[14px] leading-relaxed"
-                  >
-                    {ex}
-                  </ChipButton>
-                ))}
-              </div>
-              <PaperButton
-                tone="paper"
-                onClick={() => window.document.getElementById("differences-topic-input")?.focus()}
-              >
-                Generate Difference Table
-              </PaperButton>
-            </div>
-          }
         />
       )}
 

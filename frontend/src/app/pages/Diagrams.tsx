@@ -158,10 +158,6 @@ export function Diagrams() {
         <svg className="absolute top-0 bottom-0 right-0 w-2 h-full z-10" preserveAspectRatio="none" aria-hidden>
           <path d="M1,0 Q3,20 0,40 T1,1000" fill="none" stroke="var(--color-pencil)" strokeWidth="1.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" className="opacity-30" />
         </svg>
-        <div className="relative px-4 py-3 font-caveat text-[20px] font-bold text-ink/90">
-          Diagrams
-          <SketchDivider variant="wavy" className="absolute bottom-0 left-0 opacity-30" />
-        </div>
         <ScrollArea className="flex-1 [&>[data-radix-scroll-area-viewport]>div]:!block">
           <div className="space-y-1 p-2 w-full">
             {generating && (
@@ -337,20 +333,11 @@ export function Diagrams() {
             <div className="font-kalam text-[18px] font-bold text-ink">
               {items.length === 0 ? "No diagrams yet" : "No diagram selected"}
             </div>
-            <div className="font-architect text-[13px] text-ink-muted">
+            <div className="font-architect text-[17px] text-ink-muted">
               {items.length === 0 
                 ? "Generate one to get started visualizing concepts." 
                 : "Select a diagram from the sidebar or generate a new one."}
             </div>
-            {items.length === 0 && (
-              <PaperButton 
-                tone="paper"
-                className="mt-2"
-                onClick={() => window.document.getElementById("diagram-topic-input")?.focus()}
-              >
-                Generate Diagram
-              </PaperButton>
-            )}
           </div>
         )}
       </div>

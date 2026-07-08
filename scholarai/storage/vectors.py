@@ -177,7 +177,11 @@ def search(query_vector: list[float], top_k: int = 5, offset: int = 0, course: s
     if where_clause:
         q = q.where(where_clause, prefilter=True)
         
-    results = q.limit(offset + top_k).to_list()[offset:]
+    try:
+        results = q.limit(offset + top_k).to_list()[offset:]
+    except RuntimeError:
+        logger.warning("embedding dim mismatch: query=%d vs store, reindex needed", len(query_vector))
+        results = []
     
     if return_count:
         try:
@@ -434,7 +438,11 @@ def search_notebook_chunks(
     q = tbl.search(query_vector, vector_column_name="vector").metric("cosine")
     if course:
         q = q.where(f"course = {_quote(course)}", prefilter=True)
-    return q.limit(offset + top_k).to_list()[offset:]
+    try:
+        return q.limit(offset + top_k).to_list()[offset:]
+    except RuntimeError:
+        logger.warning("embedding dim mismatch: query=%d vs store, reindex needed", len(query_vector))
+        return []
 
 
 def detect_overlapping_document(

@@ -8,7 +8,7 @@ import { AppShell } from "@paper-ui/components/layout";
 import { PaperButton } from "@paper-ui/components/buttons";
 import { PaperSelect } from "@paper-ui/components/inputs";
 import { EmptyState, LoadingPaper } from "@paper-ui/components/feedback";
-import { PaperCard, PaperH3, SectionHeader } from "@paper-ui/core";
+import { PaperCard, PaperH3, PaperIconCircle, SectionHeader } from "@paper-ui/core";
 
 export function Consistency() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -81,9 +81,9 @@ export function Consistency() {
       <div className="mx-auto flex h-full w-full max-w-6xl flex-col gap-6 overflow-y-auto px-6 py-6">
         <PaperCard shadow="sm" className="p-5">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex size-11 items-center justify-center rounded-full bg-sage-soft text-sage">
+            <PaperIconCircle className="p-5 mt-0.5 flex size-11 items-center justify-center rounded-full bg-sage-soft text-sage">
               <ShieldCheck className="size-5" />
-            </div>
+            </PaperIconCircle>
             <div className="min-w-0">
               <PaperH3>Consistency Engine</PaperH3>
               <p className="mt-1 max-w-2xl text-sm text-ink-muted">
@@ -169,14 +169,6 @@ export function Consistency() {
             icon={<ShieldCheck className="size-7 text-ink-muted/40" />}
             title="Run an analysis to see coverage"
             description="Pick a course and run an analysis to see how well your saved artifacts cover the source material."
-            action={
-              course === "none" ? (
-                <div className="flex items-center gap-1.5 text-[11px] text-ink-muted">
-                  <AlertTriangle className="size-3" />
-                  A course is required.
-                </div>
-              ) : null
-            }
           />
         )}
       </div>

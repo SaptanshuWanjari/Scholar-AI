@@ -162,7 +162,7 @@ export function PaperSelect({
   return (
     <div className={cn("flex flex-col gap-1.5", wrapperClassName)}>
       {label && (
-        <label htmlFor={generatedId} className="font-architect text-[13px] text-ink-muted">
+        <label htmlFor={generatedId} className="font-architect text-[15px] text-ink-muted">
           {label}
         </label>
       )}

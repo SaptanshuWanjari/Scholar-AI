@@ -198,7 +198,7 @@ export function Flashcards() {
     <Page className="space-y-6">
       {/* Generate flashcards */}
       <PaperPanel data-tour="flashcards-generate" className="p-5 z-10">
-        <div className="flex items-center gap-2 font-architect text-[15px] text-ink">
+        <div className="flex items-center gap-2 font-architect text-lg text-ink">
           <Sparkles className="size-4" /> Generate flashcards
         </div>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -258,7 +258,8 @@ export function Flashcards() {
       {/* Decks */}
       <div data-tour="flashcards-decks">
         <div className="flex items-center justify-between">
-          <SectionTitle title="Decks" />
+                    <h3 className='font-architect text-ink pb-3'>Decks</h3>
+
         </div>
         {loadingDecks ? (
           <PaperPanel className="flex items-center gap-2 px-4 py-8 font-kalam text-sm text-ink-muted">
@@ -269,15 +270,6 @@ export function Flashcards() {
             icon={<GraduationCap className="size-6 text-ink-muted" />}
             title="No saved decks yet"
             description="Generate your first deck. Start with a topic from your documents."
-            action={
-              <PaperButton
-                tone="dark"
-                size="sm"
-                onClick={() => window.document.getElementById("flashcards-topic-input")?.focus()}
-              >
-                <Sparkles className="size-4" /> Generate Deck
-              </PaperButton>
-            }
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -346,7 +338,7 @@ export function Flashcards() {
       {/* View switcher */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="font-architect text-[15px] text-ink">Cards</h3>
+          <h3 className="font-architect text-ink">Cards</h3>
           {activeDeck && (
             <PaperBadge tone="sky" className="text-[10px]">
               {activeDeck}

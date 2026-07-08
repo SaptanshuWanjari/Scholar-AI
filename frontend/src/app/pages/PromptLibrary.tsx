@@ -73,15 +73,7 @@ export function PromptLibrary() {
     <div className="flex h-full overflow-hidden font-architect text-ink">
       {/* ── Left: category tabs + prompt list ───────────────────────── */}
       <div className="flex w-64 shrink-0 flex-col bg-[#fffdf9]/30">
-        <div className="px-4 py-4">
-          <div className="flex items-center gap-2 font-architect text-[16px] text-ink">
-            <BookMarked className="size-4 text-ink-muted" />
-            Prompt Library
-          </div>
-          <p className="mt-1 font-kalam text-xs text-ink-muted">Customise AI generation</p>
-        </div>
 
-        <Divider variant="straight" className="px-2" />
 
         {/* category list */}
         <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1">

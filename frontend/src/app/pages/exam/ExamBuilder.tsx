@@ -260,7 +260,7 @@ function Field({
     <div data-tour={tourId}>
       <div className="mb-3 flex items-center gap-2">
         <Icon className="size-4 text-ink-muted" />
-        <SectionLabel className="text-[13px]">{title}</SectionLabel>
+        <SectionLabel className="text-[15px]">{title}</SectionLabel>
         {desc && (
           <span className="font-kalam text-xs text-ink-muted/70">· {desc}</span>
         )}
@@ -291,7 +291,7 @@ function Segmented({
           pressed={value === o}
           onPressedChange={() => onChange(o)}
           size="md"
-          className="flex-1 justify-center"
+          className="flex-1 justify-center whitespace-nowrap"
         >
           {o}{suffix ? ` ${suffix}` : ""}
         </ToggleButton>
@@ -327,7 +327,7 @@ function MultiSegmented({
               )
             }
             size="md"
-            className="flex-1 justify-center"
+            className="flex-1 justify-center whitespace-nowrap"
           >
             {o.label}
           </ToggleButton>

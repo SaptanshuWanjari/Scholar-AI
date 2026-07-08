@@ -316,10 +316,11 @@ export function AddToNotebookMenu({
                   if (e.key === "Enter") void createAndAdd();
                   if (e.key === "Escape") setCreating(false);
                 }}
-                className="h-9 flex-1"
+                className="h-9"
+                wrapperClassName="flex-1 min-w-0"
               />
               <PaperButton onClick={() => void createAndAdd()} disabled={busy || !newName.trim()} size="sm">
-                {busy ? <Loader2 className="size-4 animate-spin" /> : "Create & add"}
+                {busy ? <Loader2 className="size-4 animate-spin" /> : "+"}
               </PaperButton>
             </div>
           ) : (

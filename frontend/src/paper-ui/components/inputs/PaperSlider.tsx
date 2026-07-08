@@ -156,12 +156,12 @@ export function PaperSlider({
       {(label || showValue) && (
         <div className="flex items-center justify-between">
           {label && (
-            <label htmlFor={inputId} className="font-architect text-[0.87rem] text-ink-muted">
+            <label htmlFor={inputId} className="font-architect text-[15px] text-ink-muted">
               {label}
             </label>
           )}
           {showValue && (
-            <span className="font-architect text-[0.87rem] text-ink">
+            <span className="font-architect text-[15px] text-ink">
               {displayValue}
             </span>
           )}

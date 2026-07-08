@@ -79,10 +79,6 @@ export function MindMaps() {
         <svg className="absolute top-0 bottom-0 right-0 w-2 h-full z-10" preserveAspectRatio="none" aria-hidden>
           <path d="M1,0 Q3,20 0,40 T1,1000" fill="none" stroke="var(--color-pencil)" strokeWidth="1.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" className="opacity-30" />
         </svg>
-        <div className="relative px-4 py-3 font-caveat text-[20px] font-bold text-ink/90">
-          Mind Maps
-          <SketchDivider variant="wavy" className="absolute bottom-0 left-0 opacity-30" />
-        </div>
         <ScrollArea className="flex-1">
           <div className="space-y-1 p-2">
             {loading && (
@@ -97,7 +93,7 @@ export function MindMaps() {
               </div>
             )}
             {items.length === 0 && !loading && (
-              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+              <div className="font-kalam px-3 py-8 text-center text-xs text-muted-foreground">
                 No mind maps yet. Generate one to get started.
               </div>
             )}
@@ -139,7 +135,7 @@ export function MindMaps() {
       {/* Main panel */}
       <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
         {/* Generate controls */}
-        <div className="relative flex flex-wrap items-center gap-2 bg-card/40 px-6 py-3">
+        <div className="relative flex flex-nowrap items-center gap-2 bg-card/40 px-6 py-3">
           <SketchDivider variant="wavy" className="absolute bottom-0 left-0 opacity-30" />
           <PaperInput
             id="mindmap-topic-input"
@@ -147,7 +143,7 @@ export function MindMaps() {
             onChange={(e) => setTopic(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !loading) generate(); }}
             placeholder="Topic to map…"
-            className="max-w-xs flex-1"
+            className="h-10 max-w-xs flex-1"
             disabled={loading}
           />
           <PaperSelect
@@ -158,6 +154,7 @@ export function MindMaps() {
               ...courses.map((c) => ({ value: c.name, label: c.name })),
             ]}
             placeholder="All courses"
+            className="h-10"
             wrapperClassName="w-48"
             disabled={loading}
           />
@@ -169,10 +166,11 @@ export function MindMaps() {
               ...documents.filter(d => course !== ALL_COURSES ? d.course === course : true).map((d) => ({ value: d.id, label: d.title })),
             ]}
             placeholder="All documents"
+            className="h-10"
             wrapperClassName="w-48"
             disabled={loading}
           />
-          <PaperButton size="sm" onClick={generate} disabled={loading} className="gap-1.5">
+          <PaperButton onClick={generate} disabled={loading} className="h-10 gap-1.5">
             {loading ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
             {loading ? "Generating..." : "Generate"}
           </PaperButton>
@@ -228,24 +226,15 @@ export function MindMaps() {
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-muted-foreground">
             <Network className="size-8 opacity-40" />
             <div>
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-sm font-kalam font-medium text-foreground">
                 {items.length === 0 ? "No mind maps yet" : "No mind map selected"}
               </p>
-              <p className="mt-1 text-sm max-w-sm mx-auto">
+              <p className="mt-1 font-kalam text-sm max-w-sm mx-auto">
                 {items.length === 0
                   ? "Generate one to get started mapping topics."
                   : "Enter a topic and press Generate, or select one from the sidebar."}
               </p>
             </div>
-            {items.length === 0 && (
-              <PaperButton 
-                tone="paper"
-                className="mt-2"
-                onClick={() => window.document.getElementById("mindmap-topic-input")?.focus()}
-              >
-                Generate Mind Map
-              </PaperButton>
-            )}
           </div>
         )}
       </div>
