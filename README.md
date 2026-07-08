@@ -38,15 +38,17 @@ A **local-first AI study assistant** that runs on your machine and ingests PDFs,
 ### Concept Graph
 
 - **Knowledge Graph**: Extracts semantic relationships between concepts from your documents.
-- **Dependency Graph**: Prerequisite-based dependency engine for learning roadmaps.
+- **Learning Paths**: Prerequisite-based dependency engine generates ordered study roadmaps with mastery scoring and progress tracking.
 
 ### Notebooks
 
 - **Custom Artifact**: Create and maintain your own personalized notebook.
 - **Embedding Artifacts**: Embed other AI-generate artifacts and your custom data.
-### Consistency Checker
+### Quality & Analytics
 
 - **Cross-Artifact Validation**: Flags contradictions between user-generated notes and source documents. Also checks consistency across flashcards, quizzes, and revision notes.
+- **Artifact Quality Scoring**: Objective quality metrics (coverage, grounding, structure, balance) for generated study artifacts.
+- **Artifact Recommendations**: LLM-based suggestions for which study artifact to create next for a given topic.
 
 ### Plugin System
 
@@ -59,9 +61,18 @@ Extend ScholarAI with optional plugins — install/uninstall from the UI:
 
 ### Search & Prompt Library
 
-- **Cross-Artifact Search**: Full-text search across documents, notes, flashcards, quizzes, and diagrams.
+- **Cross-Artifact Search**: Full-text search across documents, notes, flashcards, quizzes, diagrams, concepts, and whiteboards.
+- **Retrieval Analytics**: Trace feedback and quality metrics for retrieval pipeline debugging.
 - **Custom Prompts**: Per-category RAG prompt management and prompt enhancement coaching.
 - **Prompt Enhancer**: For when your prompts are not sufficient enough.
+
+### Administration
+
+- **Background Jobs**: Durable job queue for async ingestion and reindexing, survives restarts.
+- **Token Usage & Budget**: Per-provider token tracking with monthly spend budgets and auto-fallback to local models.
+- **Provider Routing**: Manual per-task provider/model assignment or auto capability-based selection.
+- **Backup System**: Manual and scheduled LanceDB backups.
+- **System Health**: Endpoint checking Ollama connectivity and model availability per role.
 
 ## Quick Install
 
@@ -90,7 +101,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass   # bypass signing re
 ```bash
 ollama pull qwen3:8b
 ollama pull gemma4:12b
-ollama pull nomic-embed-text
+ollama pull qwen3-embedding:0.6b
 ```
 
 You can also connect cloud providers (OpenAI-compatible, Gemini, Groq, OpenRouter) during onboarding or from the Settings page.
@@ -107,7 +118,7 @@ You can also connect cloud providers (OpenAI-compatible, Gemini, Groq, OpenRoute
 .\update.ps1
 ```
 
-Your data in `.data/` is preserved across updates.
+Your data in `data/` is preserved across updates.
 
 Then open `http://localhost:8000` in your browser.
 
@@ -115,7 +126,7 @@ Then open `http://localhost:8000` in your browser.
 
 ScholarAI **does not collect telemetry or user data**. Everything runs locally on your machine:
 
-- **Local-only**: Documents, embeddings, vector index, chat history, and study artifacts all live in `.data/` — never sent to an external server.
+- **Local-only**: Documents, embeddings, vector index, chat history, and study artifacts all live in `data/` — never sent to an external server.
 - **Cloud providers**: If you connect a cloud LLM provider (OpenAI, Gemini, etc.), only prompt text is sent to that provider's API. No document contents or metadata are shared beyond what the LLM call requires.
 - **No accounts, no tracking**: No sign-up, no analytics, no telemetry. Your study data is yours.
 
@@ -134,8 +145,7 @@ ScholarAI **does not collect telemetry or user data**. Everything runs locally o
 
 - React + Vite
 - TypeScript
-- Paper-UI
-- Tailwind CSS
+- Tailwind CSS + shadcn/ui
 - Zustand
 - React Router
 
@@ -149,12 +159,12 @@ ScholarAI defaults to **Ollama** for local inference. Pull the recommended model
 ollama serve
 ollama pull qwen3:8b
 ollama pull gemma4:12b
-ollama pull nomic-embed-text
+ollama pull qwen3-embedding:0.6b
 ```
 
-**Tip**: You can also use the free cloud models provided by Ollama.
+A lightweight vision model (`qwen2.5vl:3b`) handles diagram descriptions and scanned-page OCR recovery.
 
-If you don't have a GPU, skip this step and connect a cloud provider from the Settings page after startup.
+If you don't have a GPU, skip Ollama and connect a cloud provider from the Settings page after startup.
 
 ### 2. Backend
 
