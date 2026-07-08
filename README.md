@@ -1,6 +1,6 @@
 # Scholar AI
 
-A **local-first AI study assistant** that runs on your machine and ingests PDFs, Markdown notes, and more into a local RAG knowledge base. Use local LLMs via Ollama (recommended) or connect cloud providers — your data stays with you.
+A **local-first AI study assistant** that runs on your machine and ingests PDFs, Markdown notes, and more into a local RAG knowledge base. Use local LLMs via Ollama (recommended - you data stays with you)  or connect cloud providers 
 
 ## Features
 
@@ -44,6 +44,7 @@ A **local-first AI study assistant** that runs on your machine and ingests PDFs,
 
 - **Custom Artifact**: Create and maintain your own personalized notebook.
 - **Embedding Artifacts**: Embed other AI-generate artifacts and your custom data.
+
 ### Quality & Analytics
 
 - **Cross-Artifact Validation**: Flags contradictions between user-generated notes and source documents. Also checks consistency across flashcards, quizzes, and revision notes.
@@ -57,7 +58,7 @@ Extend ScholarAI with optional plugins — install/uninstall from the UI:
 - **Excalidraw Whiteboards**: Collaborative-style whiteboarding with mermaid-to-excalidraw import.
 - **PlantUML Diagrams**: Render PlantUML diagrams (requires system `plantuml` binary).
 - **Reading Annotations**: Sticky notes and region annotations on documents.
-- **Cloud Model Providers**: Connect OpenAI-compatible, Gemini, Groq, or OpenRouter. Per-task routing, automatic fallback, and monthly spend budgets.
+- **Cloud Model Providers**: Connect Gemini, Groq. Per-task routing, automatic fallback, and monthly spend budgets.
 
 ### Search & Prompt Library
 
@@ -78,8 +79,8 @@ Extend ScholarAI with optional plugins — install/uninstall from the UI:
 
 Download the latest archive for your platform from [GitHub Releases](https://github.com/SaptanshuWanjari/Scholar-AI/releases), extract it, and run:
 
+### Linux / macOS
 ```bash
-# Linux / macOS
 tar xzf ScholarAI-*-Linux.tar.gz   # or *-macOS.tar.gz
 cd ScholarAI-*
 chmod +x setup.sh start.sh update.sh   # one-time: make scripts executable
@@ -87,8 +88,18 @@ chmod +x setup.sh start.sh update.sh   # one-time: make scripts executable
 ./start.sh          # subsequent runs: just launch
 ```
 
+### macOS
+```bash
+tar xzf ScholarAI-*-macOS.tar.gz
+cd ScholarAI-*
+chmod +x setup.sh start.sh update.sh   # one-time: make scripts executable
+./setup.sh          # first run: install dependencies
+./start.sh          # subsequent runs: just launch
+
+```
+
+### Windows (PowerShell)
 ```powershell
-# Windows (PowerShell)
 Expand-Archive ScholarAI-*-windows.zip
 cd ScholarAI-*
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass   # bypass signing requirement for this session
@@ -104,7 +115,14 @@ ollama pull gemma4:12b
 ollama pull qwen3-embedding:0.6b
 ```
 
-You can also connect cloud providers (OpenAI-compatible, Gemini, Groq, OpenRouter) during onboarding or from the Settings page.
+**Ollama free cloud models**: 
+
+```bash
+ollama signin
+ollama pull minimax-m3:cloud
+```
+
+You can also connect cloud providers (Gemini, Groq) during onboarding or from the Settings page.
 
 ### Updating
 
