@@ -19,6 +19,7 @@ import { toast } from "@/app/lib/toast";
 import { cn } from "../../components/ui/utils";
 import { type ConceptData } from "../../lib/graph-data";
 import { api, type KGSidebar } from "../../lib/api";
+import { useEmbeddingStore } from "../../stores/useEmbeddingStore";
 import { useKnowledgeBaseStore } from "../../stores/useKnowledgeBaseStore";
 import {
   PaperButton,
@@ -28,7 +29,7 @@ import { PaperInput } from "@paper-ui/components/inputs";
 import { PaperCheckbox } from "@paper-ui/components/inputs";
 import { PaperSlider } from "@paper-ui/components/inputs";
 import { ScrollArea } from "@paper-ui/components/layout";
-import { Pill } from "@paper-ui/components/badges";
+import { PaperBadge, Pill } from "@paper-ui/components/badges";
 import { PaperDrawer } from "@paper-ui/components/dialogs";
 import { SectionLabel } from "@paper-ui/core";
 import type { Course } from "../../lib/types";
@@ -430,7 +431,13 @@ export function KnowledgeBase() {
         )}
 
         {graph && !isEmpty && !loading && (
-          <div className="absolute right-3 top-3 z-20">
+          <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
+            {useEmbeddingStore.getState().mismatch && (
+              <PaperBadge tone="brick" className="gap-1 px-2 py-0.5">
+                <span className="text-[10px]">⚠</span>
+                <span className="hidden md:inline">Outdated Embeddings</span>
+              </PaperBadge>
+            )}
             <PaperButton
               size="sm"
               onClick={build}

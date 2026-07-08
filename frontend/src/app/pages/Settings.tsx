@@ -38,6 +38,7 @@ import { PaperButton, ChipButton } from "@paper-ui/components/buttons";
 import { PaperModal } from "@paper-ui/components/dialogs";
 import { PaperCard } from "@paper-ui/core";
 import { useSettingsStore } from "../stores/useSettingsStore";
+import { useEmbeddingStore } from "../stores/useEmbeddingStore";
 import { api, type ModelsList } from "../lib/api";
 import { KNOWN_PLUGINS } from "../plugins/registry";
 import { usePluginStore } from "../plugins/usePluginStore";
@@ -124,6 +125,39 @@ export function SettingsPage() {
   >([]);
   const [backupMsg, setBackupMsg] = useState("");
   const [reindexingAll, setReindexingAll] = useState(false);
+  const [embModalOpen, setEmbModalOpen] = useState(false);
+  const [pendingModel, setPendingModel] = useState<string | null>(null);
+
+  const handleEmbeddingChange = (newModel: string) => {
+    const stored = useEmbeddingStore.getState().storedModel;
+    if (!stored || stored === newModel) {
+      s.set("embeddingModel", newModel);
+      return;
+    }
+    setPendingModel(newModel);
+    setEmbModalOpen(true);
+  };
+
+  const handleEmbSwitchLater = () => {
+    if (pendingModel) s.set("embeddingModel", pendingModel);
+    setEmbModalOpen(false);
+    setPendingModel(null);
+  };
+
+  const handleEmbSwitchReindex = async () => {
+    if (pendingModel) s.set("embeddingModel", pendingModel);
+    setEmbModalOpen(false);
+    setReindexingAll(true);
+    try {
+      await api.reindexAll();
+      await useEmbeddingStore.getState().fetch();
+    } catch {
+      // silent
+    } finally {
+      setReindexingAll(false);
+      setPendingModel(null);
+    }
+  };
 
   const handleReindexAll = async () => {
     setReindexingAll(true);
@@ -430,7 +464,7 @@ export function SettingsPage() {
                     >
                       <PaperSelect
                         value={s.embeddingModel}
-                        onChange={(v) => s.set("embeddingModel", v)}
+                        onChange={handleEmbeddingChange}
                         options={toOptions(
                           models.embeddingModels,
                           s.embeddingModel,
@@ -894,6 +928,43 @@ export function SettingsPage() {
           <li>Your browser cache and IndexedDB</li>
           <li>All application settings</li>
         </ul>
+      </PaperModal>
+
+      <PaperModal
+        open={embModalOpen}
+        onClose={() => setEmbModalOpen(false)}
+        title="Embedding Model Changed"
+        footer={
+          <>
+            <PaperButton onClick={() => setEmbModalOpen(false)}>
+              Keep Current
+            </PaperButton>
+            <PaperButton tone="paper" onClick={handleEmbSwitchLater}>
+              Switch Later
+            </PaperButton>
+            <PaperButton tone="dark" onClick={handleEmbSwitchReindex} disabled={reindexingAll}>
+              {reindexingAll ? "Re-indexing…" : "Switch &amp; Re-index"}
+            </PaperButton>
+          </>
+        }
+        width={520}
+      >
+        <p className="font-kalam text-[14px] text-ink mt-2">
+          Changing the embedding model changes how ScholarAI understands and
+          compares your documents. Documents indexed with one embedding model
+          cannot be searched accurately using another.
+        </p>
+        <p className="font-kalam text-[14px] text-ink-muted mt-3">
+          To maintain accurate search results, ScholarAI needs to rebuild your
+          document index. This will re-process all your documents with the new
+          model.
+        </p>
+        <div className="flex items-center gap-2 mt-4 rounded-lg border border-[#e8e3d8] px-4 py-3">
+          <span className="font-architect text-[13px] text-ink-muted">Current:</span>
+          <span className="font-mono text-[13px] text-ink">{s.embeddingModel}</span>
+          <span className="text-ink-muted text-xs mx-1">→</span>
+          <span className="font-mono text-[13px] text-ink">{pendingModel || "—"}</span>
+        </div>
       </PaperModal>
     </Page>
   );

@@ -21,7 +21,7 @@ from scholarai.ingest.loaders import load_document
 from scholarai.storage import get_session, init_db
 from scholarai.storage.models import Course, Document
 from scholarai.storage.vectors import add_chunks, delete_document, has_document_chunks
-from scholarai.llm import get_embeddings
+from scholarai.llm import get_embeddings, _active_embedding_model
 
 
 def _hash_file(path: Path) -> str:
@@ -123,6 +123,7 @@ def _ingest_file_inner(
     chunk_texts = [ch["text"] for ch in chunks]
     # OllamaEmbeddings.embed_documents() accepts list[str]; returns list[list[float]].
     vectors: list[list[float]] = embeddings.embed_documents(chunk_texts)
+    vec_dim = len(vectors[0]) if vectors else 0
 
     # Detect duplicate/overlapping document.
     settings = get_settings()
@@ -175,10 +176,13 @@ def _ingest_file_inner(
                 session.commit()
 
 
-    # Clear any previous error on successful re-index.
+    # Record embedding metadata + clear error.
     doc_row = session.get(Document, doc_id)
-    if doc_row and doc_row.error is not None:
-        doc_row.error = None
+    if doc_row:
+        doc_row.embedding_model = _active_embedding_model()
+        doc_row.embedding_dimension = vec_dim
+        if doc_row.error is not None:
+            doc_row.error = None
         session.commit()
 
     return "indexed"

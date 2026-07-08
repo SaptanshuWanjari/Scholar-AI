@@ -144,6 +144,9 @@ class Document(Base, TrashMixin):
         DateTime(timezone=True), server_default=func.now()
     )
 
+    embedding_model: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    embedding_dimension: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
     course_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("courses.id"), nullable=True, index=True
     )

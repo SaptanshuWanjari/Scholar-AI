@@ -5,7 +5,7 @@ import { SectionLabel } from "@/paper-ui/core";
 import { SketchProgress } from "../progress/SketchProgress";
 import { StickyNote } from "../decorations/StickyNote";
 import { SketchButton, PaperButton } from "../buttons/Buttons";
-import { SignpostDoodle, ArrowDoodle, CheckmarkDoodle } from "../doodles";
+import { SignpostDoodle, ArrowDoodle } from "../doodles";
 
 export interface ContinueLearningCardProps {
   course: string;
@@ -58,7 +58,6 @@ export function ContinueLearningCard({
             <h4 className="font-caveat text-2xl font-bold text-ink">{nextTitle}</h4>
             <p className="flex items-center gap-1.5 font-kalam text-sm text-ink-muted">
               {nextNote}
-              <CheckmarkDoodle size={16} />
             </p>
           </div>
         </div>

@@ -79,6 +79,8 @@ _ADDED_COLUMNS: dict[str, list[tuple[str, str]]] = {
         ("summary", "TEXT"),
         ("tags", "JSON"),
         ("topics", "JSON"),
+        ("embedding_model", "VARCHAR(128)"),
+        ("embedding_dimension", "INTEGER"),
         ("is_deleted", "BOOLEAN NOT NULL DEFAULT 0"),
         ("deleted_at", "TEXT"),
         ("archived", "BOOLEAN NOT NULL DEFAULT 0"),
