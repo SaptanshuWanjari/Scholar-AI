@@ -253,7 +253,7 @@ function Builder({
             wrapperClassName="w-44"
           />
           <div>
-            <label className="mb-1.5 block font-architect text-[13px] text-ink-muted">Difficulty</label>
+            <label className="mb-1.5 block font-architect text-[17px] text-ink-muted">Difficulty</label>
             <div className="flex gap-2">
               {difficulties.map((d) => (
                 <ChipButton
@@ -267,7 +267,7 @@ function Builder({
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block font-architect text-[13px] text-ink-muted">Time limit</label>
+            <label className="mb-1.5 block font-architect text-[17px] text-ink-muted">Time limit</label>
             <div className="flex gap-2">
               {([null, 15, 20, 30, 60] as (number | null)[]).map((t) => (
                 <ChipButton
@@ -308,15 +308,6 @@ function Builder({
           icon={<ListChecks className="size-6 text-ink-muted" />}
           title="No saved quizzes yet"
           description="Take a quiz on any topic. Start with a topic from your documents."
-          action={
-            <PaperButton
-              tone="dark"
-              size="sm"
-              onClick={() => window.document.getElementById("quiz-topic-input")?.focus()}
-            >
-              <Sparkles className="size-4" /> Generate Quiz
-            </PaperButton>
-          }
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -344,7 +335,7 @@ function Builder({
                     </button>
                   </div>
                 </div>
-                <h4 className="mt-3 font-architect text-[15px] text-ink">{q.title}</h4>
+                <h4 className="mt-3 font-architect text-[16px] text-ink">{q.title}</h4>
                 <div className="mt-1 font-kalam text-sm text-ink-muted">{q.course}</div>
                 <div className="mt-1 font-kalam text-xs text-ink-muted">{q.questions.length} questions</div>
                 <PaperButton tone="dark" className="mt-4 w-full py-4" size="lg" onClick={() => onStart(q)}>

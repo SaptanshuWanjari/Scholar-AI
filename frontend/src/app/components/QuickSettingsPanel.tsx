@@ -101,7 +101,7 @@ export function QuickSettingsPanel() {
         <div className="relative z-[1] px-4 py-4 space-y-4">
                     {/* Model */}
           <div>
-            <p className="font-architect text-[10px] uppercase tracking-widest text-ink-muted mb-2">
+            <p className="font-architect text-[14px] uppercase tracking-widest text-ink-muted mb-2">
               Model
             </p>
             <PaperSelect
@@ -118,7 +118,7 @@ export function QuickSettingsPanel() {
 
           {/* Knowledge Source */}
           <div>
-            <p className="font-architect text-[10px] uppercase tracking-widest text-ink-muted mb-2.5">
+            <p className="font-architect text-[14px] uppercase tracking-widest text-ink-muted mb-2.5">
               Knowledge Source
             </p>
             <PaperRadioGroup
@@ -133,7 +133,7 @@ export function QuickSettingsPanel() {
 
           {/* Prompt Enhancer */}
           <div className="flex items-center justify-between">
-            <p className="font-architect text-[10px] uppercase tracking-widest text-ink-muted">
+            <p className="font-architect text-[14px] uppercase tracking-widest text-ink-muted">
               Prompt Enhancer
             </p>
             <PaperSwitch
@@ -144,7 +144,7 @@ export function QuickSettingsPanel() {
 
           {/* Retrieval Depth */}
           <div>
-            <p className="font-architect text-[10px] uppercase tracking-widest text-ink-muted mb-2">
+            <p className="font-architect text-[14px] uppercase tracking-widest text-ink-muted mb-2">
               Retrieval Depth
             </p>
             <div className="grid grid-cols-3 gap-1">
@@ -168,7 +168,7 @@ export function QuickSettingsPanel() {
 
           {/* Creativity */}
           <div>
-            <p className="font-architect text-[10px] uppercase tracking-widest text-ink-muted mb-2">
+            <p className="font-architect text-[14px] uppercase tracking-widest text-ink-muted mb-2">
               Creativity
             </p>
             <div className="grid grid-cols-3 gap-1">

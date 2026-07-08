@@ -42,7 +42,7 @@ export function EmptyState({
         </h3>
 
         {description && (
-          <p className="font-kalam text-[0.93rem] text-ink-muted mt-2 max-w-[300px]">
+          <p className="font-kalam text-[0.93rem] text-ink-muted mt-2 max-w-[500px]">
             {description}
           </p>
         )}

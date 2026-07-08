@@ -15,6 +15,7 @@ import { OnboardingProvider } from "./context/OnboardingContext";
 import { api } from "./lib/api";
 import { KNOWN_PLUGINS } from "./plugins/registry";
 import { usePluginStore } from "./plugins/usePluginStore";
+import { useSettingsStore } from "./stores/useSettingsStore";
 
 const Dashboard = lazy(() =>
   import("./pages/Dashboard").then((m) => ({ default: m.Dashboard })),
@@ -147,6 +148,7 @@ export default function App() {
   }, [fetchPlugins]);
 
   useEffect(() => {
+    useSettingsStore.getState().hydrate();
     fetch("/api/health")
       .then((r) => { if (!r.ok) console.warn("[health] Backend health check failed:", r.status); })
       .catch(() => console.warn("[health] Backend unreachable"));

@@ -290,8 +290,8 @@ const STAT_COLORS: Record<string, string> = {
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <PaperCard className="px-4 py-3">
-      <SectionLabel className="text-[11px]">{label}</SectionLabel>
-      <div className={cn("mt-1 font-caveat text-xl font-bold", STAT_COLORS[label] || "text-ink")}>{value}</div>
+      <SectionLabel className="text-[13px]">{label}</SectionLabel>
+      <div className={cn("mt-1 font-caveat text-[23px] font-bold", STAT_COLORS[label] || "text-ink")}>{value}</div>
     </PaperCard>
   );
 }
@@ -446,10 +446,10 @@ function RoadmapPhase() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="font-caveat text-[28px] font-semibold text-ink">
+          <h1 className="font-caveat text-[32px] font-semibold text-ink">
             {path.title}
           </h1>
-          <p className="font-architect text-[12px] text-ink-muted">
+          <p className="font-architect text-[14px] text-ink-muted">
             {path.course || "All courses"}
             {!path.grounded &&
               " · general knowledge (not grounded in your documents)"}
@@ -482,15 +482,15 @@ function RoadmapPhase() {
       {/* Next recommendation */}
       {nextRecommendation && (
         <PaperCard className="p-4" surface="#f5f0ea">
-          <div className="flex items-center gap-2 font-architect text-[12px] font-medium uppercase tracking-wide text-[#6f63a3]">
+          <div className="flex items-center gap-2 font-architect text-[14px] font-medium uppercase tracking-wide text-[#6f63a3]">
             <Target className="size-3.5" /> Next Recommendation
           </div>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="font-kalam text-[17px] font-bold leading-snug text-ink">
+              <div className="font-kalam text-[20px] font-bold leading-snug text-ink">
                 {nextRecommendation.conceptTitle}
               </div>
-              <div className="font-architect text-[12px] text-ink-muted">
+              <div className="font-architect text-[14px] text-ink-muted">
                 {nextRecommendation.reason} ·{" "}
                 {fmtMinutes(nextRecommendation.estimatedMinutes)}
               </div>
@@ -513,11 +513,11 @@ function RoadmapPhase() {
             <div key={i}>
               <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <h3 className="font-kalam text-[17px] font-bold text-ink">
+                  <h3 className="font-kalam text-[20px] font-bold text-ink">
                     <span className="text-[#a3544a]">Stage {i + 1}</span> · {stage.title}
                   </h3>
                   {stage.summary && (
-                    <p className="font-kalam text-[13px] text-ink-muted">
+                    <p className="font-kalam text-[15px] text-ink-muted">
                       {stage.summary}
                     </p>
                   )}
@@ -538,13 +538,13 @@ function RoadmapPhase() {
         {/* Side rail: dependency order + analytics */}
         <div className="space-y-6 lg:sticky lg:top-6 self-start">
           <PaperCard className="p-4">
-            <SectionLabel>Learning Order</SectionLabel>
+            <SectionLabel className="text-[17px]">Learning Order</SectionLabel>
             <div className="mt-3 flex flex-col">
               {orderedConcepts.map((c, idx) => (
                 <div key={c.title} className="flex flex-col items-start">
                   <span
                     className={cn(
-                      "rounded-md px-2 py-1 font-architect text-[13px] transition-colors",
+                      "rounded-md px-2 py-1 font-architect text-[15px] transition-colors",
                       c.status === "completed"
                         ? "text-[#3f7a4e] line-through bg-[#e7efe4]"
                         : "text-ink hover:bg-black/5",
@@ -561,10 +561,10 @@ function RoadmapPhase() {
           </PaperCard>
 
           <PaperCard className="p-4">
-            <div className="mb-3 flex items-center gap-1.5 font-architect text-[12px] font-medium uppercase tracking-wide text-ink-muted">
+            <div className="mb-3 flex items-center gap-1.5 font-architect text-[14px] font-medium uppercase tracking-wide text-ink-muted">
               <TrendingUp className="size-3.5" /> Analytics
             </div>
-            <dl className="space-y-2 font-architect text-[12px]">
+            <dl className="space-y-2 font-architect text-[14px]">
               <AnalyticsRow
                 label="Strongest stage"
                 value={analytics.strongestStage}

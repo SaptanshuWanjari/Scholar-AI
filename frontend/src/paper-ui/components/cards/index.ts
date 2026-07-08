@@ -53,3 +53,7 @@ export type { NotebookSpiralCardProps } from "./NotebookSpiralCard";
 
 export { PaperSheetCard } from "./PaperSheetCard";
 export type { PaperSheetCardProps } from "./PaperSheetCard";
+
+export { WhiteboardCard } from "./WhiteboardCard";
+export type { WhiteboardCardProps } from "./WhiteboardCard";
+

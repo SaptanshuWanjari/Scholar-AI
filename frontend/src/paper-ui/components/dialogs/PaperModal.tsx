@@ -7,7 +7,7 @@ import { SketchBorder, usePaperTheme } from "@/paper-ui/core";
 export interface PaperModalProps {
   open: boolean;
   onClose: () => void;
-  title?: string;
+  title?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
   width?: number;
@@ -51,7 +51,7 @@ export function PaperModal({
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-label={typeof title === 'string' ? title : undefined}
         tabIndex={-1}
         className={cn("relative outline-none", className)}
         style={{ width }}
@@ -68,7 +68,7 @@ export function PaperModal({
         <div className="relative z-[1]">
           {title !== undefined && (
             <div className="flex items-center justify-between border-b border-[#e8e3d8] px-6 py-4">
-              <span className="font-architect text-[1.13rem] text-ink">{title}</span>
+              <span className="font-architect text-[1.13rem] text-ink flex-1 flex items-center justify-between">{title}</span>
               <button
                 type="button"
                 aria-label="Close"

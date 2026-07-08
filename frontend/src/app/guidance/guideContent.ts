@@ -357,9 +357,7 @@ Use [RAG Trace](#feat-trace) to audit retrieval quality if answers seem off.`,
         body: `| Action | Shortcut |
 | --- | --- |
 | Command palette / search | \`⌘K\` |
-| Navigate (no input focused) | page letter, e.g. \`D\` Dashboard, \`A\` Ask AI, \`F\` Flashcards |
-
-The full per-page shortcut list lives in **Settings → Shortcuts**.`,
+| Sidebar toggle | \`⌘B\` |`,
       },
       {
         id: "ks-tours",

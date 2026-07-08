@@ -20,7 +20,7 @@ export function SectionTitle({
 }) {
   return (
     <div className="mb-3 flex items-center justify-between">
-      <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider text-[11px]">{title}</h3>
+      <h3 className="text-lg font-kalam font-semibold text-foreground uppercase tracking-wider text-[11px]">{title}</h3>
       {action}
     </div>
   );

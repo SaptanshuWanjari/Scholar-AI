@@ -42,7 +42,7 @@ def generate(state: GraphState) -> GraphState:
     route = state.get("route", "quick_qa")
 
     llm = get_llm(route)
-    chunks = state["retrieved"]
+    chunks = state.get("retrieved", [])
 
     from scholarai.api.rag_service import _build_generation_prompt
     messages = _build_generation_prompt(state, socratic=state.get("socratic", False))
