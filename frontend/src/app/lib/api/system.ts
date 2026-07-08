@@ -31,6 +31,17 @@ export interface ModelsList {
   visionModels: string[];
 }
 
+export interface EmbeddingStatus {
+  currentModel: string;
+  storedModel: string | null;
+  storedDimension: number | null;
+  currentDimension: number;
+  mismatch: boolean;
+  documentCount: number;
+  chunkCount: number;
+  estimatedReindexTime: string;
+}
+
 export interface HealthStatus {
   status: string;
   ollama_reachable?: boolean;
@@ -132,6 +143,11 @@ export const systemApi = {
   // ---- Onboarding ----
   onboardingAnalysis(): Promise<import('../../context/OnboardingContext').OnboardingAnalysis> {
     return request<import('../../context/OnboardingContext').OnboardingAnalysis>("/api/onboarding/analysis");
+  },
+
+  // ---- Embedding status ----
+  embeddingStatus(): Promise<EmbeddingStatus> {
+    return request<EmbeddingStatus>("/api/embedding/status");
   },
 
   // ---- Backup ----

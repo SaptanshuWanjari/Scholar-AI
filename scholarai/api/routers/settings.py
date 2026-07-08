@@ -15,9 +15,12 @@ import httpx
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from scholarai.api.schemas import ModelsList, SettingsOut, SettingsPatch
+import scholarai.llm
+from scholarai.api.schemas import EmbeddingStatusOut, ModelsList, SettingsOut, SettingsPatch
 from scholarai.config import get_settings
 from scholarai.storage import get_engine
+from scholarai.storage import get_session
+from scholarai.storage.models import Document
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +135,73 @@ def list_models() -> ModelsList:
         embeddingModels=embed_models,
         visionModels=ordered,
     )
+@router.get("/embedding/status", response_model=EmbeddingStatusOut)
+def embedding_status() -> EmbeddingStatusOut:
+    current = scholarai.llm._active_embedding_model()
+    session = get_session()
+    try:
+        last = (
+            session.query(Document)
+            .filter(Document.embedding_model.isnot(None))
+            .order_by(Document.indexed_at.desc())
+            .first()
+        )
+    finally:
+        session.close()
+
+    stored_model = last.embedding_model if last else None
+    stored_dim = last.embedding_dimension if last else None
+    doc_count = 0
+    chunk_count = 0
+    if stored_model:
+        doc_count = last.id  # not accurate, but we'll count properly
+    # Count docs properly
+    session = get_session()
+    try:
+        doc_count = session.query(Document).filter(Document.is_deleted.is_(False)).count()
+    finally:
+        session.close()
+    # Count LanceDB chunks
+    try:
+        from scholarai.storage.vectors import _db, _has_table, TABLE_NAME
+        if _has_table():
+            tbl = _db().open_table(TABLE_NAME)
+            try:
+                chunk_count = tbl.count_rows()
+            except Exception:
+                chunk_count = 0
+        else:
+            chunk_count = 0
+    except Exception:
+        chunk_count = 0
+
+    mismatch = bool(stored_model and stored_model != current)
+    est = ""
+    if mismatch and chunk_count:
+        mins = max(1, chunk_count // 40)
+        est = f"~{mins} min{'s' if mins > 1 else ''}"
+
+    # Get current dimension by doing a test embedding
+    cur_dim = 0
+    if mismatch:
+        try:
+            emb = scholarai.llm.get_embeddings()
+            cur_dim = len(emb.embed_query("test"))
+        except Exception:
+            cur_dim = 0
+
+    return EmbeddingStatusOut(
+        currentModel=current,
+        storedModel=stored_model,
+        storedDimension=stored_dim,
+        currentDimension=cur_dim,
+        mismatch=mismatch,
+        documentCount=doc_count,
+        chunkCount=chunk_count,
+        estimatedReindexTime=est,
+    )
+
+
 from scholarai.storage import reset_engine, init_db
 
 class NukeRequest(BaseModel):

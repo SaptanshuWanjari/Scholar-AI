@@ -16,7 +16,7 @@ export { knowledgeApi, type DashboardData, type KGNode, type KGEdge, type KGGrap
 export { whiteboardsApi } from "./whiteboards";
 export { readingApi } from "./reading";
 export { teachApi, type TeachOverview, type TeachDraft, type TeachArtifacts, type PackageMeta, type PackageFull, type ArtifactCoverage, type ConsistencySuggestion, type ConsistencyReport } from "./teach";
-export { systemApi, type BackendSettings, type ModelsList, type HealthStatus, type PromptAnalysis, type JobItem } from "./system";
+export { systemApi, type BackendSettings, type EmbeddingStatus, type ModelsList, type HealthStatus, type PromptAnalysis, type JobItem } from "./system";
 export { trashApi, type TrashItem, type TrashListResponse } from "./trash";
 
 import { coursesApi } from "./courses";

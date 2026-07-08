@@ -16,6 +16,7 @@ import {
 import { motion } from "motion/react";
 import { useChatStore } from "../stores/useChatStore";
 import { useSettingsStore } from "../stores/useSettingsStore";
+import { useEmbeddingStore } from "../stores/useEmbeddingStore";
 import { SourcePanel } from "../components/SourcePanel";
 import { AnswerViewer } from "../components/AnswerViewer";
 import { Menu } from "@paper-ui/components/menus";
@@ -277,6 +278,12 @@ export function AskAI() {
 
           {/* Right: Confidence + Overflow Menu */}
           <div className="flex items-center gap-1.5 shrink-0 sticky right-0 bg-background pl-2 ">
+            {useEmbeddingStore.getState().mismatch && (
+              <PaperBadge tone="brick" className="gap-1 px-2 py-0.5">
+                <span className="text-[10px]">⚠</span>
+                <span className="hidden md:inline">Limited Retrieval</span>
+              </PaperBadge>
+            )}
             {confidence !== undefined && !isStreaming && (
               <PaperBadge tone="sage" className="gap-1 px-2 py-0.5">
                 <Gauge className="size-3" />

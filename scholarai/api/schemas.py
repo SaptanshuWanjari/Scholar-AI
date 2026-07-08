@@ -260,6 +260,17 @@ class SettingsPatch(BaseModel):
     maxConcurrent: int | None = None
 
 
+class EmbeddingStatusOut(BaseModel):
+    currentModel: str
+    storedModel: str | None = None
+    storedDimension: int | None = None
+    currentDimension: int = 0
+    mismatch: bool = False
+    documentCount: int = 0
+    chunkCount: int = 0
+    estimatedReindexTime: str = ""
+
+
 class ModelsList(BaseModel):
     fastModels: list[str]
     reasoningModels: list[str]
