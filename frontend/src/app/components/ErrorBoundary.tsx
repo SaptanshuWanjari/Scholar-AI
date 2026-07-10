@@ -1,6 +1,8 @@
 import { Component } from "react";
 import type { ErrorInfo, ReactNode } from "react";
 import { toast } from "@/app/lib/toast";
+import { PaperSheetCard, PaperH3, PaperButton } from "@/app/components/paper";
+import { AlertCircle } from "lucide-react";
 
 interface Props {
   children: ReactNode;
@@ -27,19 +29,22 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.error) {
       return (
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
-          <div className="text-ink text-lg font-semibold">
-            Something went wrong
-          </div>
-          <p className="text-ink-muted text-sm max-w-md">
-            An unexpected error occurred. Please try again.
-          </p>
-          <button
-            onClick={this.reset}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            Try Again
-          </button>
+        <div className="flex min-h-screen flex-col items-center justify-center p-8">
+          <PaperSheetCard className="max-w-md w-full text-center flex flex-col items-center gap-4 py-8">
+            <div className="text-red-500 mb-2">
+              <AlertCircle size={48} />
+            </div>
+            <PaperH3>Something went wrong</PaperH3>
+            <p className="text-ink-muted text-sm font-architect max-w-md">
+              An unexpected error occurred. Please try again.
+            </p>
+            <PaperButton
+              onClick={this.reset}
+              className="mt-4 font-architect px-4 py-2 font-bold "
+            >
+              Try Again
+            </PaperButton>
+          </PaperSheetCard>
         </div>
       );
     }

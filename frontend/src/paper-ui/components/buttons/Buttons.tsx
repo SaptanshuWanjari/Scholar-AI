@@ -87,8 +87,7 @@ export const StickyButton = React.forwardRef<HTMLButtonElement, StickyButtonProp
       <span className="relative inline-block">
         {taped && (
           <>
-            <Tape corner="top-left" width={34} rotate={-24} className="-top-2 left-1" />
-            <Tape corner="top-right" width={34} rotate={24} className="-top-2 right-1" />
+            <Tape corner="top-left" width={34} rotate={-24} className="-top-1 -left-1" />
           </>
         )}
         <PaperButton ref={ref} tone={tone} size="lg" className={className} {...props}>
