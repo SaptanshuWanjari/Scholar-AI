@@ -11,6 +11,7 @@ import { Toaster } from "./components/ui/sonner";
 import { PromptCoachModal } from "./components/PromptCoachModal";
 import OnboardingWidget from "./components/OnboardingWidget";
 import PageLoading from "./components/ui/PageLoading";
+import { NotFound } from "./pages/NotFound";
 import { OnboardingProvider } from "./context/OnboardingContext";
 import { api } from "./lib/api";
 import { KNOWN_PLUGINS } from "./plugins/registry";
@@ -222,12 +223,13 @@ export default function App() {
 
             {import.meta.env.DEV && <Route path="/components" element={<ComponentsShowcase />} />}
 
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
         <Toaster />
         <PromptCoachModal />
         <OnboardingWidget />
+
       </OnboardingProvider>
     </BrowserRouter>
   );

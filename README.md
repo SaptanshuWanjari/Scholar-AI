@@ -163,7 +163,7 @@ ScholarAI **does not collect telemetry or user data**. Everything runs locally o
 
 - React + Vite
 - TypeScript
-- Tailwind CSS + shadcn/ui
+- Tailwind CSS + paper-ui
 - Zustand
 - React Router
 

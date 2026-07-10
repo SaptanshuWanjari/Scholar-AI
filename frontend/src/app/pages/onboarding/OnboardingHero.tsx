@@ -26,8 +26,6 @@ import {
 
 const formats = [
   { label: "PDF", icon: FileText, color: "#e05a4b" },
-  { label: "DOCX", icon: FileType, color: "#2e7dcc" },
-  { label: "PPTX", icon: File, color: "#e8722a" },
   { label: "Markdown", icon: FileCode, color: "#3a3733" },
   { label: "Text", icon: AlignLeft, color: "#3a3733" },
 ];
@@ -98,7 +96,7 @@ export function OnboardingHero() {
             strokeDasharray="4 5.5"
           />
         </svg>
-        <div className="absolute left-[8%] top-[1%]">
+        <div className="absolute left-[5%] top-[1%] rotate-[25deg]">
           <PaperPlaneDoodle size={28} color="#3a3733" />
         </div>
         <div className="absolute bottom-[10%] right-[8%] font-architect text-[22px] font-light leading-none text-[#9b95e5]">
@@ -168,7 +166,7 @@ export function OnboardingHero() {
             <div key={label} className="flex items-center">
               <div className="flex items-center gap-3 px-5 py-1">
                 <PaperIconCircle tone={tone} size={40}>
-                  <Icon size={18} />
+                  <Icon size={22} />
                 </PaperIconCircle>
                 <div className="text-left">
                   <p className="font-kalam text-[15px] leading-tight text-ink">
@@ -237,9 +235,9 @@ export function OnboardingHero() {
               : []),
             <div
               key={label}
-              className="flex items-center gap-1.5 font-architect text-[12px] text-ink-muted"
+              className="flex items-center gap-1.5 font-architect text-[15px] text-ink-muted"
             >
-              <Icon size={13} />
+              <Icon size={15} />
               <span>{label}</span>
             </div>,
           ])}
