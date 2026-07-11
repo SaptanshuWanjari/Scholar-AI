@@ -23,6 +23,7 @@ from scholarai.api.prompt_service import active_body
 from scholarai.api.rag_service import run_ask
 from scholarai.api.schemas import (
     ExamGenerateRequest,
+    ExamListItem,
     ExamQuestionOut,
     ExamResultOut,
     ExamSessionOut,
@@ -199,6 +200,31 @@ Each object must have: 'type' (mcq, truefalse, short, or long), 'prompt', 'optio
     )
 
 
+@router.get("", response_model=list[ExamListItem])
+def list_exams() -> list[ExamListItem]:
+    db = get_session()
+    try:
+        rows = (
+            db.query(ExamSession)
+            .order_by(ExamSession.started_at.desc())
+            .limit(50)
+            .all()
+        )
+        return [
+            ExamListItem(
+                sessionId=r.id,
+                topic=r.topic,
+                course=r.course,
+                questionCount=len(r.questions),
+                startedAt=r.started_at,
+                submitted=r.submitted_at is not None,
+            )
+            for r in rows
+        ]
+    finally:
+        db.close()
+
+
 @router.get("/{session_id}/status", response_model=ExamStatusOut)
 def exam_status(session_id: str) -> ExamStatusOut:
     db = get_session()
@@ -214,6 +240,26 @@ def exam_status(session_id: str) -> ExamStatusOut:
             expired=remaining == 0,
             durationMinutes=exam.duration_minutes,
             remainingSeconds=remaining,
+        )
+    finally:
+        db.close()
+
+@router.get("/{session_id}", response_model=ExamSessionOut)
+def get_exam(session_id: str) -> ExamSessionOut:
+    db = get_session()
+    try:
+        exam = db.get(ExamSession, session_id)
+        if not exam:
+            raise HTTPException(status_code=404, detail="Exam session not found")
+        now = datetime.now(timezone.utc)
+        remaining = _remaining_seconds(exam, now)
+        return ExamSessionOut(
+            sessionId=session_id,
+            questions=exam.questions,
+            grounded=True,
+            durationMinutes=exam.duration_minutes,
+            remainingSeconds=remaining,
+            submitted=exam.submitted_at is not None,
         )
     finally:
         db.close()

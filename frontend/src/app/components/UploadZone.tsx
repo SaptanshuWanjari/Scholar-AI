@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Upload, Loader2, CheckCircle2, XCircle, X } from "lucide-react";
 import { motion } from "motion/react";
-import { PaperCard } from "@paper-ui/core";
+import { PaperCard, PaperIconCircle } from "@paper-ui/core";
 import { PaperButton, GhostButton } from "@paper-ui/components/buttons";
 
 interface UploadItem {
@@ -120,9 +120,9 @@ export function UploadZone({
         >
           {uploads.length === 0 ? (
             <>
-              <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-violet-soft text-primary">
+              <PaperIconCircle className="p-5 mx-auto flex size-12 items-center justify-center rounded-xl bg-violet-soft text-primary">
                 <Upload className="size-6" />
-              </div>
+              </PaperIconCircle>
               <h3 className="mt-4 font-caveat text-[26px] text-ink">{label}</h3>
               <p className="mt-1 font-kalam text-sm text-ink-muted">{description}</p>
               <PaperButton

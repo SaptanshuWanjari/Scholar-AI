@@ -50,6 +50,7 @@ interface ExamState {
   generate: () => Promise<void>;
   submit: () => Promise<void>;
   reset: () => void;
+  loadExam: (sessionId: string) => Promise<void>;
 }
 
 export const useExamStore = create<ExamState>((set, get) => ({
@@ -144,6 +145,38 @@ export const useExamStore = create<ExamState>((set, get) => ({
       const errMsg = err instanceof Error ? err.message : "Failed to generate exam";
       toast.error(errMsg);
       useNotificationStore.getState().add({ title: "Exam generation failed", status: "error", message: errMsg });
+    } finally {
+      set({ generating: false });
+    }
+  },
+
+  loadExam: async (sessionId: string) => {
+    set({ generating: true }); // Use generating flag to show loading state if needed
+    try {
+      const session = await api.getExam(sessionId);
+      if (!session.questions || session.questions.length === 0) {
+        toast.error("Loaded exam has no questions.");
+        return;
+      }
+      if (session.submitted) {
+        toast.info("This exam has already been submitted and cannot be retaken.");
+        return;
+      }
+      set({
+        sessionId: session.sessionId,
+        questions: session.questions,
+        difficultyLabel: "Adaptive", // Or extract from topic if needed
+        answers: {},
+        result: null,
+        idx: 0,
+        flagged: [],
+        visited: [session.questions[0].id],
+        deadline: session.remainingSeconds ? Date.now() + session.remainingSeconds * 1000 : null,
+        stage: "session",
+      });
+      toast.success(`Loaded ${session.questions.length} questions`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to load exam");
     } finally {
       set({ generating: false });
     }

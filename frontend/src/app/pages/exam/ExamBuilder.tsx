@@ -26,6 +26,7 @@ import { Page } from "../../components/Page";
 import { api } from "../../lib/api";
 import type { Course, DocumentItem } from "../../lib/types";
 import { useExamStore } from "../../stores/useExamStore";
+import { SavedExams } from "./SavedExams";
 
 const DIFFICULTIES = ["Easy", "Medium", "Hard", "Adaptive"];
 const COVERAGE = [
@@ -237,6 +238,8 @@ export function ExamBuilder() {
         />
       </div>
       </PaperPanel>
+
+      <SavedExams />
     </Page>
   );
 }

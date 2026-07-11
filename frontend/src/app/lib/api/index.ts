@@ -11,7 +11,7 @@ export { documentsApi, type PaginatedSourcesOut, type SearchResult } from "./doc
 export { askApi, type AskResponse, type TraceData, type TraceChunk, type TraceAnalytics, type TraceSourceStat, type ChatSessionMeta, type ChatMessageRow, type ChatSessionFull } from "./ask";
 export { studyApi, type FlashcardSet, type DeckOut, type SavedRevision, type GeneratedQuiz, type GeneratedDiagram, type GeneratedMindmap, type GeneratedRevision } from "./study";
 export { notebooksApi, type NotebookMeta, type NotebookFull, type NotebookDeduplicateResponse, type NotebookAppendResponse, type Collection, type ReadingDoc, type ReadingSection, type ReadingParagraph } from "./notebooks";
-export { examApi, type ExamQuestionOut, type ExamSession, type ExamStatus, type ExamResult, type PyqPaper, type PyqQuestion, type PyqTopicFreq, type PyqDifferenceSuggestion, type PyqPattern, type PyqYearTrend, type PyqRevisionRisk, type PyqAnalysis } from "./exam";
+export { examApi, type ExamQuestionOut, type ExamSession, type ExamStatus, type ExamResult, type ExamListItem, type PyqPaper, type PyqQuestion, type PyqTopicFreq, type PyqDifferenceSuggestion, type PyqPattern, type PyqYearTrend, type PyqRevisionRisk, type PyqAnalysis } from "./exam";
 export { knowledgeApi, type DashboardData, type KGNode, type KGEdge, type KGGraph, type KGSidebar, type ConceptInspector, type DepLink, type DepConceptInspector, type ReadinessMissing, type Readiness, type ConceptStatus, type LearningPathConcept, type LearningPathStage, type LearningPathOverview, type NextRecommendation, type LearningProgress, type LearningAnalytics, type LearningPath, type LearningPathMeta } from "./knowledge";
 export { whiteboardsApi } from "./whiteboards";
 export { readingApi } from "./reading";

@@ -399,7 +399,7 @@ function InputPhase() {
             disabled={checking}
             tone="dark"
             size={"md"}
-            className="mt-6 w-full gap-2  text-lg"
+            className="mt-6 w-full gap-2  text-lg max-w-sm self-center flex mx-auto"
           >
             {checking ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
             {checking ? "Checking prerequisites…" : "Generate learning package"}
@@ -480,7 +480,7 @@ function Spinner({ message }: { message: string }) {
       return (
         <div className="flex flex-col items-center pt-24 text-muted-foreground">
           <Loader2 className="size-6 animate-spin text-primary" />
-          <p className="mt-3 text-sm">{message}</p>
+          <p className="mt-3 font-kalam text-sm">{message}</p>
         </div>
       );
     }
@@ -862,7 +862,7 @@ function WorkspacePhase() {
                 </PaperBadge>
               )}
               {grounded !== undefined && activeView !== "notes" && (
-                <PaperBadge tone={grounded ? "sage" : "ochre"} className="text-[10px]">
+                <PaperBadge tone={grounded ? "sage" : "ochre"} className="text-[14px]">
                   {grounded ? "From your documents" : "General knowledge"}
                 </PaperBadge>
               )}
@@ -886,43 +886,54 @@ function WorkspacePhase() {
             ) : activeView === "notes" && isPaused ? (
               /* HITL draft editor: student reviews and edits before artifact generation */
               <div className="flex min-h-0 flex-1 flex-col">
-                <div className="border-b border-amber-200/60 bg-amber-50/50 px-6 py-2.5 dark:border-amber-800/30 dark:bg-amber-900/10">
-                  <p className="text-xs text-amber-700 dark:text-amber-400">
-                    Review and edit the AI-generated notes below, then click <strong>Approve &amp; Generate Study Tools</strong> to create your flashcards, quiz, and more based on this content.
+                {/* Banner */}
+                <div className="shrink-0 flex items-center gap-3 border-b border-ochre/30 bg-ochre-soft/50 px-5 py-2.5">
+                  <PauseCircle className="size-4 shrink-0 text-ochre" />
+                  <p className="font-kalam text-[15.5px] text-ink/80">
+                    Review and edit the AI-generated notes, then click{" "}
+                    <strong className="font-bold text-ink">Approve &amp; Generate Study Tools</strong>{" "}
+                    to create flashcards, quiz, mind map and more.
                   </p>
+                  <div className="ml-auto shrink-0">
+                    <PaperButton
+                      onClick={() => void approveAndResume()}
+                      disabled={generating || !approvedNotes.trim()}
+                      tone="dark"
+                      className="gap-2"
+                      size="md"
+                    >
+                      {generating ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />}
+                      Approve &amp; Generate Study Tools
+                    </PaperButton>
+                  </div>
                 </div>
-                <div className="min-h-0 flex-1 p-6">
-                  <SplitLayout
-                    left={
-                      <textarea
-                        className="h-full w-full resize-none rounded-lg border border-border bg-background p-4 font-mono text-sm leading-relaxed text-foreground outline-none focus:ring-2 focus:ring-primary/30"
-                        value={approvedNotes}
-                        onChange={(e) => setApprovedNotes(e.target.value)}
-                        placeholder="Your draft notes will appear here…"
-                        spellCheck={false}
-                      />
-                    }
-                    right={
-                      <div className="min-h-full rounded-lg border border-border bg-background/50 p-6">
-                        <MarkdownRenderer content={approvedNotes || "Your preview will appear here..."} />
-                      </div>
-                    }
-                  />
-                </div>
-                <div className="flex shrink-0 items-center justify-between gap-4 border-t border-border bg-background/90 px-6 py-3 backdrop-blur-sm">
-                  <p className="text-sm text-muted-foreground">
-                    <PauseCircle className="mr-1 inline size-3.5 text-amber-500" />
-                    Flashcards, Quiz, Mind Map and Diagram are <strong>paused</strong> until you approve.
-                  </p>
-                  <PaperButton
-                    onClick={() => void approveAndResume()}
-                    disabled={generating || !approvedNotes.trim()}
-                    tone="dark"
-                    className="gap-2"
-                  >
-                    {generating ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />}
-                    Approve &amp; Generate Study Tools
-                  </PaperButton>
+
+                {/* Editor split — fills ALL remaining space */}
+                <div className="min-h-0 flex-1 grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+                  {/* Left: Raw editor */}
+                  <div className="flex min-h-0 flex-col border-r border-border">
+                    <div className="flex h-9 shrink-0 items-center gap-2 border-b border-border bg-card/60 px-4">
+                      <PenLine className="size-3.5 text-ink-muted" />
+                      <span className="font-architect text-[12px] uppercase tracking-wider text-ink-muted">Editor</span>
+                    </div>
+                    <textarea
+                      className="min-h-0 flex-1 w-full resize-none bg-paper px-5 py-4 font-mono text-[13.5px] leading-relaxed text-ink outline-none focus:ring-0"
+                      value={approvedNotes}
+                      onChange={(e) => setApprovedNotes(e.target.value)}
+                      placeholder="Your draft notes will appear here…"
+                      spellCheck={false}
+                    />
+                  </div>
+                  {/* Right: Preview */}
+                  <div className="flex min-h-0 flex-col">
+                    <div className="flex h-9 shrink-0 items-center gap-2 border-b border-border bg-card/60 px-4">
+                      <Network className="size-3.5 text-ink-muted" />
+                      <span className="font-architect text-[12px] uppercase tracking-wider text-ink-muted">Preview</span>
+                    </div>
+                    <div className="min-h-0 flex-1 overflow-y-auto paper-scrollbar px-6 py-5 bg-background/50">
+                      <MarkdownRenderer content={approvedNotes || "Your preview will appear here…"} />
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (

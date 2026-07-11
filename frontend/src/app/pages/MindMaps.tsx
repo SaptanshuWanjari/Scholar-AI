@@ -81,19 +81,29 @@ export function MindMaps() {
         </svg>
         <ScrollArea className="flex-1">
           <div className="space-y-1 p-2">
+            <div className="flex flex-col px-3 py-4 mb-1 gap-1">
+              <div className="flex items-center gap-2.5">
+                <Network className="size-[22px] text-ink" />
+                <span className="font-architect text-xl font-bold tracking-wide text-ink">Mind Maps</span>
+              </div>
+              <p className="font-kalam text-[13.5px] text-ink-muted/90 ml-[2px]">Explore knowledge as a graph</p>
+            </div>
+            
+            <SketchDivider variant="straight" className="opacity-40 mb-3 mx-2 max-w-[calc(100%-16px)]" />
+
             {loading && (
-              <div className="flex w-full items-center gap-3 rounded-lg border border-dashed border-violet/40 bg-violet-soft/40 p-3">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-violet">
-                  <Loader2 className="size-4 animate-spin" />
+              <div className="flex w-full items-center gap-3 rounded-[16px] border border-dashed border-ink-muted/40 bg-card/60 p-3 mx-2 max-w-[calc(100%-16px)] mb-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-paper text-ink">
+                  <Loader2 className="size-4 animate-spin text-ink-muted" />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{topic.trim() || "Generating…"}</div>
-                  <div className="truncate text-xs text-muted-foreground">Generating…</div>
+                <div className="min-w-0 flex-1 font-kalam">
+                  <div className="truncate text-[15px] font-bold text-ink">{topic.trim() || "Generating…"}</div>
+                  <div className="truncate text-[13px] text-ink-muted/80 font-architect">Generating…</div>
                 </div>
               </div>
             )}
             {items.length === 0 && !loading && (
-              <div className="font-kalam px-3 py-8 text-center text-xs text-muted-foreground">
+              <div className="font-kalam px-3 py-8 text-center text-[13px] text-ink-muted">
                 No mind maps yet. Generate one to get started.
               </div>
             )}

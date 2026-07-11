@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, Circle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "./ui/utils";
+import { PaperPanel } from "@paper-ui/core";
 
 interface Props {
   steps: string[];
@@ -56,7 +57,7 @@ export function GenerationSteps({ steps, loading, interval = 1800, className }: 
           transition={{ duration: 0.25 }}
           className={cn("overflow-hidden", className)}
         >
-          <div className="rounded-xl border border-border bg-card/60 px-4 py-3">
+          <PaperPanel className="px-4 py-3">
             <div className="space-y-2">
               {steps.map((label, i) => {
                 const state = stateOf(i);
@@ -86,7 +87,7 @@ export function GenerationSteps({ steps, loading, interval = 1800, className }: 
                     </span>
                     <span
                       className={cn(
-                        "text-sm transition-colors",
+                        "font-kalam text-sm transition-colors",
                         state === "done" && "text-foreground",
                         state === "active" && "font-medium text-foreground",
                         state === "pending" && "text-muted-foreground/40",
@@ -98,7 +99,7 @@ export function GenerationSteps({ steps, loading, interval = 1800, className }: 
                 );
               })}
             </div>
-          </div>
+          </PaperPanel>
         </motion.div>
       )}
     </AnimatePresence>

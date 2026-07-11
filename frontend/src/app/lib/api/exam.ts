@@ -17,6 +17,7 @@ export interface ExamSession {
   grounded: boolean;
   durationMinutes?: number;
   remainingSeconds?: number | null;
+  submitted?: boolean;
 }
 
 export interface ExamStatus {
@@ -36,6 +37,15 @@ export interface ExamResult {
   review: { id: string; prompt: string; given: string; expected: string; correct: boolean; topic: string }[];
   recommendedRevisions: string[];
   timedOut?: boolean;
+}
+
+export interface ExamListItem {
+  sessionId: string;
+  topic: string;
+  course: string | null;
+  questionCount: number;
+  startedAt: string;
+  submitted: boolean;
 }
 
 // ---- PYQ ----
@@ -130,6 +140,12 @@ export const examApi = {
   // ---- Exam ----
   generateExam(opts: { topic?: string; course?: string | null; document?: string | null; difficulty?: "Easy" | "Medium" | "Hard"; count?: number; types?: string[]; pyqCourse?: string | null; durationMinutes?: number }): Promise<ExamSession> {
     return request<ExamSession>("/api/exams/generate", json(opts));
+  },
+  listExams(): Promise<ExamListItem[]> {
+    return request<ExamListItem[]>("/api/exams");
+  },
+  getExam(sessionId: string): Promise<ExamSession> {
+    return request<ExamSession>(`/api/exams/${sessionId}`);
   },
   submitExam(sessionId: string, answers: Record<string, string>, timeSpent?: number): Promise<ExamResult> {
     return request<ExamResult>(`/api/exams/${sessionId}/submit`, json({ answers, timeSpent }));
