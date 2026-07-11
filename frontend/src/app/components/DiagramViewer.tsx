@@ -73,13 +73,22 @@ export function DiagramViewer({ code, flush, title = "diagram", kind }: { code: 
         let cleanCode = code;
         cleanCode = cleanCode.replace(/^```mermaid\n?/, "").replace(/```$/, "").trim();
         // Quote labels with parens or commas to prevent syntax errors
-        cleanCode = cleanCode.replace(/(\w+)\s*\[([^"\]]+)\]/g, (match, id, text) => {
-          if (text.includes('"')) return match;
-          return `${id}["${text}"]`;
+        const quoteLabel = (text: string) => {
+          if (!text) return "";
+          let clean = text;
+          if (clean.startsWith('"') && clean.endsWith('"')) {
+            clean = clean.slice(1, -1);
+          }
+          clean = clean.replace(/"/g, "'");
+          return `"${clean}"`;
+        };
+        cleanCode = cleanCode.replace(/(\w+)\s*\[([^\]]*)\]/g, (match, id, text) => {
+          const next = quoteLabel(text);
+          return next ? `${id}[${next}]` : match;
         });
-        cleanCode = cleanCode.replace(/(\w+)\s*\(([^")]+)\)/g, (match, id, text) => {
-          if (text.includes('"')) return match;
-          return `${id}("${text}")`;
+        cleanCode = cleanCode.replace(/(\w+)\s*\(([^)]*)\)/g, (match, id, text) => {
+          const next = quoteLabel(text);
+          return next ? `${id}(${next})` : match;
         });
 
         // Validate syntax first so it throws instead of rendering an error SVG

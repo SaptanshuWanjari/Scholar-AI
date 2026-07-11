@@ -33,12 +33,11 @@ export function SessionCard({ title, sessions, onViewAll }: SessionCardProps) {
           View all sessions <ArrowDoodle size={15} />
         </button>
       )}
-      {
+      {sessions.length === 0 && (
         <p className="mt-5 font-kalam text-sm text-ink-muted">
-          {" "}
           No sessions yet. Start a new session to see it here.
         </p>
-      }
+      )}
     </PaperCard>
   );
 }

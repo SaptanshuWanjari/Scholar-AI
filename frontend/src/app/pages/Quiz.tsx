@@ -451,11 +451,11 @@ function Player({
           style={{ filter: "drop-shadow(2px 5px 10px rgba(0,0,0,0.14))" }}
         >
           <SketchBorder fill="#fffdf9" stroke="#9c9484" strokeWidth={1.6} roughness={1.1} shadow={0} />
-          <div className="relative z-[1] p-6">
-            <PaperBadge tone="ink" className="text-[10px] uppercase">
+          <div className="relative z-[1] p-8">
+            <PaperBadge tone="ink" className="text-[12px] px-3 py-1 uppercase">
               {q.type === "mcq" ? "Multiple choice" : q.type === "truefalse" ? "True / False" : "Short answer"}
             </PaperBadge>
-            <h3 className="mt-3 font-architect text-[18px] leading-relaxed text-ink">{q.prompt}</h3>
+            <h3 className="mt-4 font-architect text-[22px] leading-relaxed text-ink">{q.prompt}</h3>
 
             <div className="mt-5 space-y-2">
               {q.type === "short" ? (
@@ -482,7 +482,7 @@ function Player({
                     />
                     <span
                       className={cn(
-                        "relative z-[1] flex size-5 shrink-0 items-center justify-center rounded-full border text-[10px] transition-colors",
+                        "relative z-[1] flex size-4 shrink-0 items-center justify-center rounded-full border text-[12px] transition-colors",
                         selected === opt
                           ? "border-[#4a7a5c] bg-[#4a7a5c] text-white"
                           : "border-[#b4ad9e] bg-[#fffdf9]",
@@ -490,7 +490,7 @@ function Player({
                     >
                       {selected === opt && <Check className="size-3" />}
                     </span>
-                    <span className="relative z-[1] font-architect text-[14px] text-ink">{opt}</span>
+                    <span className="relative z-[1] font-architect text-[17px] text-ink">{opt}</span>
                   </button>
                 ))
               )}

@@ -21,10 +21,11 @@ import { PaperButton, GhostButton, IconButton, ChipButton } from "@paper-ui/comp
 import { PaperBadge } from "@paper-ui/components/badges";
 import { PaperTextarea } from "@paper-ui/components/inputs";
 import { SketchProgress } from "@paper-ui/components/progress";
-import { SectionLabel, PaperPanel } from "@paper-ui/core";
+import { SectionLabel, PaperPanel, SketchBorder } from "@paper-ui/core";
 import { SketchDivider } from "@paper-ui/components/decorations";
 import { formulaSheet, type ExamQuestion } from "../../lib/exam-data";
 import { useExamStore } from "../../stores/useExamStore";
+import { MarkdownRenderer } from "../../components/MarkdownRenderer";
 
 export function diffCls(d: string) {
   return d === "Easy"
@@ -123,15 +124,16 @@ export function ExamSession() {
         </div>
 
         {/* Timer */}
-        <div
-          className={cn(
-            "ml-auto flex items-center gap-1.5 font-mono text-[13px] tabular-nums px-3 py-1.5 rounded-lg border",
-            low
-              ? "border-danger/40 bg-danger-soft text-danger"
-              : "border-border bg-card",
-          )}
-        >
-          <Clock className="size-3.5" /> {mm}:{ss}
+        <div className={cn("ml-auto relative inline-flex items-center gap-1 font-mono text-[15px] tabular-nums px-3.5 py-1.5 z-0", low ? "text-danger" : "text-ink")}>
+          <SketchBorder 
+            fill={low ? "var(--color-brick-soft)" : "var(--color-card)"} 
+            stroke={low ? "var(--color-brick)" : "var(--color-stroke)"} 
+            strokeWidth={1.5} 
+            radius={999} 
+            shadow={0} 
+          />
+          <Clock className="relative z-[1] size-4 mr-0.5" />
+          <span className="relative z-[1]">{mm}:{ss}</span>
         </div>
 
         <IconButton
@@ -149,7 +151,7 @@ export function ExamSession() {
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Left nav sidebar */}
         <aside className="hidden w-[200px] shrink-0 flex-col overflow-y-auto border-r border-border bg-card/40 px-3 py-4 md:flex">
-          <SectionLabel className="mb-3 px-1 text-[11px]">Questions</SectionLabel>
+          <SectionLabel className="mb-3 px-1 text-[13px]">Questions</SectionLabel>
           <div className="grid grid-cols-4 gap-2">
             {questions.map((eq, i) => {
               const isCurrent = i === idx;
@@ -157,29 +159,25 @@ export function ExamSession() {
               const flaggedHere = isFlagged(eq.id);
               const isSkipped = isVisited(eq.id) && !isAnswered && !isCurrent;
               return (
-                <button
+                <ChipButton
                   key={eq.id}
                   onClick={() => goto(i)}
-                  className={cn(
-                    "relative flex aspect-square items-center justify-center rounded-md border font-architect text-xs transition-colors",
-                    isCurrent && "border-primary bg-primary/10 text-primary font-bold",
-                    !isCurrent && isAnswered && "border-success/40 bg-success-soft text-success",
-                    !isCurrent && isSkipped && "border-warning/40 bg-warning-soft text-warning",
-                    !isCurrent && !isAnswered && !isSkipped && "border-border bg-card text-ink-muted hover:border-ink-muted/40",
-                  )}
+                  selected={isCurrent}
+                  tone={isAnswered ? "green" : isSkipped ? "red" : undefined}
+                  className="w-full aspect-square h-auto p-0 px-0 justify-center text-[15px]"
                 >
                   {i + 1}
                   {flaggedHere && (
                     <Flag className="absolute -right-1 -top-1 size-3 fill-danger text-danger" />
                   )}
-                </button>
+                </ChipButton>
               );
             })}
           </div>
 
           <SketchDivider variant="dashed" className="my-4 opacity-40" />
 
-          <div className="space-y-1.5 font-kalam text-[11px] text-ink-muted">
+          <div className="space-y-1.5 font-kalam text-[14px] text-ink-muted">
             <Legend cls="bg-success-soft border-success/40 border" label="Answered" />
             <Legend cls="bg-warning-soft border-warning/40 border" label="Skipped" />
             <Legend cls="bg-primary/10 border-primary border" label="Current" />
@@ -195,10 +193,10 @@ export function ExamSession() {
                 <span className="font-kalam text-sm text-ink-muted">
                   Question {idx + 1}
                 </span>
-                <PaperBadge tone="ink" className="text-[10px]">
+                <PaperBadge tone="ink" className="text-[13px] px-3 py-1">
                   {q.topic}
                 </PaperBadge>
-                <PaperBadge tone={DIFF_TONE(q.difficulty)} className="text-[10px]">
+                <PaperBadge tone={DIFF_TONE(q.difficulty)} className="text-[13px] px-3 py-1">
                   {q.difficulty}
                 </PaperBadge>
               </div>
@@ -222,7 +220,7 @@ export function ExamSession() {
                 exit={{ opacity: 0, x: -16 }}
                 transition={{ duration: 0.18 }}
               >
-                <h2 className="mt-4 font-reading text-[1.6rem] leading-snug text-ink">
+                <h2 className="mt-4 font-kalam  text-[1.6rem] leading-snug text-ink">
                   {q.prompt}
                 </h2>
                 <div className="mt-6">
@@ -285,11 +283,11 @@ export function ExamSession() {
                 <PanelBlock title="Formula Sheet" icon={Sigma}>
                   {formulaSheet.map((f) => (
                     <PaperPanel key={f.name} className="px-3 py-2">
-                      <div className="font-kalam text-[11px] text-ink-muted">
+                      <div className="font-kalam text-[16px] text-ink-muted">
                         {f.name}
                       </div>
-                      <div className="mt-0.5 font-mono text-sm text-ink">
-                        {f.formula}
+                      <div className="mt-0.5 text-sm text-ink [&_p]:mb-0">
+                        <MarkdownRenderer content={`$${f.formula}$`} />
                       </div>
                     </PaperPanel>
                   ))}
@@ -328,6 +326,8 @@ export function ExamSession() {
 
 // ─── AnswerArea ───────────────────────────────────────────────────────────────
 
+const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"];
+
 function AnswerArea({
   q,
   value,
@@ -358,32 +358,105 @@ function AnswerArea({
       />
     );
   return (
-    <div className="space-y-2">
-      {q.options?.map((opt) => (
-        <button
+    <div className="space-y-3 flex flex-col">
+      {q.options?.map((opt, i) => (
+        <McqOption
           key={opt}
-          onClick={() => onChange(opt)}
-          className={cn(
-            "flex w-full items-center gap-3 rounded-xl border p-3.5 text-left font-architect text-sm transition-colors",
-            value === opt
-              ? "border-primary/60 bg-primary/8 text-primary"
-              : "border-border bg-card text-ink hover:border-ink-muted/40",
-          )}
-        >
-          <span
-            className={cn(
-              "flex size-5 shrink-0 items-center justify-center rounded-full border font-architect",
-              value === opt
-                ? "border-primary bg-primary text-white"
-                : "border-border",
-            )}
-          >
-            {value === opt && <Check className="size-3" />}
-          </span>
-          {opt}
-        </button>
+          letter={OPTION_LETTERS[i] ?? String(i + 1)}
+          text={opt}
+          selected={value === opt}
+          onSelect={() => onChange(opt)}
+        />
       ))}
     </div>
+  );
+}
+
+// ─── McqOption ────────────────────────────────────────────────────────────────
+
+function McqOption({
+  letter,
+  text,
+  selected,
+  onSelect,
+}: {
+  letter: string;
+  text: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <motion.button
+      type="button"
+      aria-pressed={selected}
+      onClick={onSelect}
+      whileHover={{ y: selected ? 1 : -2, scale: selected ? 1 : 1.005 }}
+      whileTap={{ scale: 0.99, y: 1 }}
+      animate={selected ? { y: 1 } : { y: 0 }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
+      className={cn(
+        "relative w-full text-left outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm",
+        "cursor-pointer select-none",
+      )}
+    >
+      {/* Sketch border background */}
+      <SketchBorder
+        fill={selected ? "var(--color-success-soft)" : "var(--color-card)"}
+        stroke={selected ? "var(--color-success)" : "var(--color-stroke)"}
+        strokeWidth={selected ? 2 : 1.5}
+        radius={6}
+        shadow={selected ? 0 : 3}
+      />
+
+      {/* Content */}
+      <div className="relative z-[1] flex items-center gap-3.5 px-4 py-3.5 min-h-[3.5rem]">
+        {/* Letter badge */}
+        <span
+          className={cn(
+            "relative shrink-0 inline-flex items-center justify-center",
+            "size-7 rounded-full font-architect text-[0.8rem] font-bold",
+            "transition-all duration-150",
+            selected
+              ? "bg-success text-white"
+              : "bg-paper border border-border text-ink-muted",
+          )}
+        >
+          {selected ? (
+            <motion.span
+              key="check"
+              initial={{ scale: 0, rotate: -15 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ duration: 0.18, ease: "backOut" }}
+            >
+              <Check className="size-3.5" />
+            </motion.span>
+          ) : (
+            <span>{letter}</span>
+          )}
+        </span>
+
+        {/* Option text */}
+        <span
+          className={cn(
+            "flex-1 font-kalam text-[1rem] leading-snug transition-colors duration-150",
+            selected ? "text-success" : "text-ink",
+          )}
+        >
+          {text}
+        </span>
+
+        {/* Selected indicator dot */}
+        {selected && (
+          <motion.span
+            key="dot"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.2 }}
+            className="shrink-0 size-2 rounded-full bg-success"
+          />
+        )}
+      </div>
+    </motion.button>
   );
 }
 

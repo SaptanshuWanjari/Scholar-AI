@@ -6,6 +6,7 @@ Field names use the exact camelCase keys the React frontend expects
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel
@@ -735,6 +736,15 @@ class StickyNotePatch(BaseModel):
 # Exam
 # ---------------------------------------------------------------------------
 
+class ExamListItem(BaseModel):
+    sessionId: str
+    topic: str
+    course: str | None = None
+    questionCount: int
+    startedAt: datetime
+    submitted: bool = False
+
+
 class ExamGenerateRequest(BaseModel):
     topic: str | None = None
     course: str | None = None
@@ -765,6 +775,7 @@ class ExamSessionOut(BaseModel):
     grounded: bool = True
     durationMinutes: int = 0
     remainingSeconds: int | None = None  # null = untimed
+    submitted: bool = False
 
 
 class ExamStatusOut(BaseModel):

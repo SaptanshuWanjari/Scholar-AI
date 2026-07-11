@@ -33,7 +33,7 @@ function Chips({ items, tone }: { items: string[]; tone: IconTone }) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {items.map((c) => (
-        <PaperBadge key={c} tone={tone} className="text-[11px]">
+        <PaperBadge key={c} tone={tone} className="text-xs px-3 py-1">
           {c}
         </PaperBadge>
       ))}
@@ -186,7 +186,7 @@ export function ConsistencyReport({ report, onApply }: ConsistencyReportProps) {
           <ul className="space-y-2">
             {report.recommendations.map((r, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-ink/90">
-                <PaperBadge tone="lavender" className="min-w-5 justify-center px-0 text-[11px]">
+                <PaperBadge tone="lavender" className="min-w-6 justify-center px-1 py-0.5 text-xs">
                   {i + 1}
                 </PaperBadge>
                 {r}
@@ -201,28 +201,30 @@ export function ConsistencyReport({ report, onApply }: ConsistencyReportProps) {
           <SectionLabel className="mb-2.5 block">Suggested fixes</SectionLabel>
           <div className="space-y-3">
             {report.suggestions.map((s, i) => (
-              <PaperPanel key={i} className="flex items-start justify-between gap-3 p-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-ink">{s.label}</span>
+              <PaperPanel key={i} className="p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-ink">{s.label}</span>
+                    </div>
+                    <p className="mt-0.5 text-xs text-ink-muted">{s.issue}</p>
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {s.concepts.slice(0, 4).map((c) => (
+                        <PaperBadge key={c} tone="ink" className="text-xs px-2 py-0.5">
+                          {c}
+                        </PaperBadge>
+                      ))}
+                      {s.concepts.length > 4 && (
+                        <PaperBadge tone="ink" className="text-xs px-2 py-0.5 opacity-70">
+                          +{s.concepts.length - 4} more
+                        </PaperBadge>
+                      )}
+                    </div>
                   </div>
-                  <p className="mt-0.5 text-xs text-ink-muted">{s.issue}</p>
-                  <div className="mt-1.5 flex flex-wrap gap-1">
-                    {s.concepts.slice(0, 4).map((c) => (
-                      <PaperBadge key={c} tone="ink" className="text-[10px]">
-                        {c}
-                      </PaperBadge>
-                    ))}
-                    {s.concepts.length > 4 && (
-                      <PaperBadge tone="ink" className="text-[10px] opacity-70">
-                        +{s.concepts.length - 4} more
-                      </PaperBadge>
-                    )}
-                  </div>
+                  {onApply && (
+                    <ApplyButton onClick={() => onApply(s.artifactType, s.concepts)} />
+                  )}
                 </div>
-                {onApply && (
-                  <ApplyButton onClick={() => onApply(s.artifactType, s.concepts)} />
-                )}
               </PaperPanel>
             ))}
           </div>

@@ -207,6 +207,28 @@ def generate_artifacts(state: TeachState) -> dict:
         except Exception as exc:
             artifacts[key] = {"error": str(exc)}
 
+    if grounded:
+        from scholarai.storage import get_session
+        from scholarai.storage.models import Diagram, Mindmap
+
+        session = get_session()
+        try:
+            d = artifacts.get("diagram")
+            if d and "error" not in d and d.get("syntax", "").strip():
+                session.add(Diagram(
+                    title=topic, course="", kind="Flowchart",
+                    syntax=d["syntax"], quality_score=d.get("quality"),
+                ))
+            m = artifacts.get("mindmap")
+            if m and "error" not in m and m.get("text", "").strip():
+                session.add(Mindmap(
+                    title=topic, course="", text=m["text"],
+                    quality_score=m.get("quality"),
+                ))
+            session.commit()
+        finally:
+            session.close()
+
     return {
         "approved_notes": approved_notes,
         "artifacts_to_generate": keys_to_generate,

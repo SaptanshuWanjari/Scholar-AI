@@ -9,6 +9,7 @@ import { PaperButton, GhostButton, ToggleButton } from "@/paper-ui/components/bu
 import { PaperModal } from "@/paper-ui/components/dialogs";
 import { SketchProgress } from "@/paper-ui/components/progress";
 import { PaperTextarea } from "@/paper-ui/components/inputs";
+import { PaperCard } from "@/paper-ui/core";
 import { Check, Sparkles, Loader2 } from "lucide-react";
 import { usePromptEnhancerStore } from "../stores/usePromptEnhancerStore";
 
@@ -75,15 +76,21 @@ export function PromptCoachModal() {
   return (
     <>
       {analyzing && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-medium text-white shadow-lg animate-in fade-in slide-in-from-bottom-4">
-          <Loader2 className="size-4 animate-spin" />
+        <PaperCard
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2.5 px-5 py-2.5 font-kalam text-[15px] font-bold text-ink animate-in fade-in slide-in-from-bottom-4"
+          shadow="md"
+          surface="var(--color-paper)"
+          border={{ radius: 999, strokeWidth: 1.5 }}
+        >
+          <Loader2 className="size-4 animate-spin text-ink-muted" />
           Analyzing prompt...
-        </div>
+        </PaperCard>
       )}
       <PaperModal
         open={open}
         onClose={close}
         title="Prompt Coach"
+        className="min-w-lg"
         footer={
           <>
             <GhostButton size="sm" onClick={handleEdit} className="mr-auto">
