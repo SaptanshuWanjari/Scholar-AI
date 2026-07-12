@@ -23,6 +23,7 @@ import { useNavigate } from "react-router";
 import { toast } from "@/app/lib/toast";
 import { cn } from "@/paper-ui/utils";
 import { PaperBadge } from "@/paper-ui/components/badges";
+import { StickyNoteCard } from "@/paper-ui/components/cards";
 import { PaperModal } from "@/paper-ui/components/dialogs";
 import { PaperH1, PaperH2 } from "@/paper-ui/core";
 import { PaperCard } from "@/paper-ui/core";
@@ -135,36 +136,37 @@ export function BlockInner({
             {parsedNotes.map((note, idx) => {
               const categoryStr = (note.category || "general").toLowerCase() as NoteCategory;
               const meta = NOTE_CATEGORIES[categoryStr] || NOTE_CATEGORIES["general"];
-              
-              const rotations = ["-rotate-1", "rotate-1", "-rotate-[1.5deg]", "rotate-[1.5deg]"];
-              const rotationClass = rotations[idx % rotations.length];
-              
-              const bgColors: Record<string, string> = {
-                insight: "bg-[#fef3c7]",
-                question: "bg-[#f3e8ff]",
-                formula: "bg-[#d1fae5]",
-                confusing: "bg-[#ffe4e6]",
-                general: "bg-[#e0f2fe]"
+              const rotations = [-1, 1, -1.5, 1.5];
+              const rotate = rotations[idx % rotations.length];
+              const colorMap: Record<string, "yellow" | "pink" | "blue" | "green" | "orange" | "purple"> = {
+                insight: "yellow",
+                question: "purple",
+                formula: "green",
+                confusing: "pink",
+                general: "blue",
               };
-              const colorClass = bgColors[categoryStr] || "bg-[#fef3c7]";
+              const stickyColor = colorMap[categoryStr] || "yellow";
 
               return (
-                <div 
+                <StickyNoteCard
                   key={idx}
-                  className={cn(
-                    "relative w-full max-w-[260px] p-4 flex flex-col min-h-[280px] group/card",
-                    "shadow-[2px_4px_12px_rgba(0,0,0,0.12)] transition-transform hover:z-10 hover:scale-105",
-                    colorClass, 
-                    rotationClass,
-                  )}
+                  color={stickyColor}
+                  rotate={rotate}
+                  pin="tape"
+                  className="w-[260px] group/card transition-transform hover:z-10 hover:scale-[1.03]"
+                  footer={note.docTitle
+                    ? `from ${note.docTitle}${note.pageNum ? ` · p.${note.pageNum}` : ""}`
+                    : undefined
+                  }
                 >
-                  <div className="absolute -top-3 left-1/2 w-10 h-6 -translate-x-1/2 bg-yellow-600/15 mix-blend-multiply rotate-2 shadow-[0_1px_2px_rgba(0,0,0,0.1)]" />
-                  
-                  <div className="flex items-start justify-between mb-4 mt-1">
-                    <span className={cn("flex items-center gap-1.5 font-architect text-xs font-semibold tracking-wide uppercase", meta.dot)}>
-                      <meta.icon className="size-4" /> {meta.label}
+                  {/* Category row + actions */}
+                  <div className="flex items-center justify-between mb-2.5">
+                    <span className={cn("flex items-center gap-1 font-architect text-[10px] font-semibold tracking-wide uppercase", meta.dot)}>
+                      <meta.icon className="size-3.5" />
+                      {meta.label}
+                      {note.pageNum && <span className="ml-1 font-architect text-[10px] text-slate-400/80 normal-case tracking-normal">p.{note.pageNum}</span>}
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity">
                       <button
                         onClick={() => {
                           setEditModalIdx(idx);
@@ -172,41 +174,36 @@ export function BlockInner({
                           setEditCat(note.category);
                           setTimeout(() => textareaRef.current?.focus(), 100);
                         }}
-                        className="opacity-0 group-hover/card:opacity-100 transition-opacity text-slate-500 hover:text-primary p-0.5 rounded hover:bg-black/5"
+                        className="p-0.5 rounded text-slate-500 hover:text-primary hover:bg-black/[0.06] transition-colors"
                         title="Edit note"
                       >
-                        <Pencil className="size-3.5" />
+                        <Pencil className="size-3" />
                       </button>
                       {parsedNotes.length > 1 && onUngroup && (
                         <button
                           onClick={() => onUngroup(idx)}
-                          className="opacity-0 group-hover/card:opacity-100 transition-opacity text-slate-500 hover:text-primary p-0.5 rounded hover:bg-black/5"
+                          className="p-0.5 rounded text-slate-500 hover:text-primary hover:bg-black/[0.06] transition-colors"
                           title="Ungroup note"
                         >
-                          <Scissors className="size-3.5" />
+                          <Scissors className="size-3" />
                         </button>
                       )}
                       <button
                         onClick={() => onDeleteNote?.(idx)}
-                        className="opacity-0 group-hover/card:opacity-100 transition-opacity text-slate-500 hover:text-destructive p-0.5 rounded hover:bg-black/5"
+                        className="p-0.5 rounded text-slate-500 hover:text-destructive hover:bg-black/[0.06] transition-colors"
                         title="Delete note"
                       >
-                        <Trash2 className="size-3.5" />
+                        <Trash2 className="size-3" />
                       </button>
-                      {note.pageNum && <span className="font-architect text-xs font-medium text-slate-600/70">p. {note.pageNum}</span>}
                     </div>
                   </div>
 
-                  <div className="font-kalam text-2xl leading-relaxed flex-1 text-slate-800 break-words mb-2 whitespace-pre-wrap">
-                    <MarkdownRenderer content={note.content} className="!font-kalam text-2xl" />
-                  </div>
-                  
-                  {note.docTitle && (
-                    <div className="mt-4 font-architect text-[11px] font-medium text-slate-400 italic text-right border-t border-black/5 pt-2">
-                      from {note.docTitle}
-                    </div>
-                  )}
-                </div>
+                  {/* Content */}
+                  <MarkdownRenderer
+                    content={note.content}
+                    className="!font-kalam text-sm text-ink/85 break-words [&_p]:!mb-1.5 [&_p]:!leading-snug [&_ul]:!mb-1.5 [&_li]:!mb-0.5"
+                  />
+                </StickyNoteCard>
               );
             })}
           </div>
@@ -325,9 +322,12 @@ export function BlockInner({
           <div className="mb-2 flex items-center gap-2 font-architect text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted">
             <Workflow className="size-3.5" /> Diagram
           </div>
-          <DiagramViewer code={block.code} />
+          <div className="-mx-4 -mb-3">
+            <DiagramViewer code={block.code} />
+          </div>
         </div>
       );
+
     case "flashdeck":
       return (
         <PaperCard shadow="sm" surface="#fffdf9" border={{ strokeWidth: 1.3, roughness: 1 }}>

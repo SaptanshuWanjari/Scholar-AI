@@ -1,9 +1,10 @@
+import { useState } from 'react'
 import { toast } from "@/app/lib/toast"
 import { useNavigate } from 'react-router'
 import { Trash2, Download, NotebookText, ExternalLink } from 'lucide-react'
 import { api } from '../../lib/api'
 import { SketchBorder } from '@/paper-ui/core'
-import { PaperTooltip, PaperPopover } from '@/paper-ui/components/dialogs'
+import { PaperTooltip, PaperPopover, ConfirmationDialog } from '@/paper-ui/components/dialogs'
 
 export interface ExcalidrawFooterProps {
   apiRef: React.MutableRefObject<any>
@@ -11,9 +12,9 @@ export interface ExcalidrawFooterProps {
 
 export function ExcalidrawFooter({ apiRef }: ExcalidrawFooterProps) {
   const navigate = useNavigate()
+  const [clearOpen, setClearOpen] = useState(false)
 
   const handleClear = () => {
-    if (!confirm('Clear the scratchpad?')) return
     apiRef.current?.resetScene()
     try { localStorage.removeItem('scholar_scratchpad_excalidraw') } catch {}
   }
@@ -105,13 +106,23 @@ export function ExcalidrawFooter({ apiRef }: ExcalidrawFooterProps) {
       <div className="relative z-[1] flex items-center justify-center gap-2 px-3 py-1.5">
         <PaperTooltip content="Clear scratchpad">
           <button
-            onClick={handleClear}
+            onClick={() => setClearOpen(true)}
             className="relative inline-flex items-center gap-1 rounded px-2 py-1 font-architect text-[12px] text-ink-muted hover:text-ink transition-colors"
           >
             <Trash2 size={12} />
             Clear
           </button>
         </PaperTooltip>
+        <ConfirmationDialog
+          open={clearOpen}
+          onConfirm={() => { handleClear(); setClearOpen(false) }}
+          onCancel={() => setClearOpen(false)}
+          title="Clear scratchpad?"
+          message="This will erase all drawings."
+          confirmLabel="Clear"
+          cancelLabel="Cancel"
+          destructive
+        />
         <div className="w-px h-4 bg-[#e8e3d8]" />
         <PaperPopover
           placement="top"

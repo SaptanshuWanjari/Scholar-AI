@@ -29,6 +29,8 @@ interface ConceptActionState {
     conceptId: string,
     label: string,
     navigate: (to: string) => void,
+    course?: string | null,
+    document?: string | null,
   ) => Promise<void>;
 }
 
@@ -38,26 +40,26 @@ export const useConceptActionStore = create<ConceptActionState>((set, get) => ({
   result: null,
   resultConceptId: null,
   clearResult: () => set({ result: null, resultConceptId: null }),
-  runAction: async (concept, conceptId, label, navigate) => {
+  runAction: async (concept, conceptId, label, navigate, course, document) => {
     if (get().running) return;
     const name = concept.name;
     set({ running: label, runningConceptId: conceptId, result: null, resultConceptId: null });
     const open = (to: string) => ({ label: "Open", onClick: () => navigate(to) });
     try {
       if (label === "Explain Concept") {
-        const r = await api.ask(`Explain the concept: ${name}`);
+        const r = await api.ask(`Explain the concept: ${name}`, course, document);
         set({ result: { title: `Explain: ${name}`, body: r.content, mono: false }, resultConceptId: conceptId });
         useNotificationStore.getState().add({ title: `Explained: ${name}`, status: "success" });
       } else if (label === "Generate Summary") {
-        const r = await api.generateRevision({ topic: name, format: "summary" });
+        const r = await api.generateRevision({ topic: name, course, document, format: "summary" });
         set({ result: { title: `Summary: ${name}`, body: r.markdown, mono: false }, resultConceptId: conceptId });
         useNotificationStore.getState().add({ title: `Summary generated: ${name}`, status: "success" });
       } else if (label === "Generate Mind Map") {
-        const r = await api.generateMindmap(name);
+        const r = await api.generateMindmap(name, course, document);
         toast.success(`Mind map generated: ${name}`, { action: open("/mindmaps") });
         useNotificationStore.getState().add({ title: `Mind map generated: ${name}`, status: "success" });
       } else if (label === "Generate Flashcards") {
-        const r = await api.generateFlashcards(name);
+        const r = await api.generateFlashcards(name, course, document);
         if (!r.cards.length) {
           toast.error("No grounded flashcards for this concept");
           useNotificationStore.getState().add({ title: "Flashcard generation failed", status: "error", message: "No grounded flashcards for this concept" });
@@ -68,7 +70,7 @@ export const useConceptActionStore = create<ConceptActionState>((set, get) => ({
           useNotificationStore.getState().add({ title: successMsg, status: "success" });
         }
       } else if (label === "Generate Quiz") {
-        const r = await api.generateQuiz(name);
+        const r = await api.generateQuiz(name, course, document);
         if (!r.questions.length) {
           toast.error("No grounded quiz for this concept");
           useNotificationStore.getState().add({ title: "Quiz generation failed", status: "error", message: "No grounded quiz for this concept" });
@@ -78,7 +80,7 @@ export const useConceptActionStore = create<ConceptActionState>((set, get) => ({
           useNotificationStore.getState().add({ title: `Quiz saved: ${name}`, status: "success" });
         }
       } else if (label === "Generate Diagram") {
-        const r = await api.generateDiagram(name);
+        const r = await api.generateDiagram(name, course, document);
         if (!r.grounded || !r.syntax.trim()) {
           toast.error("Couldn't generate a diagram");
           useNotificationStore.getState().add({ title: "Diagram generation failed", status: "error" });
@@ -87,7 +89,7 @@ export const useConceptActionStore = create<ConceptActionState>((set, get) => ({
           useNotificationStore.getState().add({ title: `Diagram generated: ${name}`, status: "success" });
         }
       } else if (label === "Add To Notebook") {
-        const ex = await api.ask(`Explain the concept: ${name}`);
+        const ex = await api.ask(`Explain the concept: ${name}`, course, document);
         const nb = await api.createNotebook(name);
         await api.updateNotebook(nb.id, {
           blocks: [

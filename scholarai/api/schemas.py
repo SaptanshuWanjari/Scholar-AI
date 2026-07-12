@@ -1025,7 +1025,7 @@ class TeachArtifactsOut(BaseModel):
 # ---------------------------------------------------------------------------
 
 class GenerateLearningPathRequest(BaseModel):
-    topic: str
+    topic: str | None = None
     course: str | None = None
     document: str | None = None
     rag_mode: str = "fallback"
