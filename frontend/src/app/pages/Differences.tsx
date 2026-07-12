@@ -23,7 +23,6 @@ import { PaperBadge } from "@/paper-ui/components/badges";
 import { EmptyState } from "@/paper-ui/components/feedback";
 import { PaperCard, PaperPanel, SectionHeader, PaperH1, PaperIconCircle } from "@/paper-ui/core";
 import { ArtifactRow } from "@/paper-ui/components/rows";
-import { Tape } from "@/paper-ui/components/decorations/Tape";
 
 
 const SUGGESTION_COLORS = [
@@ -237,15 +236,6 @@ export function Differences() {
               showRaw && "font-mono text-xs",
             )}
           >
-            <Tape
-              corner="top-center"
-              width={80}
-              color={
-                suggestions.indexOf(output.title) >= 0
-                  ? SUGGESTION_COLORS[suggestions.indexOf(output.title) % SUGGESTION_COLORS.length].softBg
-                  : "var(--color-sky-soft)"
-              }
-            />
             {showRaw ? (
               <pre className="whitespace-pre-wrap text-ink">{output.content}</pre>
             ) : (

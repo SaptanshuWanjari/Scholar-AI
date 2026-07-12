@@ -33,7 +33,7 @@ export function StickyNote({
       {...props}
     >
       {pin === "push-pin" && (
-        <div className="absolute -top-3 left-1/2 z-30 -translate-x-1/2">
+        <div className="absolute  left-1/2 z-30 -translate-x-1/2">
           <PushPin size={22} />
         </div>
       )}

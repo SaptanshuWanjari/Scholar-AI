@@ -165,7 +165,7 @@ export function Diagrams() {
                 <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-violet">
                   <Loader2 className="size-4 animate-spin" />
                 </div>
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 font-kalam flex-1">
                   <div className="truncate text-sm font-medium">{topic.trim() || "Generating…"}</div>
                   <div className="truncate text-xs text-muted-foreground">Generating…</div>
                 </div>

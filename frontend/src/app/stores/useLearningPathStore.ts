@@ -69,24 +69,26 @@ export const useLearningPathStore = create<LearningPathState>((set, get) => ({
 
   generate: async () => {
     const { topic, course, document } = get();
+    if (course === "none" && !document) {
+      toast.error("Select a course, a document, or enter a topic to generate a learning path");
+      return;
+    }
     const t = topic.trim();
-    if (!t) {
-      toast.error("Enter a topic to generate a learning path");
-      return;
-    }
-    const enhResult = await usePromptEnhancerStore.getState().analyze(t, course === "none" ? null : course, "learning_path");
-    if (enhResult.action === "edit") {
-      set({ topic: enhResult.prompt });
-      return;
-    }
-    if (enhResult.action === "use_suggested") {
-      set({ topic: enhResult.prompt });
+    if (t) {
+      const enhResult = await usePromptEnhancerStore.getState().analyze(t, course === "none" ? null : course, "learning_path");
+      if (enhResult.action === "edit") {
+        set({ topic: enhResult.prompt });
+        return;
+      }
+      if (enhResult.action === "use_suggested") {
+        set({ topic: enhResult.prompt });
+      }
     }
     const finalTopic = get().topic.trim();
     set({ generating: true });
     try {
       const path = await api.generateLearningPath({
-        topic: finalTopic,
+        topic: finalTopic || null,
         course: course === "none" ? null : course,
         document,
       });

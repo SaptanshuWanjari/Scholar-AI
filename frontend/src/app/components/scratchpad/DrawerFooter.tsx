@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Minus, Plus, Maximize2, RotateCcw, RotateCw, Trash2, Download } from 'lucide-react'
 import { toSvg } from 'html-to-image'
 import { useNavigate } from 'react-router'
@@ -6,12 +6,12 @@ import { toast } from "@/app/lib/toast"
 import { api } from '../../lib/api'
 import { useScratchpadStore } from './useScratchpadStore'
 import { SketchBorder } from '@/paper-ui/core'
-import { PaperTooltip } from '@/paper-ui/components/dialogs'
-import { PaperPopover } from '@/paper-ui/components/dialogs'
+import { PaperTooltip, PaperPopover, ConfirmationDialog } from '@/paper-ui/components/dialogs'
 
 export function DrawerFooter({ stageRef }: { stageRef: React.RefObject<any> }) {
   const { viewport, setViewport, undo, redo, undoStack, redoStack, clearCanvas } = useScratchpadStore()
   const navigate = useNavigate()
+  const [clearOpen, setClearOpen] = useState(false)
 
   const zoom = Math.round(viewport.scale * 100)
 
@@ -93,13 +93,23 @@ export function DrawerFooter({ stageRef }: { stageRef: React.RefObject<any> }) {
           <div className="w-px h-4 bg-[#e8e3d8] mx-1" />
           <PaperTooltip content="Clear scratchpad">
             <button
-              onClick={() => { if (confirm('Clear the scratchpad?')) clearCanvas() }}
+              onClick={() => setClearOpen(true)}
               className="relative inline-flex items-center gap-1 rounded px-2 py-1 font-architect text-[12px] text-ink-muted hover:text-ink transition-colors"
             >
               <Trash2 size={12} />
               Clear
             </button>
           </PaperTooltip>
+          <ConfirmationDialog
+            open={clearOpen}
+            onConfirm={() => { clearCanvas(); setClearOpen(false) }}
+            onCancel={() => setClearOpen(false)}
+            title="Clear scratchpad?"
+            message="This will erase all drawings."
+            confirmLabel="Clear"
+            cancelLabel="Cancel"
+            destructive
+          />
           <PaperPopover
             placement="top"
             trigger={

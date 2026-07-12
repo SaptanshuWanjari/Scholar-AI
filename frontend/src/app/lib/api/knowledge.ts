@@ -230,9 +230,9 @@ export const knowledgeApi = {
   },
 
   // ---- Learning Path ----
-  generateLearningPath(opts: { topic: string; course?: string | null; document?: string | null; ragMode?: string }): Promise<LearningPath> {
+  generateLearningPath(opts: { topic?: string | null; course?: string | null; document?: string | null; ragMode?: string }): Promise<LearningPath> {
     return request<LearningPath>("/api/learning-paths/generate", json({
-      topic: opts.topic,
+      topic: opts.topic ?? null,
       course: opts.course ?? null,
       document: opts.document ?? null,
       rag_mode: opts.ragMode ?? "fallback",

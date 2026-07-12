@@ -101,6 +101,7 @@ function ConceptCard({
 }) {
   const navigate = useNavigate();
   const setConceptStatus = useLearningPathStore((s) => s.setConceptStatus);
+  const path = useLearningPathStore((s) => s.path);
   const runAction = useConceptActionStore((s) => s.runAction);
   const running = useConceptActionStore((s) => s.running);
   const runningConceptId = useConceptActionStore((s) => s.runningConceptId);
@@ -211,6 +212,8 @@ function ConceptCard({
                       conceptId,
                       a.runLabel,
                       navigate,
+                      path?.course || null,
+                      path?.document || null,
                     )
                   : undefined
               }
@@ -321,9 +324,8 @@ function InputPhase() {
           Learning Path
         </h1>
         <p className="mt-1 max-w-lg font-kalam text-sm text-ink-muted">
-          Turn your material into a dependency-ordered roadmap — concepts
-          arranged so you learn the foundations before the advanced topics that
-          build on them.
+          Select a course and document below, or type a topic — the AI reads
+          your material and builds a dependency-ordered roadmap.
         </p>
       </div>
 
@@ -334,9 +336,8 @@ function InputPhase() {
           onKeyDown={(e) => {
             if (e.key === "Enter") generate();
           }}
-          placeholder="What subject do you want a roadmap for?"
+          placeholder="Optional — focus on a specific subject, or leave blank to cover everything"
           className="h-11"
-          autoFocus
         />
 
 

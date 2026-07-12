@@ -851,7 +851,7 @@ export function Notebooks() {
             )}
         </div>
         {active && (
-          <div ref={fabRef} className="fixed bottom-6 right-6 z-50">
+          <div ref={fabRef} className="fixed bottom-6 right-6 z-40">
             {fabOpen && (
               <div className="absolute bottom-full right-0 mb-3 min-w-[240px]">
                 <div className="relative">

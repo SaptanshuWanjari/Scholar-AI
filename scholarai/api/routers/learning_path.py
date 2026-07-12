@@ -34,7 +34,7 @@ from scholarai.api.schemas import (
     UpdateConceptStatusRequest,
 )
 from scholarai.storage import get_session
-from scholarai.storage.models import DepConcept, LearningPath, SavedRevision, TopicStat, TrashIndex
+from scholarai.storage.models import Course, DepConcept, Document, LearningPath, SavedRevision, TopicStat, TrashIndex
 
 router = APIRouter(prefix="/api/learning-paths", tags=["learning-path"])
 
@@ -251,10 +251,46 @@ def _meta(row: LearningPath) -> LearningPathMeta:
 
 @router.post("/generate", response_model=LearningPathOut)
 async def generate_learning_path(req: GenerateLearningPathRequest) -> LearningPathOut:
-    topic = req.topic.strip()
-    if not topic:
-        raise HTTPException(status_code=400, detail="topic is required")
-    query = f"Generate a dependency-ordered learning roadmap for: {topic}"
+    if not req.topic and not req.course and not req.document:
+        raise HTTPException(
+            status_code=400,
+            detail="Select at least a course or document, or enter a topic.",
+        )
+
+    session = get_session()
+    try:
+        doc_title: str | None = None
+        if req.document and req.document.isdigit():
+            doc = session.query(Document).filter(Document.id == int(req.document)).first()
+            if doc:
+                doc_title = doc.title
+
+        course_name: str | None = None
+        if req.course:
+            course_name = req.course
+
+        if req.topic and req.topic.strip():
+            topic = req.topic.strip()
+        elif doc_title:
+            topic = doc_title
+        elif course_name:
+            topic = course_name
+        else:
+            topic = "Comprehensive Roadmap"
+
+        if req.topic and req.topic.strip():
+            query = f"Generate a dependency-ordered learning roadmap for: {topic}"
+        else:
+            scope = doc_title or course_name or "all selected materials"
+            query = (
+                f"Analyze the content of: {scope} and generate a comprehensive, "
+                f"dependency-ordered learning roadmap covering all key concepts "
+                f"found in the material. Output stages with concepts in logical "
+                f"prerequisite order."
+            )
+    finally:
+        session.close()
+
     result = await run_in_threadpool(
         run_ask, query, req.course, req.document, "learning_path", topic, req.rag_mode
     )

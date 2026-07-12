@@ -28,7 +28,7 @@ export function ContinueLearningCard({
   return (
     <PaperCard lift className="overflow-visible px-7 pb-6 pt-6">
       {/* pinned sticky note, top-right */}
-      <div className="absolute -right-3 -top-5 z-20">
+      <div className="absolute -right-3  z-20">
         <StickyNote size={78} rotate={4}>
           <SignpostDoodle size={34} />
         </StickyNote>
