@@ -77,7 +77,21 @@ Extend ScholarAI with optional plugins — install/uninstall from the UI:
 
 ## Quick Install
 
-Download the latest archive for your platform from [GitHub Releases](https://github.com/SaptanshuWanjari/Scholar-AI/releases), extract it, and run:
+**One-liner (Linux/macOS):**
+
+```bash
+curl -fsSL https://github.com/SaptanshuWanjari/Scholar-AI/archive/refs/heads/main.tar.gz | tar xz && cd Scholar-AI-main && uv sync && echo "Ready. Run './start.sh' to launch."
+```
+
+**One-liner (Windows PowerShell):**
+
+```powershell
+Invoke-WebRequest -Uri https://github.com/SaptanshuWanjari/Scholar-AI/archive/refs/heads/main.zip -OutFile ScholarAI.zip; Expand-Archive ScholarAI.zip -Force; cd ScholarAI-main; uv sync; Write-Host "Ready. Run '.\start.ps1' to launch."
+```
+
+Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
+
+Or download the latest archive for your platform from [GitHub Releases](https://github.com/SaptanshuWanjari/Scholar-AI/releases), extract it, and run:
 
 ### Linux / macOS
 ```bash
@@ -86,16 +100,6 @@ cd ScholarAI-*
 chmod +x setup.sh start.sh update.sh   # one-time: make scripts executable
 ./setup.sh          # first run: install dependencies
 ./start.sh          # subsequent runs: just launch
-```
-
-### macOS
-```bash
-tar xzf ScholarAI-*-macOS.tar.gz
-cd ScholarAI-*
-chmod +x setup.sh start.sh update.sh   # one-time: make scripts executable
-./setup.sh          # first run: install dependencies
-./start.sh          # subsequent runs: just launch
-
 ```
 
 ### Windows (PowerShell)
