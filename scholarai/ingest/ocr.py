@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 
 try:
     import pytesseract as _pytesseract
+
     _TESSERACT_AVAILABLE = True
 except ImportError:
-    _pytesseract = None  # type: ignore[assignment]
+    _pytesseract = None
     _TESSERACT_AVAILABLE = False
     logger.debug("pytesseract not installed; Tesseract OCR fallback disabled")
 
@@ -45,7 +46,8 @@ def ocr_page_bytes(png: bytes, *, cache_enabled: bool = True) -> str:
 
     h: str | None = None
     if cache_enabled:
-        from scholarai.ingest.page_cache import image_hash, get_cached_ocr
+        from scholarai.ingest.page_cache import get_cached_ocr, image_hash
+
         h = image_hash(png)
         cached = get_cached_ocr(h)
         if cached is not None:
@@ -53,14 +55,16 @@ def ocr_page_bytes(png: bytes, *, cache_enabled: bool = True) -> str:
             return cached
 
     from scholarai.ingest import vision
+
     try:
         text = vision.transcribe(png)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("vision transcribe failed: %s", exc)
         return ""
 
     if cache_enabled and h is not None:
         from scholarai.ingest.page_cache import store_ocr
+
         store_ocr(h, text)
 
     return text
@@ -97,7 +101,7 @@ def ocr_page(page) -> str:
         return ""
     try:
         png = _page_image_png(page)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("page render failed for OCR: %s", exc)
         return ""
     return ocr_page_bytes(png, cache_enabled=get_settings().ingest.ocr_cache_enabled)

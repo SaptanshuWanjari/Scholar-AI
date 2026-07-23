@@ -25,6 +25,7 @@ dependencies = [
     "python-multipart>=0.0.32",
     "pymupdf-layout>=1.27.2.3",
     "pandas>=2.0",
+    "pytesseract>=0.3.13",
 ]
 
 [project.optional-dependencies]

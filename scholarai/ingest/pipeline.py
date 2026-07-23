@@ -12,16 +12,15 @@ import uuid
 from pathlib import Path
 
 from langchain_core.embeddings import Embeddings
-
 from sqlalchemy.orm import Session
 
 from scholarai.config import get_settings
 from scholarai.ingest.chunker import chunk_pages
 from scholarai.ingest.loaders import load_document
+from scholarai.llm import _active_embedding_model, get_embeddings
 from scholarai.storage import get_session, init_db
 from scholarai.storage.models import Course, Document
 from scholarai.storage.vectors import add_chunks, delete_document, has_document_chunks
-from scholarai.llm import get_embeddings, _active_embedding_model
 
 
 def _hash_file(path: Path) -> str:
@@ -31,6 +30,7 @@ def _hash_file(path: Path) -> str:
 def _ensure_course(name: str, session: Session) -> Course:
     """Get or create a ``Course`` by name within *session*."""
     from scholarai.storage.models import get_course
+
     c = get_course(session, name)
     if not c:
         raise ValueError(f"Course '{name}' does not exist.")
@@ -38,24 +38,36 @@ def _ensure_course(name: str, session: Session) -> Course:
 
 
 def ingest_file(
-    path: Path, course_name: str | None, *, embeddings: Embeddings | None = None, rebuild_fts: bool = True,
+    path: Path,
+    course_name: str | None,
+    *,
+    embeddings: Embeddings | None = None,
+    rebuild_fts: bool = True,
 ) -> str:
     """Ingest a single file. Returns a status string (e.g. 'indexed', 'up-to-date')."""
     init_db()
     session = get_session()
     try:
-        return _ingest_file_inner(path, course_name, session, embeddings=embeddings, rebuild_fts=rebuild_fts)
+        return _ingest_file_inner(
+            path, course_name, session, embeddings=embeddings, rebuild_fts=rebuild_fts
+        )
     finally:
         session.close()
 
+
 def _ingest_file_inner(
-    path: Path, course_name: str | None, session: Session, *, embeddings: Embeddings | None = None, rebuild_fts: bool = True,
+    path: Path,
+    course_name: str | None,
+    session: Session,
+    *,
+    embeddings: Embeddings | None = None,
+    rebuild_fts: bool = True,
 ) -> str:
     if embeddings is None:
         embeddings = get_embeddings()
 
     content_hash = _hash_file(path)
-    
+
     course_id = None
     if course_name:
         course = _ensure_course(course_name, session)
@@ -65,7 +77,9 @@ def _ingest_file_inner(
     if course_id:
         existing = (
             session.query(Document)
-            .filter(Document.path == str(path.resolve()), Document.course_id == course_id)
+            .filter(
+                Document.path == str(path.resolve()), Document.course_id == course_id
+            )
             .first()
         )
     else:
@@ -77,8 +91,6 @@ def _ingest_file_inner(
     if existing and existing.content_hash == content_hash:
         if has_document_chunks(existing.id):
             return "up-to-date"
-        # Vector store data was lost (e.g. lancedb directory deleted).
-        # Fall through to re-embed, reusing the existing document record.
 
     pages, file_type = load_document(path, content_hash)
     if not pages:
@@ -129,9 +141,13 @@ def _ingest_file_inner(
     settings = get_settings()
     if settings.duplicate_detection.enabled and course_name:
         from scholarai.storage.vectors import detect_overlapping_document
+
         dup_doc_id = detect_overlapping_document(
-            vectors, [ch["text"] for ch in chunks], [doc_id] * len(chunks),
-            course=course_name, threshold=settings.duplicate_detection.overlap_threshold,
+            vectors,
+            [ch["text"] for ch in chunks],
+            [doc_id] * len(chunks),
+            course=course_name,
+            threshold=settings.duplicate_detection.overlap_threshold,
             exclude_doc_id=doc_id,
         )
         if dup_doc_id is not None:
@@ -165,6 +181,7 @@ def _ingest_file_inner(
     cfg = get_settings().ingest
     if cfg.metadata_extraction and chunks:
         from scholarai.ingest.metadata_extractor import extract as extract_metadata
+
         sample = "\n\n".join(ch["text"] for ch in chunks[:20])
         meta = extract_metadata(sample)
         if meta["summary"] or meta["tags"] or meta["topics"]:
@@ -174,7 +191,6 @@ def _ingest_file_inner(
                 doc_row.tags = meta["tags"] or None
                 doc_row.topics = meta["topics"] or None
                 session.commit()
-
 
     # Record embedding metadata + clear error.
     doc_row = session.get(Document, doc_id)
@@ -205,11 +221,14 @@ def reindex_all() -> list[str]:
                 continue
             delete_document(doc.id)  # clear stale vectors before re-embedding
             try:
-                status = ingest_file(src, course_name, embeddings=embeddings, rebuild_fts=False)
+                status = ingest_file(
+                    src, course_name, embeddings=embeddings, rebuild_fts=False
+                )
             except Exception as exc:  # noqa: BLE001
                 status = f"failed ({exc})"
             results.append(f"{doc.title}: {status}")
         from scholarai.storage.vectors import rebuild_fts_index
+
         rebuild_fts_index()
         return results
     finally:
@@ -236,5 +255,6 @@ def ingest_path(path: Path, course_name: str) -> list[str]:
         st = ingest_file(fp, course_name, rebuild_fts=False)
         results.append(f"{fp}: {st}")
     from scholarai.storage.vectors import rebuild_fts_index
+
     rebuild_fts_index()
     return results

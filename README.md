@@ -1,205 +1,101 @@
-# Scholar AI
+<p align="center">
+  <img src="./assets/readme/hero.svg" width="100%"
+       alt="ScholarAI — Local-first AI study assistant. Ingest study materials and generate flashcards, quizzes, revision notes, and practice exams — running entirely on your machine.">
+</p>
 
-A **local-first AI study assistant** that runs on your machine and ingests PDFs, Markdown notes, and more into a local RAG knowledge base. Use local LLMs via Ollama (recommended - you data stays with you)  or connect cloud providers 
+## What is ScholarAI?
+
+ScholarAI is a **local-first AI study assistant**. It ingests PDFs, Markdown, CSV, and XLSX files into a local vector database, then uses local LLMs via [Ollama](https://ollama.ai) to generate flashcards, quizzes, mindmaps, revision notes, diagrams, and practice exams. Your documents, embeddings, index, and artifacts never leave your machine.
+
+## How it works
+
+Your study materials are chunked, embedded, and indexed in **LanceDB** with hybrid BM25 + vector search. When you ask a question or request a study artifact, ScholarAI retrieves the most relevant material, applies reranking and verification, and generates grounded responses with full source citations. The entire pipeline is built on **LangGraph**, with an interactive execution trace available for every query.
 
 ## Features
 
-### Knowledge Base
+| Study Tools | Knowledge & Analytics | Platform |
+|---|---|---|
+| SM-2 spaced repetition flashcards | Hybrid BM25 + vector search with reranking | Background job queue with restart survival |
+| Auto-generated quizzes with scoring | Concept graph with semantic relationships | Per-provider token tracking and budgets |
+| AI-generated Mermaid diagrams | Prerequisite-based learning paths with mastery scoring | Manual and scheduled LanceDB backups |
+| Mindmaps and revision notes | Cross-artifact validation and quality scoring | Plugin system (Excalidraw, PlantUML, cloud providers) |
+| PYQ analysis and timed mock exams | LLM-graded subjective answers | System health and model availability monitoring |
+| In-browser PDF reader with highlights, bookmarks, and sticky notes | Custom prompt management with enhancement coaching | Cross-artifact full-text search |
+| Human-in-the-loop artifact generation workflow | LLM-based artifact recommendations | Cloud provider auto-fallback to local models |
 
-- **Document Ingestion**: PDF (including scanned/OCR), Markdown, CSV, XLSX. Automatic recursive chunking, LLM-based metadata extraction, table extraction, and diagram description generation.
-- **Hybrid Search**: BM25 + vector similarity via LanceDB. Reranking, CRAG verification loops, and query rewriting for retrieval quality.
+## Quick start
 
-### Ask AI
-
-- **RAG Chat**: Ask grounded questions across your courses, with exact source citations and a full LangGraph execution trace viewer.
-
-### Generative Study Tools
-
-- **Flashcards**: SM-2 spaced repetition, auto-generated from your materials.
-- **Quizzes**: Auto-generated with answer validation and scoring.
-- **Mindmaps**: AI-extracted concept maps from documents.
-- **Diagrams**: Mermaid-based auto-generated diagrams.
-- **Revision Notes**: Condensed study notes from course content.
-- **Comparisons**: AI-generated difference tables across topics.
-
-### Exam Mode
-
-- **PYQ Analysis**: Upload previous year question papers. Extracts topic frequencies, question patterns, and generates mock exams mimicking historical trends.
-- **Timed Sessions**: Built-in exam timer with auto-submit. LLM-based grading for subjective answers.
-
-### Reading Mode
-
-- **Native Reader**: In-browser document reader. Highlights, bookmarks, sticky notes, and progress tracking synced across sessions.
-
-### Teach Mode
-
-- **Learning Packages**: Human-in-the-loop LangGraph workflow. Draft → review → approve → generate bundled artifacts (notes, quizzes, flash cards, mindmaps, diagrams).
-
-### Concept Graph
-
-- **Knowledge Graph**: Extracts semantic relationships between concepts from your documents.
-- **Learning Paths**: Prerequisite-based dependency engine generates ordered study roadmaps with mastery scoring and progress tracking.
-
-### Notebooks
-
-- **Custom Artifact**: Create and maintain your own personalized notebook.
-- **Embedding Artifacts**: Embed other AI-generate artifacts and your custom data.
-
-### Quality & Analytics
-
-- **Cross-Artifact Validation**: Flags contradictions between user-generated notes and source documents. Also checks consistency across flashcards, quizzes, and revision notes.
-- **Artifact Quality Scoring**: Objective quality metrics (coverage, grounding, structure, balance) for generated study artifacts.
-- **Artifact Recommendations**: LLM-based suggestions for which study artifact to create next for a given topic.
-
-### Plugin System
-
-Extend ScholarAI with optional plugins — install/uninstall from the UI:
-
-- **Excalidraw Whiteboards**: Collaborative-style whiteboarding with mermaid-to-excalidraw import.
-- **PlantUML Diagrams**: Render PlantUML diagrams (requires system `plantuml` binary).
-- **Reading Annotations**: Sticky notes and region annotations on documents.
-- **Cloud Model Providers**: Connect Gemini, Groq. Per-task routing, automatic fallback, and monthly spend budgets.
-
-### Search & Prompt Library
-
-- **Cross-Artifact Search**: Full-text search across documents, notes, flashcards, quizzes, diagrams, concepts, and whiteboards.
-- **Retrieval Analytics**: Trace feedback and quality metrics for retrieval pipeline debugging.
-- **Custom Prompts**: Per-category RAG prompt management and prompt enhancement coaching.
-- **Prompt Enhancer**: For when your prompts are not sufficient enough.
-
-### Administration
-
-- **Background Jobs**: Durable job queue for async ingestion and reindexing, survives restarts.
-- **Token Usage & Budget**: Per-provider token tracking with monthly spend budgets and auto-fallback to local models.
-- **Provider Routing**: Manual per-task provider/model assignment or auto capability-based selection.
-- **Backup System**: Manual and scheduled LanceDB backups.
-- **System Health**: Endpoint checking Ollama connectivity and model availability per role.
-
-## Quick Install
-
-**One-liner (Linux/macOS):**
+**Prerequisites:** [uv](https://docs.astral.sh/uv/getting-started/installation/) and [Ollama](https://ollama.ai).
 
 ```bash
+# One-liner (Linux/macOS)
 curl -fsSL https://github.com/SaptanshuWanjari/Scholar-AI/archive/refs/heads/main.tar.gz | tar xz && cd Scholar-AI-main && uv sync && echo "Ready. Run './start.sh' to launch."
 ```
 
-**One-liner (Windows PowerShell):**
-
-```powershell
-Invoke-WebRequest -Uri https://github.com/SaptanshuWanjari/Scholar-AI/archive/refs/heads/main.zip -OutFile ScholarAI.zip; Expand-Archive ScholarAI.zip -Force; cd ScholarAI-main; uv sync; Write-Host "Ready. Run '.\start.ps1' to launch."
-```
-
-Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
-
-Or download the latest archive for your platform from [GitHub Releases](https://github.com/SaptanshuWanjari/Scholar-AI/releases), extract it, and run:
-
-### Linux / macOS
-```bash
-tar xzf ScholarAI-*-Linux.tar.gz   # or *-macOS.tar.gz
-cd ScholarAI-*
-chmod +x setup.sh start.sh update.sh   # one-time: make scripts executable
-./setup.sh          # first run: install dependencies
-./start.sh          # subsequent runs: just launch
-```
-
-### Windows (PowerShell)
-```powershell
-Expand-Archive ScholarAI-*-windows.zip
-cd ScholarAI-*
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass   # bypass signing requirement for this session
-.\setup.ps1         # first run: install dependencies
-.\start.ps1         # subsequent runs: just launch
-```
-
-**Recommended**: [Ollama](https://ollama.ai) with the following models for full local operation:
-
-```bash
-ollama pull qwen3:8b
-ollama pull gemma4:12b
-ollama pull qwen3-embedding:0.6b
-```
-
-**Ollama free cloud models**: 
-
-```bash
-ollama signin
-ollama pull minimax-m3:cloud
-```
-
-You can also connect cloud providers (Gemini, Groq) during onboarding or from the Settings page.
-
-### Updating
+Or download the latest release from [GitHub Releases](https://github.com/SaptanshuWanjari/Scholar-AI/releases) for your platform, then:
 
 ```bash
 # Linux / macOS
-./update.sh
+./setup.sh    # first run: install dependencies
+./start.sh    # launch
+
+# Windows (PowerShell)
+.\setup.ps1   # first run
+.\start.ps1   # launch
 ```
 
-```powershell
-# Windows
-.\update.ps1
-```
-
-Your data in `data/` is preserved across updates.
-
-Then open `http://localhost:8000` in your browser.
-
-## Privacy
-
-ScholarAI **does not collect telemetry or user data**. Everything runs locally on your machine:
-
-- **Local-only**: Documents, embeddings, vector index, chat history, and study artifacts all live in `data/` — never sent to an external server.
-- **Cloud providers**: If you connect a cloud LLM provider (OpenAI, Gemini, etc.), only prompt text is sent to that provider's API. No document contents or metadata are shared beyond what the LLM call requires.
-- **No accounts, no tracking**: No sign-up, no analytics, no telemetry. Your study data is yours.
-
-## Tech Stack
-
-**Backend**
-
-- Python 3.12 (managed via `uv`)
-- FastAPI
-- LangGraph & LangChain
-- LanceDB (embedded vector + BM25 search)
-- SQLite + SQLAlchemy (metadata & artifact persistence)
-- Ollama
-
-**Frontend**
-
-- React + Vite
-- TypeScript
-- Tailwind CSS + paper-ui
-- Zustand
-- React Router
-
-## Development Setup
-
-### 1. LLM Engine
-
-ScholarAI defaults to **Ollama** for local inference. Pull the recommended models:
+Pull the recommended local models:
 
 ```bash
-ollama serve
 ollama pull qwen3:8b
 ollama pull gemma4:12b
 ollama pull qwen3-embedding:0.6b
 ```
 
-A lightweight vision model (`qwen2.5vl:3b`) handles diagram descriptions and scanned-page OCR recovery.
+Cloud providers (Gemini, Groq) can be connected during onboarding or from Settings. Open `http://localhost:8000` in your browser.
 
-If you don't have a GPU, skip Ollama and connect a cloud provider from the Settings page after startup.
-
-### 2. Backend
+**Updating:**
 
 ```bash
-uv sync
-uv run scholar serve
+./update.sh   # Linux/macOS — data in data/ is preserved
+.\update.ps1  # Windows
 ```
 
-### 3. Frontend
+## Privacy
+
+ScholarAI collects **no telemetry, no analytics, and no user data**. Everything runs locally:
+
+- Documents, embeddings, vector indexes, chat history, and artifacts live in `data/`.
+- If you connect a cloud LLM provider, only the prompt text is sent to that provider's API.
+- No accounts. No sign-up. Your study data is yours.
+
+## Tech stack
+
+| Backend | Frontend |
+|---|---|
+| Python 3.12, FastAPI, Typer | React 19, Vite, TypeScript |
+| LangGraph, LangChain | Tailwind CSS, shadcn/ui |
+| LanceDB (vector + BM25) | Zustand, React Router |
+| SQLite, SQLAlchemy | Mermaid, Excalidraw |
+| Ollama (local LLM) | |
+
+## Development
 
 ```bash
+# Start Ollama
+ollama serve
+
+# Pull models
+ollama pull qwen3:8b
+ollama pull gemma4:12b
+ollama pull qwen3-embedding:0.6b
+
+# Backend
+uv sync
+uv run scholar serve       # API at http://localhost:8000
+
+# Frontend
 cd frontend
 npm install
-npm run dev
-# Opens at http://localhost:5173
+npm run dev                # http://localhost:5173
 ```

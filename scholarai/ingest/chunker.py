@@ -29,14 +29,12 @@ def chunk_pages(pages: list[Page]) -> list[dict]:
         original_payload = getattr(page, "original_payload", None)
         csv_path = getattr(page, "csv_path", None)
 
-        # Non-text artifacts (tables, image/diagram descriptions, OCR) are kept
-        # whole: splitting a markdown table or a caption mid-way destroys it.
         if source_type != "text":
             page_chunks = [page.text]
         else:
-            # Loaders give us one Page per heading-section, so we chunk each
-            # page's text structurally within the token budget.
-            page_chunks = _token_budget_chunks(page.text, budget=budget, overlap=overlap)
+            page_chunks = _token_budget_chunks(
+                page.text, budget=budget, overlap=overlap
+            )
 
         for ci, chunk_text in enumerate(page_chunks):
             chunks.append(

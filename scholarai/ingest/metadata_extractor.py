@@ -36,10 +36,12 @@ def extract(text_sample: str) -> dict:
     """
     try:
         llm = get_llm("quick_qa")
-        resp = llm.invoke([
-            SystemMessage(content=_SYSTEM),
-            HumanMessage(content=f"Document text:\n\n{text_sample[:4000]}"),
-        ])
+        resp = llm.invoke(
+            [
+                SystemMessage(content=_SYSTEM),
+                HumanMessage(content=f"Document text:\n\n{text_sample[:4000]}"),
+            ]
+        )
         raw = (getattr(resp, "content", "") or "").strip()
         # Strip markdown fences the model may add despite instructions.
         if raw.startswith("```"):
@@ -47,12 +49,14 @@ def extract(text_sample: str) -> dict:
             raw = raw.rstrip("` \n")
         start, end = raw.find("{"), raw.rfind("}")
         if start != -1 and end > start:
-            data = json.loads(raw[start:end + 1])
+            data = json.loads(raw[start : end + 1])
             return {
                 "summary": str(data.get("summary", "")).strip(),
-                "tags": [str(t).strip().lower() for t in data.get("tags", []) if t][:10],
+                "tags": [str(t).strip().lower() for t in data.get("tags", []) if t][
+                    :10
+                ],
                 "topics": [str(t).strip() for t in data.get("topics", []) if t][:8],
             }
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.warning("metadata extraction failed: %s", exc)
     return {"summary": "", "tags": [], "topics": []}

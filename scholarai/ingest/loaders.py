@@ -33,15 +33,15 @@ logger = logging.getLogger(__name__)
 class Page(NamedTuple):
     """A page (or section/artifact) extracted from a document."""
 
-    page_number: int  # 1-based
-    title: str  # document title (same across pages)
-    heading: str  # nearest heading on this page, or ""
+    page_number: int
+    title: str
+    heading: str
     text: str
-    source_type: str = "text"  # text | ocr | table | image | diagram
-    image_url: str = ""  # served URL for image/diagram artifacts
-    bbox: tuple[float, float, float, float] | None = None  # union bbox of text blocks
-    original_payload: str | None = None  # raw content (e.g. markdown table) preserved for retrieval
-    csv_path: str | None = None  # path to extracted CSV for tables
+    source_type: str = "text"
+    image_url: str = ""
+    bbox: tuple[float, float, float, float] | None = None
+    original_payload: str | None = None
+    csv_path: str | None = None
 
 
 @dataclass
@@ -54,16 +54,17 @@ class _PageJob:
     page_num: int
     heading: str
     is_scanned: bool
-    has_images: bool  # from PageInfo — used to route OCR engine
-    page_area: float  # page.rect.width * page.rect.height — for background-image filter
-    png_bytes: bytes | None  # rendered PNG; set only when is_scanned is True
-    text_blocks: list[dict] = field(default_factory=list)  # from page.get_text("dict")
-    tables: list[dict] = field(default_factory=list)  # pre-extracted by main thread
+    has_images: bool
+    page_area: float
+    png_bytes: bytes | None
+    text_blocks: list[dict] = field(default_factory=list)
+    tables: list[dict] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
+
 
 def load_document(path: Path, content_hash: str) -> tuple[list[Page], str]:
     """Load a PDF or Markdown file. Returns (pages, file_type)."""
@@ -80,6 +81,7 @@ def load_document(path: Path, content_hash: str) -> tuple[list[Page], str]:
 # ---------------------------------------------------------------------------
 # PDF
 # ---------------------------------------------------------------------------
+
 
 def load_pdf(path: Path, content_hash: str) -> list[Page]:
     """Orchestrate multimodal extraction for a PDF.
@@ -111,37 +113,45 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
             try:
                 png = _page_image_png(page)
             except Exception as exc:  # noqa: BLE001
-                logger.warning("page render failed p%d: %s — skipping OCR", page_num, exc)
+                logger.warning(
+                    "page render failed p%d: %s — skipping OCR", page_num, exc
+                )
                 png = b""
-            jobs.append(_PageJob(
-                page_num=page_num,
-                heading=heading,
-                is_scanned=True,
-                has_images=info.has_images,
-                page_area=page_area,
-                png_bytes=png,
-            ))
+            jobs.append(
+                _PageJob(
+                    page_num=page_num,
+                    heading=heading,
+                    is_scanned=True,
+                    has_images=info.has_images,
+                    page_area=page_area,
+                    png_bytes=png,
+                )
+            )
         else:
             blocks = page_dict.get("blocks", [])
             page_tables = extract_tables(page, content_hash)
-            
+
             try:
                 tables_res = page.find_tables()
-                table_bboxes = [fitz.Rect(t.bbox) for t in getattr(tables_res, "tables", [])] if tables_res else []
+                table_bboxes = (
+                    [fitz.Rect(t.bbox) for t in getattr(tables_res, "tables", [])]
+                    if tables_res
+                    else []
+                )
             except Exception:
                 table_bboxes = []
-                
+
             try:
                 drawings = page.get_drawings()
             except Exception:
                 drawings = []
-                
+
             bboxes = []
             for d in drawings:
                 r = d["rect"]
                 if r.width > 20 and r.height > 20:
                     bboxes.append(r)
-                    
+
             merged = []
             for r in bboxes:
                 found = False
@@ -153,7 +163,7 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
                         break
                 if not found:
                     merged.append(r)
-                    
+
             changed = True
             while changed:
                 changed = False
@@ -162,7 +172,12 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
                     current = merged.pop(0)
                     j = 0
                     while j < len(merged):
-                        inflated = fitz.Rect(current.x0 - 20, current.y0 - 20, current.x1 + 20, current.y1 + 20)
+                        inflated = fitz.Rect(
+                            current.x0 - 20,
+                            current.y0 - 20,
+                            current.x1 + 20,
+                            current.y1 + 20,
+                        )
                         if inflated.intersects(merged[j]):
                             current = current | merged.pop(j)
                             changed = True
@@ -170,7 +185,7 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
                             j += 1
                     new_merged.append(current)
                 merged = new_merged
-                
+
             diagrams = []
             for m in merged:
                 if m.width > 50 and m.height > 50:
@@ -178,12 +193,14 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
                     for tbox in table_bboxes:
                         intersect = fitz.Rect(m).intersect(tbox)
                         if intersect.width > 0 and intersect.height > 0:
-                            if (intersect.width * intersect.height) > 0.5 * (m.width * m.height):
+                            if (intersect.width * intersect.height) > 0.5 * (
+                                m.width * m.height
+                            ):
                                 is_table = True
                                 break
                     if not is_table:
                         diagrams.append(m)
-                        
+
             filtered_blocks = []
             for b in blocks:
                 if b.get("type") == 0:
@@ -194,40 +211,46 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
                     for dbox in diagrams:
                         intersect = b_rect & dbox
                         if intersect.width > 0 and intersect.height > 0:
-                            if (intersect.width * intersect.height) > 0.7 * original_area:
+                            if (
+                                intersect.width * intersect.height
+                            ) > 0.7 * original_area:
                                 in_diagram = True
                                 break
                     if not in_diagram:
                         filtered_blocks.append(b)
                 else:
                     filtered_blocks.append(b)
-                    
+
             blocks = filtered_blocks
-            
+
             for dbox in diagrams:
                 try:
                     pix = page.get_pixmap(clip=dbox, dpi=300)
-                    blocks.append({
-                        "type": 1,
-                        "bbox": [dbox.x0, dbox.y0, dbox.x1, dbox.y1],
-                        "ext": "png",
-                        "image": pix.tobytes("png")
-                    })
+                    blocks.append(
+                        {
+                            "type": 1,
+                            "bbox": [dbox.x0, dbox.y0, dbox.x1, dbox.y1],
+                            "ext": "png",
+                            "image": pix.tobytes("png"),
+                        }
+                    )
                 except Exception as exc:
                     logger.warning("failed to render diagram bbox %s: %s", dbox, exc)
-                    
+
             blocks.sort(key=lambda x: x["bbox"][1])
-            
-            jobs.append(_PageJob(
-                page_num=page_num,
-                heading=heading,
-                is_scanned=False,
-                has_images=info.has_images,
-                page_area=page_area,
-                png_bytes=None,
-                text_blocks=blocks,
-                tables=page_tables,
-            ))
+
+            jobs.append(
+                _PageJob(
+                    page_num=page_num,
+                    heading=heading,
+                    is_scanned=False,
+                    has_images=info.has_images,
+                    page_area=page_area,
+                    png_bytes=None,
+                    text_blocks=blocks,
+                    tables=page_tables,
+                )
+            )
 
     doc.close()
 
@@ -235,18 +258,19 @@ def load_pdf(path: Path, content_hash: str) -> list[Page]:
     pages_by_num: dict[int, list[Page]] = {}
     with ThreadPoolExecutor(max_workers=cfg.ocr_workers) as executor:
         future_to_page_num = {
-            executor.submit(_process_job, job, title, content_hash, images_dir, cfg): job.page_num
+            executor.submit(
+                _process_job, job, title, content_hash, images_dir, cfg
+            ): job.page_num
             for job in jobs
         }
-        jobs.clear()  # release PNG bytes held in _PageJob list
         for future in as_completed(future_to_page_num):
             page_num = future_to_page_num[future]
             try:
                 pages_by_num[page_num] = future.result()
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 logger.warning("processing failed for page %d: %s", page_num, exc)
                 pages_by_num[page_num] = []
-            del future_to_page_num[future]  # release completed future's captured PNG bytes
+            del future_to_page_num[future]
 
     return [p for page_num in sorted(pages_by_num) for p in pages_by_num[page_num]]
 
@@ -274,18 +298,34 @@ def _process_job(
         if use_tesseract:
             try:
                 from scholarai.ingest.ocr import ocr_page_tesseract_bytes
-                ocr_text = ocr_page_tesseract_bytes(job.png_bytes)
-            except Exception as exc:  # noqa: BLE001 — tesseract not installed or failed
-                logger.warning("Tesseract failed p%d: %s — falling back to vision", job.page_num, exc)
-                use_tesseract = False  # mark failed so vision handles it
 
-        if not use_tesseract:  # vision model: primary for image-heavy pages, or Tesseract fallback
+                ocr_text = ocr_page_tesseract_bytes(job.png_bytes)
+            except Exception as exc:
+                logger.warning(
+                    "Tesseract failed p%d: %s — falling back to vision",
+                    job.page_num,
+                    exc,
+                )
+                use_tesseract = False
+
+        if (
+            not use_tesseract
+        ):  # vision model: primary for image-heavy pages, or Tesseract fallback
             from scholarai.ingest.ocr import ocr_page_bytes
-            ocr_text = ocr_page_bytes(job.png_bytes, cache_enabled=cfg.ocr_cache_enabled)
+
+            ocr_text = ocr_page_bytes(
+                job.png_bytes, cache_enabled=cfg.ocr_cache_enabled
+            )
 
         if ocr_text.strip():
             pages.append(
-                Page(job.page_num, title, job.heading, ocr_text.strip(), source_type="ocr")
+                Page(
+                    job.page_num,
+                    title,
+                    job.heading,
+                    ocr_text.strip(),
+                    source_type="ocr",
+                )
             )
         return pages
 
@@ -294,12 +334,15 @@ def _process_job(
     bbox_union: list[float] | None = None
 
     from collections import Counter
+
     size_counts = Counter()
     for b in job.text_blocks:
         if b.get("type") == 0:
             for line in b.get("lines", []):
                 for span in line.get("spans", []):
-                    size_counts[span.get("size", 0)] += len(span.get("text", "").strip())
+                    size_counts[span.get("size", 0)] += len(
+                        span.get("text", "").strip()
+                    )
     base_size = size_counts.most_common(1)[0][0] if size_counts else 0
 
     for b_idx, b in enumerate(job.text_blocks):
@@ -313,7 +356,7 @@ def _process_job(
                     sz = span.get("size", 0)
                     if sz > max_size and span.get("text", "").strip():
                         max_size = sz
-                
+
                 line_text_stripped = line_text.strip()
                 if line_text_stripped:
                     if base_size > 0:
@@ -324,14 +367,17 @@ def _process_job(
                             line_text = f"## {line_text_stripped}"
                         elif ratio >= 1.1:
                             line_text = f"### {line_text_stripped}"
-                        elif set(line_text_stripped) <= {"-", "=", "_"} and len(line_text_stripped) >= 3:
+                        elif (
+                            set(line_text_stripped) <= {"-", "=", "_"}
+                            and len(line_text_stripped) >= 3
+                        ):
                             line_text = f"\\{line_text_stripped}"
                         else:
                             line_text = line_text_stripped
                     else:
                         line_text = line_text_stripped
                     block_lines.append(line_text)
-            
+
             block_text = "\n".join(block_lines).strip()
             if block_text:
                 text_parts.append(block_text)
@@ -345,8 +391,16 @@ def _process_job(
                     bbox_union[3] = max(bbox_union[3], by1)
         elif b.get("type") == 1:  # image block
             seg = _handle_image_block(
-                b, job.page_num - 1, b_idx, job.page_area,
-                content_hash, images_dir, title, job.heading, cfg, pages,
+                b,
+                job.page_num - 1,
+                b_idx,
+                job.page_area,
+                content_hash,
+                images_dir,
+                title,
+                job.heading,
+                cfg,
+                pages,
             )
             if seg:
                 text_parts.append(seg)
@@ -355,21 +409,32 @@ def _process_job(
     if text:
         bbox_tuple: tuple[float, float, float, float] | None = (
             (bbox_union[0], bbox_union[1], bbox_union[2], bbox_union[3])
-            if bbox_union else None
+            if bbox_union
+            else None
         )
         pages.append(
-            Page(job.page_num, title, job.heading, text, source_type="text", bbox=bbox_tuple)
+            Page(
+                job.page_num,
+                title,
+                job.heading,
+                text,
+                source_type="text",
+                bbox=bbox_tuple,
+            )
         )
 
     # --- Tables (LLM summarisation in worker thread) -------------------------
     if job.tables:
         from scholarai.ingest.tables import _summarize
+
         for tbl in job.tables:
             md = tbl["markdown"]
             summary = _summarize(md)
             pages.append(
                 Page(
-                    job.page_num, title, job.heading,
+                    job.page_num,
+                    title,
+                    job.heading,
                     text=summary if summary else md,
                     source_type="table",
                     original_payload=md,
@@ -403,7 +468,7 @@ def _handle_image_block(
     if bbox and page_area > 0:
         w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
         if w * h > 0.8 * page_area:
-            return None  # full-page background image
+            return None
 
     image_bytes = b.get("image")
     if not image_bytes:
@@ -418,6 +483,7 @@ def _handle_image_block(
     source_type = "image"
     if cfg.vision_enabled:
         from scholarai.ingest import vision
+
         result = vision.describe_image(image_bytes, ext)
         description = result.get("description", "")
         source_type = "diagram" if result.get("type") == "diagram" else "image"
@@ -434,7 +500,11 @@ def _handle_image_block(
             )
         )
 
-    alt = description.replace("]", " ").replace("\n", " ")[:200] if description else "Image"
+    alt = (
+        description.replace("]", " ").replace("\n", " ")[:200]
+        if description
+        else "Image"
+    )
     return f"![{alt}]({url})"
 
 
@@ -458,7 +528,7 @@ def _pdf_page_heading(page_dict: dict) -> str:
     for b in blocks:
         if b.get("type") != 0:
             continue
-        
+
         block_has_larger = False
         block_text_parts = []
         for line in b.get("lines", []):
@@ -470,19 +540,17 @@ def _pdf_page_heading(page_dict: dict) -> str:
                     if sz > best_size:
                         best_size = sz
                         block_has_larger = True
-        
+
         if block_has_larger and block_text_parts:
-            # Re-assemble the block text.
             best_block_text = " ".join(block_text_parts)
 
-    # Sometimes a block might just be a giant number, but it's part of a chapter title.
-    # Joining the block text fixes the "split heading" issue.
     return best_block_text
 
 
 # ---------------------------------------------------------------------------
 # Markdown
 # ---------------------------------------------------------------------------
+
 
 def load_markdown(path: Path, content_hash: str) -> list[Page]:
     text = path.read_text(encoding="utf-8")
@@ -518,4 +586,6 @@ def load_markdown(path: Path, content_hash: str) -> list[Page]:
 def _flush_section(pages, page_num, title, heading, lines):
     joined = "\n".join(lines).strip()
     if joined:
-        pages.append(Page(page_number=page_num, title=title, heading=heading, text=joined))
+        pages.append(
+            Page(page_number=page_num, title=title, heading=heading, text=joined)
+        )
