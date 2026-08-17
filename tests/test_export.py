@@ -83,10 +83,35 @@ def test_document_to_markdown_annotations(monkeypatch):
     assert out.startswith("# Physics")
     assert "## Intro" in out
     assert "Newton's laws describe motion." in out
-    assert "==F = ma.==" in out          # verbatim highlight wrapped
+    assert "<mark>F = ma.</mark>" in out   # verbatim highlight wrapped (CommonMark HTML)
     assert "revisit" in out              # bookmark emitted
     assert "units matter" in out         # sticky note emitted
     assert "p.2" in out                  # sticky note carries page number
+
+
+def test_block_none_text():
+    assert block_to_markdown({"type": "text", "text": None}, {}, {}) == ""
+
+
+def test_block_whiteboard_no_svg():
+    out = block_to_markdown(
+        {"type": "whiteboard", "whiteboardId": "5", "title": "Diagram"},
+        {"5": "diagram-5"}, {}, set(),
+    )
+    assert ".svg" not in out
+    assert "diagram-5.excalidraw" in out
+
+
+def test_decode_svg_base64():
+    import base64
+    svg = b"<svg></svg>"
+    url = "data:image/svg+xml;base64," + base64.b64encode(svg).decode()
+    assert decode_svg_data_url(url) == svg
+
+
+def test_decode_svg_raw():
+    svg = "<svg></svg>"
+    assert decode_svg_data_url(svg) == svg.encode("utf-8")
 
 
 def _seed(session):

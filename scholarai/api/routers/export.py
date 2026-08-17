@@ -26,7 +26,7 @@ def export_course(course_id: int) -> Response:
     try:
         data = build_course_zip(name)
     except _ExportError as exc:
-        if str(exc) == "empty":
+        if exc.kind == "empty":
             raise HTTPException(status_code=404, detail="Nothing to export for this course")
         raise HTTPException(status_code=404, detail="Course not found")
 
