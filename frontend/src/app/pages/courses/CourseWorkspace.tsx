@@ -4,6 +4,7 @@ import {
   Pencil,
   RefreshCw,
   Package,
+  Download,
   Trash2,
   FileText,
   Layers,
@@ -83,6 +84,7 @@ export function CourseWorkspace({
   const [loadingStats, setLoadingStats] = useState(false);
   const [reindexing, setReindexing] = useState(false);
   const [generatingPackage, setGeneratingPackage] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const loadAll = useCallback(async () => {
     setLoadingStats(true);
@@ -142,6 +144,25 @@ export function CourseWorkspace({
       toast.error("Failed to generate course package");
     }
     setGeneratingPackage(false);
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const blob = await api.exportCourse(course.id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${course.name.replace(/\s+/g, "-").toLowerCase()}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Course exported");
+    } catch {
+      toast.error("Failed to export course");
+    }
+    setExporting(false);
   };
 
   const STAT_CARDS = stats
@@ -249,6 +270,10 @@ export function CourseWorkspace({
                 className={cn("size-4", generatingPackage && "animate-pulse")}
               />
               {generatingPackage ? "Generating\u2026" : "Create Package"}
+            </PaperButton>
+            <PaperButton size="sm" tone="paper" onClick={handleExport} disabled={exporting}>
+              <Download className={cn("size-4", exporting && "animate-pulse")} />
+              {exporting ? "Exporting\u2026" : "Export"}
             </PaperButton>
             <PaperButton tone="red" size="sm" onClick={onDelete}>
               <Trash2 className="size-4.5" /> 

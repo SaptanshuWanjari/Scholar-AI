@@ -1,5 +1,5 @@
 import type { Course, CourseStats, ArtifactItem } from "../types";
-import { request, json } from "./client";
+import { request, json, BASE } from "./client";
 import type { PackageMeta } from "./teach";
 
 export interface ArtifactRecommendation {
@@ -35,6 +35,12 @@ export const coursesApi = {
   },
   generateCoursePackage(id: string): Promise<PackageMeta> {
     return request<PackageMeta>(`/api/courses/${id}/package`, { method: "POST" });
+  },
+  exportCourse(id: string): Promise<Blob> {
+    return fetch(`${BASE}/api/export/course/${id}`).then((res) => {
+      if (!res.ok) throw new Error("Export failed");
+      return res.blob();
+    });
   },
 
   // ---- Artifact Recommendations ----
