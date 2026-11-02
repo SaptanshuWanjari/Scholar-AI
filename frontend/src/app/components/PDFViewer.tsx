@@ -1,11 +1,19 @@
 import { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
-import { Document, Page } from "react-pdf";
+import { Document, Page, pdfjs } from "react-pdf";
+import pdfWorkerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { Bookmark } from "lucide-react";
 import type { StickyNote, NoteRect } from "../lib/types";
 import { NOTE_CATEGORIES } from "../stores/useReadingNotesStore";
 import { cn } from "./ui/utils";
+
+// react-pdf's entry module sets `workerSrc` to the relative "pdf.worker.mjs" at
+// import time. Because this viewer lives in a lazy-loaded route chunk, that
+// module can be evaluated *after* the app-level setup and would point the
+// worker at a URL that 404s. Configure it here, in the chunk that renders the
+// viewer, using Vite's resolved worker asset.
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
 
 export interface HighlightRect {
   x: number;
